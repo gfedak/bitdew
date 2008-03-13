@@ -1,0 +1,14 @@
+
+
+#xtremweb.core.db.driver=com.mysql.jdbc.Driver
+#xtremweb.core.db.url=jdbc:mysql://localhost/comxslt
+#xtremweb.core.db.user=comxslt
+#xtremweb.core.db.password=comxslt
+
+
+xtremweb.core.db.driver=org.hsqldb.jdbcDriver
+xtremweb.core.db.url=jdbc:hsqldb:hsql:test
+xtremweb.core.db.user=sa
+xtremweb.core.db.password=
+
+xtremweb.core.db.connectionPooling=DBCP

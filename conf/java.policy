@@ -1,0 +1,5 @@
+grant { 
+ permission java.security.AllPermission; 
+permission javax.jdo.spi.JDOPermission "*";
+permission javax.jdo.spi.JDOPermission "getMetadata"; 
+}; 
