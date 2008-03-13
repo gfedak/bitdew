@@ -10,7 +10,10 @@ permission javax.jdo.spi.JDOPermission "*";
 permission javax.jdo.spi.JDOPermission "getMetadata"; 
 }; 
 
-
+pour faire une nouvelle release:
+editer le numero de version
+./build.sh release
+ svn copy svn+ssh://gilles@scm.gforge.inria.fr/svn/bitdew/trunk/ svn+ssh://gilles@scm.gforge.inria.fr/svn/bitdew/tags/0.0.1
 
 
 java -cp lib/xalan-2.5.1.jar:lib/xercesImpl-2.5.0.jar:lib/xml-apis.jar org.apache.xalan.xslt.Process -IN foo.xml -XSL foo.xsl -OUT foo.out
