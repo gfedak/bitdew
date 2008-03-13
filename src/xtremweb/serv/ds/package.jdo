@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<jdo>
+    <package name="xtremweb.core.obj.ds">
+
+        <class name="Attribute" identity-type="application" table="ATTRIBUTE">
+         <field name="uid" primary-key="true"  value-strategy="auid">
+            <column name="UID"/>
+        </field>
+        <field name="name">
+             <column name="NAME" />
+        </field>
+        <field name="mask">
+             <column name="DSATTMASK" />
+        </field>
+        <field name="replicat">
+             <column name="REPLICAT" />
+        </field>
+        <field name="ft">
+             <column name="FT" />
+        </field>
+        <field name="lftabs">
+             <column name="LFTABS" />
+        </field>
+        <field name="lftrel">
+             <column name="LFTREL" />
+        </field>
+        <field name="affinity">
+             <column name="AFFINITY" />
+        </field>
+        <field name="oob">
+             <column name="OOB" />
+        </field>
+	</class>
+        <class name="Host" identity-type="application" table="HOST">
+         <field name="uid" primary-key="true"  value-strategy="auid">
+            <column name="UID"/>
+        </field>
+        <field name="name">
+             <column name="NAME" />
+        </field>
+	</class>
+    </package>
+</jdo>

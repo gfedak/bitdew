@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<Module name="ds" import="import java.util.Vector;import xtremweb.core.obj.dc.Data;import xtremweb.core.obj.ds.Attribute;import xtremweb.core.obj.ds.Host;">
+
+<Object name="Attribute">
+<Attribute  name="uid"      type="String"    desc="Uniq Identifier"/>
+<Attribute  name="name"     type="String"    desc="Attribute name"/>
+<Attribute  name="mask"     type="int"       desc="Mask giving attributes"/>
+<Attribute  name="replicat" type="int"       desc="Number of replicat"/>
+<Attribute  name="ft"       type="boolean"   desc="Fault Tolerance"/>
+<Attribute  name="lftabs"   type="long"      desc="Date of death"/>
+<Attribute  name="lftrel"   type="String"    desc="Time to live relative to data uid"/>
+<Attribute  name="affinity" type="String"    desc="Placement relative to data uid"/>
+<Attribute  name="oob"      type="String"    desc="Prefered protocol"/>
+</Object>
+ 
+<Object name="Host">
+<Attribute  name="uid"      type="String" desc="Uniq Identifier"/>
+<Attribute  name="name"     type="String" desc="name"/>
+</Object>
+
+<Method name="registerAttribute">
+<Param name="attribute"     type="Attribute" desc="The Attribute"/>
+<Return type="Attribute"/>
+</Method>
+
+<Method name="getAttributeByUid">
+<Param name="uid" type="String" desc="Attribute uid"/>
+<Return type="Attribute"/>
+</Method>
+
+<Method name="associateDataAttribute">
+<Param name="data"     type="Data" desc="Data"/>
+<Param name="attribute"     type="Attribute" desc="Attribute"/>
+<Return type="void"/>
+</Method>
+
+<Method name="associateDataAttributeHost">
+<Param name="data"     type="Data" desc="Data"/>
+<Param name="attribute"     type="Attribute" desc="Attribute"/>
+<Param name="host"     type="Host" desc="Host"/>
+<Return type="void"/>
+</Method>
+
+<Method name="associateDataHost">
+<Param name="data"     type="Data" desc="Data"/>
+<Param name="host"     type="Host" desc="Host"/>
+<Return type="void"/>
+</Method>
+
+
+<Method name="sync">
+<Param name="host"         type="Host" desc="Host requesting the sync"/>
+<Param name="datas"         type="Vector" desc="List of data in the cache"/>
+<Return type="Vector"/>
+</Method>
+
+</Module>

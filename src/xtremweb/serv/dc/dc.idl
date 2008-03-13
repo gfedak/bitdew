@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<Module name="dc">
+ 
+<Object name="Data">
+<Attribute  name="uid" type="String" desc="Uniq Identifier"/>
+<Attribute  name="name" type="String" desc="Name of the Data"/>
+<Attribute  name="checksum" type="String" desc="MD5 file signature algorithm"/>
+<Attribute  name="size" type="long" desc="File size"/>
+<Attribute  name="type" type="int" desc="Data flags (zip, executable etc...)"/>
+<Attribute  name="oob" type="String" desc="A SUPPRIMER A SUPPRIMER TODO"/>
+<Attribute  name="attruid" type="String" desc="Attribute UID"/>
+<Attribute  name="status" type="int" desc="status"/>
+</Object>
+
+<Object name="Locator">
+<Attribute name="uid" type="String" desc="Uniq Identifier"/>
+<Attribute name="datauid" type="String" desc="Data UID"/>
+<Attribute name="drname" type="String" desc="Data repository"/>
+<Attribute name="protocoluid" type="String" desc="Protocol used to acces the data"/>
+<Attribute name="ref" type="String" desc="Reference to acces the data"/>
+<Attribute name="publish" type="boolean" desc="Flag to set if the Locator can be published"/>
+</Object>
+
+<Method name="createData">
+<Param  name="name" type="String" desc="Name of the Data"/>
+<Param  name="checksum" type="String" desc="MD5 file signature algorithm"/>
+<Param  name="size" type="long" desc="File size"/>
+<Param  name="type" type="int" desc="Data flags (zip, executable etc...)"/>
+<Return type="Data" desc="UID of created data"/>
+</Method>
+
+<Method name="createData">
+<Return type="Data" desc="Created data"/>
+</Method>
+
+<Method name="putData">
+<Param name="data" type="Data" desc="Data to put" />
+<Return type="void"/>
+</Method>
+
+<Method name="getData">
+<Param name="uid" type="String" desc="Data UID" />
+<Return type="Data" desc="Data Returned"/>
+</Method>
+
+<Method name="setDataStatus">
+<Param name="uid" type="String" desc="Data UID" />
+<Param name="status" type="int" desc="Data status" />
+<Return type="void"/>
+</Method>
+
+<Method name="deleteData">
+<Param name="data" type="Data"/>
+<Return type="void"/>
+</Method>
+
+<Method name="putLocator">
+<Param name="locator" type="Locator"/>
+<Return type="void"/>
+</Method>
+
+<Method name="getLocatorByDataUID">
+<Param name="datauid" type="String" desc="Data UID" />
+<Return type="Locator" desc="Data Returned"/>
+</Method>
+
+<Method name="getDDCEntryPoint">
+<Return type="String"/>
+</Method>
+
+</Module>
+

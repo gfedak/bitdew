@@ -1,0 +1,490 @@
+package xtremweb.api.transman;
+
+/**
+ * TransferManager is the engine responsible for processing, monitoring 
+ * and launching transfers.
+ * 
+ * Created: Sun Feb 18 17:54:41 2007
+ *
+ * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
+ * @version 1.0
+ */
+
+import xtremweb.core.iface.*;
+import xtremweb.core.obj.dt.Transfer;
+
+import xtremweb.core.db.*;
+import xtremweb.core.obj.dc.*;
+import xtremweb.core.obj.dr.*;
+import xtremweb.serv.dt.*;
+import xtremweb.core.uid.*;
+import xtremweb.core.conf.*;
+import xtremweb.core.util.*;
+
+import xtremweb.core.log.Logger;
+import xtremweb.core.log.LoggerFactory;
+import xtremweb.core.perf.PerfMonitor;
+import xtremweb.core.perf.PerfMonitorFactory;
+
+import java.util.*;
+import java.io.File;
+import java.rmi.RemoteException;
+import java.util.Collection;
+import java.util.Iterator;
+import javax.jdo.PersistenceManager;
+import javax.jdo.PersistenceManagerFactory;
+import javax.jdo.Extent;
+import javax.jdo.Query;
+import javax.jdo.Transaction;
+import java.util.Properties;
+
+
+
+/**
+ * <code>TransferManager</code>.
+ *
+ * @author <a href="mailto:fedak@xtremciel.local">Gilles Fedak</a>
+ * @version 1.0
+ */
+public class TransferManager {
+
+    protected InterfaceRMIdt dt = null;
+    protected InterfaceRMIdr dr = null; //UNUSED FIXME
+
+    /** time between two periodic activities (in milli seconds) */
+    protected int timeout = 1000; 
+
+    private Timer timer;
+
+    private int activeDownload=0;
+
+    private int concurrentDowload=1;
+
+    private final static PerfMonitor perf = PerfMonitorFactory.createPerfMonitor("TransferManager", "hits per second", 3000);
+
+    /*
+     * <code>oobTransfers</code> is a Hashtable associating an
+     * OOBTransfer to each transfer.
+     */
+    //FIXME A QUOI SERT CE TRUC ?????? a ne pas recalculer les OOB trucmuche
+    private SortedVector oobTransfers;
+
+    protected Logger log = LoggerFactory.getLogger("Transfer Manager (transman)");
+
+    /**
+     * Creates a new <code>TransferManager</code> instance.
+     *
+     * @param ldt an <code>InterfaceRMIdt</code> value
+     * @param ldr an <code>InterfaceRMIdr</code> value
+     */
+    public TransferManager(InterfaceRMIdr ldr, 
+			   InterfaceRMIdt ldt) {
+	dr = ldr;
+	dt = ldt;
+	init();
+    }
+
+    public TransferManager() {
+	init();
+    }
+
+
+    /**
+     * Creates a new <code>TransferManager</code> instance.
+     *
+     */
+    public TransferManager(Vector comms) {
+
+	for (Object o : comms) {
+	    if (o instanceof InterfaceRMIdr) dr = (InterfaceRMIdr) o;
+	    if (o instanceof InterfaceRMIdt) dt = (InterfaceRMIdt) o;
+	}
+	init();
+    }
+
+    public void init() {
+	oobTransfers = new SortedVector(new OOBTransferOrder());
+    }
+    /**
+     * <code>registerTransfer</code> adds a tranfer to the TransferManager
+     * The transfer is persisted in the database. It will be later read 
+     * by the main loop
+     * @param tuid a <code>String</code> value
+     * @param oobt an <code>OOBTransfer</code> value
+     */
+    public void registerTransfer(String tuid, OOBTransfer oobt) {
+	OOBTransferFactory.persistOOBTransfer(oobt);
+	activeDownload++;
+    }
+
+    /**
+     * <code>start</code> launches periodic TM engine
+     */
+    public void start() { 
+	log.debug("Starting TM Engine");
+	if (timer==null) timer=new Timer(); 
+	timer.schedule(new TimerTask() { 
+		public void run() { 
+		    checkTransfer();
+		} 
+	    } , 0, timeout ); 
+    }
+
+    /**
+     * <code>stop</code> stops periodic TM Engine
+     */
+    public void stop() {
+	log.debug("Stopping TM Engine");
+	timer.cancel();
+    }
+
+    //    for (Enumeration e = v.elements() ; e.hasMoreElements() ;) {
+    //    System.out.println(e.nextElement());
+ 
+    //FIXME linear search
+    public void removeOOBTransfer(Transfer trans) throws OOBException {
+	oobTransfers.removeElement(trans.getuid());
+	/*	for (Iterator iter = oobTransfers.iterator(); iter.hasNext();) {
+	    String key = (String) iter.next();
+	    if (key.equals(trans.getuid())) {
+		log.debug("REMOVING TRANSFER " + trans.getuid() + " : " +  (OOBTransfer) oobTransfers.get(trans.getuid()));
+		//		oobTransfers.remove(key);
+		iter.remove();
+	*/
+		activeDownload--;
+		//  }
+		//	}
+    }
+
+    public OOBTransfer getOOBTransfer(Transfer trans) throws OOBException {
+	OOBTransfer oob = null;
+	int idx =  oobTransfers.search(trans.getuid());
+	if (idx != -1)
+	    oob = (OOBTransfer) oobTransfers.elementAt(idx);
+	else {
+	    oob = OOBTransferFactory.createOOBTransfer(trans);
+	    oobTransfers.addElement(oob);
+	    log.debug("TransferManager new transfer " + trans.getuid() + " : " + oob.toString());
+	}
+	/*
+	OOBTransfer oob = (OOBTransfer) oobTransfers.get(trans.getuid());
+	if (oob==null) {
+	    oob = OOBTransferFactory.createOOBTransfer(trans);
+	    oobTransfers.put(trans.getuid(), oob);
+	    log.debug("RESUMING TRANSFER " + trans.getuid() + " : " + oob.toString());
+	}
+	*/
+	return oob;
+    }
+
+    /**
+     * <code>checkTransfer</code> scans the database and take decision
+     *     according to the status of the trabsfer 
+     * <ol>
+     * <li> prepare transfert (check for data availability)
+     * <li> check for finished transfer
+     * <li> cleanup transfer
+     * </ol>
+     */
+    private void checkTransfer() {
+	long start=System.currentTimeMillis();
+	
+	PersistenceManagerFactory pmf = DBInterfaceFactory.getPersistenceManagerFactory();
+	PersistenceManager pm = pmf.getPersistenceManager();
+	Transaction tx=pm.currentTransaction();
+	//	tx.setOptimistic(true);
+	
+	try {
+	    tx.begin();
+	    /* begin nouveau */
+	    Query query = pm.newQuery(Transfer.class, 
+				      "status != " + TransferStatus.TODELETE  ); 	    Collection results = (Collection)query.execute();
+	    if (results==null) {
+		log.debug("nothing to check");
+		return;
+	    }
+	    Iterator iter = results.iterator();
+	    /* end nouveau */
+	    /* begin ancien */
+	    //            Extent e=pm.getExtent(Transfer.class,true);
+            //Iterator iter=e.iterator();
+	    /* end ancien */
+	    OOBTransfer oob;
+            while (iter.hasNext()) {
+		Transfer trans = (Transfer) iter.next();
+		log.debug("Checking Transfer : " + trans.getuid() + ":" + TransferType.toString(trans.gettype()));
+		switch (trans.getstatus()) {
+		    //Register the transfer remotely if it
+		    //succeed, set the local transfer to  READY
+		    //if not set the transfert to INVALID
+		    //set the remote transfer to READY, if it
+		    //fails set the local transfer to INVALID
+
+		case TransferStatus.PENDING :
+		    log.debug("PENDING");
+		    try {
+			//			Transfer copytrans = (Transfer) pm.detachCopy(trans);
+			//			dt.registerTransfer(copytrans);
+			//			dt.setTransferStatus(copytrans.getuid(), 
+			//		     TransferStatus.READY);
+
+			oob = getOOBTransfer(trans);
+			if ( TransferType.isLocal(trans.gettype()) ) {
+			    log.debug("Registring remote" + oob);
+			    
+			    dt.registerTransfer( (Transfer) pm.detachCopy(trans), 
+                                                 oob.getData(), 
+						 oob.getRemoteProtocol(),
+						 oob.getRemoteLocator());
+			    log.debug("Transfer registred");
+			    dt.setTransferStatus(trans.getuid(), 
+			    			 TransferStatus.READY);
+			}
+			
+		    } catch (Exception re) {
+			log.debug("cannot register transfer " + re);
+			trans.setstatus(TransferStatus.INVALID);
+			break;
+		    }
+		    trans.setstatus(TransferStatus.READY);
+		    break;
+		    
+		case TransferStatus.READY :
+		    log.debug("READY");			
+		    try {
+			log.debug("start tranfer : " + trans.getuid());
+			//correct transfer creation
+			if (TransferType.isLocal(trans.gettype()))
+			    dt.startTransfer(trans.getuid());
+			//going to start the transfer
+			oob = getOOBTransfer(trans);
+			if (TransferType.isLocal(trans.gettype())) {
+			    log.debug("oob connect");
+			    oob.connect();
+			}
+			if (trans.gettype() == TransferType.UNICAST_SEND_SENDER_SIDE ) {
+			    log.debug("oob sendSenderSide");
+			    oob.sendSenderSide();
+			}
+			if (trans.gettype() == TransferType.UNICAST_SEND_RECEIVER_SIDE ) {
+			    log.debug("oob sendReceiverSide");
+			    oob.sendReceiverSide();
+			}
+			if (trans.gettype() == TransferType.UNICAST_RECEIVE_RECEIVER_SIDE ) {
+			    log.debug("oob receiveReceiverSide");
+			    oob.receiveReceiverSide();
+			}
+			if (trans.gettype() == TransferType.UNICAST_RECEIVE_SENDER_SIDE ) {
+			    log.debug("oob receiveSenderSide");
+			    oob.receiveSenderSide();
+			}
+			if (TransferType.isLocal(trans.gettype())) {
+			    dt.setTransferStatus(trans.getuid(), 
+						 TransferStatus.TRANSFERING);
+			}
+		    } catch (RemoteException re) {
+			trans.setstatus(TransferStatus.INVALID);
+			break;
+		    } catch (OOBException oobe) {
+			trans.setstatus(TransferStatus.INVALID);
+			break;
+		    }
+		    trans.setstatus(TransferStatus.TRANSFERING);
+		    break;
+
+		case TransferStatus.INVALID :
+		    log.debug("INVALID");
+		    try {
+			if ( TransferType.isLocal(trans.gettype()) )
+			    dt.setTransferStatus(trans.getuid(), 
+						 TransferStatus.INVALID);
+		    } catch (RemoteException re) {
+			trans.setstatus(TransferStatus.INVALID);
+			break;
+		    }
+		    trans.setstatus(TransferStatus.TODELETE);
+		    break;
+
+		case TransferStatus.TRANSFERING :
+		    //check the status
+		    log.debug("TRANSFERING");
+		    boolean complete = false;
+		    //check if transfer is complete
+		    try {
+			oob = getOOBTransfer(trans);
+			//FIXME gros bordel dans le sens du transfer
+			//TODO changer le if(!) en if()
+			log.debug("transfer type " + TransferType.toString(trans.gettype()));
+			if ( trans.gettype() ==  TransferType.UNICAST_SEND_RECEIVER_SIDE )
+			    complete = dt.poolTransfer(trans.getuid());
+			if ( trans.gettype() ==  TransferType.UNICAST_RECEIVE_RECEIVER_SIDE )
+			    complete = oob.poolTransfer();
+		    
+			//Transfer is finished
+			if (complete) {
+			    trans.setstatus(TransferStatus.COMPLETE);
+			}
+			//FIXME check for errors
+			if(oob.error()) {
+			    trans.setstatus(TransferStatus.INVALID);
+			}
+		    } catch (RemoteException re) {
+			//bof rien a faire			
+			break;
+		    } catch (OOBException oobe) {
+			//go in the state INVALID (should be ABORT ?)
+			
+			break;
+		    }
+
+		    break;
+
+		case TransferStatus.COMPLETE :
+		    //check the status
+		    //we stay in the complete status up to when we have been checked as complete.
+		    log.debug("COMPLETE");
+		    //The transfer ends when the sender is aware that the
+		    try {
+			oob = getOOBTransfer(trans);
+			if ( TransferType.isLocal(trans.gettype()) ) {
+			    dt.endTransfer(trans.getuid());
+			    trans.setstatus(TransferStatus.TODELETE);
+			    dt.setTransferStatus(trans.getuid(), 
+						 TransferStatus.TODELETE);
+			}
+		    } catch (Exception re) {
+			break;
+		    }
+		    break;
+
+		case TransferStatus.TODELETE :
+		    //check the status
+		    log.debug("TODELETE");
+		    try {
+			//TODO DELETE TRANSFER FROM THE DATABASE
+			removeOOBTransfer(trans);
+		    } catch (OOBException oobe) {
+			break;
+		    }
+		    break;
+
+		default :
+		    log.debug("ERROR");
+		
+		}
+	    }
+	    tx.commit();
+	} finally {
+	    if (tx.isActive())
+		tx.rollback();
+	    pm.close();
+	}
+	long end=System.currentTimeMillis();	
+	perf.addSample(end - start);
+    }
+
+    //FIXME c pas top; mettre une limite au premier resultat retourne
+    public boolean downloadComplete() {
+	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+	Transaction tx=pm.currentTransaction();	
+	boolean isComplete = false;	
+	try {
+	    tx.begin();
+	    Query query = pm.newQuery(xtremweb.core.obj.dt.Transfer.class, 
+				      "status != " + TransferStatus.TODELETE );
+	    //	    query.setUnique(true);
+	     
+	    isComplete = (query.execute() == null);
+	    tx.commit();
+	} finally {
+            if (tx.isActive())
+                tx.rollback();
+            pm.close();
+	}
+	return isComplete;
+    }
+
+    //we're waiting that there's
+    public void barrier() {
+	//	while (!downloadComplete()) {
+	while (activeDownload>0) {
+	    try {
+		Thread.sleep(timeout);		
+	    } catch (Exception e) {};	 
+	    log.debug("Still in the barrier size=" +activeDownload);
+	}	
+    }
+
+
+    public boolean isTransferComplete(Data data) {
+	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+	Transaction tx=pm.currentTransaction();	
+	boolean isComplete = true;	
+	try {
+	    tx.begin();
+	    Query query = pm.newQuery(xtremweb.core.obj.dt.Transfer.class, 
+				      "datauid == \"" + data.getuid() +"\"" ); 
+	    //				      "status != " + TransferStatus.TODELETE );
+	    //	    query.setUnique(true);
+	    Collection results = (Collection)query.execute();
+	    if (results==null) {
+		log.debug("pas de resultat");
+		return true;
+	    } else {
+		Iterator iter = results.iterator();
+		//	    isComplete = (query.execute() == null);
+		while (iter.hasNext()) {
+		    Transfer trans = (Transfer) iter.next();
+		    log.debug("scanning transfer " + trans.getuid() + " " + trans.getdatauid() + trans.getstatus());
+		    if (trans.getstatus() != TransferStatus.TODELETE)
+			return false;
+		}
+	    }
+	    tx.commit();
+	} finally {
+            if (tx.isActive())
+                tx.rollback();
+            pm.close();
+	}
+	/*
+	for ( Object o:  oobTransfers.values()) {
+	    OOBTransfer trans = (OOBTransfer) o;
+	    if (data.equals(trans.getData().getuid()))
+
+	}
+	*/
+
+	return isComplete;
+    }
+
+    //FIXME better without timeout
+    public void waitFor(Data data) {
+	while (!isTransferComplete(data)) {
+	    try {
+		Thread.sleep(timeout);		
+	    } catch (Exception e) {
+	    log.debug("waitFor " + e);
+	    };	 
+	    log.debug("waitFor data " + data.getuid() );
+	}		
+    }
+
+    //This a comparator for the test
+    class OOBTransferOrder implements Comparator {
+	
+	public int compare(Object p1, Object p2) {
+	    String s1;
+	    String s2;
+	    if (p1 instanceof String)
+		s1 = (String) p1;
+	    else
+		s1=((OOBTransfer) p1).getTransfer().getuid();
+	    if (p2 instanceof String) 
+		s2 = (String) p2;
+	    else
+		s2=((OOBTransfer) p2).getTransfer().getuid();
+	    return  s1.compareTo(s2);
+	}
+    }
+
+}

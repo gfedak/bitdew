@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<jdo>
+    <package name="xtremweb.core.obj.dc">
+
+        <class name="Data" identity-type="application" table="DATA">
+         <field name="uid" primary-key="true"  value-strategy="auid">
+            <column name="UID"/>
+        </field>
+        <field name="name">
+             <column name="NAME" />
+        </field>
+        <field name="checksum">
+             <column name="CHECKSUM" />
+        </field>
+        <field name="size">
+             <column name="SIZE" />
+        </field>
+        <field name="type">
+             <column name="TYPE" />
+        </field>
+        <field name="status">
+             <column name="STATUS" />
+        </field>
+
+        </class>
+
+        <class name="Locator" identity-type="application" table="LOCATOR">
+         <field name="uid" primary-key="true" value-strategy="auid">
+            <column name="UID"/>
+        </field>
+        <field name="datauid">
+             <column name="DATAUID" />
+        </field>
+        <field name="drname">
+             <column name="DRNAME" />
+        </field>
+        <field name="protocoluid">
+             <column name="PROTOCOLUID" />
+        </field>
+        <field name="ref">
+             <column name="REF" />
+        </field>
+        </class>
+    </package>
+</jdo>

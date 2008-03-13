@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<jdo>
+    <package name="xtremweb.core.obj.dr">
+        <class name="Protocol" identity-type="application" table="PROTOCOL" >
+	   
+         <field name="uid" primary-key="true" value-strategy="auid">
+            <column name="UID"/>
+        </field>
+        <field name="name">
+             <column name="NAME" />
+        </field>
+        <field name="port">
+             <column name="PORT" />
+        </field>
+        <field name="login">
+             <column name="LOGIN" />
+        </field>
+        <field name="password">
+             <column name="PASSWORD" />
+        </field>
+        </class>
+    </package>
+</jdo>

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<Module name="dt" import="import xtremweb.core.obj.dc.*;import xtremweb.core.obj.dr.*;">
+
+<Object name="Transfer">
+<Attribute  name="uid" type="String" desc="Uniq Identifier"/>
+<Attribute  name="oob" type="String" desc="O-O-B class name"/>
+<Attribute  name="datauid" type="String" desc="Data UID"/>
+<Attribute  name="locatorlocal" type="String" desc="Location local UID"/>
+<Attribute  name="locatorremote" type="String" desc="Location remote UID"/>
+<Attribute  name="type" type="int" desc="Description of the transfer"/>
+<Attribute  name="status" type="int" desc="Transfer Status"/>
+</Object>
+
+<Method name="registerTransfer">
+<Param name="transfer" type="Transfer" desc="The transfer we want to prepare on the remote site"/>
+<Param name="data" type="Data" desc="The The data we want to Transfer"/>
+<Param name="protocol" type="Protocol" desc="The protocol used"/>
+<Param name="locator" type="Locator" desc="The data we want to Transfer"/>
+<Return type="int" desc="New status of the transfer"/>
+</Method>
+
+<Method name="startTransfer">
+<Param name="transfer" type="String" desc="The transfer uid we want to start on the remote site"/>
+<Return type="int"  desc="New status of the transfer"/>
+</Method>
+
+
+<Method name="setTransferStatus">
+<Param name="transfer" type="String" desc="The transfer uid we want to set the new status on the remote site"/>
+<Param name="status" type="int"  desc="New status of the transfer"/>
+<Return type="void"/>
+</Method>
+
+<Method name="poolTransfer">
+<Param name="transfer" type="String" desc="The transfer uid we want to monitor on the remote site"/>
+<Return type="boolean"  desc="true if the trasfer is complete, false otherwise"/>
+</Method>
+
+<Method name="endTransfer">
+<Param name="transfer" type="String" desc="The transfer uid we want to start on the remote site"/>
+<Return type="int"  desc="New status of the transfer"/>
+</Method>
+
+<Method name="abortTransfer">
+<Param name="transfer" type="String" desc="The transfer uid we want to abort on the remote site"/>
+<Return type="int"  desc="New status of the transfer"/>
+</Method>
+
+</Module>

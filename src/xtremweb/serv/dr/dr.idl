@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<Module name="dr">
+ 
+<Object name="Protocol">
+<Attribute  name="uid" type="String" desc="Uniq Identifier"/>
+<Attribute  name="name" type="String" desc="Name of the protocol"/>
+<Attribute  name="server" type="String" desc="Server name"/>
+<Attribute  name="port" type="int" desc="Port to contact"/>
+<Attribute  name="login" type="String" desc="Login name (if necessary)"/>
+<Attribute  name="password" type="String" desc="Password (if necessary)"/>
+<Attribute  name="path" type="String" desc="Path (if necessary)"/>
+</Object>
+
+<Method name="registerProtocol">
+<Param  name="proto" type="Protocol" desc="Protocol"/>
+<Return type="void"/>
+</Method>
+
+<Method name="getProtocolByName">
+<Param  name="name" type="String" desc="Name of the protocol"/>
+<Return type="Protocol" desc="Protocol uid"/>
+</Method>
+
+<Method name="getProtocolByUID">
+<Param  name="name" type="String" desc="UID of the protocol"/>
+<Return type="Protocol" desc="Protocol uid"/>
+</Method>
+
+<Method name="getRef">
+<Param  name="datauid" type="String" desc="The Data we want to get a reference to"/>
+<Return type="String"/>
+</Method>
+
+</Module>
+
