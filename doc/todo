@@ -1,0 +1,19 @@
+* rechercher les fichiers .idl dans le repertoire de services
+et integrer a ant
+* deplacer le test dans les services
+* attention repertoire com/idl et idl/xsl
+* faire statefull service
+* faire un main service loader generique
+* attention COMM versus COM
+* remplacer la hierarchie  xtremweb.core.obj.ds.*; par  xtremweb.core.obj.*; pour pas avoir a se faire chier, mais attention au package.jdo !!!
+* fair un API factory ou un truc dans le genre (api loader)
+* changer le scheduler
+	- actuellement une data a un attruid
+	- il faut que un attribute ai une liste de data
+	- comme ca le scheduler sera self contained (pas besoin de scanner le
+	catalog)
+	- ajouter une methode schedule data
+* put some default value when creating poxwo objects 
+* transformer le ActiveDataCallback en un EventHandler
+* fixer le protocol.setserver et locator.set_drname
+* virer TransferType vers dt

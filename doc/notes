@@ -1,0 +1,28 @@
+declaration de tableau static
+new Handler[]{fileuploadContext,filedownloadContext});
+
+
+probleme de securite : 
+cat > .java.policy
+grant { 
+ permission java.security.AllPermission; 
+permission javax.jdo.spi.JDOPermission "*";
+permission javax.jdo.spi.JDOPermission "getMetadata"; 
+}; 
+
+
+
+
+java -cp lib/xalan-2.5.1.jar:lib/xercesImpl-2.5.0.jar:lib/xml-apis.jar org.apache.xalan.xslt.Process -IN foo.xml -XSL foo.xsl -OUT foo.out
+ java -cp lib/xalan-2.5.1.jar:lib/xercesImpl-2.5.0.jar:lib/xml-apis.jar org.apache.xalan.xslt.Process -IN idl/test.idl -XSL idl/object.xsl  
+java -jar lib/saxon.jar -t idl/test.idl  idl/object.xsl 
+
+to enhance
+java -cp build:lib/jpox-enhancer.jar:lib/jdo.jar:lib/jpox.jar:lib/log4j.jar:lib/bcel.jar:conf -Dlog4j.configuration=file:conf/log4j.properties org.jpox.enhancer.JPOXEnhancer build/xtremweb/core/obj/obj/obj.jdo
+
+
+to run:
+java -cp build:lib/hsqldb.jar:lib/bcel.jar:lib/jdo.jar:lib/jpox.jar:lib/log4j.jar:build/xtremweb/core/obj/obj/obj.jdo -Dlog4j.configuration=file:conf/log4j.properties  xtremweb.role.main.XtremWeb obj
+
+schema tool:
+java -cp build:lib/jpox-enhancer.jar:lib/jdo.jar:lib/jpox.jar:lib/log4j.jar:lib/bcel.jar:lib/hsqldb.jar:conf  -Dlog4j.configuration=file:conf/log4j.properties -Djavax.jdo.option.ConnectionDriverName=org.hsqldb.jdbcDriver -Djavax.jdo.option.ConnectionURL=jdbc:hsqldb:hsql:test -Djavax.jdo.option.ConnectionUserName=sa -Djavax.jdo.option.ConnectionPassword= org.jpox.SchemaTool -create ./build/xtremweb/core/obj/obj/obj.jdo

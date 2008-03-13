@@ -1,0 +1,148 @@
+
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename bitdew.info
+@settitle BitDew User Guide
+
+@include version.texi 
+
+@c la page de titre
+@titlepage
+
+@title BitDew User Guide
+
+@subtitle Installation, Usage and Programming
+@subtitle Edition @value{EDITION}, for BitDew version @value{VERSION}
+@subtitle @value{UPDATED}
+@author Gilles Fedak & Haiwu He
+
+
+@c  The following two commands
+@c  start the copyright page.
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2006, 2007 by Institut National de Recherche en Informatique (@uref{http://www.inria.fr/}).
+
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation
+approved by the author.
+@end titlepage
+
+
+
+@chapter Overview
+
+
+@section What is BitDew ?
+
+The BitDew framework is a programmable environment for management and distribution of data on computational Desktop Grids.
+
+BitDew is a subsystem which can be easily integrated into Desktop Grid systems (XtremWeb, BOINC, Condor etc..). Currently, Desktop Grids are mostly limited to embarrassingly parallel applications with few data dependencies. BitDew objective is to broaden the use of Desktop Grids. Our approach is to break the "data wall" by providing in single package the key P2P technologies (DHT, BitTorrent) and high level programming interfaces. We first target Desktop Grid with peta-scale data system : up to 1K files/nodes, with size up to 1GB and distributed to 10K to 100K nodes.
+
+The BitDew framework will enable the support for data-intense parameter sweep applications, long-running applications which requires distributed checkpoint services, workflow applications and maybe in the future soft-realtime and stream processing applications.
+
+@section What Can I do with BitDew ?
+
+BitDew offers programmers a simple API for creating, accessing, storing and moving data with ease, even on highly dynamic and volatile environments.
+
+The BitDew programming model relies on 5 abstractions to manage the data : i) replication indicates how many occurrences of a data should be available at the same time on the network, ii) fault-tolerance controls the policy in presence of machine crash, iii) lifetime is an attribute absolute or relative to the existence of other data, which decides the life cycle of a data in the system, iv) affinity drives movement of data according to dependency rules, v) protocol gives the runtime environment hints about the protocol to distribute the data (http, ftp or bittorrent). Programmers define for every data these simple criteria, and let the BitDew runtime environment manage operations of data creation, deletion, movement, replication, and fault-tolerance operation.
+
+@section Bitdew Architecture
+
+The BitDew runtime environment is a flexible environment implementing the API. It relies both on centralized and distributed protocols for indexing, storage and transfers providing reliability, scalability and high-performance.
+
+The architecture follows a classical three-tiers schema commonly found in Desktop Grids: it divides the world in two sets of nodes : stable nodes and volatile nodes. Stable nodes run various independent services which compose the runtime environment: Data Repository (DR), Data Catalog (DC), Data Transfer (DT) and Data Scheduler (DC). We call these nodes the service hosts. Volatile nodes can either ask for storage resources (we call them client hosts) or offer their local storage (they are called reservoir hosts). Usually, programmers will not use directly the various D* services; instead they will use the API which in turn hides the complexity of internal protocols. 
+
+The Bitdew runtime environment delegates a large number of operation to third party components : 1) Meta-data information are serialized using a traditional SQL database, 2) data transfer are realized out-of-band by specialized file transfer protocols and 3) publish and look-up of data replica is enabled by the means of of DHT protocols. One feature of the system is that all of these components can be replaced and plugged-in by the users, allowing them to select the most adequate subsystem according to their own criteria like performance, reliability and scalability.
+
+
+
+@comment  node-name,  next,  previous,  up
+@chapter Downloading and Compiling BitDew
+
+
+@section Downloading BitDew
+@cindex download
+
+The BitDew package is downloadable from the @uref{http://www.xtremweb.net, BitDew web site}.
+
+You get BitDew-@value{VERSION}.tar.bz2, which contains both the sources, the bitdew.jar file and the libraries needed to compile the software.
+
+Untar it with the command 
+@example
+  @command{unzip BitDew-@value{VERSION}.zip}
+@end example
+
+
+@section Compiling BitDew
+@cindex compilation
+
+You don't need to compile BitDew, unless you have modified the sources. 
+To compile BitDew, move in the BitDew directory and execute the following commande : 
+
+@example
+  @command{make}.
+@end example
+
+This will compile the source files.
+
+@chapter Running BitDew
+
+
+@section Quickstart
+
+The simplest way is to use the stand-alone jar file of bitdew, which contains all the files and libraries inclued in one signle jar file.
+
+You can launch the command-line tool simply with the following command, which will display the usage :
+
+@example
+  @command{java -jar bitdew-stand-alone.jar}.
+@end example
+
+and to obtain the complete list of options :
+
+@example
+  @command{java -jar bitdew-stand-alone.jar --help}.
+@end example
+
+The tool can either start services or act as a client. 
+
+To start all of the services supported by BitDew simply run the two following commands :
+
+@example
+  @command{CLASSPATH=bitdew-stand-alone.jar rmiregistry  &  }
+  @command{java -jar bitdew-stand-alone.jar serv dc dr dt ds}.
+@end example
+
+This will start the following services dc : Data Catalog, dr : Data Repository, dt : Data Transfer and ds: Data Scheduling.
+
+
+
+@comment @chapter Configuring BitDew
+
+@comment @section The configuration file
+
+@comment The configuration fime are located in the conf directory.
+
+@chapter Index
+@printindex cp
+
+
+@comment  node-name,  next,  previous,  up
+@chapter Table of contents
+
+@contents
+@bye
+
+
+
