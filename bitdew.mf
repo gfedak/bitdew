@@ -1,0 +1,30 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.7.0
+Created-By: 1.5.0_13-b05 (Sun Microsystems Inc.)
+Built-By: fedak
+Main-Class: xtremweb.role.cmdline.CommandLineTool
+
+
+Name: com/sun/mail/smtp/SMTPSSLTransport.class
+SHA1-Digest: 6U1CnwlO4l/cdSgmZzSpwNKl8EM=
+
+Name: com/sun/mail/smtp/SMTPOutputStream.class
+SHA1-Digest: secQWppiEIWfToC6tuZYICahrI0=
+
+Name: com/sun/mail/smtp/SMTPAddressSucceededException.class
+SHA1-Digest: I9gnmrsW0xKK5TWgk0dm0ex24Oo=
+
+Name: com/sun/mail/smtp/SMTPAddressFailedException.class
+SHA1-Digest: WmMbJ3T6vjQyoCE7v8S6j0YcIFE=
+
+Name: com/sun/mail/smtp/SMTPMessage.class
+SHA1-Digest: J1lB13Paab7cgiQGrwUyH2uqF9s=
+
+Name: com/sun/mail/smtp/DigestMD5.class
+SHA1-Digest: 4r/Ss01jh3wwscXF9my9+mWRJgg=
+
+Name: com/sun/mail/smtp/SMTPTransport.class
+SHA1-Digest: QxTGuBC4pDdQEZ7XRyhj1h0/7WM=
+
+Name: com/sun/mail/smtp/SMTPSendFailedException.class
+SHA1-Digest: Vbu794NrfTM/9wRntXvoEiHyWU4=
