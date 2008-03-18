@@ -59,14 +59,14 @@ public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
 	}
 
 	public void connect() throws OOBException {
-		log.debug("connect " + amazons3toString());
+		log.info("connect " + amazons3toString());
 
 		try {
 			AWSCredentials awsCredentials = AmazonS3Utils.loadAWSCredentials();
 			s3Service = new RestS3Service(awsCredentials);
 			testBucket = AmazonS3Utils.loadS3Bucket();
 		} catch (Exception e) {
-			log.debug("" + e);
+			log.info("" + e);
 			throw new OOBException("AmazonS3 Cannot connect"
 					+ amazons3toString());
 		}
@@ -80,7 +80,7 @@ public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
 			s3Service.putObject(testBucket, fileObject);
 
 		} catch (Exception e) {
-			log.debug("Error" + e);
+			log.info("Error" + e);
 			throw new OOBException("AmazonS3 errors when sending  "
 					+ amazons3toString() + "/" + remote_locator.getref());
 		} // end of try-catch
@@ -88,30 +88,33 @@ public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
 	   public void blockingSendReceiverSide   () throws OOBException {
 	    }
 	   public void blockingReceiveReceiverSide() throws OOBException  {
-			log.debug("start receive receiver size");
+			log.info("start receive receiver size");
 			try {
 				
 				S3Object objectComplete = s3Service.getObject(testBucket, remote_locator.getref());
 				
 				String outputfilename=local_locator.getref();
 						
-				log.debug("going to get " + remote_locator.getref() + "to " + local_locator.getref() );
+				log.info("going to get " + remote_locator.getref() + "to " + local_locator.getref() );
 		     BufferedReader reader = new BufferedReader(
 			          new InputStreamReader(objectComplete.getDataInputStream()));
 		     BufferedWriter writer = new BufferedWriter(
-			          new OutputStreamWriter(new DataOutputStream(new FileOutputStream(outputfilename))));
-			 String data;	
-			     while ((data = reader.readLine()) != null) {
-			        writer.write(data);
+			          new OutputStreamWriter(new FileOutputStream(outputfilename)));
+			    int data,count=0;	
+			    while ((data = reader.read())!=-1) {
+		        writer.write(data);
+                 count++;
 			    }
 
-	
+			     reader.close();
+				 writer.close();
+				 log.info("count="+count);
 				} catch (Exception e) {
-			    log.debug("Error" + e);
+			    log.info("Error" + e);
 			    throw new OOBException("AmazonS3 errors when receiving receive " + amazons3toString() + "/" + remote_locator.getref() );
 			} // end of try-catch
 			
-			log.debug("FIN du transfer");
+			log.info("FIN du transfer");
 		    }
 	   
 	   public void blockingReceiveSenderSide() throws OOBException  {
@@ -124,6 +127,13 @@ public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
 
 	    public static void main(String [] args) {
 	    	//IT4S BROKEN
+	    	String localfile,remotefile;
+	    	
+//	    	if (args.length<2) System.exit(0);
+	    	
+	    	remotefile="testamazon";
+	    	localfile="testamazon_copy";
+	    	
 	    	Data data = new Data();
 
 	    	//Preparer le local
@@ -163,7 +173,7 @@ public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
 
 	    	
 	    	
-	    	t.settype(TransferType.UNICAST_SEND_SENDER_SIDE);
+/*   	t.settype(TransferType.UNICAST_SEND_SENDER_SIDE);
 
 
 	    	try {
@@ -172,11 +182,11 @@ public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
 	    		amazons3.disconnect();
 	    	} catch(OOBException oobe) {
 	    	    System.out.println(oobe);
-	    	}
+	    	}*/
 	    	
-/*	    	remote_locator.setref("testamazon");
+	    	remote_locator.setref(remotefile);
 //	    	remote_locator.setpath("/tmp");
-	    	local_locator.setref("/tmp/testamazon_copy");
+	    	local_locator.setref(localfile);
 
 	    	t.settype(TransferType.UNICAST_RECEIVE_RECEIVER_SIDE);
 	        amazons3= new AmazonS3Transfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
@@ -187,7 +197,7 @@ public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
 	    		amazons3.disconnect();
 	    	} catch(OOBException oobe) {
 	    	    System.out.println(oobe);
-	    	}*/
+	    	}
 
 	    	
 	        }
