@@ -11,11 +11,22 @@ package xtremweb.core.log;
  */
 public class Usage {
 
-    public static Logger log = LoggerFactory.getLogger("");
+    public static Logger log = LoggerFactory.getLogger("");       
+    private int optionTab = 8;
+    private int sectionTab = 4;
 
-    public Usage() {
-	
-    } // Usage constructor
+    private void displayWithTab(int tab, int size, String msg){
+	String result = "";
+	char[] tmp = new char[tab];
+	for (int i=0; i<tab; i++) {
+	    
+	}
+
+    }
+
+    public void title() {
+	log.info("BitDew version " + Version.versionToString()); 
+    }
 
     public void usage(String mesg) {
 	log.info("Usage : " + mesg);

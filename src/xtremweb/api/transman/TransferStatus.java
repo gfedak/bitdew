@@ -53,12 +53,19 @@ public class TransferStatus {
 
     /**
      * <code>TODELETE</code> is the state of a process indicating that
+     * the transfer is stalled.
+     */
+    public static final int STALLED    = 6;
+
+
+    /**
+     * <code>TODELETE</code> is the state of a process indicating that
      * it is ready to be safully removed from database.
      */
-    public static final int TODELETE    = 6;
+    public static final int TODELETE    = 7;
 
      //strings for debuging purpose
-    private static final String[] strings = { "PENDING", "READY", "INVALID", "TRANSFERING", "ABORTED", "COMPLETE", "TODELETE" };
+    private static final String[] strings = { "PENDING", "READY", "INVALID", "TRANSFERING", "ABORTED", "COMPLETE", "STALLED","TODELETE" };
 
     /**
      * <code>toString</code> returns the name of the status.

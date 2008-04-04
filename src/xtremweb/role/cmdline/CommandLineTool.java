@@ -163,6 +163,7 @@ public class CommandLineTool {
 
     public void usage(HelpFormat format) {
 	Usage usage = new Usage();
+	usage.title();
 	switch (format) {
 	case LONG:
 	    usage.usage("java -jar bitdew-stand-alone.jar [Options] Commands [Command Options]");

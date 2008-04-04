@@ -356,8 +356,11 @@ public class TransferManager {
 			break;
 		    }
 		    break;
-
-		case TransferStatus.TODELETE :
+		    
+		case TransferStatus.STALLED : 
+		    log.debug("STALLED");
+		    break;
+ 		case TransferStatus.TODELETE :
 		    //check the status
 		    log.debug("TODELETE");
 		    try {
