@@ -292,8 +292,22 @@ To compile BitDew, move in the BitDew directory and execute the following comman
 <td valign="middle" align="left">[<a href="#SEC11" title="Index">Index</a>]</td>
 <td valign="middle" align="left">[<a href="#SEC_About" title="About (help)"> ? </a>]</td>
 </tr></table>
-<h2 class="section"> 3.2 Commandline utility </h2>
+<h2 class="section"> 3.2 Invoking the command line tool </h2>
 
+
+<p>The format for running the BitDew command line program is:
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="example">java -jar  bitdew-stand-alone.jar <var>options</var>  <var>commands</var>  <var>command options</var> &hellip;
+</pre></td></tr></table>
+<p>If the command line seems too long to type for you, we recommand to set an alias in your <tt>`.bashrc'</tt> as this :
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="example">alias bitdew=&quot;java -jar  bitdew-stand-alone.jar &quot;
+</pre></td></tr></table>
+
+
+<p>BitDew supports the following options, shown by
+the output of <code>java -jar  bitdew-stand-alone.jar --help</code>:
+</p>
 
 <table><tr><td>&nbsp;</td><td><pre class="smallexample">
 BitDew version 0.0.1
@@ -344,6 +358,18 @@ Commands
  &nbsp; 
 <a href="#SEC11_1" class="summary-letter"><b>D</b></a>
  &nbsp; 
+<a href="#SEC11_2" class="summary-letter"><b>G</b></a>
+ &nbsp; 
+<a href="#SEC11_3" class="summary-letter"><b>H</b></a>
+ &nbsp; 
+<a href="#SEC11_4" class="summary-letter"><b>I</b></a>
+ &nbsp; 
+<a href="#SEC11_5" class="summary-letter"><b>O</b></a>
+ &nbsp; 
+<a href="#SEC11_6" class="summary-letter"><b>U</b></a>
+ &nbsp; 
+<a href="#SEC11_7" class="summary-letter"><b>V</b></a>
+ &nbsp; 
 </td></tr></table>
 <table border="0" class="index-cp">
 <tr><td></td><th align="left">Index Entry</th><th align="left"> Section</th></tr>
@@ -354,10 +380,40 @@ Commands
 <tr><th><a name="SEC11_1">D</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#SEC6">download</a></td><td valign="top"><a href="#SEC6">2.1 Downloading BitDew</a></td></tr>
 <tr><td colspan="3"> <hr></td></tr>
+<tr><th><a name="SEC11_2">G</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#SEC10">getting help</a></td><td valign="top"><a href="#SEC10">3.2 Invoking the command line tool</a></td></tr>
+<tr><td colspan="3"> <hr></td></tr>
+<tr><th><a name="SEC11_3">H</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#SEC10">help</a></td><td valign="top"><a href="#SEC10">3.2 Invoking the command line tool</a></td></tr>
+<tr><td colspan="3"> <hr></td></tr>
+<tr><th><a name="SEC11_4">I</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#SEC10">invoking</a></td><td valign="top"><a href="#SEC10">3.2 Invoking the command line tool</a></td></tr>
+<tr><td colspan="3"> <hr></td></tr>
+<tr><th><a name="SEC11_5">O</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#SEC10">options</a></td><td valign="top"><a href="#SEC10">3.2 Invoking the command line tool</a></td></tr>
+<tr><td colspan="3"> <hr></td></tr>
+<tr><th><a name="SEC11_6">U</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#SEC10">usage</a></td><td valign="top"><a href="#SEC10">3.2 Invoking the command line tool</a></td></tr>
+<tr><td colspan="3"> <hr></td></tr>
+<tr><th><a name="SEC11_7">V</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#SEC10">version</a></td><td valign="top"><a href="#SEC10">3.2 Invoking the command line tool</a></td></tr>
+<tr><td colspan="3"> <hr></td></tr>
 </table>
 <table><tr><th valign="top">Jump to: &nbsp; </th><td><a href="#SEC11_0" class="summary-letter"><b>C</b></a>
  &nbsp; 
 <a href="#SEC11_1" class="summary-letter"><b>D</b></a>
+ &nbsp; 
+<a href="#SEC11_2" class="summary-letter"><b>G</b></a>
+ &nbsp; 
+<a href="#SEC11_3" class="summary-letter"><b>H</b></a>
+ &nbsp; 
+<a href="#SEC11_4" class="summary-letter"><b>I</b></a>
+ &nbsp; 
+<a href="#SEC11_5" class="summary-letter"><b>O</b></a>
+ &nbsp; 
+<a href="#SEC11_6" class="summary-letter"><b>U</b></a>
+ &nbsp; 
+<a href="#SEC11_7" class="summary-letter"><b>V</b></a>
  &nbsp; 
 </td></tr></table>
 
@@ -408,7 +464,7 @@ Commands
   <li><a name="TOC8" href="#SEC8">3. Running BitDew</a>
   <ul class="toc">
     <li><a name="TOC9" href="#SEC9">3.1 Quickstart</a></li>
-    <li><a name="TOC10" href="#SEC10">3.2 Commandline utility</a></li>
+    <li><a name="TOC10" href="#SEC10">3.2 Invoking the command line tool</a></li>
   </ul></li>
   <li><a name="TOC11" href="#SEC11">4. Index</a></li>
   <li><a name="TOC12" href="#SEC12">5. Table of contents</a></li>
