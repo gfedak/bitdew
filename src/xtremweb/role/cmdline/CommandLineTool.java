@@ -49,6 +49,7 @@ public class CommandLineTool {
 
     public CommandLineTool(String[] args) {
 
+	//force the log4J configuration to log level info without formatting
 	if (log instanceof Log4JLogger) {
 	    try {
 	    Log4JLogger.setProperties("conf/log4jcmdlinetool.properties");
@@ -163,22 +164,25 @@ public class CommandLineTool {
 
     public void usage(HelpFormat format) {
 	Usage usage = new Usage();
-	usage.title();
 	switch (format) {
 	case LONG:
+	    usage.title();
+	    usage.ln();
+	    usage.section("BitDew command line client");
+	    usage.ln();
 	    usage.usage("java -jar bitdew-stand-alone.jar [Options] Commands [Command Options]");
-	    usage.option("","" );
-	    usage.option("Options","" );
-	    usage.option("-h, --help","display this helps" );
-	    usage.option("-d, --dir","working directory" );
+	    usage.ln();
+	    usage.section("Options:");
+	    usage.option("-h", "--help","display this helps" );
+	    usage.option("-d", "--dir","working directory" );
 	    usage.option("--host","service hostname" );
 	    usage.option("--port","service port" );
-	    usage.option("","" );
-	    usage.option("Commands","" );
+	    usage.ln();
+	    usage.section("Commands:");
 	    usage.option("serv [dc|dr|dt|ds]","start the list of services separated by a space");
 	    usage.option("attr ","create attribute");
 	    usage.option("data","create data");
-	    usage.option("","" );
+	    usage.ln();
 	    usage.option("--file filename","file name to be created" );
 	    usage.option("--attr attruid","attribute uid associated to the data" );
 	    usage.option("setattr","set attribute to data");

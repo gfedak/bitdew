@@ -12,16 +12,15 @@ package xtremweb.core.log;
 public class Usage {
 
     public static Logger log = LoggerFactory.getLogger("");       
-    private int optionTab = 8;
-    private int sectionTab = 4;
+    private static final int OPTION_TAB = 2;
+    private static final int DESCRIPTION_TAB = 32;
 
-    private void displayWithTab(int tab, int size, String msg){
+    private String addTab(int tab, String msg){
 	String result = "";
-	char[] tmp = new char[tab];
 	for (int i=0; i<tab; i++) {
-	    
+	    result += " ";
 	}
-
+	return result + msg;
     }
 
     public void title() {
@@ -32,8 +31,28 @@ public class Usage {
 	log.info("Usage : " + mesg);
     }
 
+    public void section(String msg) {
+	log.info(msg);
+    }
+
+    public void ln(){
+	log.info("");
+    }
+
     public void option(String option, String description) {
-	log.info("\t" + option + "\t\t" + description);
+	option("    ", option, description);
+    }
+
+    public void option(String shortOption, String longOption, String description) {
+	String tmp = addTab(OPTION_TAB, ((shortOption.length() == 2)?(shortOption+", "):shortOption)+longOption);
+        if (tmp.length()<(DESCRIPTION_TAB)) 
+	    //same line
+	     log.info(tmp + addTab(DESCRIPTION_TAB-tmp.length(),description) );
+	else {
+	    //2 lines
+	    log.info(tmp);
+	    log.info(addTab(DESCRIPTION_TAB,description));
+	}
     }
     
 } // Usage
