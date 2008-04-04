@@ -126,6 +126,12 @@ To start all of the services supported by BitDew simply run the two following co
 
 This will start the following services dc : Data Catalog, dr : Data Repository, dt : Data Transfer and ds: Data Scheduling.
 
+@section Commandline utility
+
+
+@smallexample
+@include help-output.texi
+@end smallexample
 
 
 @comment @chapter Configuring BitDew

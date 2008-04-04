@@ -1,0 +1,20 @@
+BitDew version 0.0.1
+
+BitDew command line client
+
+Usage : java -jar bitdew-stand-alone.jar [Options] Commands [Command Options]
+
+Options
+  -h, --help                    display this helps
+  -d, --dir                     working directory
+      --host                    service hostname
+      --port                    service port
+
+Commands
+      serv [dc|dr|dt|ds]        start the list of services separated by a space
+      attr                      create attribute
+      data                      create data
+
+      --file filename           file name to be created
+      --attr attruid            attribute uid associated to the data
+      setattr                   set attribute to data
