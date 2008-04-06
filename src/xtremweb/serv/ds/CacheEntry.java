@@ -40,6 +40,10 @@ public class CacheEntry {
 	return _attr;
     }
 
+    public String getAttributeUid() {
+	return _attr.getuid();
+    }
+
     public void setAttribute( Attribute attr) {
 	_attr = attr;
     }

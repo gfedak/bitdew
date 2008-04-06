@@ -53,6 +53,7 @@ public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
                 tx.rollback();
             pm.close();
 	}
+	ds.updateAttribute(attr);
 	return attr;
     }
 

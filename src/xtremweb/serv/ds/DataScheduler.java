@@ -113,6 +113,15 @@ public class DataScheduler {
 	}
     }
 
+    public void updateAttribute(Attribute attr) {
+	Iterator iter=dataCache.iterator();	
+	while (iter.hasNext()) {
+	    CacheEntry ce = (CacheEntry) iter.next();
+	    if (attr.getuid().equals(ce.getAttributeUid()))
+		ce.setAttribute(attr);
+	}
+    }
+
     public void associateDataAttributeHost(Data data, Attribute attr, Host host) {
 	CacheEntry ce;
 	int idx=dataCache.search(data.getuid());

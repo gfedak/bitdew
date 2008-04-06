@@ -11,6 +11,7 @@ import xtremweb.core.db.*;
 import xtremweb.core.serv.*;
 import xtremweb.core.conf.*;
 import xtremweb.serv.ds.*;
+import xtremweb.serv.dc.DataUtil;
 import xtremweb.core.com.idl.*;
 import xtremweb.core.iface.*;
 
@@ -24,6 +25,7 @@ import xtremweb.serv.bench.*;
 
 public class AllToAll {
 
+    String oob = "dummy";
     Logger log = LoggerFactory.getLogger(AllToAll.class);
     BitDew bitdew = null;
     ActiveData activeData = null;
@@ -34,6 +36,8 @@ public class AllToAll {
     long myrank;
     String hostName = java.net.InetAddress.getLocalHost().getHostName();
     
+    int replicat=1;
+    int nbdata = 4;
     int workers;
     int received=0;
 
@@ -41,12 +45,11 @@ public class AllToAll {
     long dataScheduled;
     long end;
 
-    Attribute attr1;
-    Attribute attr2;
-    Attribute attr3;
-    Attribute attr4;
+    CollectiveData[] dataArray;
 
-    public AllToAll(String host, int port, boolean master, String dir, int w) throws Exception {
+    final int FILE_SIZE = 5000;
+
+    public AllToAll(String host, int port, boolean master, String dir, int w, String myId ) throws Exception {
 	workers = w;
 	_dir=dir;
 	Host myHost =  ComWorld.getHost();
@@ -58,7 +61,7 @@ public class AllToAll {
 	    ServiceLoader sl = new ServiceLoader("RMI", port, modules);
 	    CallbackFaultTolerantBench cbbench = new CallbackFaultTolerantBench();
 	    sl.addSubCallback("RMI", port, "bench", cbbench); 
-	    cbbench.configure(workers, 1);
+	    cbbench.configure(workers + 1, 2);
 	    log.info("bench installed");
 	}
 
@@ -69,60 +72,41 @@ public class AllToAll {
 
 	activeData = new ActiveData(comms);
 
+	ibench = (InterfaceRMIbench) ComWorld.getComm( host, "rmi", port, "bench" );
+	myrank = ibench.register(hostName);
+	log.info( hostName +  "rank is " + myrank );
+
 	if (master) {
-	    int taille=50000;
-
-	    //code for data1
-	    File fic1 = new File(dir,"data1");
-	    createFic(fic1,taille);
-	    Data data1 = bitdew.createData(fic1);
-	    data1.setoob("ftp");
-	    Locator loc1 = bitdew.createLocator("data1");
-	    bitdew.put(data1,loc1);
-	    attr1 = activeData.createAttribute("attr attr1 = {replicat = 1, oob = ftp  }");
-	    log.debug("attribute update " + AttributeUtil.toString(attr1));
-
-	    activeData.schedule(data1, attr1);
-
-	    //code for data2
-	    File fic2 = new File(dir,"data2");
-	    createFic(fic2,taille);
-	    Data data2 = bitdew.createData(fic2);
-	    data2.setoob("ftp");
-	    Locator loc2 = bitdew.createLocator("data2");
-	    bitdew.put(data2,loc2);
-	    attr2 = activeData.createAttribute("attr attr2 = {replicat = 1, oob = ftp  }");
-	    log.debug("attribute update " + AttributeUtil.toString(attr2));
-
-	    activeData.schedule(data2, attr2);
-	    /*
-	    //code for data3
-	    File fic3 = new File(dir,"data3");
-	    createFic(fic3,taille);
-	    Data data3 = bitdew.createData(fic3);
-	    data3.setoob("ftp");
-	    Locator loc3 = bitdew.createLocator("data3");
-	    bitdew.put(data3,loc3);
-	    activeData.schedule(data3, attr);
-
-	    //code for data4
-	    File fic4 = new File(dir,"data4");
-	    createFic(fic4,taille);
-	    Data data4 = bitdew.createData(fic4);
-	    data4.setoob("ftp");
-	    Locator loc4 = bitdew.createLocator("data4");
-	    bitdew.put(data4,loc4);
-	    activeData.schedule(data4, attr);
-	    */
+	    dataArray = new CollectiveData[nbdata];	    
+	    for (int i=0; i< nbdata; i++) {
+		dataArray[i] = new CollectiveData(i);
+	    }
+		
+	    //phase 2
+	    ibench.startExperience();
+	    ibench.endExperience(myrank,0,null);
+	    log.info("Entering phase2");
+	    //ExclIl faut soumattr1
+	    for (int i=0; i< nbdata; i++) {
+		AttributeType.setAttributeTypeOn( dataArray[i].attr, AttributeType.AFFINITY );
+		if (i<(nbdata-1))
+		    dataArray[i].attr.setaffinity(dataArray[i+1].data.getuid());
+		else
+		    dataArray[i].attr.setaffinity(dataArray[0].data.getuid());
+		activeData.registerAttribute(dataArray[i].attr);
+		log.debug("scheduling attribute " + AttributeUtil.toString(dataArray[i].attr) + " data  " + DataUtil.toString(dataArray[i].data));
+	    }
+	    ibench.startExperience();
+	    //phase 2
+	    ibench.endExperience(myrank,0,null);
+	    //exit safely
+	    ibench.startExperience();
 	} else {
 
 	    //code for the client
 	    transferManager = TransferManagerFactory.getTransferManager(comms);
 	    activeData.registerActiveDataCallback(new BroadcastCallback());
 
-	    ibench = (InterfaceRMIbench) ComWorld.getComm( host, "rmi", port, "bench" );
-	    myrank = ibench.register(hostName);
-	    log.info( hostName +  "rank is " + myrank );
 	    transferManager.start();
 	    ibench.startExperience();
 	    activeData.start();
@@ -152,6 +136,25 @@ public class AllToAll {
 	}
     }
 
+    public class CollectiveData  {
+	Data data;
+	Locator locator;
+	Attribute attr;
+	File file;
+
+	public CollectiveData (int idx ) throws Exception {	    
+	    file = new File(_dir,"data" + idx);
+	    createFic(file, FILE_SIZE);
+	    data = bitdew.createData(file);
+	    data.setoob(oob);
+	    locator = bitdew.createLocator("data" + idx);
+	    bitdew.put(data,locator);
+	    attr = activeData.createAttribute("attr attr" + idx + " = {replicat = " + replicat + ", oob = " + oob + "  }");
+	    activeData.schedule(data, attr);
+	    log.debug("scheduling attribute " + AttributeUtil.toString(attr) + " data  " + DataUtil.toString(data));
+	}
+    }
+
 
     public static void main(String[] args) throws Exception {
 	CmdLineParser parser = new CmdLineParser();
@@ -159,6 +162,7 @@ public class AllToAll {
 	CmdLineParser.Option portOption = parser.addIntegerOption("port");
 	CmdLineParser.Option workersOption = parser.addIntegerOption("workers");
 	CmdLineParser.Option hostOption = parser.addStringOption("host");
+	CmdLineParser.Option myIdOption = parser.addStringOption("myId");
 	CmdLineParser.Option dirOption = parser.addStringOption("dir");
 	CmdLineParser.Option masterOption = parser.addBooleanOption("master");
 	
@@ -171,6 +175,7 @@ public class AllToAll {
 
     	boolean help = ((Boolean)parser.getOptionValue(helpOption, Boolean.FALSE)).booleanValue();
     	String host = (String) parser.getOptionValue(hostOption,"localhost");
+    	String myId = (String) parser.getOptionValue(myIdOption);
     	String dir = (String) parser.getOptionValue(dirOption,"/tmp/pub/incoming");
    	int port = ((Integer) parser.getOptionValue(portOption,new Integer(4322))).intValue();
    	int workers = ((Integer) parser.getOptionValue(workersOption,new Integer(1))).intValue();
@@ -184,7 +189,7 @@ public class AllToAll {
 	    System.out.println("worker");
 
 	try {
-	    AllToAll bc = new AllToAll(host, port, master, dir, workers);
+	    AllToAll bc = new AllToAll(host, port, master, dir, workers, myId);
 	} catch (Exception e) {
 	     System.out.println(e.getMessage());
 	}
@@ -200,24 +205,39 @@ public class AllToAll {
 
 	public void onDataScheduled(Data data, Attribute attr) {
 	    try {
-		    log.info("data scheduled  " + data.getname() + " " + attr.getname());
-		    File fic = new File(_dir,"test" + received);
-		    start=System.currentTimeMillis();
-		    bitdew.get(data, fic);
+
+		if (received==0) {
+			log.info("debut de la phase 1");
+			start=System.currentTimeMillis();
+		}
+
+		log.info("data scheduled  " + data.getname() + " " + attr.getname());
+		File fic = new File(_dir,"test" + received);
+		bitdew.get(data, fic); 
+
+		if (received==0) {
 		    transferManager.waitFor(data);
 		    end=System.currentTimeMillis();
-		    //		    ibench.endExperience(myrank,end-start,null);
-		    if ((myrank==0) && (received==0)) {
-			//now change attribute
-			//ExclIl faut soumattr1
-		    }
-		    received++;
-
-			//ibench.startExperience();
 		    log.info("transfer finished " + hostName + " " + (end-start) + " " + received  );
+		    ibench.endExperience(myrank,end-start,null);
+		    log.info("entering phase 2");		    
+		    ibench.startExperience();
+		    start=System.currentTimeMillis();
+		}
 
+		received++;
+		//		    log.info("transfer finished " + hostName + " " + (end-start) + " " + received  );
+		if (received==nbdata) {
+		    //changer en transfer complet
+		    transferManager.downloadComplete();
+		    end=System.currentTimeMillis();
+		    log.info("transfer finished " + hostName + " " + (end-start) + " " + received  );
+		    ibench.endExperience(myrank,end-start,null);
+		    log.info("end of phase2");
+		    ibench.startExperience();
 		    //		    System.exit(0);
-		
+		}
+
 	    } catch (Exception e) {
 		log.warn("finish with error " + e);
 		System.exit(0);

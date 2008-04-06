@@ -17,9 +17,9 @@ public class DummyTransfer
     implements BlockingOOBTransfer, OOBTransfer {
     
 
-    protected static  int TIMEOUT = 1000; // milli sec
-    protected static  int SHORT_FACTOR = 1; //unchanged
-    protected static  int LONG_FACTOR = 500; //half a minute
+    protected static  int SECOND = 1000; // milli sec
+    protected static  int SHORT_TIMEOUT = 1; //1 second
+    protected static  int LONG_TIMEOUT = 10; //10 second
 
     protected static  Logger log = LoggerFactory.getLogger(DummyTransfer.class);
 
@@ -30,8 +30,8 @@ public class DummyTransfer
 	Properties mainprop;
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
-	    SHORT_FACTOR = (Integer.valueOf(mainprop.getProperty("xtremweb.serv.dt.dummy.short", "" + 1))).intValue();
-	    LONG_FACTOR = (Integer.valueOf(mainprop.getProperty("xtremweb.serv.dt.dummy.long", "" + 10))).intValue();
+	    SHORT_TIMEOUT = (Integer.valueOf(mainprop.getProperty("xtremweb.serv.dt.dummy.short", "" + 1))).intValue();
+	    LONG_TIMEOUT = (Integer.valueOf(mainprop.getProperty("xtremweb.serv.dt.dummy.long", "" + 10))).intValue();
 	} catch (ConfigurationException ce) {
 	    log.warn("No Dummy Protocol Information found : " + ce);
 	    mainprop = new Properties();
@@ -95,16 +95,16 @@ public class DummyTransfer
 
 
     private void longtimeout() throws OOBException {
-	timeout( LONG_FACTOR);
+	timeout( LONG_TIMEOUT);
     }
 
     private void shorttimeout() throws OOBException {
-	timeout( SHORT_FACTOR);
+	timeout( SHORT_TIMEOUT);
     }
 
-    private void timeout(int factor) throws OOBException {
+    private void timeout(int timeout) throws OOBException {
 	try {
-	    Thread.sleep(TIMEOUT * factor);
+	    Thread.sleep(SECOND * timeout);
 	} catch (Exception e ) {	    
 	    throw new OOBException("Error during timeout");
 	}

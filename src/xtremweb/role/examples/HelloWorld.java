@@ -19,7 +19,7 @@ import xtremweb.core.obj.ds.Attribute;
  * @author <a href="mailto:fedak@xtremciel.gillus.net">Gilles Fedak</a>
  * @version 1.0
  */
-public class HelloWorld {
+public class HelloWorld extends Example {
 
     /*! @mainpage BitDew: An Open Source Middleware for Large Scale Data Management
      *
@@ -83,8 +83,8 @@ public class HelloWorld {
 	activeData.start();
 
 	if (host.equals("localhost")) {
-	    Data data = bitdew.createData("hellowWorld");
-	    Attribute attr = activeData.createAttribute("attr hw = {replicat = -1 }");
+	    Data data = bitdew.createData("hellowWorldData");
+	    Attribute attr = activeData.createAttribute("attr helloWorldAttr = {replicat = -1 }");
 	    activeData.schedule(data, attr);
 	} else {
 	    activeData.registerActiveDataCallback(new HelloWorldCallback());
@@ -103,7 +103,7 @@ public class HelloWorld {
 	 * @param attr an <code>Attribute</code> value
 	 */
 	public void onDataScheduled(Data data, Attribute attr) {
-	    System.out.println("Received data : " + data.getname());
+	    System.out.println("Received data : " + data.getname() + "with Attribute : " + attr.getname());
 	}
 
 	public void onDataDeleted(Data data, Attribute attr) {}
