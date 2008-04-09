@@ -23,6 +23,10 @@ import xtremweb.core.obj.ds.*;
 import xtremweb.role.ui.*;
 import xtremweb.serv.bench.*;
 
+// Master java -cp build:temp-jar:conf  xtremweb.role.examples.AllToAll --master --port=4325 --workers=16 --replicat=4 --data=4
+
+//Worker java -cp build:conf:temp-jar xtmweb.role.examples.AllToAll  --port=4325 --data=4
+
 public class AllToAll {
 
     String oob;
