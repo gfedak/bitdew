@@ -25,7 +25,7 @@ import xtremweb.serv.bench.*;
 
 public class AllToAll {
 
-    String oob = "dummy";
+    String oob;
     Logger log = LoggerFactory.getLogger(AllToAll.class);
     BitDew bitdew = null;
     ActiveData activeData = null;
@@ -36,8 +36,8 @@ public class AllToAll {
     long myrank;
     String hostName = java.net.InetAddress.getLocalHost().getHostName();
     
-    int replicat=1;
-    int nbdata = 4;
+    int replicat;
+    int nbdata;
     int workers;
     int received=0;
 
@@ -49,9 +49,14 @@ public class AllToAll {
 
     final int FILE_SIZE = 5000;
 
-    public AllToAll(String host, int port, boolean master, String dir, int w, String myId ) throws Exception {
+    public AllToAll(String host, int port, boolean master, String dir, String p, int w, String myId , int d, int r) throws Exception {
+
 	workers = w;
 	_dir=dir;
+	replicat=r;
+	nbdata=d;
+	oob=p;
+	log.info("worker=" + workers + " nbdata=" + nbdata + "replicat=" + replicat );
 	Host myHost =  ComWorld.getHost();
 	log.debug("my Host " + myHost.getuid());
 
@@ -98,7 +103,9 @@ public class AllToAll {
 	    }
 	    ibench.startExperience();
 	    //phase 2
+	    Thread.sleep(5000);
 	    ibench.endExperience(myrank,0,null);
+
 	    //exit safely
 	    ibench.startExperience();
 	} else {
@@ -160,12 +167,15 @@ public class AllToAll {
 	CmdLineParser parser = new CmdLineParser();
 	CmdLineParser.Option helpOption = parser.addBooleanOption('h', "help");
 	CmdLineParser.Option portOption = parser.addIntegerOption("port");
+	CmdLineParser.Option replicatOption = parser.addIntegerOption("replicat");
+	CmdLineParser.Option dataOption = parser.addIntegerOption("data");
 	CmdLineParser.Option workersOption = parser.addIntegerOption("workers");
 	CmdLineParser.Option hostOption = parser.addStringOption("host");
 	CmdLineParser.Option myIdOption = parser.addStringOption("myId");
 	CmdLineParser.Option dirOption = parser.addStringOption("dir");
 	CmdLineParser.Option masterOption = parser.addBooleanOption("master");
-	
+	CmdLineParser.Option oobOption = parser.addStringOption("oob");
+
         try {
             parser.parse(args);
         }
@@ -177,8 +187,11 @@ public class AllToAll {
     	String host = (String) parser.getOptionValue(hostOption,"localhost");
     	String myId = (String) parser.getOptionValue(myIdOption);
     	String dir = (String) parser.getOptionValue(dirOption,"/tmp/pub/incoming");
+    	String oob = (String) parser.getOptionValue(oobOption,"dummy");
    	int port = ((Integer) parser.getOptionValue(portOption,new Integer(4322))).intValue();
    	int workers = ((Integer) parser.getOptionValue(workersOption,new Integer(1))).intValue();
+   	int replicat = ((Integer) parser.getOptionValue(replicatOption,new Integer(1))).intValue();
+   	int data = ((Integer) parser.getOptionValue(dataOption,new Integer(1))).intValue();
 	boolean master = ((Boolean)parser.getOptionValue(masterOption, Boolean.FALSE)).booleanValue();
 	if (help) {
 	    System.exit(2);
@@ -189,7 +202,7 @@ public class AllToAll {
 	    System.out.println("worker");
 
 	try {
-	    AllToAll bc = new AllToAll(host, port, master, dir, workers, myId);
+	    AllToAll bc = new AllToAll(host, port, master, dir, oob, workers, myId, data, replicat);
 	} catch (Exception e) {
 	     System.out.println(e.getMessage());
 	}
@@ -235,7 +248,7 @@ public class AllToAll {
 		    ibench.endExperience(myrank,end-start,null);
 		    log.info("end of phase2");
 		    ibench.startExperience();
-		    //		    System.exit(0);
+		    System.exit(0);
 		}
 
 	    } catch (Exception e) {
