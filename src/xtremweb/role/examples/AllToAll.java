@@ -64,7 +64,7 @@ public class AllToAll {
 	if (master) {
 	    String[] modules = {"dc","dr","dt","ds"};
 	    ServiceLoader sl = new ServiceLoader("RMI", port, modules);
-	    CallbackFaultTolerantBench cbbench = new CallbackFaultTolerantBench();
+	    CallbackAllToAllBench cbbench = new CallbackAllToAllBench();
 	    sl.addSubCallback("RMI", port, "bench", cbbench); 
 	    cbbench.configure(workers + 1, 2);
 	    log.info("bench installed");
@@ -241,8 +241,8 @@ public class AllToAll {
 		received++;
 		//		    log.info("transfer finished " + hostName + " " + (end-start) + " " + received  );
 		if (received==nbdata) {
-		    //changer en transfer complet
-		    transferManager.downloadComplete();
+		    //		    transferManager.waitFor(data);
+		    transferManager.waitForAllData();
 		    end=System.currentTimeMillis();
 		    log.info("transfer finished " + hostName + " " + (end-start) + " " + received  );
 		    ibench.endExperience(myrank,end-start,null);

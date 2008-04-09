@@ -386,25 +386,56 @@ public class TransferManager {
 	perf.addSample(end - start);
     }
 
+
+
     //FIXME c pas top; mettre une limite au premier resultat retourne
     public boolean downloadComplete() {
 	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
 	Transaction tx=pm.currentTransaction();	
-	boolean isComplete = false;	
 	try {
 	    tx.begin();
-	    Query query = pm.newQuery(xtremweb.core.obj.dt.Transfer.class, 
-				      "status != " + TransferStatus.TODELETE );
+	    Query query = pm.newQuery(xtremweb.core.obj.dt.Transfer.class); 
+	    //				      "status != " + TransferStatus.TODELETE );
 	    //	    query.setUnique(true);
-	     
-	    isComplete = (query.execute() == null);
+	    Collection results = (Collection)query.execute();
+	    if (results==null) {
+		return true;
+	    } else {
+		Iterator iter = results.iterator();
+		while (iter.hasNext()) {
+		    Transfer trans = (Transfer) iter.next();
+		    log.debug("scanning transfer " + trans.getuid() + " " + trans.getdatauid() + trans.getstatus());
+		    if (trans.getstatus() != TransferStatus.TODELETE)
+			return false;
+		}
+	    }
 	    tx.commit();
 	} finally {
             if (tx.isActive())
                 tx.rollback();
             pm.close();
 	}
-	return isComplete;
+	/*
+	for ( Object o:  oobTransfers.values()) {
+	    OOBTransfer trans = (OOBTransfer) o;
+	    if (data.equals(trans.getData().getuid()))
+
+	}
+	*/
+
+	return true;
+    }
+
+
+    //we're waiting that there's
+    public void waitForAllData() {
+	while (!downloadComplete()) {
+		    //	while (activeDownload>0) {
+	    try {
+		Thread.sleep(timeout);		
+	    } catch (Exception e) {};	 
+	    log.debug("Still in the barrier size=" +activeDownload);
+	}	
     }
 
     //we're waiting that there's

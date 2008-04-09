@@ -25,7 +25,7 @@ public class CallbackAllToAllBench extends Callbackbench implements InterfaceRMI
 	    FileWriter fw = new FileWriter(f);
 	    for ( int i=1; i< workers; i++) {
 		for ( int j=0; j< rounds; j++) {
-		    fw.write("ftp " + size + " " + wpool[i].name + " "+ j + " " + wpool[i].xp[j] + "\n");
+		    fw.write("alltoall worker: " + i + " hostname: " + wpool[i].name + " phase: " + (j+1) + " time: " + wpool[i].xp[j] + "\n");
 		}
 	    } // end of for ()
 	    fw.flush();
