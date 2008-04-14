@@ -38,13 +38,13 @@ public class AllToAll {
 
     InterfaceRMIbench ibench=null;
     long myrank;
-    String hostName = java.net.InetAddress.getLocalHost().getHostName();
+    String hostName = "nonhostname";
     
     int replicat;
     int nbdata;
     int workers;
     int received=0;
-
+    int size;
     long start;
     long dataScheduled;
     long end;
@@ -53,17 +53,28 @@ public class AllToAll {
 
     final int FILE_SIZE = 5000;
 
-    public AllToAll(String host, int port, boolean master, String dir, String p, int w, String myId , int d, int r) throws Exception {
+    public AllToAll(String host, int port, boolean master, String dir, String p, int w, String myId , int s, int d, int r, String mh) throws Exception {
 
 	workers = w;
 	_dir=dir;
 	replicat=r;
 	nbdata=d;
 	oob=p;
+	size=s;
 	log.info("worker=" + workers + " nbdata=" + nbdata + "replicat=" + replicat );
 	Host myHost =  ComWorld.getHost();
-	log.debug("my Host " + myHost.getuid());
 
+
+	if (!mh.equals("localhost")) {
+	    hostName = mh;
+	} else {
+	    try	 {
+		hostName = java.net.InetAddress.getLocalHost().getHostName();
+	    } catch(Exception e ){
+		log.fatal("WTF " + e);
+	    }
+	}
+	log.info("my Host " + myHost.getuid() + " hostname: " + hostName);
 	//master initialisation : loads the service
 	if (master) {
 	    String[] modules = {"dc","dr","dt","ds"};
@@ -155,7 +166,7 @@ public class AllToAll {
 
 	public CollectiveData (int idx ) throws Exception {	    
 	    file = new File(_dir,"data" + idx);
-	    createFic(file, FILE_SIZE);
+	    createFic(file, size);
 	    data = bitdew.createData(file);
 	    data.setoob(oob);
 	    locator = bitdew.createLocator("data" + idx);
@@ -172,6 +183,7 @@ public class AllToAll {
 	CmdLineParser.Option helpOption = parser.addBooleanOption('h', "help");
 	CmdLineParser.Option portOption = parser.addIntegerOption("port");
 	CmdLineParser.Option replicatOption = parser.addIntegerOption("replicat");
+	CmdLineParser.Option sizeOption = parser.addIntegerOption("size");
 	CmdLineParser.Option dataOption = parser.addIntegerOption("data");
 	CmdLineParser.Option workersOption = parser.addIntegerOption("workers");
 	CmdLineParser.Option hostOption = parser.addStringOption("host");
@@ -179,6 +191,7 @@ public class AllToAll {
 	CmdLineParser.Option dirOption = parser.addStringOption("dir");
 	CmdLineParser.Option masterOption = parser.addBooleanOption("master");
 	CmdLineParser.Option oobOption = parser.addStringOption("oob");
+	CmdLineParser.Option myHostOption = parser.addStringOption("myHost");
 
         try {
             parser.parse(args);
@@ -195,8 +208,11 @@ public class AllToAll {
    	int port = ((Integer) parser.getOptionValue(portOption,new Integer(4322))).intValue();
    	int workers = ((Integer) parser.getOptionValue(workersOption,new Integer(1))).intValue();
    	int replicat = ((Integer) parser.getOptionValue(replicatOption,new Integer(1))).intValue();
+   	int size = ((Integer) parser.getOptionValue(sizeOption,new Integer(5000))).intValue();
    	int data = ((Integer) parser.getOptionValue(dataOption,new Integer(1))).intValue();
 	boolean master = ((Boolean)parser.getOptionValue(masterOption, Boolean.FALSE)).booleanValue();
+    	String myHost = (String) parser.getOptionValue(myHostOption,"localhost");
+
 	if (help) {
 	    System.exit(2);
 	}
@@ -206,7 +222,7 @@ public class AllToAll {
 	    System.out.println("worker");
 
 	try {
-	    AllToAll bc = new AllToAll(host, port, master, dir, oob, workers, myId, data, replicat);
+	    AllToAll bc = new AllToAll(host, port, master, dir, oob, workers, myId, size, data, replicat, myHost);
 	} catch (Exception e) {
 	     System.out.println(e.getMessage());
 	}
