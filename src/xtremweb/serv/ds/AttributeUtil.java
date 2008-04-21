@@ -99,8 +99,9 @@ public class AttributeUtil {
 		    AttributeType.setAttributeTypeOn(attr, AttributeType.FT);
 		    attr.setft((attrValue[1]).equals("true"));
 		} else if (attrValue[0].equals("lftabs")) {
-		    AttributeType.setAttributeTypeOn(attr, AttributeType.LFTABS);
-		    attr.setlftabs(Integer.parseInt(attrValue[1]));
+		    AttributeType.setAttributeTypeOn(attr, AttributeType.LFTABS);		    
+		    long date = System.currentTimeMillis() + (Integer.parseInt(attrValue[1])*60000);
+		    attr.setlftabs(date);
 		} else if (attrValue[0].equals("lftrel")) {
 		    AttributeType.setAttributeTypeOn(attr, AttributeType.LFTREL);
 		    attr.setlftrel(attrValue[1]);

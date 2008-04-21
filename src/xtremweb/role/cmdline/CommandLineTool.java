@@ -52,51 +52,69 @@ public class CommandLineTool {
 	//force the log4J configuration to log level info without formatting
 	if (log instanceof Log4JLogger) {
 	    try {
-	    Log4JLogger.setProperties("conf/log4jcmdlinetool.properties");
+		Log4JLogger.setProperties("conf/log4jcmdlinetool.properties");
 	    } catch (LoggerException le) {
 		log.debug(le.toString());
 	    }
 	}
-
+	
 	String[] otherArgs = parse(args);
-
+	
 	//if there's no other argument display helps
 	if (otherArgs.length==0) 
 	    usage(HelpFormat.SHORT); 
-
-	try {
-	    //start services
-	    if (otherArgs[0].equals("serv")) {
-		Vector services = processServices(otherArgs);
-		ServiceLoader sl = new ServiceLoader("RMI", port, services);
-		UIFactory.createUIFactory();
-		server = true;
-		return;
-	    } else {
+	
+	//start services
+	if (otherArgs[0].equals("serv")) {
+	    Vector services = processServices(otherArgs);
+	    ServiceLoader sl = new ServiceLoader("RMI", port, services);
+	    UIFactory.createUIFactory();
+	    server = true;
+	    return;
+	} else {
+	    try {
 		Vector comms = ComWorld.getMultipleComms(host, "rmi", port, "dc", "dr", "dt", "ds");
-		
+		activeData = new ActiveData(comms);		
+	    } catch(ModuleLoaderException e) {
+		log.warn("Cannot find service " + e);
+		log.warn("Make sure that your classpath is correctly set");
+		System.exit(0);
+	    }	    
+	}
+	
+	//create attr
+	if (otherArgs[0].equals("attr")) {
+	    if (otherArgs.length==1) 
+		usage(HelpFormat.LONG); 
+	    Attribute attr = null;
+	    try {
+		attr = AttributeUtil.parseAttribute(otherArgs);
+	    } catch (ActiveDataException ade) {
+		log.warn(" Cannot parse attribute definition : " + ade);
 	    }
-
-	    //create attr
-	    if (otherArgs[0].equals("attr")) {
-		Attribute attr = AttributeUtil.parseAttribute(otherArgs);
-		attr = processAttr(attr);
+	    try {
+		Attribute _attr = activeData.registerAttribute(attr);
+		log.info("attribute registred : " + AttributeUtil.toString(_attr));
+	    } catch (ActiveDataException ade) {
+		log.warn(" Cannot registrer attribute : " + ade);
+		System.exit(0);
 	    }
-	    
-	    //create data
-	    if (otherArgs[0].equals("data")) {
-		log.debug("data " + otherArgs[1] + " " + otherArgs[2]);
-		//		cmdline.processData(otherArgs[1], otherArgs[2]);
-	    }
-	} catch(ModuleLoaderException e) {
-	    log.warn("Cannot find service " +e);
-	} catch (BitDewException bde) {
+	}
+	
+	//create data
+	if (otherArgs[0].equals("data")) {
+	    log.debug("data " + otherArgs[1] + " " + otherArgs[2]);
+	    //		cmdline.processData(otherArgs[1], otherArgs[2]);
+	}
+	
+	/* catch (BitDewException bde) {
 	    log.warn(" cmdline error  : " + bde);
 	    System.exit(0);
 	} catch (Exception e) {
 	    log.warn(" cmdline error   : " + e);
 	    System.exit(0);
-	}	
+	}  
+	    */
     } // CommandLineTool constructor
     
     public Vector processServices(String[] serv) {
@@ -114,13 +132,10 @@ public class CommandLineTool {
     private void processData() throws BitDewException{
 	Data data = bitdew.createData();
     }
-
+    /*
     private Attribute processAttr(Attribute attr)  throws BitDewException, ActiveDataException {
-	Attribute _attr = activeData.registerAttribute(attr);
-	log.debug(AttributeUtil.toString(_attr));
-	return _attr;
     }
-
+    */
     private void processData(String fileName, Attribute attr) throws BitDewException, ActiveDataException {
 	File file = new File(fileName);
 	Data data = bitdew.createData(file);
@@ -178,14 +193,23 @@ public class CommandLineTool {
 	    usage.option("--host","service hostname" );
 	    usage.option("--port","service port" );
 	    usage.ln();
-	    usage.section("Commands:");
+	    usage.section("Services:");
 	    usage.option("serv [dc|dr|dt|ds]","start the list of services separated by a space");
-	    usage.option("attr ","create attribute");
-	    usage.option("data","create data");
 	    usage.ln();
-	    usage.option("--file filename","file name to be created" );
-	    usage.option("--attr attruid","attribute uid associated to the data" );
-	    usage.option("setattr","set attribute to data");
+	    usage.section("Attributes:");
+	    usage.option("attr attr_definition", "create attribute where attr_definition has the syntax att_Name = {field1=value1, field2=value2}.");
+	    usage.option("", "Field can have the following values :");
+	    usage.option("    replicat=int","number of data replicat in the system. The special value -1    means that the data will be replicated to each node");
+	    usage.option("    affinity=dataId", "affinity to data Identifier. Schedule the data on node where   dataId is present.");
+	    usage.option("    lftabs=int", "absolute life time. The value is the life duration in minutes.");
+	    usage.option("    lftabs=dataId", "relative lifetime. The data will be obsolete when dataId is    deleted.");
+	    usage.option("    oob=protocol", "out-of-band file transfer protocol. Protocol can be one of the following [dummy|ftp|bittorrent]");
+	    usage.option("    ft=[true|false]", "fault tolerance. If true data will be rescheduled if one host  holding the data is considered as dead.");
+	    //	    usage.option("data","create data");
+	    usage.ln();
+	    //	    usage.option("--file filename","file name to be created" );
+	    //	    usage.option("--attr attruid","attribute uid associated to the data" );
+	    //	    usage.option("setattr","set attribute to data");
 	    break;
 	case SHORT:
 	    usage.usage("try java -jar bitdew-stand-alone.jar [-h, --help] for more information");

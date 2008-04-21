@@ -23,9 +23,10 @@ import xtremweb.core.obj.ds.*;
 import xtremweb.role.ui.*;
 import xtremweb.serv.bench.*;
 
-// Master java -cp build:temp-jar:conf  xtremweb.role.examples.AllToAll --master --port=4325 --workers=16 --replicat=4 --data=4
 
-//Worker java -cp build:conf:temp-jar xtmweb.role.examples.AllToAll  --port=4325 --data=4
+//Master java -cp conf:bitdew-stand-alone-0.0.2-sc08.jar  xtremweb.role.examples.AllToAll --master --port=4325 --workers=2 --replicat=1 --data=2 --dir=/home/ftp/pub/incoming/ --oob=ftp
+
+//Worker 
 
 public class AllToAll {
 
@@ -101,7 +102,7 @@ public class AllToAll {
 	    for (int i=0; i< nbdata; i++) {
 		dataArray[i] = new CollectiveData(i);
 	    }
-		
+	    
 	    //phase 2
 	    ibench.startExperience();
 	    ibench.endExperience(myrank,0,null);
