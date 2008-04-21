@@ -4,17 +4,28 @@ BitDew command line client
 
 Usage : java -jar bitdew-stand-alone.jar [Options] Commands [Command Options]
 
-Options
+Options:
   -h, --help                    display this helps
   -d, --dir                     working directory
       --host                    service hostname
       --port                    service port
 
-Commands
+Services:
       serv [dc|dr|dt|ds]        start the list of services separated by a space
-      attr                      create attribute
-      data                      create data
 
-      --file filename           file name to be created
-      --attr attruid            attribute uid associated to the data
-      setattr                   set attribute to data
+Attributes:
+      attr attr_definition      create attribute where attr_definition has the syntax att_Name 
+                                = {field1=value1, field2=value2}.
+                                Field can have the following values :
+          replicat=int          number of data replicat in the system. The special value -1    
+                                means that the data will be replicated to each node
+          affinity=dataId       affinity to data Identifier. Schedule the data on node where   
+                                dataId is present.
+          lftabs=int            absolute life time. The value is the life duration in minutes.
+          lftabs=dataId         relative lifetime. The data will be obsolete when dataId is    
+                                deleted.
+          oob=protocol          out-of-band file transfer protocol. Protocol can be one of the 
+                                following [dummy|ftp|bittorrent]
+          ft=[true|false]       fault tolerance. If true data will be rescheduled if one host  
+                                holding the data is considered as dead.
+
