@@ -6,6 +6,12 @@ import xtremweb.core.log.*;
 import java.util.*;
 import java.lang.reflect.*;
 
+/**
+ * <code>ModuleLoader</code> loads module (aka service).
+ *
+ * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
+ * @version 1.0
+ */
 public class ModuleLoader {
 
     private static Hashtable callbacks =  new Hashtable();;
@@ -19,13 +25,11 @@ public class ModuleLoader {
     private static Object createInstance( String className )  throws ModuleLoaderException {
 	try {
 
-	    //	    Class classClass = classLoader.loadClass( className, true);
 	    ClassLoader cl = ModuleLoader.class.getClassLoader();
 	    Class classClass = cl.loadClass( className);
 	    Constructor classConstructor =
 		classClass.getConstructor((java.lang.Class [])null);
-	    //	    for ( int i=0; i<classConstructors.length; i++) {
-	    //	log.InfoBlue("constructor " + classConstructors[i].getName());		
+
 	    return classClass.newInstance();
 	} catch ( ClassNotFoundException cnfe ) {
 	    log.warn("ModuleLoader : cannot find class in classpath");
@@ -33,8 +37,7 @@ public class ModuleLoader {
 	    log.warn( "cannot create object from class " + className + " " + iae);
     	} catch ( NoSuchMethodException nsme) {
     	    log.warn( "cannot find a contructor to create an object  " + className + " " + nsme);
-//  	} catch ( InvocationTargetException ite) {
-//  	    throw new ModuleLoaderException( "cannot call the constructor of the class  " + className, ite);
+
 	} catch ( InstantiationException ie) {
 	    log.warn( "cannot instantiate the  class " + className + " " + ie);
 	}	    
@@ -54,9 +57,15 @@ public class ModuleLoader {
 	}
     }
 
+    /**
+     *  <code>addCallback</code>  adds callback, that is code which
+     *  will called whenever a request is made to the handler.
+     *
+     * @param module a <code>String</code> value
+     * @exception ModuleLoaderException if an error occurs
+     */
     public static void addCallback( String module) throws ModuleLoaderException {
 	// create an instance of the call back
-
 	String callbackClassName = rootServiceClassPath + "." + module + ".Callback" + module;
 	CallbackTemplate callb = (CallbackTemplate)  createInstance(callbackClassName);
 	if ( callb!=null ) {	    	
@@ -65,21 +74,43 @@ public class ModuleLoader {
 	} else {
 	    log.info("ModuleLoader can't register callback: [" + module+ "]" );     
 	} 
-	
-
-		//	throw new ModuleLoaderException( "cannot find a callback definition file for module " + module);
     }
 
+    /**
+     *  <code>addSubCallback</code> overides a module which a
+     *  specified class 
+     *
+     * @param module a <code>String</code> value
+     * @param subCallback a <code>CallbackTemplate</code> value
+     * @exception ModuleLoaderException if an error occurs
+     */
     public static void addSubCallback(String module, CallbackTemplate subCallback) throws ModuleLoaderException {
     	callbacks.put( module, subCallback );
     	log.info("ModuleLoader has registred SubCallback: " + subCallback +  " [" + module+ "]" );
     }
     
+    /**
+     *  <code>getModule</code> return the callback associated with the
+     *  module 
+     *
+     * @param module a <code>String</code> value
+     * @return a <code>CallbackTemplate</code> value
+     * @exception ModuleLoaderException if an error occurs
+     */
     public static CallbackTemplate getModule( String module ) throws  ModuleLoaderException {
 	if ( ! callbacks.containsKey(module)) throw new ModuleLoaderException( "cannot find a callback  for module " + module);
 	return (CallbackTemplate) callbacks.get( module );
     }
 
+    /**
+     *  <code>addHandler</code> add a handler to received request on
+     *  port and media
+     *
+     * @param module a <code>String</code> value
+     * @param media a <code>String</code> value
+     * @param port an <code>int</code> value
+     * @exception ModuleLoaderException if an error occurs
+     */
     public static void addHandler (String module, String media, int port) throws ModuleLoaderException  {
 	//get the callback codes for this client
 	if ( ! callbacks.containsKey(module)) throw new ModuleLoaderException( "cannot find a callback  for module " + module);
@@ -99,10 +130,7 @@ public class ModuleLoader {
 		    initHandlers(media,port);
 		}
 
-		//		Registry registry = LocateRegistry.createRegistry(port);
-		//registry.rebind(module, handler);
 		Naming.rebind("//" + "localhost" + ":" + port + "/" + module, handler);
-
 		handler.registerCallback((CallbackTemplate) callbacks.get( module ));
 		log.info("ModuleLoader has registred handler: [" + module+ "," + media+ "]");
 		return;
@@ -114,32 +142,6 @@ public class ModuleLoader {
 		throw new ModuleLoaderException (); 
 	    }
 	}
-	/*	if ( (media=="TCP") || (media=="FTCP")) {
- 	    TCPHandlerTemplate handler = (TCPHandlerTemplate)
-	    createInstance("xtremweb."+ module+ ".TCPHandler" +
-	    module);
-	    
-	    handler.registerCallback((CallbackTemplate) callbacks.get( module ));
-	*/
-	    /* if we run an handler on a host which is firewalled
-	    * let's configure the handler for this
-	    * note that this  should occured in a transparent way
-	    */
-	/*if ( media == "FTCP") {
-	  if (proxyName==null || proxyPort==-1 ) throw new
-		ModuleLoaderException (" Error when configuring "
-		+ media + "handler for module " 
-		+ module + ": if the host is defined as firewalled, then it should be given a proxy hostName and port" )  ;		
-		handler.setFirewalled( true );
-		handler.setProxy( proxyName, proxyPort);
-		}
-
-	    handler.registerModuleHandler( module, handler);
-	    log.info("ModuleLoader has registred handler: [" +
-		       module+ "," + media+ "]");
-	    return;
-	}
-	*/
 	throw new ModuleLoaderException (" Cannot find a " + media + "handler for module " + module)  ;
     }
 
