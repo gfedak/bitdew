@@ -48,15 +48,13 @@ import java.util.Properties;
  */
 public class TransferManager {
 
-    protected InterfaceRMIdt dt = null;
-    protected InterfaceRMIdr dr = null; //UNUSED FIXME
+    private InterfaceRMIdt dt = null;
+    private InterfaceRMIdr dr = null; //UNUSED FIXME
 
     /** time between two periodic activities (in milli seconds) */
-    protected int timeout = 1000; 
+    private int timeout = 1000; 
 
     private Timer timer;
-
-    private int activeDownload=0;
 
     private int concurrentDowload=1;
 
@@ -69,7 +67,7 @@ public class TransferManager {
     //FIXME A QUOI SERT CE TRUC ?????? a ne pas recalculer les OOB trucmuche
     private SortedVector oobTransfers;
 
-    protected Logger log = LoggerFactory.getLogger("Transfer Manager (transman)");
+    private Logger log = LoggerFactory.getLogger("Transfer Manager (transman)");
 
     /**
      * Creates a new <code>TransferManager</code> instance.
@@ -84,6 +82,10 @@ public class TransferManager {
 	init();
     }
 
+    /**
+     * Creates a new <code>TransferManager</code> instance.
+     *
+     */
     public TransferManager() {
 	init();
     }
@@ -92,6 +94,7 @@ public class TransferManager {
     /**
      * Creates a new <code>TransferManager</code> instance.
      *
+     * @param comms a <code>Vector</code> value
      */
     public TransferManager(Vector comms) {
 
@@ -102,9 +105,10 @@ public class TransferManager {
 	init();
     }
 
-    public void init() {
+    private void init() {
 	oobTransfers = new SortedVector(new OOBTransferOrder());
     }
+
     /**
      * <code>registerTransfer</code> adds a tranfer to the TransferManager
      * The transfer is persisted in the database. It will be later read 
@@ -114,7 +118,6 @@ public class TransferManager {
      */
     public void registerTransfer(String tuid, OOBTransfer oobt) {
 	OOBTransferFactory.persistOOBTransfer(oobt);
-	activeDownload++;
     }
 
     /**
@@ -138,22 +141,10 @@ public class TransferManager {
 	timer.cancel();
     }
 
-    //    for (Enumeration e = v.elements() ; e.hasMoreElements() ;) {
-    //    System.out.println(e.nextElement());
  
-    //FIXME linear search
+
     public void removeOOBTransfer(Transfer trans) throws OOBException {
 	oobTransfers.removeElement(trans.getuid());
-	/*	for (Iterator iter = oobTransfers.iterator(); iter.hasNext();) {
-	    String key = (String) iter.next();
-	    if (key.equals(trans.getuid())) {
-		log.debug("REMOVING TRANSFER " + trans.getuid() + " : " +  (OOBTransfer) oobTransfers.get(trans.getuid()));
-		//		oobTransfers.remove(key);
-		iter.remove();
-	*/
-		activeDownload--;
-		//  }
-		//	}
     }
 
     public OOBTransfer getOOBTransfer(Transfer trans) throws OOBException {
@@ -426,30 +417,25 @@ public class TransferManager {
 	return true;
     }
 
-
-    //we're waiting that there's
+    /**
+     *  <code>waitForAllData</code> waits for all transfers to complete.
+     *
+     */
     public void waitForAllData() {
 	while (!downloadComplete()) {
-		    //	while (activeDownload>0) {
 	    try {
 		Thread.sleep(timeout);		
 	    } catch (Exception e) {};	 
-	    log.debug("Still in the barrier size=" +activeDownload);
+	    log.debug("Still in the barrier");
 	}	
     }
 
-    //we're waiting that there's
-    public void barrier() {
-	//	while (!downloadComplete()) {
-	while (activeDownload>0) {
-	    try {
-		Thread.sleep(timeout);		
-	    } catch (Exception e) {};	 
-	    log.debug("Still in the barrier size=" +activeDownload);
-	}	
-    }
-
-
+    /**
+     *  <code>isTransferComplete</code> check if a transfer of a given data is complete.
+     *
+     * @param data a <code>Data</code> value
+     * @return a <code>boolean</code> value
+     */
     public boolean isTransferComplete(Data data) {
 	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
 	Transaction tx=pm.currentTransaction();	
@@ -480,24 +466,21 @@ public class TransferManager {
                 tx.rollback();
             pm.close();
 	}
-	/*
-	for ( Object o:  oobTransfers.values()) {
-	    OOBTransfer trans = (OOBTransfer) o;
-	    if (data.equals(trans.getData().getuid()))
-
-	}
-	*/
 
 	return isComplete;
     }
 
-    //FIXME better without timeout
-    public void waitFor(Data data) {
+    /**
+     *  <code>waitFor</code> waits for a specific data to be transfered.
+     *
+     * @param data a <code>Data</code> value
+     */
+    public void waitFor(Data data) throws TransferManagerException {
 	while (!isTransferComplete(data)) {
 	    try {
 		Thread.sleep(timeout);		
 	    } catch (Exception e) {
-	    log.debug("waitFor " + e);
+		throw new TransferManagerException();
 	    };	 
 	    log.debug("waitFor data " + data.getuid() );
 	}		
