@@ -42,7 +42,7 @@ public class DataUtil {
      * @return a <code>String</code> value
      */
     public static String toString(Data data) {
-	return "" + data.getuid() + ":" + data.getname() + ":" + data.getchecksum();
+	return "data " + data.getname() + " [" + data.getuid() + "] = { " + "md5=" + data.getchecksum() + " }";
     }
 
     /**
@@ -93,10 +93,8 @@ public class DataUtil {
         return toHex(data, data.length);
     }
     
-
-
     /**
-     *  <code>fileToData</code> converts a File to a Sata
+     *  <code>fileToData</code> converts a File to a Data
      *
      * @param file a <code>File</code> value
      * @return a <code>Data</code> value
