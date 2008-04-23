@@ -2,23 +2,27 @@ package xtremweb.api.bitdew;
 
 import java.lang.Exception;
 
-
-
 /**
- * BitDewException.java
+ * <code>BitDewException</code>.
  *
- *
- * Created: Tue Apr  4 22:24:36 2006
- *
- * @author <a href="mailto:">Gilles Fedak</a>
+ * @author <a href="mailto:fedak@dick">Gilles Fedak</a>
  * @version 1.0
  */
 public class BitDewException extends Exception {
 
+    /**
+     * Creates a new <code>BitDewException</code> instance.
+     *
+     */
     public BitDewException() {
 	
     } // BitDewException constructor
 
+    /**
+     * Creates a new <code>BitDewException</code> instance.
+     *
+     * @param msg a <code>String</code> value
+     */
     public BitDewException(String msg) {
 	super(msg);
     } // BitDewException constructor

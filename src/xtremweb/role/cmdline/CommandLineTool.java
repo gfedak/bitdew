@@ -144,8 +144,17 @@ public class CommandLineTool {
 		try {
 		    data = bitdew.createData(file);
 		    log.info("Data registred : " + DataUtil.toString(data));
+		    bitdew.put(file, data);
 		} catch (BitDewException ade) {
 		    log.warn(" Cannot registrer data : " + ade);
+		    System.exit(0);
+		}
+		try {
+		    transferManager.start();
+		    transferManager.waitFor(data);
+		    log.info("Transfer complete");
+		} catch (TransferManagerException ade) {
+		    log.warn(" Transfer data : " + ade);
 		    System.exit(0);
 		}
 	    }
