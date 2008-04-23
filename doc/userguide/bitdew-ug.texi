@@ -120,7 +120,6 @@ The tool can either start services or act as a client.
 To start all of the services supported by BitDew simply run the two following commands :
 
 @example
-  @command{CLASSPATH=bitdew-stand-alone.jar rmiregistry  &  }
   @command{java -jar bitdew-stand-alone.jar serv dc dr dt ds}.
 @end example
 
