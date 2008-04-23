@@ -1,15 +1,5 @@
 package xtremweb.api.bitdew;
 
-/**
- * BitDew.java
- *
- *
- * Created: Thu Mar 23 11:36:22 2006
- *
- * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
- * @version 1.0
- */
-
 import xtremweb.serv.dc.*;
 import xtremweb.core.iface.*;
 import xtremweb.core.log.*;
@@ -34,18 +24,29 @@ import java.io.File;
 import java.rmi.RemoteException;
 import java.util.Vector;
 
+/**
+ *  <code>BitDew</code> programming interface.
+ *
+ * @author <a href="mailto:fedak@dick">Gilles Fedak</a>
+ * @version 1.0
+ */
 public class BitDew {
 
-    public static Logger log = LoggerFactory.getLogger(BitDew.class);
+    private static Logger log = LoggerFactory.getLogger(BitDew.class);
     
-    protected InterfaceRMIdc idc;
-    protected InterfaceRMIdr idr;
-    protected InterfaceRMIdt idt;
-    protected InterfaceRMIds ids;
+    private InterfaceRMIdc idc;
+    private InterfaceRMIdr idr;
+    private InterfaceRMIdt idt;
+    private InterfaceRMIds ids;
 
-    protected DistributedDataCatalog ddc = null;
-    protected String myHost="test_that_dude";
+    private DistributedDataCatalog ddc = null;
+    private String myHost="test_that_dude";
 
+    /**
+     * Creates a new <code>BitDew</code> instance.
+     *
+     * @param comms a <code>Vector</code> value
+     */
     public BitDew(Vector comms) {
 
 	for (Object o : comms) {
@@ -57,6 +58,14 @@ public class BitDew {
 	init();
     }
 
+    /**
+     * Creates a new <code>BitDew</code> instance.
+     *
+     * @param cdc an <code>InterfaceRMIdc</code> value
+     * @param cdr an <code>InterfaceRMIdr</code> value
+     * @param cdt an <code>InterfaceRMIdt</code> value
+     * @param cds an <code>InterfaceRMIds</code> value
+     */
     public BitDew(InterfaceRMIdc cdc, InterfaceRMIdr cdr, InterfaceRMIdt cdt, InterfaceRMIds cds) {
 	idc = cdc;
 	idr = cdr;
@@ -66,7 +75,8 @@ public class BitDew {
 	init();
     } // BitDew constructor
 
-    public void init() {
+
+    private void init() {
 
 	try {
 	    ddc = DistributedDataCatalogFactory.getDistributedDataCatalog();
@@ -83,6 +93,12 @@ public class BitDew {
 	
     }
 
+    /**
+     * <code>createData</code> creates Data.
+     *
+     * @return a <code>Data</code> value
+     * @exception BitDewException if an error occurs
+     */
     public Data createData() throws BitDewException {
 	try {
 	    Data data = new Data();
@@ -96,6 +112,13 @@ public class BitDew {
 	throw new BitDewException();
     }
 
+    /**
+     * <code>createData</code> creates Data.
+     *
+     * @param name a <code>String</code> value
+     * @return a <code>Data</code> value
+     * @exception BitDewException if an error occurs
+     */
     public Data createData(String name) throws BitDewException {
 	try {
 	    Data data = new Data();
@@ -111,65 +134,15 @@ public class BitDew {
     }
 
 
-    public void putData(Data data) throws BitDewException {
-	//if data has not been locally serialized, do it now
-	if (data.getuid() == null) 
-	    DBInterfaceFactory.getDBInterface().makePersistent(data);
-	try {
-	    idc.putData(data);  
-	} catch (RemoteException re) {
-	    log.debug("Cannot find service " + re);
-	    throw new BitDewException();
-	}
-    }
-
-
-    public String ddcSearch( Data data) throws BitDewException {
-	try {
-	    if (ddc !=null ) 
-		return ddc.search(data.getuid());
-	} catch (DDCException ddce ) {
-	    log.debug("cannot ddc find data : " + data + "\n" + ddce);
-	}
-	throw new BitDewException();
-    }
-
-    public void ddcPublish( Data data, String hostid) throws BitDewException {
-	try {
-	    if (ddc !=null ) 
-		ddc.publish(data.getuid(), hostid);
-	    return;
-	} catch (DDCException ddce) {
-	    log.debug("cannot ddc publish [data|hostid] : [" + data.getuid() + "|" + hostid + "]"  + "\n" + ddce);
-	}
-	throw new BitDewException();
-    }
-
-    public void ddcPublish( String key, String value) throws BitDewException {
-	try {
-	    if (ddc !=null ) 
-		ddc.publish(key, value);
-	    return;
-	} catch (DDCException ddce) {
-	    log.debug("cannot ddc publish [data|hostid] : [" + key + "|" + value + "]"  + "\n" + ddce);
-	}
-	throw new BitDewException();
-    }
-
-    public void cleanup() {
-	//TODO
-    }
-
-    public void barrier()  throws BitDewException {
-	try {
-	    TransferManager transman = TransferManagerFactory.getTransferManager(idr, idt);
-	    transman.barrier();
-	} catch (Exception e) {
-	    log.debug("cannot execute the barrier" + e);
-	    throw new BitDewException("Unexpexted breeak of the barrier");  
-	}
-    }
-
+    /**
+     * <code>createData</code> creates Data.
+     *
+     * @param name a <code>String</code> value
+     * @param protocol a <code>String</code> value
+     * @param size an <code>int</code> value
+     * @return a <code>Data</code> value
+     * @exception BitDewException if an error occurs
+     */
     public Data createData(String name, String protocol, int size)  throws BitDewException {
 	try {
 	    Data data = new Data();
@@ -186,30 +159,14 @@ public class BitDew {
 	throw new BitDewException();
     } 
 
-    public Locator createLocator(String ref)  throws BitDewException {
-	try {
-	    Locator locator = new Locator();
-	    locator.setref(ref);
-	    DBInterfaceFactory.getDBInterface().makePersistent(locator);
-	    return locator;
-	} catch (Exception re) {
-	    log.debug("Cannot createLocator " + re);
-	}
-	throw new BitDewException();
-    } 
 
-    public void putLocator(Locator loc) throws BitDewException {
-	try {
-	    idc.putLocator(loc);
-	    log.debug (" created locator " + loc.getuid());
-	} catch (RemoteException re) {
-	    log.debug("Cannot find service " + re);
-	} catch (Exception e) {
-	    log.debug("Error creating data " + e);
-	}
-	throw new BitDewException();
-    }
-
+    /**
+     * <code>createData</code> creates Data from file.
+     *
+     * @param file a <code>File</code> value
+     * @return a <code>Data</code> value
+     * @exception BitDewException if an error occurs
+     */
     public Data createData(File file) throws BitDewException {
 	Data data = DataUtil.fileToData(file);
 
@@ -225,9 +182,65 @@ public class BitDew {
 	}
 	throw new BitDewException();
     }
-   
 
-    //convenience method to register a data already present somewhere
+
+    private void putData(Data data) throws BitDewException {
+	//if data has not been locally serialized, do it now
+	if (data.getuid() == null) 
+	    DBInterfaceFactory.getDBInterface().makePersistent(data);
+	try {
+	    idc.putData(data);  
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	    throw new BitDewException();
+	}
+    }
+
+    /**
+     * <code>createLocator</code> creates  a new locator.
+     *
+     * @param ref a <code>String</code> value
+     * @return a <code>Locator</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public Locator createLocator(String ref)  throws BitDewException {
+	try {
+	    Locator locator = new Locator();
+	    locator.setref(ref);
+	    DBInterfaceFactory.getDBInterface().makePersistent(locator);
+	    return locator;
+	} catch (Exception re) {
+	    log.debug("Cannot createLocator " + re);
+	}
+	throw new BitDewException();
+    } 
+
+    /**
+     *  <code>putLocator</code> registers locator
+     *
+     * @param loc a <code>Locator</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public void putLocator(Locator loc) throws BitDewException {
+	try {
+	    idc.putLocator(loc);
+	    log.debug (" created locator " + loc.getuid());
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	} catch (Exception e) {
+	    log.debug("Error creating data " + e);
+	}
+	throw new BitDewException();
+    }
+
+    /**
+     * <code>put</code> convenience method to register a data already
+     * present in a data repository without having to copy the data.
+     *
+     * @param data a <code>Data</code> value
+     * @param remote_locator a <code>Locator</code> value
+     * @exception BitDewException if an error occurs
+     */
     public void put(Data data, Locator remote_locator) throws BitDewException {
 	Protocol remote_proto;
 
@@ -255,7 +268,14 @@ public class BitDew {
 	}
     }
 
-    public void put(Data data, File f) throws BitDewException {
+    /**
+     * <code>put</code> file to a data
+     *
+     * @param file a <code>File</code> value
+     * @param data a <code>Data</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public void put(File file, Data data) throws BitDewException {
 	
 	// No local protocol
 	Protocol local_proto = new Protocol();
@@ -265,9 +285,9 @@ public class BitDew {
 	local_locator.setdatauid(data.getuid());
 	//	local_locator.setdrname("localhost");
 	//	local_locator.setprotocoluid(local_proto.getuid());
-	local_locator.setref(f.getAbsolutePath());
+	local_locator.setref(file.getAbsolutePath());
 	
-	log.debug("Local Locator : " + f.getAbsolutePath());
+	log.debug("Local Locator : " + file.getAbsolutePath());
 	Protocol remote_proto;
 
 	// set the default protocol to FTP if there is no
@@ -326,13 +346,14 @@ public class BitDew {
 	log.debug("Succesfully created data [" + data.getuid()+ "] with remote storage [" + remote_locator.getref()  + "] " + remote_proto.getname() +"://[" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "]@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
     }
 
-
-    public void transfert(Transfer transfer) throws BitDewException {
-	
-
-    }
-
-    public void get(Data data, File f) throws BitDewException {
+    /**
+     * <code>get</code> data into file.
+     *
+     * @param data a <code>Data</code> value
+     * @param file a <code>File</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public void get(Data data, File file) throws BitDewException {
 
 	// No local protocol
 	Protocol local_proto = new Protocol();
@@ -342,9 +363,9 @@ public class BitDew {
 	local_locator.setdatauid(data.getuid());
 	//local_locator.setdrname("localhost");
 	//	local_locator.setprotocoluid(local_proto.getuid());
-	local_locator.setref(f.getAbsolutePath());
+	local_locator.setref(file.getAbsolutePath());
 	
-	log.debug("Local Locator : " + f.getAbsolutePath());
+	log.debug("Local Locator : " + file.getAbsolutePath());
 
 	// get an FTP remote protocol
 	Locator remote_locator = null;
@@ -397,25 +418,59 @@ public class BitDew {
 	log.debug("Succesfully retreived data [" + data.getuid()+ "] to local storage [" + local_locator.getref()  + "] " + remote_proto.getname() +"://[" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "]@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
     }
 
-
-
-
-    public static void main(String [] args) {
+    /**
+     *  <code>ddcSearch</code> searches data in the distributed data catalog.
+     *
+     * @param data a <code>Data</code> value
+     * @return a <code>String</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public String ddcSearch( Data data) throws BitDewException {
 	try {
-	    InterfaceRMIdc cdc = (InterfaceRMIdc) ComWorld.getComm( "localhost", "rmi", 4322, "dc" );
-	    InterfaceRMIdr cdr = (InterfaceRMIdr) ComWorld.getComm( "localhost", "rmi", 4322, "dr" );
-	    InterfaceRMIdt cdt = (InterfaceRMIdt) ComWorld.getComm( "localhost", "rmi", 4322, "dt" );
-	    InterfaceRMIds cds = (InterfaceRMIds) ComWorld.getComm( "localhost", "rmi", 4322, "ds" );
-
-	    BitDew bitdew = new BitDew( cdc, cdr, cdt, cds );
-
-	    Data data = bitdew.createData();
-	    BitDew.log.info("created data " + data.getuid());
-	} catch(ModuleLoaderException e) {
-	    BitDew.log.warn("Cannot find service " +e);
-	} catch (BitDewException bde) {
-	    BitDew.log.warn("Oups : " + bde);
+	    if (ddc !=null ) 
+		return ddc.search(data.getuid());
+	} catch (DDCException ddce ) {
+	    log.debug("cannot ddc find data : " + data + "\n" + ddce);
 	}
+	throw new BitDewException();
+    }
+
+    /**
+     * <code>ddcPublish</code> publishes data and host in the
+     * distributed data catalog.
+     *
+     * @param data a <code>Data</code> value
+     * @param hostid a <code>String</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public void ddcPublish( Data data, String hostid) throws BitDewException {
+	try {
+	    if (ddc !=null ) 
+		ddc.publish(data.getuid(), hostid);
+	    return;
+	} catch (DDCException ddce) {
+	    log.debug("cannot ddc publish [data|hostid] : [" + data.getuid() + "|" + hostid + "]"  + "\n" + ddce);
+	}
+	throw new BitDewException();
+    }
+
+    /**
+     *  <code>ddcPublish</code> publish arbitrary pair key value in
+     *  the distributed data catalog
+     *
+     * @param key a <code>String</code> value
+     * @param value a <code>String</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public void ddcPublish( String key, String value) throws BitDewException {
+	try {
+	    if (ddc !=null ) 
+		ddc.publish(key, value);
+	    return;
+	} catch (DDCException ddce) {
+	    log.debug("cannot ddc publish [data|hostid] : [" + key + "|" + value + "]"  + "\n" + ddce);
+	}
+	throw new BitDewException();
     }
 }
     // BitDew

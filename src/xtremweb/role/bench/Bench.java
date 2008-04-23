@@ -161,7 +161,7 @@ public class Bench {
 	    log.fatal("When using burst mode, make sure that the number of loop is a multiple of the number of burst.\n For instance with loop=12 and burst=3, there will be 4 rounds of 3 concurrent data transfer");
 	    System.exit(3);
 	}
-	bitdew.cleanup();
+	//TODO	bitdew.cleanup();
 	log.debug("12");
 	long[][][] durations = new long[iter][loop][2];
 	log.debug("13");
@@ -184,10 +184,11 @@ public class Bench {
 	    for (int l = 0; l < loop; l+=burst) {
 		long start=System.currentTimeMillis();
 		for (int b=0; b<burst;b++) 
-		    bitdew.put(datas[l+b],files[l+b]);
+		    bitdew.put(files[l+b],datas[l+b]);
 		
 		//Will wait for all on going transfers to be complete
-		bitdew.barrier();
+		//TODO		bitdew.barrier();
+		// a remplacer par transfer mnager
 		long end=System.currentTimeMillis();
 		for (int b=0; b<burst;b++) {
 		    durations[inc][l+b][PUT]=end-start;
@@ -200,7 +201,8 @@ public class Bench {
 		long start=System.currentTimeMillis();
 		for (int b=0; b<burst; b++) 
 		    bitdew.get(datas[l],new File(tempDirName +File.separator+ "COPY_" + s + "_" + l));
-		bitdew.barrier();
+		//TODO		bitdew.barrier();
+		//a remplacer par transfer manager
 		long end=System.currentTimeMillis();
 		for (int b=0; b<burst;b++) {
 		    durations[inc][l+b][GET]=end-start;

@@ -131,7 +131,7 @@ public class BenchBroadCastMaster {
 	File fileToBc = benchbc.createFile(size);
 	Data dataToBc = bitdew.createData(fileToBc);
 	dataToBc.setoob(oob);//set transferring protocol
-	bitdew.put(dataToBc,fileToBc);
+	bitdew.put(fileToBc,dataToBc);
 	uids = uids + dataToBc.getuid() + " "; 
 
 	log.debug("Bench [" + size + "] data created " + uids );

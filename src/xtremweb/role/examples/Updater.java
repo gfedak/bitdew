@@ -62,7 +62,7 @@ public class Updater {
 	    //code for the master
 	    File fic = new File("/path/to/file_to_update");
 	    Data data = bitdew.createData(fic);
-	    bitdew.put(data, fic);
+	    bitdew.put(fic, data);
 	    Attribute attr = activeData.createAttribute("attr update = {replicat = -1, oob = bittorrent, abstime = 43200  }");
 	    activeData.schedule(data, attr);
 	} else {

@@ -107,7 +107,7 @@ public class Master {
     File f0 = new File(filetodl);
 	Data dataToBc = bitdew.createData(f0);
 	dataToBc.setoob(oob);//set transferring protocol
-	bitdew.put(dataToBc,f0);
+	bitdew.put(f0,dataToBc);
 	uids = uids + dataToBc.getuid() + " "; 
 
 

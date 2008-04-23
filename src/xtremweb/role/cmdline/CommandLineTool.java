@@ -66,7 +66,14 @@ public class CommandLineTool {
 	
 	//start services
 	if (otherArgs[0].equals("serv")) {
-	    Vector services = processServices(otherArgs);
+	    Vector services =  new Vector();
+	    for (String s: otherArgs) {
+		if (s.equals("dc") ||
+		    s.equals("ds") ||
+		    s.equals("dr") ||
+		    s.equals("dt"))
+		    services.add(s);
+	    }
 	    ServiceLoader sl = new ServiceLoader("RMI", port, services);
 	    UIFactory.createUIFactory();
 	    server = true;
@@ -75,6 +82,7 @@ public class CommandLineTool {
 	    try {
 		Vector comms = ComWorld.getMultipleComms(host, "rmi", port, "dc", "dr", "dt", "ds");
 		activeData = new ActiveData(comms);		
+		bitdew = new BitDew(comms);
 	    } catch(ModuleLoaderException e) {
 		log.warn("Cannot find service " + e);
 		log.warn("Make sure that your classpath is correctly set");
@@ -103,44 +111,47 @@ public class CommandLineTool {
 	
 	//create data
 	if (otherArgs[0].equals("data")) {
-	    log.debug("data " + otherArgs[1] + " " + otherArgs[2]);
-	    //		cmdline.processData(otherArgs[1], otherArgs[2]);
+	    if (otherArgs.length==1) 
+		usage(HelpFormat.LONG);
+	    File file = new File(otherArgs[1]);
+	    if (!file.exists()) {
+		log.warn(" File does not exist : " + otherArgs[1]);
+		System.exit(0);	
+	    }
+	    Data data = null;
+	    try {
+		 data = bitdew.createData(file);
+		log.info("Data registred : " + DataUtil.toString(data));
+	    } catch (BitDewException ade) {
+		log.warn(" Cannot registrer data : " + ade);
+		System.exit(0);
+	    }
 	}
-	
-	/* catch (BitDewException bde) {
-	    log.warn(" cmdline error  : " + bde);
-	    System.exit(0);
-	} catch (Exception e) {
-	    log.warn(" cmdline error   : " + e);
-	    System.exit(0);
-	}  
-	    */
-    } // CommandLineTool constructor
-    
-    public Vector processServices(String[] serv) {
-	Vector v = new Vector();
-	for (String s: serv) {
-	    if (s.equals("dc") ||
-		s.equals("ds") ||
-		s.equals("dr") ||
-		s.equals("dt"))
-		v.add(s);
-	}
-	return v;
-    }
 
-    private void processData() throws BitDewException{
-	Data data = bitdew.createData();
-    }
-    /*
-    private Attribute processAttr(Attribute attr)  throws BitDewException, ActiveDataException {
-    }
-    */
-    private void processData(String fileName, Attribute attr) throws BitDewException, ActiveDataException {
-	File file = new File(fileName);
-	Data data = bitdew.createData(file);
-	activeData.schedule(data, attr);
-    }
+	//put file [dataId]
+	if (otherArgs[0].equals("put")) {
+	    if (otherArgs.length==1) 
+		usage(HelpFormat.LONG);
+
+	    File file = new File(otherArgs[1]);
+	    if (!file.exists()) {
+		log.warn(" File does not exist : " + otherArgs[1]);
+		System.exit(0);	
+	    }
+	    //no dataId
+	    if (otherArgs.length==2) {
+		Data data = null;
+		try {
+		    data = bitdew.createData(file);
+		    log.info("Data registred : " + DataUtil.toString(data));
+		} catch (BitDewException ade) {
+		    log.warn(" Cannot registrer data : " + ade);
+		    System.exit(0);
+		}
+	    }
+	}
+
+    } // CommandLineTool constructor
 
     private String[] parse(String[] args) {
 	
@@ -205,11 +216,18 @@ public class CommandLineTool {
 	    usage.option("    lftabs=dataId", "relative lifetime. The data will be obsolete when dataId is    deleted.");
 	    usage.option("    oob=protocol", "out-of-band file transfer protocol. Protocol can be one of the following [dummy|ftp|bittorrent]");
 	    usage.option("    ft=[true|false]", "fault tolerance. If true data will be rescheduled if one host  holding the data is considered as dead.");
-	    //	    usage.option("data","create data");
+	    //	    usage.option("setattr","set attribute to data");
+	    usage.ln();
+	    usage.section("Data:");
+	    usage.option("data file_name","create a new data from the file file_name");
+	    usage.ln();
+	    usage.section("File:");
+	    usage.option("put file_name [dataId]","copy a file in the data space. If dataId is not specified, a new data will be created from the file.");
+	    usage.option("get dataId [file_name]","get the file from dataId.");
 	    usage.ln();
 	    //	    usage.option("--file filename","file name to be created" );
 	    //	    usage.option("--attr attruid","attribute uid associated to the data" );
-	    //	    usage.option("setattr","set attribute to data");
+
 	    break;
 	case SHORT:
 	    usage.usage("try java -jar bitdew-stand-alone.jar [-h, --help] for more information");
