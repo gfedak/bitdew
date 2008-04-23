@@ -10,6 +10,7 @@ package xtremweb.core.com.idl;
  * @version 1.0
  */
 import xtremweb.core.log.*;
+import xtremweb.core.conf.*;
 import xtremweb.core.obj.ds.Host;
 import xtremweb.core.db.*;
 import java.lang.reflect.*;
@@ -21,9 +22,29 @@ public class ComWorld {
     
     public static Logger log = LoggerFactory.getLogger(ComWorld.class);
 
+    private static final int RMI_DEFAULT_PORT = 4322;
+
     public ComWorld() {
 	
     } // ComWorld constructor
+
+    public static int initPort(String media, int port) {
+	Properties mainprop;
+	try {
+	    mainprop = ConfigurationProperties.getProperties();
+	} catch (ConfigurationException ce) {
+	    log.warn("No Embedded HTTP Protocol Information found : " + ce); 
+	    mainprop = new Properties();
+	}
+
+	if (port==0) {
+	    if (media.toLowerCase().equals("rmi")) {
+		port = (Integer.valueOf(mainprop.getProperty("xtremweb.core.com.rmi.port", "" + RMI_DEFAULT_PORT))).intValue();
+	    }
+	}
+	return port;
+    }
+  
     
     public static Host getHost() {
 	if (host == null) {
@@ -34,12 +55,13 @@ public class ComWorld {
     }
 
     public static Object getComm( String host, String layer, int port, String module) throws ModuleLoaderException {
+	port = initPort(layer, port);
 	String className ="";
-	if (layer.equals("local")) {
+	if (layer.toLowerCase().equals("local")) {
 	    className = ModuleLoader.rootServiceClassPath + "." + module + ".Callback" + module;
 	    return createInstance(className);
 	} 
-	if (layer.equals("rmi")) {
+	if (layer.toLowerCase().equals("rmi")) {
 	    className = ModuleLoader.rootComClassPath + ".CommRMI" + module;
 	    try {
 		Object comm = createInstance(className);
@@ -47,16 +69,7 @@ public class ComWorld {
 		Class c = comm.getClass();
 		Class[] parameterTypes = new Class[] {String.class, int.class, String.class};
 		Method method = c.getMethod("initComm",parameterTypes);
-		Method[] methods = c.getMethods();
-		/*Method method;
-		for (int i=0; i< methods.length; i++ ) {
-		    method = methods[i];
-		    log.debug(method.getName());
-		    if (method.getName().equals("initCom")) {
-		    }
-		}
-		*/
-		//method.invoke((Object) host,(Object) port,(Object) module);	
+		Method[] methods = c.getMethods();	
 		Object[] arguments = new Object[] {host, new Integer(port), module};
 		
 		method.invoke(comm, arguments);

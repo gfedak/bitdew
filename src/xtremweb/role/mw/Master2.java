@@ -168,7 +168,7 @@ public class Master2 {
 	    try {
 		if (attr.getname().equals("collector")) {
 		    //cleanup
-		    transferManager.barrier();
+		    //		    transferManager.barrier();
 		    System.exit(0);
 		} 
 	    } catch (Exception e) {}

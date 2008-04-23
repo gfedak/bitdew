@@ -16,17 +16,16 @@ public class DummyTransfer
     extends BlockingOOBTransferImpl 
     implements BlockingOOBTransfer, OOBTransfer {
     
-
-    protected static  int SECOND = 1000; // milli sec
-    protected static  int SHORT_TIMEOUT = 1; //1 second
-    protected static  int LONG_TIMEOUT = 10; //10 second
+    private static  int SECOND = 1000; // milli sec
+    private static  int SHORT_TIMEOUT = 1; //1 second
+    private static  int LONG_TIMEOUT = 10; //10 second
 
     protected static  Logger log = LoggerFactory.getLogger(DummyTransfer.class);
 
     private boolean transfer_complete = false;
 
     public static void init() {
-	//should overload the default value for timeout
+
 	Properties mainprop;
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
@@ -49,43 +48,31 @@ public class DummyTransfer
     }
 
     public void connect ()  throws OOBException {	
-	log.debug("Dummy connect");
 	shorttimeout();
-	log.debug("Dummy is connected");
     }	
 	
     public void blockingSendSenderSide    ()  throws OOBException {
-	log.debug("Dummy Blocking Send Sender Side");
 	longtimeout();
 	transfer_complete = true;
-	log.debug("Dummy send achieved");
     }
 
     public void blockingSendReceiverSide    ()  throws OOBException {
-	log.debug("********** Dummy Blocking Send ReceiverSide *************");
 	longtimeout();
 	transfer_complete = true;
-	log.debug("*********  Dummy send achived   *******");
     }
 
     public void blockingReceiveSenderSide ()  throws OOBException  {
-	log.debug("Dummy Blocking Receive Sender Side");
 	longtimeout();
 	transfer_complete = true;
-	log.debug("Dummy receive finished");
     }
 
     public void blockingReceiveReceiverSide ()  throws OOBException  {
-	log.debug("Dummy Blocking Receive Receiver Side");
 	longtimeout();
 	transfer_complete = true;
-	log.debug("Dummy receive finished");
     }
 
     public void disconnect() throws OOBException {
-	log.debug("Dummy disconnect");
 	shorttimeout();
-	log.debug("Dummy disconnected");
     }
 
     public boolean poolTransfer() {
@@ -144,4 +131,4 @@ public class DummyTransfer
     }
 
     
-} // HttpTransfer
+} // DummyTransfer

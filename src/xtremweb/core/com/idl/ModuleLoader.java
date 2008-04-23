@@ -8,18 +8,15 @@ import java.lang.reflect.*;
 
 public class ModuleLoader {
 
-    protected static Hashtable callbacks =  new Hashtable();;
-    public static    String proxyName=null;
-    public static    int    proxyPort=-1;
-    public static    int    rmiBackPort=4327;
-    public static    int    rmiPort=4322;
-
+    private static Hashtable callbacks =  new Hashtable();;
+    private static boolean handlersIntialised = false;
     public static final String rootServiceClassPath = "xtremweb.serv";
     public static final String rootComClassPath = "xtremweb.core.com.com";
+    public static final int rmiBackPort = 4327;
 
-    protected static Logger logger =  LoggerFactory.getLogger(ModuleLoader.class);
+    private static Logger log =  LoggerFactory.getLogger(ModuleLoader.class);
 
-    protected static Object createInstance( String className )  throws ModuleLoaderException {
+    private static Object createInstance( String className )  throws ModuleLoaderException {
 	try {
 
 	    //	    Class classClass = classLoader.loadClass( className, true);
@@ -28,20 +25,33 @@ public class ModuleLoader {
 	    Constructor classConstructor =
 		classClass.getConstructor((java.lang.Class [])null);
 	    //	    for ( int i=0; i<classConstructors.length; i++) {
-	    //	logger.InfoBlue("constructor " + classConstructors[i].getName());		
+	    //	log.InfoBlue("constructor " + classConstructors[i].getName());		
 	    return classClass.newInstance();
 	} catch ( ClassNotFoundException cnfe ) {
-	    logger.warn("ModuleLoader : cannot find class in classpath");
+	    log.warn("ModuleLoader : cannot find class in classpath");
 	} catch ( IllegalAccessException iae) {
-	    logger.warn( "cannot create object from class " + className + " " + iae);
+	    log.warn( "cannot create object from class " + className + " " + iae);
     	} catch ( NoSuchMethodException nsme) {
-    	    logger.warn( "cannot find a contructor to create an object  " + className + " " + nsme);
+    	    log.warn( "cannot find a contructor to create an object  " + className + " " + nsme);
 //  	} catch ( InvocationTargetException ite) {
 //  	    throw new ModuleLoaderException( "cannot call the constructor of the class  " + className, ite);
 	} catch ( InstantiationException ie) {
-	    logger.warn( "cannot instantiate the  class " + className + " " + ie);
+	    log.warn( "cannot instantiate the  class " + className + " " + ie);
 	}	    
 	throw new ModuleLoaderException( "cannot create instance for class " + className);
+    }
+
+    private static void initHandlers(String media, int port) {
+	if (media.toLowerCase().equals("rmi")) {
+	    //initialise port
+	    try {
+		LocateRegistry.createRegistry(port);
+		log.debug("RMI registry ready.");
+		handlersIntialised = true;
+	    } catch (Exception e) {
+		log.fatal("Exception starting RMI registry:" + e);
+	    }
+	}
     }
 
     public static void addCallback( String module) throws ModuleLoaderException {
@@ -51,9 +61,9 @@ public class ModuleLoader {
 	CallbackTemplate callb = (CallbackTemplate)  createInstance(callbackClassName);
 	if ( callb!=null ) {	    	
 	    callbacks.put( module, callb );
-	    logger.info("ModuleLoader has registred callback: [" + module+ "]" );
+	    log.info("ModuleLoader has registred callback: [" + module+ "]" );
 	} else {
-	    logger.info("ModuleLoader can't register callback: [" + module+ "]" );     
+	    log.info("ModuleLoader can't register callback: [" + module+ "]" );     
 	} 
 	
 
@@ -62,7 +72,7 @@ public class ModuleLoader {
 
     public static void addSubCallback(String module, CallbackTemplate subCallback) throws ModuleLoaderException {
     	callbacks.put( module, subCallback );
-    	logger.info("ModuleLoader has registred SubCallback: " + subCallback +  " [" + module+ "]" );
+    	log.info("ModuleLoader has registred SubCallback: " + subCallback +  " [" + module+ "]" );
     }
     
     public static CallbackTemplate getModule( String module ) throws  ModuleLoaderException {
@@ -73,32 +83,34 @@ public class ModuleLoader {
     public static void addHandler (String module, String media, int port) throws ModuleLoaderException  {
 	//get the callback codes for this client
 	if ( ! callbacks.containsKey(module)) throw new ModuleLoaderException( "cannot find a callback  for module " + module);
-	// First findout handler
-	
+
+	port = ComWorld.initPort(media,port);
+
+	// First findout handler	
 	//create a communication handler and register its callback
-	if (media=="RMI") {
+	if (media.toLowerCase().equals("rmi")) {
 	    try {
 		String handlerClassName =  "xtremweb.core.com.handler.HandlerRMI" + module;
- /*		HandlerRMITemplate handler= (HandlerRMITemplate)
-	 	    createInstance("xtremweb."+ module+ ".HandlerRMI" +
-		 		   module);
-*/
+
  		HandlerRMITemplate handler= (HandlerRMITemplate)
 	 	    createInstance( handlerClassName );
-		
-		//TODO essayer de demarrer un rmiregistry
+		//starts rmiregistry
+		if (!handlersIntialised) {
+		    initHandlers(media,port);
+		}
+
 		//		Registry registry = LocateRegistry.createRegistry(port);
 		//registry.rebind(module, handler);
 		Naming.rebind("//" + "localhost" + ":" + port + "/" + module, handler);
 
 		handler.registerCallback((CallbackTemplate) callbacks.get( module ));
-		logger.info("ModuleLoader has registred handler: [" + module+ "," + media+ "]");
+		log.info("ModuleLoader has registred handler: [" + module+ "," + media+ "]");
 		return;
 	    } catch( ConnectException e) {
-		logger.info("cannot connect to " + media + " server " + " when installing module " +  module + " on port " + port + " " + e);
+		log.info("cannot connect to " + media + " server " + " when installing module " +  module + " on port " + port + " " + e);
 		throw new ModuleLoaderException ();
 	    }    catch( Exception e) {
-		logger.info("cannot connect to " + media + " server " + " when installing module " +  module + " on port " + port + " " + e );
+		log.info("cannot connect to " + media + " server " + " when installing module " +  module + " on port " + port + " " + e );
 		throw new ModuleLoaderException (); 
 	    }
 	}
@@ -123,7 +135,7 @@ public class ModuleLoader {
 		}
 
 	    handler.registerModuleHandler( module, handler);
-	    logger.info("ModuleLoader has registred handler: [" +
+	    log.info("ModuleLoader has registred handler: [" +
 		       module+ "," + media+ "]");
 	    return;
 	}
@@ -131,21 +143,20 @@ public class ModuleLoader {
 	throw new ModuleLoaderException (" Cannot find a " + media + "handler for module " + module)  ;
     }
 
-
-    //used to test
+    //TODO move this to a test unit
     public static void main ( String [] args) {
-
+	int    rmiPort=4322;
 	new ModuleLoader();
 	try {
 	    addCallback( "client" );
 	} catch (ModuleLoaderException e) {
-	    logger.warn("ModuleLoader main(): " +  e);
+	    log.warn("ModuleLoader main(): " +  e);
 	    System.exit( 1);
 	}
 	try {
 	    addHandler( "client", "RMI", rmiPort );
 	} catch (ModuleLoaderException e) {
-	    logger.warn("ModuleLoader main(): " +  e);
+	    log.warn("ModuleLoader main(): " +  e);
 	    System.exit( 1);
 	}
 	

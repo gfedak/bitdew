@@ -63,9 +63,10 @@ public class CommandLineTool {
 	//if there's no other argument display helps
 	if (otherArgs.length==0) 
 	    usage(HelpFormat.SHORT); 
-	
+
 	//start services
 	if (otherArgs[0].equals("serv")) {
+	    
 	    Vector services =  new Vector();
 	    for (String s: otherArgs) {
 		if (s.equals("dc") ||

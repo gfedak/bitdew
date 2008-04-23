@@ -1,6 +1,4 @@
 package xtremweb.core.http;
-
-
 import xtremweb.core.log.*;
 import xtremweb.core.conf.*;
 
