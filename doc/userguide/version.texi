@@ -1,4 +1,4 @@
 @set UPDATED April 21, 2008 
 @set EDITION 1
-@set VERSION 0.0.2
+@set VERSION 0.1.0
  

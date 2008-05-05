@@ -12,8 +12,8 @@ package xtremweb.core.log;
 public class Version {
 
     public final static int major = 0;
-    public final static int minor = 0;
-    public final static int revision = 1;
+    public final static int minor = 1;
+    public final static int revision = 0;
     public final static String branch = "";
 
     public static String versionToString() {
