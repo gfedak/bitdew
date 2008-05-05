@@ -45,7 +45,7 @@ run:
 	java -cp ${CLASSPATH}  -Djava.security.manager -Djava.security.policy=conf/java.policy -Dlog4j.configuration=file:conf/log4j.properties  xtremweb.role.main.XtremWeb dr dc dt ds
 
 bench:
-	java -DPROPERTIES_FILE="conf/client.properties" -cp ${CLASSPATH} xtremweb.role.bench.Bench --oob dummy --loop=1000 --burst=250 --begin=100 --end=101 --warmup
+	java  -DPROPERTIES_FILE="conf/client.properties" -cp ${CLASSPATH} xtremweb.role.bench.Bench --oob dummy --loop=100000 --burst=250 --begin=100 --end=101 --warmup
 
 worker:
 	java -DPROPERTIES_FILE="conf/client.properties" -cp ${CLASSPATH} xtremweb.role.mw.Worker2 --port=4325 --host=localhost

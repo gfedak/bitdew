@@ -29,7 +29,7 @@ import xtremweb.core.log.*;
 import xtremweb.core.http.*;
 import java.io.File;
 import jargs.gnu.CmdLineParser;
-import java.util.*;
+import java.util.Vector;
 
 
 public class CommandLineTool {

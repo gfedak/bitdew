@@ -17,8 +17,8 @@ import java.util.Arrays;
 
 public class ServiceLoader {
 
-    protected CallbackTemplate _callback = null;
-    protected Logger logger = Logger.getLogger("ServiceLoader");
+    private CallbackTemplate _callback = null;
+    private Logger logger = Logger.getLogger("ServiceLoader");
 
     
     public ServiceLoader(String medium, int port, String... modules) {
@@ -55,15 +55,12 @@ public class ServiceLoader {
     	   try {
   	    	 ModuleLoader.addSubCallback( module, subcb );
   			
-//  			ModuleLoader.addSubCallback( module, subcb );
   		    } catch (ModuleLoaderException e) {
   			logger.fatal ("callback cannot bind "+  module + " : " +  e);
   		    }
   	    logger.info("module " + module + " loaded");
     	try {
-		ModuleLoader.addHandler( module, medium, port);
-		
-//		ModuleLoader.addSubCallback( module, subcb );
+	    ModuleLoader.addHandler( module, medium, port);		
 	    } catch (ModuleLoaderException e) {
 		logger.fatal ("Client cannot bind "+  module + " : " +  e);
 	    }

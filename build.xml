@@ -168,9 +168,9 @@ Ant build file
 	    depends="clean, init, dist, tests, jar, deflate-jars, standalone-jar, apidoc, zip"/>
 
     <target name="zip">
-      <zip destfile="bitdew-${version}.zip"  excludes=".svn, *~">
+      <zip destfile="dist/bitdew-src-${version}.zip"  excludes=".svn, *~">
 	<zipfileset dir="."
-		    includes="bitdew-${version}.jar, bitdew-stand-alone-${version}.jar, README, Doxygen, build.xml, bitdew.mf, build.sh, ant, Makefile"
+		    includes="README, Doxygen, build.xml, bitdew.mf, build.sh, ant, Makefile"
 		    prefix="bitdew-${version}/" />
 	<zipfileset dir="doc/api"
 		    prefix="bitdew-${version}/doc/api/" />
@@ -202,7 +202,7 @@ Ant build file
 -->
 
     <target name="jar" depends="dist">
-      <jar destfile="bitdew-${version}.jar" basedir="${build}"/>
+      <jar destfile="dist/bitdew-lib-${version}.jar" basedir="${build}"/>
     </target>
     
     <target name="deflate-jars">
@@ -218,7 +218,7 @@ Ant build file
     </target>
   
     <target name="standalone-jar" depends="dist">
-      <jar destfile="bitdew-stand-alone-${version}.jar" manifest="bitdew.mf">
+      <jar destfile="dist/bitdew-stand-alone-${version}.jar" manifest="bitdew.mf">
 	<fileset dir="${build}"/>
 	<fileset dir="temp-jar"/>
 	<fileset dir="${conf}">

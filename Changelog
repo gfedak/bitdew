@@ -4,13 +4,14 @@ ROADMAP
 	- updated example section (Updater, AllToAll)
 
 	version 0.2.0
-	- cmdline tool can be scheduled data
+	- cmdline tool can schedule data
 
-April 27, 2008
+May 4, 2008
 	version 0.1.0
 	- command line utility has the ability to create data, create
-	attribute, put file, get file, start services and schedule data.
-	- documentation features a quickstart section
+	attribute and start services.
+	- jdk6 compliant
+	- documentation features a quickstart section.
 April 21, 2008
 	version 0.0.2
 	- better formatting of the command line utility

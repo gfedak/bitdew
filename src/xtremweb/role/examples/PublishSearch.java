@@ -22,7 +22,8 @@ import xtremweb.core.obj.ds.*;
 import xtremweb.role.ui.*;
 import xtremweb.serv.bench.*;
 
-import java.util.*;
+import java.util.Vector;
+import java.util.Random;
 
 public class PublishSearch {
 
