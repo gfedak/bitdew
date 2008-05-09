@@ -311,6 +311,13 @@ public class Version {
   <delete file="dist/bitdew-src-${version}.zip"/>
 </target>
 
+    <!--
+    ===================================================================
+    TARGET : generates the developper documentation, the code
+    documentation, the uer guide
+    ===================================================================
+    -->
+
 <target name="apidoc" description="api documentation">
   <javadoc   destdir="doc/api"
 	     author="true"
@@ -360,6 +367,11 @@ public class Version {
   </exec>
 </target>
 
+    <!--
+    ===================================================================
+    TARGET : run the junit tests
+    ===================================================================
+    -->
 
  <target name="tests" description="JUnit4 test suite" depends="">
    <junit printsummary="yes" haltonfailure="yes" clonevm="true">
