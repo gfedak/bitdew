@@ -133,7 +133,7 @@ When developping BitDew, you may need to use the following build targets as well
      @item  @command{build.sh standalone-jar}
      Create a new @file{bitdew-standalone-@value{VERSION}.jar} file.
      @item  @command{build.sh release}
-     Run the previous targets.
+     Make a new BitDew release, that is, run most of the previous targets.
 @end table
 
 @chapter Running BitDew
@@ -141,7 +141,7 @@ When developping BitDew, you may need to use the following build targets as well
 
 @section Quickstart
 
-The simplest way is to use the stand-alone jar file of bitdew, which contains all the files and libraries inclued in one signle jar file.
+The simplest way is to use the file @file{bitdew-stand-alone-@value{VERSION}.jar}  which contains all the files and libraries inclued in one signle jar file.
 
 You can launch the command-line tool simply with the following command, which will display the usage :
 
@@ -164,6 +164,12 @@ To start all of the services supported by BitDew simply run the two following co
 @end example
 
 This will start the following services dc : Data Catalog, dr : Data Repository, dt : Data Transfer and ds: Data Scheduling.
+
+
+@example
+  @command{java -jar bitdew-stand-alone-@value{VERSION}.jar serv dc dr dt ds}
+@end example
+
 
 @section Invoking the command line tool
 @cindex invoking
