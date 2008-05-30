@@ -78,7 +78,7 @@ The Bitdew runtime environment delegates a large number of operation to third pa
 
 The BitDew files are downloadable from the @uref{http://www.bitdew.net, BitDew web site} (@code{http://www.bitdew.net}):
 @table @asis
-     @item @file{bitdew-standalone-@value{VERSION}.jar} 
+     @item @file{bitdew-stand-alone-@value{VERSION}.jar} 
 contains everything you need to run the software.
      @item @file{bitdew-src-@value{VERSION}.jar} 
 contains the sources of BitDew as well as librairies needed to compile BitDew.
@@ -130,8 +130,8 @@ When developping BitDew, you may need to use the following build targets as well
      Build the full source code documentation. This targets depends on the Doxygen tool. It also requires time, processing power and disk space.
      @item  @command{build.sh jar}
      Create a new @file{bitdew-@value{VERSION}.jar} file.
-     @item  @command{build.sh standalone-jar}
-     Create a new @file{bitdew-standalone-@value{VERSION}.jar} file.
+     @item  @command{build.sh stand-alone-jar}
+     Create a new @file{bitdew-stand-alone-@value{VERSION}.jar} file.
      @item  @command{build.sh release}
      Make a new BitDew release, that is, run most of the previous targets.
 @end table
