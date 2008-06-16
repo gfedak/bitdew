@@ -6,18 +6,30 @@ ROADMAP
 	version 0.2.0
 	- cmdline tool can schedule data
 
+	version 0.1.2
+	- working HelloWorld example
+	- documentation of how to run the example in
+	the doxygen source
+	
+June 10, 2008
+	version 0.1.1
+	- automated the build release process
+	- bugs and documentation fixes
+	
 May 4, 2008
 	version 0.1.0
 	- command line utility has the ability to create data, create
 	attribute and start services.
 	- jdk6 compliant
 	- documentation features a quickstart section.
+	
 April 21, 2008
 	version 0.0.2
 	- better formatting of the command line utility
 	- cmdtool can create attribute and start services
 	- bugfixes
 	- more documentation
+	
 Mars 12, 2008
 	version 0.0.1
 	- initial release

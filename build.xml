@@ -3,7 +3,7 @@
       Ant build file
   </description>
 
-  <property name="version" value="0.1.1" />
+  <property name="version" value="0.1.2" />
 
   <!-- set global properties for this build -->
   <property name="src" location="src"/>
@@ -82,7 +82,6 @@
       </uptodate>
     </target>
     
-
     <target name="idl" description="Preprocess the .idl files" depends="check_idl" unless="idl.notRequired">
       
       <mtxslt processor = "${saxon6}"
@@ -337,15 +336,18 @@ public class Version {
 	description="call doxygen to generate a rich doc">
   <exec dir="." executable="doxygen"
 	failonerror="true" os="Linux"/>
+  <exec dir="." executable="doxygen"
+	failonerror="true" os="Mac OS X"/>
 </target>
 
-
+<!--
 <target name="srcdoc"	 description="src documentation">
   <taskdef name="doxygen"
 	   classname="org.doxygen.tools.DoxygenTask"
 	   classpath="lib/ant-doxygen.jar" />
   <doxygen configFilename="Doxyfile"/>
  </target>
+-->
 
 <target name="userguide" depends="init"
 	description="generates user guide with texinfo">

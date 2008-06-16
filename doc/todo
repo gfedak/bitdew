@@ -17,3 +17,4 @@ et integrer a ant
 * transformer le ActiveDataCallback en un EventHandler
 * fixer le protocol.setserver et locator.set_drname
 * virer TransferType vers dt
+* APIFactory.createAPIs(comms, "BitDew", "ActiveData", "TransferManager");
