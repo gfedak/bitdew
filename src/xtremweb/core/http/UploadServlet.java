@@ -35,7 +35,9 @@ import java.io.File;
 public class UploadServlet extends HttpServlet {
     
     private String _documentRoot; 
-    
+
+    Logger log = LoggerFactory.getLogger("UploadServlet");
+
     /**
      * Creates a new <code>UploadServlet</code> instance.
      *
@@ -66,7 +68,7 @@ public class UploadServlet extends HttpServlet {
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-	System.out.println("Content Type ="+request.getContentType());
+	log.debug("Content Type ="+request.getContentType());
 	response.setContentType("text/html");
 	response.setStatus(HttpServletResponse.SC_OK);
 	response.getWriter().println("<h1>File Upload Page</h1><FORM name=\"filesForm\" action=\"fileupload\"  method=\"post\" enctype=\"multipart/form-data\">  File:<input type=\"file\" name=\"file\"/><br/> <input type=\"submit\" name=\"Submit\" value=\"Upload Files\"/></FORM>");
@@ -82,7 +84,7 @@ public class UploadServlet extends HttpServlet {
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	try {
-	    System.out.println("Content Type ="+request.getContentType());
+	    log.debug("Content Type ="+request.getContentType());
 	    DiskFileItemFactory factory = new DiskFileItemFactory();
 	    // Configure the factory here, if desired.
 	    ServletFileUpload upload = new ServletFileUpload(factory);
@@ -95,20 +97,20 @@ public class UploadServlet extends HttpServlet {
 		FileItem fi = (FileItem)itr.next();
 		
 		if(!fi.isFormField()) {
-		    System.out.println("\nFIELD NAME: "+fi.getFieldName());
-		    System.out.println("\nNAME: "+fi.getName());
-		    System.out.println("SIZE: "+fi.getSize());
+		    log.debug("\nFIELD NAME: "+fi.getFieldName());
+		    log.debug("\nNAME: "+fi.getName());
+		    log.debug("SIZE: "+fi.getSize());
 		    File fNew= new File(_documentRoot, fi.getName());
 		    //	File fNew= new File(fi.getName());
-		    System.out.println(fNew.getAbsolutePath());
+		    log.debug(fNew.getAbsolutePath());
 		    fi.write(fNew);
 		}
 		else {
-		    System.out.println("Field ="+fi.getFieldName());
+		    log.debug("Field ="+fi.getFieldName());
 		}
 	    }
 	} catch (Exception e) {
-	    System.out.println("Error" + e);
+	    log.debug("Error" + e);
 	}
 	
 	response.setContentType("text/html");

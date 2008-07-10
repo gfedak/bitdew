@@ -82,7 +82,7 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
 		    default_http_protocol.setname("HTTP");
 		    default_http_protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.http.server","localhost"));
 		    default_http_protocol.setport((Integer.valueOf(mainprop.getProperty("xtremweb.serv.dr.http.port", "8080"))).intValue());
-		    default_http_protocol.setpath(mainprop.getProperty("xtremweb.serv.dt.http.path","."));
+		    default_http_protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.http.path","."));
 		    registerProtocol(default_http_protocol);
 		}
 	    }

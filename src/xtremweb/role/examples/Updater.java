@@ -32,7 +32,7 @@ public class Updater {
     BitDew bitdew = null;
     ActiveData activeData = null;
     TransferManager transferManager = null;
-
+    boolean master;
     /**
      * Creates a new <code>Updater</code> instance.
      *
@@ -43,7 +43,7 @@ public class Updater {
     public Updater(String host, int port) throws Exception {
 
 	//master initialisation : loads the service
-	if (host.equals("localhost")) {
+	if (master) {
 	    String[] modules = {"dc","dr","dt","ds"};
 	    ServiceLoader sl = new ServiceLoader("RMI", port, modules);
 	}
@@ -58,9 +58,9 @@ public class Updater {
 	activeData.start();
 	transferManager.start();
 
-	if (host.equals("localhost")) {
+	if (master) {
 	    //code for the master
-	    File fic = new File("/path/to/file_to_update");
+	    File fic = new File("/pat/to/master");
 	    Data data = bitdew.createData(fic);
 	    bitdew.put(fic, data);
 	    Attribute attr = activeData.createAttribute("attr update = {replicat = -1, oob = bittorrent, abstime = 43200  }");

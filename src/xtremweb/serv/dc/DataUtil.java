@@ -42,7 +42,7 @@ public class DataUtil {
      * @return a <code>String</code> value
      */
     public static String toString(Data data) {
-	return "data " + data.getname() + " [" + data.getuid() + "] = { " + "md5=" + data.getchecksum() + " }";
+	return "data " + data.getname() + " [" + data.getuid() + "] = { " + "md5=" + data.getchecksum() + " size=" + data.getsize() + " }";
     }
 
     /**

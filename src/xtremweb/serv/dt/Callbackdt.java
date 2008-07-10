@@ -51,7 +51,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      */
     public Callbackdt() {
 	//recupere les properties
-
+	//FIXME : bad design, is it necessary ?
 	tm = TransferManagerFactory.getTransferManager();
 	tm.start();
 	try {

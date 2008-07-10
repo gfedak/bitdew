@@ -105,7 +105,7 @@ public class ActiveData {
      */
     public void start() { 
 	log.debug("Starting AD Engine");
-	if (timer==null) timer=new Timer(); 
+	if (timer==null) timer=new Timer(true); 
 	timer.schedule(new TimerTask() { 
 		public void run() { 
 		    checkData();

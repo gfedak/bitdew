@@ -1,5 +1,6 @@
 package xtremweb.core.log;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 import org.apache.log4j.PropertyConfigurator;
 import java.io.*;
 import java.util.Properties;
@@ -80,4 +81,19 @@ public class Log4JLogger extends xtremweb.core.log.Logger {
 	return new Log4JLogger(module);
     }
     
+    //FIXME : make this generic to all logger
+    public void setLevel(String level) {
+	if ("debug".equalsIgnoreCase(level)) {
+	    logger.setLevel(Level.DEBUG);
+	} else if ("info".equalsIgnoreCase(level)) {
+	    logger.setLevel(Level.INFO);
+	} else if ("error".equalsIgnoreCase(level)) {
+	    logger.setLevel(Level.ERROR);
+	} else if ("fatal".equalsIgnoreCase(level)) {
+	    logger.setLevel(Level.FATAL);
+	} else if ("warn".equalsIgnoreCase(level)) {
+	    logger.setLevel(Level.WARN);
+	}
+    }
+
 }

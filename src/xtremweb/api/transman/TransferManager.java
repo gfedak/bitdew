@@ -125,7 +125,7 @@ public class TransferManager {
      */
     public void start() { 
 	log.debug("Starting TM Engine");
-	if (timer==null) timer=new Timer(); 
+	if (timer==null) timer=new Timer(true); 
 	timer.schedule(new TimerTask() { 
 		public void run() { 
 		    checkTransfer();
@@ -306,8 +306,10 @@ public class TransferManager {
 			//FIXME gros bordel dans le sens du transfer
 			//TODO changer le if(!) en if()
 			log.debug("transfer type " + TransferType.toString(trans.gettype()));
-			if ( trans.gettype() ==  TransferType.UNICAST_SEND_RECEIVER_SIDE )
+			if ( trans.gettype() ==  TransferType.UNICAST_SEND_SENDER_SIDE )
 			    complete = dt.poolTransfer(trans.getuid());
+			if ( trans.gettype() ==  TransferType.UNICAST_SEND_RECEIVER_SIDE )
+			    complete = oob.poolTransfer();
 			if ( trans.gettype() ==  TransferType.UNICAST_RECEIVE_RECEIVER_SIDE )
 			    complete = oob.poolTransfer();
 		    

@@ -44,6 +44,7 @@ public class CommandLineTool {
     private String fileName;
     private String dirName;
     private int port;
+    private boolean verbose;
     private boolean server = false;
     private static Logger log = LoggerFactory.getLogger("CommandLineTool");
 
@@ -57,8 +58,12 @@ public class CommandLineTool {
 		log.debug(le.toString());
 	    }
 	}
-	
+    
 	String[] otherArgs = parse(args);
+
+	//switch to verbose mode
+	if (verbose) 
+	    log.setLevel("debug");
 	
 	//if there's no other argument display helps
 	if (otherArgs.length==0) 
@@ -172,6 +177,7 @@ public class CommandLineTool {
 	CmdLineParser parser = new CmdLineParser();
 
 	CmdLineParser.Option helpOption = parser.addBooleanOption('h',"help");
+	CmdLineParser.Option verboseOption = parser.addBooleanOption('v',"verbose");
 	CmdLineParser.Option dirOption = parser.addStringOption('d',"dir");
 	CmdLineParser.Option hostOption = parser.addStringOption("host");
 	CmdLineParser.Option fileOption = parser.addStringOption("file");
@@ -190,6 +196,7 @@ public class CommandLineTool {
 	fileName = (String) parser.getOptionValue(fileOption);
 	dirName = (String) parser.getOptionValue(dirOption, ".");	
 	boolean help = ((Boolean)parser.getOptionValue(helpOption, Boolean.FALSE)).booleanValue();
+	verbose = ((Boolean)parser.getOptionValue(verboseOption, Boolean.FALSE)).booleanValue();
 
  	//if the help option is set display long help
 	if (help) 
@@ -210,6 +217,7 @@ public class CommandLineTool {
 	    usage.ln();
 	    usage.section("Options:");
 	    usage.option("-h", "--help","display this helps" );
+	    usage.option("-v", "--verbose","display debugging information" );
 	    usage.option("-d", "--dir","working directory" );
 	    usage.option("--host","service hostname" );
 	    usage.option("--port","service port" );

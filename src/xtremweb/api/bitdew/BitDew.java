@@ -268,6 +268,20 @@ public class BitDew {
 	}
     }
 
+
+    /**
+     * <code>put</code> file to a data
+     *
+     * @param file a <code>File</code> value, file to put
+     * @param data a <code>Data</code> value, data into which to put the file
+     * @param oob a <code>String</code> value, protocol to use to transfer the data
+     * @exception BitDewException if an error occurs
+     */
+    public void put(File file, Data data, String oob) throws BitDewException {
+	data.setoob(oob);
+	put(file, data);
+    }
+
     /**
      * <code>put</code> file to a data
      *
@@ -416,6 +430,24 @@ public class BitDew {
 	}
 	
 	log.debug("Succesfully retreived data [" + data.getuid()+ "] to local storage [" + local_locator.getref()  + "] " + remote_proto.getname() +"://[" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "]@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
+    }
+
+
+    /**
+     *  <code>searchDataByUid</code> searches data in the central data catalog.
+     *
+     * @param dataUid a <code>String</code> value
+     * @return a <code>Data</code> value
+     * @exception BitDewException if an error occurs
+     */
+
+    public Data searchDataByUid(String dataUid) throws BitDewException {
+	try {
+	    return idc.getData(dataUid);
+	} catch (RemoteException re ) {
+	    log.debug("cannot find data : " + dataUid + " in DC\n" + re);
+	}
+	throw new BitDewException();
     }
 
     /**

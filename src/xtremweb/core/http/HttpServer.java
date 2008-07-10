@@ -87,7 +87,8 @@ public class HttpServer {
 	    log.warn("No Embedded HTTP Protocol Information found : " + ce); 
 	    mainprop = new Properties();
 	}
-
+	//FIXME move the configuration of this to xtremweb.serv.dt.http and move the initialisation
+	//of the upload applet to a function so that it can be called from 
 	_port = (Integer.valueOf(mainprop.getProperty("xtremweb.core.http.port", "" + DEFAULT_PORT))).intValue();
 	_documentPath = mainprop.getProperty("xtremweb.core.http.path", DEFAULT_DOCUMENT_PATH);
 	_documentRoot = mainprop.getProperty("xtremweb.core.http.documentRoot", DEFAULT_DOCUMENT_ROOT);
@@ -136,10 +137,10 @@ public class HttpServer {
 	server.setConnectors(new Connector[]{connector});
         
 	//we defines 2 contexts : one for the servlet and one for serving files
-	System.out.println("port:"+_port);
-	System.out.println("documentRoot:"+_documentRoot);
-	System.out.println("documentPath:"+_documentPath);
-	System.out.println("uploadServlet:"+_uploadServlet);
+	log.debug("port:"+_port);
+	log.debug("documentRoot:"+_documentRoot);
+	log.debug("documentPath:"+_documentPath);
+	log.debug("uploadServlet:"+_uploadServlet);
 
 	
 	//the servlet is accessed with the /fileupload reference

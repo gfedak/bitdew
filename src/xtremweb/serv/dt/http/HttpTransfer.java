@@ -152,7 +152,7 @@ public class HttpTransfer
 	    log.debug("Fatal protocol violation: " + e);
 	    throw new OOBException("Http errors when receiving receive " + "/" + remote_locator.getref() );
 	} catch (IOException e) {
-	    System.err.println("Fatal transport error: " + e);
+	    log.debug("Fatal transport error: " + e);
 	    throw new OOBException("Http errors when receiving receive " + "/" + remote_locator.getref() );
 	    
 	} finally {
@@ -205,7 +205,7 @@ public class HttpTransfer
 	    http.receiveReceiverSide();
 	    http.disconnect();
 	} catch(OOBException oobe) {
-	    System.out.println(oobe);
+	    log.debug(" " + oobe);
 	}
 	
 	remote_locator.setref("copy_test-http");
@@ -218,9 +218,9 @@ public class HttpTransfer
 	    http.sendSenderSide();
 	    http.disconnect();
 	} catch(OOBException oobe) {
-	    System.out.println(oobe);
+	    log.debug("" + oobe);
 	}
-	System.out.println("upload completed");
+	log.debug("upload completed");
 	
     }
 

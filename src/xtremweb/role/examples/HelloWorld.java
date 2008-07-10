@@ -6,7 +6,6 @@ import xtremweb.api.bitdew.BitDew;
 import xtremweb.api.activedata.ActiveData;
 import xtremweb.api.activedata.ActiveDataCallback;
 import xtremweb.core.com.idl.ComWorld;
-import xtremweb.core.serv.ServiceLoader;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.ds.Attribute;
 
@@ -61,13 +60,52 @@ public class HelloWorld {
      @code
      java -cp bitdew-standalone.jar xtremweb.role.examples.HelloWorld localhost
      @endcode
-
-     * etc...
+     * 
+     *<li> Please, consult the documentation specific for each  example !
+     </ol>
      */
 
     /*! \example HelloWorld.java
-     * This is an example of how to use the BitDew class.
-     * The example creates a data.
+     *
+     *
+     * The first example shows how to create Data, set an Attribute to the 
+     * Data and schedule the Data.
+     * You should definitely have a look in the source code, HelloWorld.java.
+
+     * 
+     * Examples have similar structure : the example code is usually a
+     * client. You will need to execute the different services to be
+     * able to start the exemple
+
+     * <ol>
+     * <li>start a server. Open a terminal window and start the
+     * following command</li>
+
+     @code
+     java -jar bitdew-standalone.jar serv dc dt dr ds
+     @endcode
+
+     * <li> open a new terminal window and start the example
+
+     @code
+     java -cp bitdew-standalone.jar xtremweb.role.examples.HelloWorld localhost
+     @endcode
+
+     * <li> start for the second time the example in a new shell so that the data created can be scheduled somewhere. Wait for a few seconds.
+
+     @code
+     java -cp bitdew-standalone.jar xtremweb.role.examples.HelloWorld localhost
+     @endcode
+
+     * <li> On each shell you should see a message similar to :
+
+     @code
+     Received data: Hello World, whose uid is 8a356580-445f-31dd-887a-39748b0f20e7 and with Attribute helloWorldAttr
+     @endcode
+
+     * <li> This show that each HelloWorld program have exchanged data. As you can see, the two uids are different, which means that two data were created.
+
+
      */
 
     Logger log = LoggerFactory.getLogger("HelloWorld");
@@ -95,9 +133,10 @@ public class HelloWorld {
 	activeData.start();
 
 	//now creates a Data
-	Data data = bitdew.createData("hellowWorldData");
+	Data data = bitdew.createData("Hello World");
 	
-	//creates an Attribute
+	//creates an Attribute, which has the property to create a
+	//data replica for every host
 	Attribute attr = activeData.createAttribute("attr helloWorldAttr = {replicat = -1 }");
 
 	//associates the Attribute with the Data
@@ -117,13 +156,15 @@ public class HelloWorld {
 	 * @param attr an <code>Attribute</code> value
 	 */
 	public void onDataScheduled(Data data, Attribute attr) {
-	    System.out.println("Received data : " + data.getname() + "with Attribute : " + attr.getname());
+	    System.out.println("Received data: " + data.getname() + ", whose uid is " + data.getuid() 
+			       + ", and with Attribute " + attr.getname());
 	}
 
 	public void onDataDeleted(Data data, Attribute attr) {}
     }
 
-
+    //usage is localhost if your services (dc, ds) run on the same host
+    //otherwise
     public static void main(String[] args) throws Exception {
  	String hostName = "localhost";
 	if (args.length>0) hostName = args[0];

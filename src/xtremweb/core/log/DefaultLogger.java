@@ -40,8 +40,11 @@ public class DefaultLogger extends xtremweb.core.log.Logger{
 	System.out.println(_module + " : " + msg);
     }
 
+    public void setLevel(String level) {
+    }
+ 
     public static Logger getLogger( String module) {
-	return new Logger(module);
+	return new DefaultLogger(module);
     }
     
 } // Logger

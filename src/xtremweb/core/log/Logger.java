@@ -9,7 +9,10 @@ package xtremweb.core.log;
  * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
  */
-public class Logger {
+
+//FIXME make this class abstract or an interface
+
+public abstract class Logger {
 
     protected String _module="";
 
@@ -43,8 +46,11 @@ public class Logger {
 	System.exit(2);
     }
 
+    public abstract void setLevel(String level);
+
+    //FIXME the whole class should be abstract
     public static Logger getLogger( String module) {
-	return new Logger(module);
+	return new DefaultLogger(module);
     }
     
 } // Logger
