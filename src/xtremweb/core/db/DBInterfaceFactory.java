@@ -16,15 +16,16 @@ import java.util.Properties;
 import javax.jdo.JDOHelper;
 
 import xtremweb.core.conf.*;
+import xtremweb.core.log.Logger;
+import xtremweb.core.log.LoggerFactory;
 
 public class DBInterfaceFactory {
 
     private static DBInterface dbi;
-
     private static DBInterfaceFactory dbif;
-
     private static PersistenceManagerFactory pmf;
 
+    protected static Logger log = LoggerFactory.getLogger(DBInterfaceFactory.class);
 
     static {
 	dbif = new DBInterfaceFactory();
@@ -36,16 +37,17 @@ public class DBInterfaceFactory {
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
 	} catch (ConfigurationException ce) {
-	    System.out.println("No Database configuratioin found for DBInterfaceFactory : " + ce);
+	    log.debug("No Database configuratioin found for DBInterfaceFactory : " + ce);
 	    mainprop = new Properties();
 	}
+
        	Properties properties = new Properties();
 	properties.setProperty("javax.jdo.PersistenceManagerFactoryClass",
 			       "org.jpox.PersistenceManagerFactoryImpl");
-	properties.setProperty("javax.jdo.option.ConnectionDriverName", mainprop.getProperty("xtremweb.core.db.driver"));
-	properties.setProperty("javax.jdo.option.ConnectionURL", mainprop.getProperty("xtremweb.core.db.url"));
-	properties.setProperty("javax.jdo.option.ConnectionUserName",mainprop.getProperty("xtremweb.core.db.user"));
-	properties.setProperty("javax.jdo.option.ConnectionPassword",mainprop.getProperty("xtremweb.core.db.password"));
+	properties.setProperty("javax.jdo.option.ConnectionDriverName", mainprop.getProperty("xtremweb.core.db.driver","org.hsqldb.jdbcDriver"));
+	properties.setProperty("javax.jdo.option.ConnectionURL", mainprop.getProperty("xtremweb.core.db.url","jdbc:hsqldb:mem:test"));
+	properties.setProperty("javax.jdo.option.ConnectionUserName",mainprop.getProperty("xtremweb.core.db.user","sa"));
+	properties.setProperty("javax.jdo.option.ConnectionPassword",mainprop.getProperty("xtremweb.core.db.password",""));
 
 	properties.setProperty("org.jpox.autoCreateSchema","true");
 	properties.setProperty("org.jpox.validateTables","false");
@@ -57,7 +59,6 @@ public class DBInterfaceFactory {
 	}
 
 	pmf = JDOHelper.getPersistenceManagerFactory(properties);
-
 	dbi = new DBInterface();
 	//	pmf.setMultithreaded("true");
     } // DBInterfaceFactory constructor

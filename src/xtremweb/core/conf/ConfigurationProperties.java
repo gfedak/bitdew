@@ -17,6 +17,7 @@ import xtremweb.core.log.*;
 
 public class ConfigurationProperties {
     private static final String PROPERTIESFILE_DEFAULT = "conf/xtremweb.properties";
+    private static final String PROPERTIESJARFILE_DEFAULT = "xtremweb.properties";
     private static String propertiesFile = null;
     private static Properties properties;
     private static Logger log = LoggerFactory.getLogger(ConfigurationProperties.class);
@@ -37,14 +38,34 @@ public class ConfigurationProperties {
     public ConfigurationProperties() throws ConfigurationException {
 	properties = new Properties();
 	propertiesFile = System.getProperty("PROPERTIES_FILE");
-	log.debug("propertie file" + propertiesFile);
+	log.debug("properties file " + propertiesFile);
 	if (propertiesFile == null)
 	    propertiesFile = PROPERTIESFILE_DEFAULT;
+
+	InputStream data = null;
+
 	try {
-	    properties.load(new FileInputStream(propertiesFile));
+	    //load the data from a file of it exists
+	    if ((new File(propertiesFile)).exists()) {
+		data = new FileInputStream(propertiesFile);
+		properties.load(data);
+		log.info("set properties from file " + propertiesFile);
+		return;
+	    }
 	} catch (Exception e) {
-	    throw new ConfigurationException("cannot find " + propertiesFile);
+	    log.info("cannot load properties from file " + propertiesFile + " : " + e);
 	}
+
+	try {
+	    //load the properties from within the jar file
+	    data = getClass().getResourceAsStream(PROPERTIESJARFILE_DEFAULT);
+	    properties.load(data);
+	    log.info("set properties from resource file, bundled with jar " + propertiesFile);
+	} catch (Exception e) {
+	    log.info("cannot load properties from resource file, bundled with jar " + propertiesFile + " : " + e);
+	    throw new ConfigurationException();
+	}
+
     } // ConfigurationProperties constructor
     
     /**

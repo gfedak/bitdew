@@ -183,23 +183,19 @@ public class TransferManager {
 	PersistenceManagerFactory pmf = DBInterfaceFactory.getPersistenceManagerFactory();
 	PersistenceManager pm = pmf.getPersistenceManager();
 	Transaction tx=pm.currentTransaction();
-	//	tx.setOptimistic(true);
 	
 	try {
 	    tx.begin();
 	    /* begin nouveau */
 	    Query query = pm.newQuery(Transfer.class, 
-				      "status != " + TransferStatus.TODELETE  ); 	    Collection results = (Collection)query.execute();
+				      "status != " + TransferStatus.TODELETE  ); 	    
+	    Collection results = (Collection)query.execute();
 	    if (results==null) {
 		log.debug("nothing to check");
 		return;
 	    }
 	    Iterator iter = results.iterator();
-	    /* end nouveau */
-	    /* begin ancien */
-	    //            Extent e=pm.getExtent(Transfer.class,true);
-            //Iterator iter=e.iterator();
-	    /* end ancien */
+
 	    OOBTransfer oob;
             while (iter.hasNext()) {
 		Transfer trans = (Transfer) iter.next();
