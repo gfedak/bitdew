@@ -52,13 +52,13 @@ public class HelloWorld {
      * following command</li>
 
      @code
-     java -jar bitdew-standalone.jar serv dc dt dr ds
+     java -jar bitdew-stand-alone.jar serv dc dt dr ds
      @endcode
 
      * <li> start the example
 
      @code
-     java -cp bitdew-standalone.jar xtremweb.role.examples.HelloWorld localhost
+     java -cp bitdew-stand-alone.jar xtremweb.role.examples.HelloWorld localhost
      @endcode
      * 
      *<li> Please, consult the documentation specific for each  example !
@@ -82,19 +82,19 @@ public class HelloWorld {
      * following command</li>
 
      @code
-     java -jar bitdew-standalone.jar serv dc dt dr ds
+     java -jar bitdew-stand-alone.jar serv dc dt dr ds
      @endcode
 
      * <li> open a new terminal window and start the example
 
      @code
-     java -cp bitdew-standalone.jar xtremweb.role.examples.HelloWorld localhost
+     java -cp bitdew-stand-alone.jar xtremweb.role.examples.HelloWorld localhost
      @endcode
 
      * <li> start for the second time the example in a new shell so that the data created can be scheduled somewhere. Wait for a few seconds.
 
      @code
-     java -cp bitdew-standalone.jar xtremweb.role.examples.HelloWorld localhost
+     java -cp bitdew-stand-alone.jar xtremweb.role.examples.HelloWorld localhost
      @endcode
 
      * <li> On each shell you should see a message similar to :
@@ -105,7 +105,7 @@ public class HelloWorld {
 
      * <li> This show that each HelloWorld program have exchanged data. As you can see, the two uids are different, which means that two data were created.
 
-
+    *<li> Source code of the HelloWorld class:
      */
 
     Logger log = LoggerFactory.getLogger("HelloWorld");

@@ -19,7 +19,7 @@ public class ComWorld {
     
     private static Logger log = LoggerFactory.getLogger(ComWorld.class);
 
-    public static final int RMI_DEFAULT_PORT = 4322;
+    public static final int RMI_DEFAULT_PORT = 4325;
 
     /**
      * Creates a new <code>ComWorld</code> instance.

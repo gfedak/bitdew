@@ -29,8 +29,6 @@ public class PutGet {
      * <li>to retreive the Data in a new file</li>
      *</ol>
 
-     * You should definitely have a look in the source code, HelloWorld.java.
-
      * 
      * Examples have similar structure : the example code is usually a
      * client. You will need to execute the different services to be
@@ -41,13 +39,13 @@ public class PutGet {
      * following command</li>
 
      @code
-     java -jar bitdew-standalone.jar serv dc dt dr ds
+     java -jar bitdew-stand-alone.jar serv dc dt dr ds
      @endcode
 
      * <li> open a new terminal window and start the example
 
      @code
-     java -cp bitdew-standalone.jar xtremweb.role.examples.PutGet put myfile
+     java -cp bitdew-stand-alone.jar xtremweb.role.examples.PutGet put myfile
      @endcode
 
      * <li> This command will create a new Data and copy the content of the file 
@@ -56,8 +54,7 @@ public class PutGet {
      * <li>At the end of the execution, you should see something like :
      @code
 [ INFO]  succesfully created data myfile [20f35880-4e72-31dd-be09-42554967791c] = { md5=5dd2e8d0dc257e5c756e11d3ddfff2eb size=10267 }
-[ WARN] Object with id "e30a0aa0-4e71-31dd-80e6-f167f70a9d02" not found !
-[ INFO] data succedsfully transfered.
+[ INFO] data successfully transfered.
 [ INFO] To get the data, invoke the same program with the following arguments:
 [ INFO] get  myfile_copy 20f35880-4e72-31dd-be09-42554967791c
 
@@ -65,12 +62,16 @@ public class PutGet {
      * <li> You can now use the following command to retreive copy the data in a new file 
 
      @code
-     java -cp bitdew-standalone.jar xtremweb.role.examples.PutGet get  myfile_copy 20f35880-4e72-31dd-be09-42554967791c
+     java -cp bitdew-stand-alone.jar xtremweb.role.examples.PutGet get  myfile_copy 20f35880-4e72-31dd-be09-42554967791c
      @endcode
 
-     * <li> This show that each HelloWorld program have exchanged data. As you can see, the two uids are different, which means that two data were created.
+     *<li> You should now obtain the following message :
 
+     @code
+[INFO] data has been successfully copied to myfile_copy
+     @endcode
 
+     *<li> Source code of the PutGet example: 
      */
 
 
@@ -110,7 +111,7 @@ public class PutGet {
 	bitdew.put( file, data, "http");
 	transferManager.waitFor(data);	
 	transferManager.stop();
-	log.info("data succedsfully transfered.");
+	log.info("data successfully transfered.");
 	log.info("To get the data, invoke the same program with the following arguments:");
 	log.info("get  " + data.getname() + "_copy "+ data.getuid());
     }
