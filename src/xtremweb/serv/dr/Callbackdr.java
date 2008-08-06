@@ -36,92 +36,68 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
    
     protected static Logger log = LoggerFactory.getLogger(Callbackdr.class);
 
-    protected Protocol default_ftp_protocol;
-    protected Protocol default_http_protocol;
-    protected Protocol default_dummy_protocol;
-    protected Protocol default_bittorrent_protocol;
-
     public Callbackdr() {
 	Properties mainprop;
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
 	} catch (ConfigurationException ce) {
-	    log.warn("No FTP Protocol Information found : " + ce);
+	    log.warn("Not able to find configuration protocols : " + ce);
 	    mainprop = new Properties();
 	}
 
-	try {
-	    Protocol protocol = getProtocolByName("FTP");
-	    if (protocol != null) {
-		default_ftp_protocol = protocol;
-	    } else {
-		if (mainprop.getProperty("xtremweb.serv.dr.ftp.name").equals("FTP")) {
-		    log.debug("Setting FTP potocol from the configuration file " + mainprop.getProperty("xtremweb.serv.dr.ftp.name") );
-		    default_ftp_protocol = new Protocol();
-		    //yes we overwrite it ;)
-		    default_ftp_protocol.setname("FTP");
-		    default_ftp_protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.ftp.server","localhost"));
-		    default_ftp_protocol.setport((Integer.valueOf(mainprop.getProperty("xtremweb.serv.dr.ftp.port", "21"))).intValue());
-		    default_ftp_protocol.setlogin(mainprop.getProperty("xtremweb.serv.dr.ftp.login","anonymous"));
-		    default_ftp_protocol.setpassword(mainprop.getProperty("xtremweb.serv.dr.ftp.passwd","bush@whitehouse.gov"));
-		    default_ftp_protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.ftp.path","pub/incoming"));
-		    registerProtocol(default_ftp_protocol);
-		}
+	
+
+	String temp = mainprop.getProperty("xtremweb.serv.dr.protocols","dummy http");
+	if (temp==null) temp="dummy http";
+	log.debug("list of protocols to load :" + temp);
+
+	String[] protocols = temp.split(" ");
+	for (int i=0; i<protocols.length; i++) {
+	    String protoName = protocols[i].toLowerCase();
+	    
+	    try {
+		Protocol protocol = getProtocolByName(protoName);
+		if (protocol == null) {
+		    protocol = new Protocol();
+		    protocol.setname(protoName);
+		    if (protoName.equals("ftp")) {
+			log.debug("Setting FTP potocol from the configuration file " + mainprop.getProperty("xtremweb.serv.dr.ftp.name") );
+			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.ftp.server","localhost"));
+			protocol.setport((Integer.valueOf(mainprop.getProperty("xtremweb.serv.dr.ftp.port", "21"))).intValue());
+			protocol.setlogin(mainprop.getProperty("xtremweb.serv.dr.ftp.login","anonymous"));
+			protocol.setpassword(mainprop.getProperty("xtremweb.serv.dr.ftp.passwd","bush@whitehouse.gov"));
+			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.ftp.path","pub/incoming"));
+			registerProtocol(protocol);
+		    }		    
+		    
+		    if (protoName.equals("http")) {
+			log.debug("Setting HTTP protocol from the configuration file");
+			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.http.server","localhost"));
+			protocol.setport((Integer.valueOf(mainprop.getProperty("xtremweb.serv.dr.http.port", "8080"))).intValue());
+			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.http.path","."));
+			registerProtocol(protocol);
+		    }
+		    
+		    if (protoName.equals("dummy")) {
+			log.debug("Setting Dummy protocol from the configuration file");
+			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.dummy.path","."));
+			registerProtocol(protocol);
+		    }
+		    
+		    if (protoName.equals("bittorrent")) {
+			log.debug("Setting Bittorrent protocol from the configuration file");
+			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.bittorrent.path","torrent"));
+			//FIXME FIXME FIXME!!!!
+			//		    default_http_protocol.setport(Integer.getInteger(mainprop.getProperty("xtremweb.serv.dr.bittorrent.port"),6969).intValue());
+			registerProtocol(protocol);
+		    }
+		}	    
+	    } catch (RemoteException re){
+		log.warn("unable to record standard protocol");	    
 	    }
-	    log.info("Registred Protocol : ");
-
-
-	    protocol = getProtocolByName("HTTP");
-	    if (protocol != null) {
-		default_http_protocol = protocol;
-	    } else {
-		if (mainprop.getProperty("xtremweb.serv.dr.http.name").equals("HTTP")) {
-		    log.debug("Setting HTTP potocol from the configuration file");
-		    default_http_protocol = new Protocol();
-		    //yes we overwrite it ;)
-		    default_http_protocol.setname("HTTP");
-		    default_http_protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.http.server","localhost"));
-		    default_http_protocol.setport((Integer.valueOf(mainprop.getProperty("xtremweb.serv.dr.http.port", "8080"))).intValue());
-		    default_http_protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.http.path","."));
-		    registerProtocol(default_http_protocol);
-		}
-	    }
-
-	    protocol = getProtocolByName("Dummy");
-	    if (protocol != null) {
-		default_dummy_protocol = protocol;
-	    } else {
-		if (mainprop.getProperty("xtremweb.serv.dr.dummy.name").equals("Dummy")) {
-		    log.debug("Setting Dummy potocol from the configuration file");
-		    default_dummy_protocol = new Protocol();
-		    //yes we overwrite it ;)
-		    default_dummy_protocol.setname("Dummy");
-		    default_dummy_protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.dummy.path","."));
-		    registerProtocol(default_dummy_protocol);
-		}
-	    }
-
-	    protocol = getProtocolByName("Bittorrent");
-	    if (protocol != null) {
-		default_bittorrent_protocol = protocol;
-	    } else {
-		if (mainprop.getProperty("xtremweb.serv.dr.bittorrent.name").equals("Bittorrent")) {
-		    log.debug("Setting Bittorrent potocol from the configuration file");
-		    default_bittorrent_protocol = new Protocol();
-		    //yes we overwrite it ;)
-		    default_bittorrent_protocol.setname("Bittorrent");
-		    default_bittorrent_protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.bittorrent.path","torrent"));
-		    default_http_protocol.setport(Integer.getInteger(mainprop.getProperty("xtremweb.serv.dr.bittorrent.port"),6969).intValue());
-		    registerProtocol(default_bittorrent_protocol);
-		}
-	    }
-
-
-	    log.info("Registred Protocol : ");
-	    log.info( browse() );
-	} catch (RemoteException re){
-	    log.warn("unable to record standard protocol");	    
-	}
+	}		
+	log.info("Registred Protocols : ");
+	log.info( browse() );
 	
     } // Callbackobj constructor
     
@@ -151,6 +127,7 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
     
     //FIXME THAT'S UGLY !!!!!
     public Protocol getProtocolByName(String name)  throws RemoteException{
+
 	Protocol ret = null;
 	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
 	Transaction tx=pm.currentTransaction();
@@ -161,7 +138,8 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
             while (iter.hasNext())
             {
                 Protocol proto = (Protocol) iter.next();
-		if (proto.getname().toLowerCase().equals(name.toLowerCase())) ret= (Protocol) pm.detachCopy(proto);
+		if (proto!=null)
+		    if (proto.getname().toLowerCase().equals(name.toLowerCase())) ret= (Protocol) pm.detachCopy(proto);
             }
 	    tx.commit();
         } finally {

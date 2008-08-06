@@ -14,6 +14,7 @@ import xtremweb.serv.dt.bittorrent.*;
 import xtremweb.api.transman.*;
 import java.util.*;
 import java.io.File;
+import xtremweb.core.conf.*;
 
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dr.Protocol;
@@ -27,7 +28,7 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Extent;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
-
+import java.util.Properties;
 
 /**
  * Describe class Callbackdt here.
@@ -50,16 +51,37 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      *
      */
     public Callbackdt() {
-	//recupere les properties
-	//FIXME : bad design, is it necessary ?
+
 	tm = TransferManagerFactory.getTransferManager();
 	tm.start();
+
+	Properties mainprop;
 	try {
-	    HttpTransfer.init();
-	    BittorrentTransfer.init();
-	    DummyTransfer.init();
-	} catch (OOBException oe) {
-	    log.warn("Was not able to perform BitTorrent initialization" + oe);
+	    mainprop = ConfigurationProperties.getProperties();
+	} catch (ConfigurationException ce) {
+	    log.warn("Not able to find configuration protocols : " + ce);
+	    mainprop = new Properties();
+	}
+
+	String temp = mainprop.getProperty("xtremweb.serv.dt.protocols");
+	if (temp == null ) 
+	    temp="dummy http";
+
+	log.debug("list of protocols to initalize :" + temp);
+	String[] protocols = temp.split(" ");
+	for (int i=0; i<protocols.length; i++) {
+	    String protoName = protocols[i].toLowerCase();
+	    
+	    try {
+		if(protoName == "http")
+		    HttpTransfer.init();
+		if(protoName == "bittorrent")
+		    BittorrentTransfer.init();
+		if(protoName == "dummy")
+		    DummyTransfer.init();
+	    } catch (OOBException oe) {
+		log.warn("Was not able to perform BitTorrent initialization" + oe);
+	    }	    
 	}
     }
 
