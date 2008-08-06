@@ -6,9 +6,10 @@ ROADMAP
 	version 0.2.0
 	- cmdline tool can schedule data
 
+August 6, 2008	
 	version 0.1.2
-	- working HelloWorld example
-	- documentation of how to run the example in
+	- working HelloWorld and PutGet examples
+	- documentation of how to run the examples in
 	the doxygen source
 	
 June 10, 2008
