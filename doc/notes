@@ -11,8 +11,12 @@ permission javax.jdo.spi.JDOPermission "getMetadata";
 }; 
 
 pour faire une nouvelle release:
+* changer de numero de version
 editer le numero de version dans build.xml
 generer la nouvelle version avec build.sh version
+* tester : 
+faire build.sh release puis dezipper le fichier dans le /tmp et faire a nouveau un build.sh release 
+* creer une nouvelle release
  svn copy svn+ssh://gilles@scm.gforge.inria.fr/svn/bitdew/trunk/ svn+ssh://gilles@scm.gforge.inria.fr/svn/bitdew/tags/0.0.1
 svn co  svn+ssh://gilles@scm.gforge.inria.fr/svn/bitdew/tags/0.0.1
 ./build.sh release
