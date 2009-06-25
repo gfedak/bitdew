@@ -6,6 +6,13 @@ ROADMAP
 	version 0.2.0
 	- cmdline tool can schedule data
 
+
+June 25, 2009
+	version 0.1.2.1
+	- change the way the daemon is started (bug fix)
+	- changed the default value for the location of propertie file in the jar file (bug fix)
+ 	- can specify the location of the properties file using -DPROPERTIES_FILE  
+
 August 6, 2008	
 	version 0.1.2
 	- working HelloWorld and PutGet examples
