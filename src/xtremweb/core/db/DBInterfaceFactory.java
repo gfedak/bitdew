@@ -55,7 +55,9 @@ public class DBInterfaceFactory {
 	properties.setProperty("javax.jdo.option.DetachAllOnCommit", "true");
 	if (mainprop.getProperty("xtremweb.core.db.connectionPooling")!=null) {
 	    properties.setProperty("org.jpox.connectionPoolingType",mainprop.getProperty("xtremweb.core.db.connectionPooling"));
-	    properties.setProperty("org.jpox.connectionPoolingConfigurationFile","dbcp.properties");
+	    String dbcpPropertiesFile = mainprop.getProperty("xtremweb.core.db.dbcp.propertiesFile");
+	    if (dbcpPropertiesFile!=null)
+		properties.setProperty("org.jpox.connectionPoolingConfigurationFile",dbcpPropertiesFile);
 	}
 
 	pmf = JDOHelper.getPersistenceManagerFactory(properties);
