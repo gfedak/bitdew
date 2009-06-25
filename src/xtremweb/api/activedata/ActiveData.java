@@ -100,18 +100,24 @@ public class ActiveData {
 	isActive=false;
     }
 
-    /**
-     * <code>start</code> launches periodic Active Data engine
-     */
-    public void start() { 
+    public void start(boolean isDaemon) { 
 	log.debug("Starting AD Engine");
-	if (timer==null) timer=new Timer(true); 
+	if (timer==null) timer=new Timer("ActiveData", isDaemon); 
 	timer.schedule(new TimerTask() { 
 		public void run() { 
 		    checkData();
 		} 
-	    } ,0, timeout ); 
+	    } ,0, timeout );
 	isActive=true;
+    }
+
+
+    /**
+     * <code>start</code> launches periodic Active Data engine
+     */
+    public void start() { 
+	// by default, do not start as a daemon
+	start(false);
     }
 
     protected void checkData() {
