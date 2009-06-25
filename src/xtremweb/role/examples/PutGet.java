@@ -105,7 +105,7 @@ public class PutGet {
 	//create a Data from a file
 	Data data = bitdew.createData(file);
 
-	log.info(" succedsfully created " + DataUtil.toString(data));
+	log.info(" successfully created " + DataUtil.toString(data));
 
 	//
 	bitdew.put( file, data, "http");

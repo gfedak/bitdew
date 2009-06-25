@@ -141,6 +141,7 @@ public class HelloWorld {
 
 	//associates the Attribute with the Data
 	activeData.schedule(data, attr);
+	log.info(" data HelloWorld [" + data.getuid() + "] is successfully created and scheduled with attribute helloWorldAttr = {replicat = -1 } " );
     }
 
     /**
@@ -169,7 +170,7 @@ public class HelloWorld {
  	String hostName = "localhost";
 	if (args.length>0) hostName = args[0];
 	int port = 4325;
-	if (args.length==2) Integer.parseInt(args[1]);
+	if (args.length==2) port=Integer.parseInt(args[1]);
 	HelloWorld hw = new HelloWorld(hostName, port);
     }
 
