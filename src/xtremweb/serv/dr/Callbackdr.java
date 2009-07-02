@@ -10,6 +10,7 @@ package xtremweb.serv.dr;
  * @version 1.0
  */
 import java.rmi.*;
+import java.net.InetAddress;
 import xtremweb.core.com.idl.*;
 import xtremweb.core.iface.*;
 import xtremweb.core.db.*;
@@ -72,7 +73,16 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
 		    
 		    if (protoName.equals("http")) {
 			log.debug("Setting HTTP protocol from the configuration file");
-			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.http.server","localhost"));
+			//TODO: we should get this from the embedded web server if it runs
+			String defaultHost = "localhost";
+			try {
+			    InetAddress thisIp =InetAddress.getLocalHost();
+			    defaultHost = thisIp.getHostAddress();
+			}
+			catch(Exception e) {
+			    log.debug("cannot determine localhost ip address");
+			}
+			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.http.server",defaultHost));
 			protocol.setport((Integer.valueOf(mainprop.getProperty("xtremweb.serv.dr.http.port", "8080"))).intValue());
 			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.http.path","."));
 			registerProtocol(protocol);
@@ -150,7 +160,7 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
 	return ret;
     }
 
-    //FIXME THAT'S UGLY !!!!!
+
     public Protocol getProtocolByUID(String uid)  throws RemoteException{
 	Protocol ret = null;
 	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();

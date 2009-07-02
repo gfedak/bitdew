@@ -104,11 +104,12 @@ public class PutGet {
 	}
 	//create a Data from a file
 	Data data = bitdew.createData(file);
-
 	log.info(" successfully created " + DataUtil.toString(data));
 
-	//
+	//copy the local file to the remote file using the http protocol
 	bitdew.put( file, data, "http");
+
+	//wait for data transfer completion and stop transfer manager
 	transferManager.waitFor(data);	
 	transferManager.stop();
 	log.info("data successfully transfered.");
@@ -119,10 +120,14 @@ public class PutGet {
 
     public void get (String fileName, String dataUid) throws Exception {
 	File file = new File(fileName);
+
+	//retreive the data object
 	Data data = bitdew.searchDataByUid(dataUid);	    
-	bitdew.get(data, file);
 	
-	transferManager.start();
+	//copy the remote data into the local file
+	bitdew.get(data, file);	
+
+	//wait for the data transfer to complete and stop the transfer manager
 	transferManager.waitFor(data);	
 	transferManager.stop();
 	log.info("data has been successfully copied to " + fileName);
