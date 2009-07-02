@@ -109,6 +109,8 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
 	    q.setUnique(true);
 
 	    Data dataStored =(Data) q.execute();
+	    if (dataStored==null) 
+		return null;
 	    data = (Data) pm.detachCopy(dataStored);
 	    tx.commit();
         } finally {

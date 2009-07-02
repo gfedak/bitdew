@@ -184,6 +184,16 @@ public class BitDew {
     }
 
 
+    public void updateData(Data data, File file) throws BitDewException {
+	//set the new file value
+	Data tmp =  DataUtil.fileToData(file);
+	data.setchecksum(tmp.getchecksum());
+	data.setsize(tmp.getsize());
+	data.setname(tmp.getname());
+	DBInterfaceFactory.getDBInterface().makePersistent(data);
+	putData(data);
+    }
+
     private void putData(Data data) throws BitDewException {
 	//if data has not been locally serialized, do it now
 	if (data.getuid() == null) 
@@ -207,7 +217,8 @@ public class BitDew {
 	try {
 	    Locator locator = new Locator();
 	    locator.setref(ref);
-	    DBInterfaceFactory.getDBInterface().makePersistent(locator);
+ 	    DBInterfaceFactory.getDBInterface().makePersistent(locator);
+	    putLocator(locator);
 	    return locator;
 	} catch (Exception re) {
 	    log.debug("Cannot createLocator " + re);

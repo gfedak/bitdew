@@ -134,13 +134,13 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
 	try {
 	    tx.begin();
             Extent e=pm.getExtent(Protocol.class,true);
-            Iterator iter=e.iterator();
-            while (iter.hasNext())
-            {
-                Protocol proto = (Protocol) iter.next();
-		if (proto!=null)
-		    if (proto.getname().toLowerCase().equals(name.toLowerCase())) ret= (Protocol) pm.detachCopy(proto);
-            }
+            Query q=pm.newQuery(e, "name == \"" + name.toLowerCase() + "\"");
+	    q.setUnique(true);
+
+	    Protocol protoStored =(Protocol) q.execute();
+	    if (protoStored==null) 
+		return null;
+	    ret = (Protocol) pm.detachCopy(protoStored);
 	    tx.commit();
         } finally {
             if (tx.isActive())
