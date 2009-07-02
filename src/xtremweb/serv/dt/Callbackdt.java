@@ -94,39 +94,33 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
     //abort
     
     public int registerTransfer(Transfer t, Data data, Protocol rp, Locator rl) throws RemoteException {
-	//renregistrer le transfert et faire les bonnes verif.
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
-
-	Transfer trans = t;
-
-	trans.setdatauid(data.getuid());
-	// No local protocol bizarre
 	Protocol local_proto = new Protocol();
-	local_proto.setname("local");
-	    
 	Locator local_locator = new Locator();
-	local_locator.setdatauid(data.getuid());
-	local_locator.setref(rl.getref());
-	local_locator.setprotocoluid(local_proto.getuid());
-	log.debug("Local Locator : " + local_locator.getref());
 
-	Protocol remote_proto = rp;
-
-	Locator remote_locator = rl;
-	
-	t.setlocatorremote(remote_locator.getuid());
-	if (t.gettype () == TransferType.UNICAST_SEND_SENDER_SIDE)
-	    t.settype(TransferType.UNICAST_SEND_RECEIVER_SIDE);
-	if (t.gettype () == TransferType.UNICAST_RECEIVE_RECEIVER_SIDE)
-	    t.settype(TransferType.UNICAST_RECEIVE_SENDER_SIDE);
-	t.setlocatorlocal(local_locator.getuid());
-	t.setstatus(TransferStatus.PENDING);
-	
 	try {
-	    OOBTransfer oobt = OOBTransferFactory.createOOBTransfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
+	    t.setdatauid(data.getuid());
+	    // No local protocol bizarre
+	    local_proto.setname("local");	    
+	    local_locator.setdatauid(data.getuid());
+	    local_locator.setref(rl.getref());
+	    local_locator.setprotocoluid(local_proto.getuid());
+	    
+	    t.setlocatorremote(rl.getuid());
+	    if (t.gettype () == TransferType.UNICAST_SEND_SENDER_SIDE)
+		t.settype(TransferType.UNICAST_SEND_RECEIVER_SIDE);
+	    if (t.gettype () == TransferType.UNICAST_RECEIVE_RECEIVER_SIDE)
+		t.settype(TransferType.UNICAST_RECEIVE_SENDER_SIDE);
+	    t.setlocatorlocal(local_locator.getuid());
+	    t.setstatus(TransferStatus.PENDING);
+	} catch (Exception e) {
+	    log.debug("Exception when registring oob transfer " + e);
+	    e.printStackTrace();
+	    throw new RemoteException();
+	}
+	try {
+	    OOBTransfer oobt = OOBTransferFactory.createOOBTransfer(data, t, rl, local_locator, rp, local_proto);
 	    oobt.persist();
-	    log.debug("Succesfully created transfer [" + t.getuid() + "] data [" + data.getuid()+ "] with remote storage [" + remote_locator.getref()  + "] " + remote_proto.getname() +"://[" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "]@" + remote_locator.getdrname() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() + "\n" + oobt);
+	    log.debug("Succesfully created transfer [" + t.getuid() + "] data [" + data.getuid()+ "] with remote storage [" + rl.getref()  + "] " + rp.getname() +"://[" + rp.getlogin() + ":" +  rp.getpassword() +  "]@" + rl.getdrname() + ":" +  rp.getport() +"/" + rp.getpath() + "/" + rl.getref() + "\n" + oobt);
 	    
 	    tm.registerTransfer(t.getuid(), oobt);
 	} catch( OOBException e) {
@@ -138,30 +132,6 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 
     public int startTransfer(String transferID) throws RemoteException {
 	log.debug("start Transfer : Unused function ??!?? Not sure about what to do ???");
-	/*
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
-
-	try {
-	    tx.begin();
-	    Query query = pm.newQuery(xtremweb.core.obj.dt.Transfer.class, 
-				      "uid == \"" + transferID + "\"");
-	    query.setUnique(true);
-	    Transfer t = (Transfer) query.execute();
-	    if (t==null) {
-		log.debug (" t " + t.getuid() + " is null ");
-	    } else {
-		OOBTransfer oobt = OOBTransferFactory.createOOBTransfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
-		
-		log.debug (" t " + t.getuid() + " is status : " + TransferStatus.toString( t.getstatus()) );
-	    }
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}
-	*/
 	return 0;
     }
 
@@ -179,7 +149,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 	    query.setUnique(true);
 	    Transfer t = (Transfer) query.execute();
 	    if (t==null) {
-		log.debug (" t " + t.getuid() + " is null ");
+		log.debug (" t " + transferID + " is null ");
 	    } else {
 		isComplete = (t.getstatus() == TransferStatus.COMPLETE);
 		log.debug (" t " + t.getuid() + " is status : " + TransferStatus.toString( t.getstatus()) );
@@ -190,7 +160,6 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
                 tx.rollback();
             pm.close();
 	}
-
 	return isComplete;
     }
 
@@ -202,6 +171,10 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
     public int abortTransfer(String transferID) throws RemoteException {
 	log.debug("abort Transfert");
 	return 0;
+    }
+
+    public void putTransfer(Transfer trans)  throws RemoteException {
+	DBInterfaceFactory.getDBInterface().makePersistent(trans);
     }
 
     public void setTransferStatus(String tuid, int status) throws RemoteException {

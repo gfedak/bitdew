@@ -63,8 +63,9 @@ public class TransferManager {
     /*
      * <code>oobTransfers</code> is a Hashtable associating an
      * OOBTransfer to each transfer.
+     * It is used to cache OOBTransfer and to avoid creating OOBTransfer for
+     * each Transfer scanned in the Database
      */
-    //FIXME A QUOI SERT CE TRUC ?????? a ne pas recalculer les OOB trucmuche
     private SortedVector oobTransfers;
 
     private Logger log = LoggerFactory.getLogger("Transfer Manager (transman)");
@@ -117,20 +118,43 @@ public class TransferManager {
      * @param oobt an <code>OOBTransfer</code> value
      */
     public void registerTransfer(String tuid, OOBTransfer oobt) {
-	OOBTransferFactory.persistOOBTransfer(oobt);
+	//	OOBTransferFactory.persistOOBTransfer(oobt);
+	oobt.persist();
+    }
+
+
+    public Transfer createTransfer() throws TransferManagerException {
+	try {
+	    Transfer trans = new Transfer();
+	    DBInterfaceFactory.getDBInterface().makePersistent(trans);
+	    dt.putTransfer(trans);  
+	    return trans;
+
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	}
+	throw new TransferManagerException();
     }
 
     /**
      * <code>start</code> launches periodic TM engine
      */
-    public void start() { 
+    public void start(boolean isDaemon) { 
 	log.debug("Starting TM Engine");
-	if (timer==null) timer=new Timer(true); 
+	if (timer==null) timer=new Timer("TransferManagerTimer", isDaemon); 
 	timer.schedule(new TimerTask() { 
 		public void run() { 
 		    checkTransfer();
 		} 
 	    } , 0, timeout ); 
+    }
+
+    /**
+     * <code>start</code> launches periodic Active Data engine
+     */
+    public void start() { 
+	// by default, do not start as a daemon
+	start(false);
     }
 
     /**
@@ -210,16 +234,12 @@ public class TransferManager {
 		case TransferStatus.PENDING :
 		    log.debug("PENDING");
 		    try {
-			//			Transfer copytrans = (Transfer) pm.detachCopy(trans);
-			//			dt.registerTransfer(copytrans);
-			//			dt.setTransferStatus(copytrans.getuid(), 
-			//		     TransferStatus.READY);
-
 			oob = getOOBTransfer(trans);
 			if ( TransferType.isLocal(trans.gettype()) ) {
 			    log.debug("Registring remote" + oob);
-			    
-			    dt.registerTransfer( (Transfer) pm.detachCopy(trans), 
+			    Transfer tcpy =  (Transfer) pm.detachCopy(trans);
+			    log.debug ("transfer " + tcpy + " | data " +  oob.getData() + " | remote protocol " +  oob.getRemoteProtocol() + " | remote locator " +  oob.getRemoteLocator());
+			    dt.registerTransfer( tcpy, 
                                                  oob.getData(), 
 						 oob.getRemoteProtocol(),
 						 oob.getRemoteLocator());
@@ -230,6 +250,7 @@ public class TransferManager {
 			
 		    } catch (Exception re) {
 			log.debug("cannot register transfer " + re);
+			re.printStackTrace();
 			trans.setstatus(TransferStatus.INVALID);
 			break;
 		    }

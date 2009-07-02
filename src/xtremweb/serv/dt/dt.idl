@@ -46,4 +46,11 @@
 <Return type="int"  desc="New status of the transfer"/>
 </Method>
 
+
+<Method name="putTransfer">
+<Param name="transfer" type="Transfer" desc="The transfer we want to prepare on the remote site"/>
+<Return type="void"/>
+</Method>
+
+
 </Module>

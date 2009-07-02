@@ -93,15 +93,7 @@ public abstract class OOBTransferImpl implements OOBTransfer {
 	}
     } // OOBTransferImpl constructor
 
-    /**
-     * Creates a new <code>OOBTransferImpl</code> instance.
-     *
-     * @param t a <code>Transfer</code>
-     */
-    public OOBTransferImpl(Transfer t) {
-	
-    } // OOBTransferImpl constructor
-
+ 
     /**
      * Creates a new <code>OOBTransferImpl</code> instance.
      *
@@ -125,15 +117,19 @@ public abstract class OOBTransferImpl implements OOBTransfer {
      *  <code>persist</code> the OOBTransfer to the local database
      */
     public void persist() {
+
 	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
 	Transaction tx=pm.currentTransaction();
+	String tuid = transfer.getuid();
+	if ((transfer!=null)&&(transfer.getuid()!=null)) 
+	    logfac.debug("Transfer already persisted : " + transfer.getuid());
+
 	try {
 	    tx.begin();
 	    pm.makePersistent(data);
-
 	    pm.makePersistent(remote_protocol);
 	    pm.makePersistent(local_protocol);
-	    
+
 	    remote_locator.setdatauid(data.getuid());
 	    local_locator.setdatauid(data.getuid());
 
@@ -147,15 +143,18 @@ public abstract class OOBTransferImpl implements OOBTransfer {
 	    transfer.setlocatorlocal(local_locator.getuid());
 	    transfer.setdatauid(data.getuid());
 	    pm.makePersistent(transfer);
-
 	    tx.commit();
 
-	    logfac.debug("persist : " + transfer.getuid());
         } finally {
             if (tx.isActive())
                 tx.rollback();
             pm.close();
 	}
+
+	//FIXME: should have an assert here
+	if ( (tuid!=null) && (!tuid.equals( transfer.getuid()))) 
+	    logfac.debug(" Transfer has been incorrectly persisted    " + tuid + "  !="  + transfer.getuid());
+
     }
 
     /**
