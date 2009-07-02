@@ -6,6 +6,10 @@ ROADMAP
 	version 0.2.0
 	- cmdline tool can schedule data
 
+July 2, 2009
+	version 0.1.2.2
+	- bug fix : embedded http DR is set to its local IP address instead of localhost
+	- bug fix: PutGet example
 
 June 25, 2009
 	version 0.1.2.1
