@@ -1,7 +1,8 @@
 Merge done Files ./src/xtremweb/api/activedata/ActiveData.java and ../trunk/src/xtremweb/api/activedata/ActiveData.java differ
 change the way the daemon is started (bug fix)
 
-* Files ./src/xtremweb/api/bitdew/BitDew.java and ../trunk/src/xtremweb/api/bitdew/BitDew.java differ
+Files ./src/xtremweb/api/bitdew/BitDew.java and ../trunk/src/xtremweb/api/bitdew/BitDew.java differ
+added a function with Locator
 
 Files ./src/xtremweb/api/transman/TransferManager.java and ../trunk/src/xtremweb/api/transman/TransferManager.java differ
 merged creation of transfer
@@ -37,8 +38,14 @@ includes exception
 port is configurable (bug fix)
 
 * Files ./src/xtremweb/role/examples/PutGet.java and ../trunk/src/xtremweb/role/examples/PutGet.java differ
-* Files ./src/xtremweb/serv/dc/Callbackdc.java and ../trunk/src/xtremweb/serv/dc/Callbackdc.java differ
-* Files ./src/xtremweb/serv/dr/Callbackdr.java and ../trunk/src/xtremweb/serv/dr/Callbackdr.java differ
+
+ Files ./src/xtremweb/serv/dc/Callbackdc.java and ../trunk/src/xtremweb/serv/dc/Callbackdc.java differ
+fix the case where no data exist
+
+
+Files ./src/xtremweb/serv/dr/Callbackdr.java and ../trunk/src/xtremweb/serv/dr/Callbackdr.java differ
+fix an SQL request
+
 * Files ./src/xtremweb/serv/ds/test/DataSchedulerTest.java and ../trunk/src/xtremweb/serv/ds/test/DataSchedulerTest.java differ
 
 Files ./src/xtremweb/serv/dt/Callbackdt.java and ../trunk/src/xtremweb/serv/dt/Callbackdt.java differ
