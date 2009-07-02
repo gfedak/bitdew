@@ -1,0 +1,52 @@
+Merge done Files ./src/xtremweb/api/activedata/ActiveData.java and ../trunk/src/xtremweb/api/activedata/ActiveData.java differ
+change the way the daemon is started (bug fix)
+
+* Files ./src/xtremweb/api/bitdew/BitDew.java and ../trunk/src/xtremweb/api/bitdew/BitDew.java differ
+
+Files ./src/xtremweb/api/transman/TransferManager.java and ../trunk/src/xtremweb/api/transman/TransferManager.java differ
+merged creation of transfer
+fix the daemon thread to run in background
+ 
+* Files ./src/xtremweb/api/transman/TransferManagerFactory.java and ../trunk/src/xtremweb/api/transman/TransferManagerFactory.java differ
+* Files ./src/xtremweb/core/com/idl/ComWorld.java and ../trunk/src/xtremweb/core/com/idl/ComWorld.java differ
+* Files ./src/xtremweb/core/com/idl/HandlerRMITemplate.java and ../trunk/src/xtremweb/core/com/idl/HandlerRMITemplate.java differ
+* Files ./src/xtremweb/core/com/idl/ModuleLoader.java and ../trunk/src/xtremweb/core/com/idl/ModuleLoader.java differ
+
+Merge done Files ./src/xtremweb/core/conf/ConfigurationProperties.java and ../trunk/src/xtremweb/core/conf/ConfigurationProperties.java differ
+changed the default value for the location of propertie file in the jar file (bug fix)
+can specify the location of the properties file using -DPROPERTIES_FILE  
+
+* Files ./src/xtremweb/core/db/DBInterface.java and ../trunk/src/xtremweb/core/db/DBInterface.java differ
+
+Merge not done Files ./src/xtremweb/core/db/DBInterfaceFactory.java and ../trunk/src/xtremweb/core/db/DBInterfaceFactory.java differ
+New code is to support the registry stuff and the new jpox files
+Fix the dbcp.properties missing in the classpath, 
+connection pool configuration file can be specified using xtremweb.core.db.dbcp.propertiesFile
+
+* Files ./src/xtremweb/core/db/test/DBInterfaceTest.java and ../trunk/src/xtremweb/core/db/test/DBInterfaceTest.java differ
+
+Merge done Files ./src/xtremweb/core/log/Version.java and ../trunk/src/xtremweb/core/log/Version.java differ
+switch to new version
+
+* Files ./src/xtremweb/core/uid/UID.java and ../trunk/src/xtremweb/core/uid/UID.java differ
+* Only in ../trunk/src/xtremweb/core/util: OneJarPluginRegistry.java
+* Files ./src/xtremweb/role/cmdline/CommandLineTool.java and ../trunk/src/xtremweb/role/cmdline/CommandLineTool.java differ
+
+Merge not done Files ./src/xtremweb/role/examples/HelloWorld.java and ../trunk/src/xtremweb/role/examples/HelloWorld.java differ
+includes exception
+port is configurable (bug fix)
+
+* Files ./src/xtremweb/role/examples/PutGet.java and ../trunk/src/xtremweb/role/examples/PutGet.java differ
+* Files ./src/xtremweb/serv/dc/Callbackdc.java and ../trunk/src/xtremweb/serv/dc/Callbackdc.java differ
+* Files ./src/xtremweb/serv/dr/Callbackdr.java and ../trunk/src/xtremweb/serv/dr/Callbackdr.java differ
+* Files ./src/xtremweb/serv/ds/test/DataSchedulerTest.java and ../trunk/src/xtremweb/serv/ds/test/DataSchedulerTest.java differ
+
+Files ./src/xtremweb/serv/dt/Callbackdt.java and ../trunk/src/xtremweb/serv/dt/Callbackdt.java differ
+Transfer persistency has been moved from registerTransfer
+added the callback function from the idl
+
+Files ./src/xtremweb/serv/dt/OOBTransferFactory.java and ../trunk/src/xtremweb/serv/dt/OOBTransferFactory.java differ
+no merge (differs by single line)
+
+ Files ./src/xtremweb/serv/dt/OOBTransferImpl.java and ../trunk/src/xtremweb/serv/dt/OOBTransferImpl.java differ
+added more debug information
