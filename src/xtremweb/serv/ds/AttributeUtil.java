@@ -32,6 +32,8 @@ public class AttributeUtil {
 	    retour += " affinity=" + attr.getaffinity();
 	if ((attr.getmask() & AttributeType.OOB) == AttributeType.OOB) 
 	    retour += " oob=" + attr.getoob();
+	if ((attr.getmask() & AttributeType.DISTRIB) == AttributeType.DISTRIB) 
+	    retour += " distrib=" + attr.getdistrib();
 	return retour + " }";
     }
 
@@ -57,6 +59,9 @@ public class AttributeUtil {
 	}
 	if ((attr.getmask() & AttributeType.OOB) == AttributeType.OOB) {
 	    retour += "\t oob=" + attr.getoob() + "\n";
+	}
+	if ((attr.getmask() & AttributeType.DISTRIB) == AttributeType.DISTRIB) {
+	    retour += "\t distrib=" + attr.getdistrib() + "\n";
 	}
 	return retour.substring(0,retour.length()-1) + " \t}";
     }
@@ -111,6 +116,9 @@ public class AttributeUtil {
 		} else if (attrValue[0].equals("oob")) {
 		    AttributeType.setAttributeTypeOn(attr, AttributeType.OOB);
 		    attr.setoob(attrValue[1]);
+		} else 	if (attrValue[0].equals("distrib")) {
+		    AttributeType.setAttributeTypeOn(attr, AttributeType.DISTRIB);
+		    attr.setdistrib(Integer.parseInt(attrValue[1]));
 		}
 	    }
 	} catch (Exception e) {
