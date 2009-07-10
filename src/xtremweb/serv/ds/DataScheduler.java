@@ -58,6 +58,13 @@ public class DataScheduler {
 	dataCache = new DataQueue();
     }
 
+    public void setNumberOfDataToSchedule(int num){
+	this.numberOfDataToSchedule = num;
+    }
+    
+    public int getNumberOfDataToSchedule(){
+	return this.numberOfDataToSchedule;
+    }
 
     public void addDataAttribute(Data data, Attribute attr) {
 	dataCache.addElement( new CacheEntry(data, attr) );
@@ -85,7 +92,7 @@ public class DataScheduler {
 	PersistenceManager pm = pmf.getPersistenceManager();
 	Transaction tx=pm.currentTransaction();
 
-	try {
+	try { 
 	    tx.begin();
             Extent e=pm.getExtent(Data.class,true);//DataStatus.TODELETE
             Iterator iter=e.iterator();
@@ -218,6 +225,7 @@ public class DataScheduler {
 	    CacheEntry ce = (CacheEntry) dataCache.elementAt(i);
 	    Data data = ce.getData();
 	    Attribute attr = ce.getAttribute();
+
 	    //this data is delete
 	    if (data.getstatus() == DataStatus.TODELETE)
 		continue;
@@ -225,6 +233,7 @@ public class DataScheduler {
 	    //this data is already in the worker cache
 	    if (uidslist.contains(data.getuid()))
 		continue;
+
 	    boolean addElement = false;
 
 	    //make some room by cleaning late owners
@@ -233,36 +242,59 @@ public class DataScheduler {
 
 	    //check according to the affinity (here strict affinity)
 	    if  (AttributeType.isAttributeTypeSet( attr, AttributeType.AFFINITY )) {
-		//if the data in the scheduler list has affinity dependency with one of the data in the worker cache, the data is scheduled
-		for (int ii=0; ii < uidslist.size(); ii++)  {
-		    int idx = dataCache.search(uidslist.elementAt(ii));
-		    // the data is not present in the cache
-		    if (idx!=-1) {
-			CacheEntry ce2 = (CacheEntry) dataCache.elementAt(idx);
-			Data d = ce2.getData();
-			if ((d.getstatus()!=DataStatus.TODELETE) && attr.getaffinity().equals(d.getuid())) 
-			    addElement = true;
+       	        //if the data in the scheduler list has affinity dependency with one of 
+		//the data in the worker cache, the data is scheduled
+		String obj=attr.getaffinity();
+		int idx=uidslist.lastIndexOf(obj);
+		if (idx!=-1){ //can find it in worker cache
+		    int jdx = dataCache.search(uidslist.elementAt(idx));
+		    //and the data is also present in the scheduler cache, at the same time
+		    if (jdx!=-1){
+			CacheEntry ce1=(CacheEntry)dataCache.elementAt(jdx);
+			Data d1 = ce1.getData();
+			if (d1.getstatus()!=DataStatus.TODELETE)  //not to delete
+			     addElement = true; 
 		    }
 		}
 	    //here affinity is strict , it overides the replicat condition
-	    } else {
+	    } 
+	    int replicat = 1;
 	    //check according to the replicat attribute
-	    //the default replicat attribute is 1
-		int replicat = 1;
-		if  (AttributeType.isAttributeTypeSet( attr, AttributeType.REPLICAT ))
-		    replicat = attr.getreplicat();
-		if (( ce.getOwnersNumber() < replicat) || (replicat==-1)) {
-		    addElement = true;
+	    //the default replicat attribute is 1		
+	    if  (AttributeType.isAttributeTypeSet( attr, AttributeType.REPLICAT ))
+		replicat = attr.getreplicat();
+	    if (( ce.getOwnersNumber() < replicat) || (replicat==-1)) 
+		addElement = true;    
+	    
+	    if (addElement){
+		//check distrib
+		int distrib = -1;  //default value  infinite
+		int count = 0;
+		if  (AttributeType.isAttributeTypeSet( attr, AttributeType.DISTRIB )){	    
+		    //to check how many data share the same attr on this host
+		    //count the numbers of data which share the same attr with Data data
+		    for(int p=0; p<uidslist.size(); p++){
+			int pdx = dataCache.search(uidslist.elementAt(p));
+			if (pdx!=-1){
+			    CacheEntry ce2=(CacheEntry)dataCache.elementAt(pdx);
+			    Attribute attr2 = ce2.getAttribute();
+			    if (attr2.getuid()==attr.getuid())
+				count = count +1;
+			}
+		    }
+		    distrib = attr.getdistrib();
+		}
+		if ((count < distrib) || (distrib==-1)) {
+		    //finnally adds this new data 
+		    result.addElement(data.getuid());
+		    ce.setOwner(host);
 		}
 	    }
-	    if (addElement) {
-		result.addElement(data.getuid());
-		ce.setOwner(host);
-	    } 
-	    //the worker has enough data now
-	    if (result.size() == numberOfDataToSchedule) 
+
+	    if (result.size() == numberOfDataToSchedule)     //stop condition     one schedule
 		break;
 	}
+	    
 	result.addAll(uidslist);
 	return result;
     }

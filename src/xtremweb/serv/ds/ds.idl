@@ -11,6 +11,7 @@
 <Attribute  name="lftrel"   type="String"    desc="Time to live relative to data uid"/>
 <Attribute  name="affinity" type="String"    desc="Placement relative to data uid"/>
 <Attribute  name="oob"      type="String"    desc="Prefered protocol"/>
+<Attribute  name="distrib"  type="int"       desc="Number of data that exist on one node at most"/>
 </Object>
  
 <Object name="Host">

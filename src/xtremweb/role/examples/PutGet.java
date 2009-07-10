@@ -88,7 +88,7 @@ public class PutGet {
 
 	//intialize the communication vectors which will be used by
 	//the API
-	Vector comms = ComWorld.getMultipleComms(host, "rmi", port, "dc", "dr", "dt", "ds");
+	Vector comms = ComWorld.getMultipleComms(host, "rmi", port, "dc", "dr", "dt");
 
 	//now intialize the APIs
 	bitdew = new BitDew(comms);

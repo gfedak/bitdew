@@ -49,6 +49,12 @@ public class AttributeType {
     public static final int OOB =32;
 
     /**
+     *  constant <code>DISTRIB</code>: maximal number of data
+     *
+     */
+    public static final int DISTRIB = 64; 
+
+    /**
      *  <code>setAttributeTypeOn</code> toggle the specified Attribute object the flag (AttributeType constant)
      *
      * @param attr an <code>Attribute</code> value

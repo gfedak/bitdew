@@ -31,6 +31,9 @@
         <field name="oob">
              <column name="OOB" />
         </field>
+        <field name="distrib">
+             <column name="DISTRIB" />
+	</field>
 	</class>
         <class name="Host" identity-type="application" table="HOST">
          <field name="uid" primary-key="true"  value-strategy="auid">
