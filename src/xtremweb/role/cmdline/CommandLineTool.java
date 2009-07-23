@@ -5,7 +5,7 @@ package xtremweb.role.cmdline;
  *
  * Created: Fri Apr 14 10:35:22 2006
  *
- * @author <a href="mailto:">Gilles Fedak</a>
+ * @author <a href="mailto:Gilles.Fedak@inriq.fr">Gilles Fedak</a>
  * @version 1.0
  */
 import xtremweb.api.bitdew.*;
@@ -27,7 +27,7 @@ import xtremweb.core.obj.ds.Attribute;
 import xtremweb.serv.ds.AttributeType;
 import xtremweb.core.log.*;
 import xtremweb.core.http.*;
-import java.io.File;
+import java.io.*;
 import jargs.gnu.CmdLineParser;
 import java.util.Vector;
 
@@ -89,6 +89,8 @@ public class CommandLineTool {
 		Vector comms = ComWorld.getMultipleComms(host, "rmi", port, "dc", "dr", "dt", "ds");
 		activeData = new ActiveData(comms);		
 		bitdew = new BitDew(comms);
+		transferManager = new TransferManager(comms);
+		transferManager.start();
 	    } catch(ModuleLoaderException e) {
 		log.warn("Cannot find service " + e);
 		log.warn("Make sure that your classpath is correctly set");
@@ -127,44 +129,118 @@ public class CommandLineTool {
 	    Data data = null;
 	    try {
 		 data = bitdew.createData(file);
-		log.info("Data registred : " + DataUtil.toString(data));
+		 log.info("Data registred : " + DataUtil.toString(data));
 	    } catch (BitDewException ade) {
 		log.warn(" Cannot registrer data : " + ade);
 		System.exit(0);
 	    }
-	}
+	}//create
 
 	//put file [dataId]
 	if (otherArgs[0].equals("put")) {
-	    if (otherArgs.length==1) 
+	    if ((otherArgs.length!=2) && (otherArgs.length!=3) ) 
 		usage(HelpFormat.LONG);
-
+	    
 	    File file = new File(otherArgs[1]);
 	    if (!file.exists()) {
 		log.warn(" File does not exist : " + otherArgs[1]);
 		System.exit(0);	
 	    }
-	    //no dataId
-	    if (otherArgs.length==2) {
-		Data data = null;
-		try {
+
+
+	    Data data = null;
+	    try {
+		//no dataId
+		if (otherArgs.length==2) {
 		    data = bitdew.createData(file);
 		    log.info("Data registred : " + DataUtil.toString(data));
-		    bitdew.put(file, data);
-		} catch (BitDewException ade) {
-		    log.warn(" Cannot registrer data : " + ade);
+		} else {
+		    data = bitdew.searchDataByUid(otherArgs[2]);
+		    if (data == null) {
+			log.info("cannot find data whose uid is : " + otherArgs[2]);
+			System.exit(0);
+		    }
+		    bitdew.updateData(data,file);
+		}
+	    } catch (BitDewException ade) {
+		log.warn(" Cannot registrer data : " + ade);
+		System.exit(0);
+	    }
+	    try {
+		//FIXME to allow several oob protocol
+		bitdew.put(file, data, "http");
+		transferManager.waitFor(data);
+		transferManager.stop();
+		log.info("Transfer complete");
+	    } catch (TransferManagerException tme) {
+		log.warn(" Transfer data : " + tme);
+		System.exit(0);
+	    }   catch (BitDewException bde) {
+		log.warn(" Cannot transfer data : " + bde);
+		System.exit(0);
+	    } 
+	}//put
+
+
+	//get dataId file
+	if (otherArgs[0].equals("get")) {
+	    if ((otherArgs.length!=2) && (otherArgs.length!=3))
+		usage(HelpFormat.LONG);
+
+	    String dataUid = otherArgs[1];
+
+	    //check the dataId
+	    Data data = null;
+	    try {
+		data = bitdew.searchDataByUid(dataUid);
+		if (data == null) {
+		    log.info("cannot find data whose uid is : " + dataUid);
 		    System.exit(0);
 		}
+		log.info("Data registred : " + DataUtil.toString(data));
+	    } catch (BitDewException ade) {
+		log.warn(" Cannot search data : " + ade);
+		System.exit(0);
+	    }
+
+	    //set the file name
+	    String fileName = null;
+	    if (otherArgs.length==3)
+		fileName = otherArgs[2];
+	    else 
+		fileName = data.getname();
+
+	    //check the file
+	    File file = new File(fileName);
+	    if (file.exists()) {
+		log.warn("warning, you will overwrite " + fileName + ". Do you really want to continue (y/N) ?");
 		try {
-		    transferManager.start();
-		    transferManager.waitFor(data);
-		    log.info("Transfer complete");
-		} catch (TransferManagerException ade) {
-		    log.warn(" Transfer data : " + ade);
+		    BufferedReader stdIn=null;
+		    stdIn = new BufferedReader(new  InputStreamReader(System.in));
+		    int i=stdIn.read();
+		    if ( (i!=121) && (i!=89))
+			System.exit(0);
+		} catch (IOException ioe) {
+		    log.warn( "program interrupted" + ioe);
 		    System.exit(0);
 		}
 	    }
-	}
+	    //get the data
+	    try {
+		transferManager.start();
+		bitdew.get(data, file);
+		transferManager.waitFor(data);
+		transferManager.stop();
+		log.info("Transfer complete");
+	    } catch (TransferManagerException ade) {
+		log.warn(" Transfer data : " + ade);
+		System.exit(0);
+	    }  catch (BitDewException bde) {
+		    log.warn(" Transfer data : " + bde);
+		    System.exit(0);
+		}
+	    
+	}//get
 
     } // CommandLineTool constructor
 
@@ -243,12 +319,13 @@ public class CommandLineTool {
 	    usage.option("put file_name [dataId]","copy a file in the data space. If dataId is not specified, a new data will be created from the file.");
 	    usage.option("get dataId [file_name]","get the file from dataId.");
 	    usage.ln();
+	    usage.option("    distrib=int","maximum number of data of this attribute, a host can hold. The special value -1  means that this number is infinite");
 	    //	    usage.option("--file filename","file name to be created" );
 	    //	    usage.option("--attr attruid","attribute uid associated to the data" );
 
 	    break;
 	case SHORT:
-	    usage.usage("try java -jar bitdew-stand-alone.jar [-h, --help] for more information");
+	    usage.usage("try java -jar bitdew-stand-alone-" + Version.versionToString() +".jar [-h, --help] for more information");
 	    break;
 	}
 	System.exit(2);

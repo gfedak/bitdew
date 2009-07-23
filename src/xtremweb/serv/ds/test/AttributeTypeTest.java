@@ -29,19 +29,20 @@ public class AttributeTypeTest {
     DBInterface dbi = DBInterfaceFactory.getDBInterface();
 
 
-   @Test public void setAttributeTypeTest() {
+   @Test public void setAttributeTypeTestIndividualOnOff() {
        Attribute attr = new Attribute();
 
 	dbi.makePersistent(attr);
 
+	//for a specific attribute setOn and then setOff
 	AttributeType.setAttributeTypeOn(attr, AttributeType.REPLICAT);
-
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.FT));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.AFFINITY));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOff(attr, AttributeType.REPLICAT);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -49,6 +50,7 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOn(attr, AttributeType.FT);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -57,6 +59,7 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOff(attr, AttributeType.FT);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -65,6 +68,7 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOn(attr, AttributeType.AFFINITY);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -73,6 +77,7 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOff(attr, AttributeType.AFFINITY);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -81,6 +86,7 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOn(attr, AttributeType.LFTABS);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -89,6 +95,7 @@ public class AttributeTypeTest {
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOff(attr, AttributeType.LFTABS);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -97,6 +104,7 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOn(attr, AttributeType.LFTREL);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -105,6 +113,7 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOff(attr, AttributeType.LFTREL);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -113,6 +122,7 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOn(attr, AttributeType.OOB);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -121,6 +131,7 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOff(attr, AttributeType.OOB);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -129,7 +140,36 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
+
+	AttributeType.setAttributeTypeOn(attr, AttributeType.DISTRIB);
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.FT));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.AFFINITY));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
+
+	AttributeType.setAttributeTypeOff(attr, AttributeType.DISTRIB);
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.FT));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.AFFINITY));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
+
+   }
+
+
+   @Test public void setAttributeTypeTestAllOnAllOff() {
+       Attribute attr = new Attribute();
+
+	dbi.makePersistent(attr);
+
+	//all attributes setOn and then all attributes setOff
 	AttributeType.setAttributeTypeOn(attr, AttributeType.REPLICAT);
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.FT));
@@ -137,6 +177,7 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOn(attr, AttributeType.FT);
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -145,6 +186,7 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOn(attr, AttributeType.AFFINITY);
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -153,6 +195,7 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOn(attr, AttributeType.LFTABS);
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -161,6 +204,7 @@ public class AttributeTypeTest {
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOn(attr, AttributeType.LFTREL);
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -169,6 +213,7 @@ public class AttributeTypeTest {
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOn(attr, AttributeType.OOB);
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -177,7 +222,17 @@ public class AttributeTypeTest {
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
-	
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
+
+	AttributeType.setAttributeTypeOn(attr, AttributeType.DISTRIB);
+	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
+	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.FT));
+	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.AFFINITY));
+	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
+	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
+	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
+
 	AttributeType.setAttributeTypeOff(attr, AttributeType.REPLICAT);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.FT));
@@ -185,6 +240,7 @@ public class AttributeTypeTest {
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOff(attr, AttributeType.FT);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -193,6 +249,7 @@ public class AttributeTypeTest {
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOff(attr, AttributeType.AFFINITY);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -201,6 +258,7 @@ public class AttributeTypeTest {
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOff(attr, AttributeType.LFTABS);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -209,6 +267,7 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOff(attr, AttributeType.LFTREL);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -217,6 +276,7 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
 	AttributeType.setAttributeTypeOff(attr, AttributeType.OOB);
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
@@ -225,6 +285,17 @@ public class AttributeTypeTest {
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
 	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertTrue(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
+
+
+	AttributeType.setAttributeTypeOff(attr, AttributeType.DISTRIB);
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.REPLICAT));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.FT));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.AFFINITY));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTABS));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.LFTREL));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.OOB));
+	assertFalse(AttributeType.isAttributeTypeSet(attr, AttributeType.DISTRIB));
 
     }
 

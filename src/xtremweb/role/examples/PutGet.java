@@ -158,7 +158,7 @@ public class PutGet {
 		//host name and port
 		if (i==2) {
 		    hostName = args[0];
-		    Integer.parseInt(args[1]);
+		    port = Integer.parseInt(args[1]);
 		}
 		if (i==1) {
 		    hostName = args[0];

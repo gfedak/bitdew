@@ -6,14 +6,21 @@ What is BitDew ?
      BitDew is a middleware to help with large scale data management and
 distribution.
 
+Where is BitDew web site ?
+
+	http://www.bitdew.net
+
 Is BitDew free software ?
 
-   Yes, BitDew is provided under the GNU GPL v2.0. 
+   Yes, BitDew is provided under the GNU GPL v3.0 or CeCILL v2.0. You decide which
+one you prefer. Please consult http://www.gnu.org or http://www.cecill.info for more
+information.
 
 Where is the documentation ?
 
       You will find in the doc/userguide/ directory the necessary documentation to
 run BitDew.
-
+      You will find additionnal resources: source code, examples, tips and wiki pages
+on the BitDew web site.
 	
 

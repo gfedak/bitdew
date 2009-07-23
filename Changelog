@@ -2,10 +2,16 @@ ROADMAP
 
 	version 1.0.0
 	- updated example section (Updater, AllToAll)
-	version 0.3.0
+
+	version 0.3
+	- DataCollection and DataChunk
+
+July xxx 2009
+	version 0.2.1
 	- cmdline tool can schedule data
-	
-July 9, 2009	
+	- cmdline tool can put and get data
+
+July 23, 2009	
 	version 0.2.0 (Thanks to Bing TANG, Wuhan University of Technology China)
 	- scheduler implements the "distrib" attributes :
 		distrib is the maximum number of data of this attribute which 

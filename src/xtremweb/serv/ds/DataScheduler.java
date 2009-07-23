@@ -278,7 +278,7 @@ public class DataScheduler {
 			if (pdx!=-1){
 			    CacheEntry ce2=(CacheEntry)dataCache.elementAt(pdx);
 			    Attribute attr2 = ce2.getAttribute();
-			    if (attr2.getuid()==attr.getuid())
+			    if (attr2.getuid().equals(attr.getuid()))
 				count = count +1;
 			}
 		    }
