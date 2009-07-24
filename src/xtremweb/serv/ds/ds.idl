@@ -48,6 +48,10 @@
 <Return type="void"/>
 </Method>
 
+<Method name="removeData">
+<Param name="data"     type="Data" desc="Data"/>
+<Return type="void"/>
+</Method>
 
 <Method name="sync">
 <Param name="host"         type="Host" desc="Host requesting the sync"/>

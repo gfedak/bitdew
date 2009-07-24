@@ -135,7 +135,8 @@ public class ActiveData {
             while (iter.hasNext()) {
 		Data data = (Data) iter.next();
 		//		log.debug("checking data " + data.getuid() + " : " + DataStatus.toString(data.getstatus()));
-		datasync.add(data.getuid());
+		if (data.getstatus() != DataStatus.TODELETE)
+		    datasync.add(data.getuid());
 	    }
 
 	    Vector newdatauid = cds.sync(host, datasync);
@@ -256,6 +257,15 @@ public class ActiveData {
 	    data.setattruid(attr.getuid());
 	    cdc.putData(data);
 	    cds.associateDataAttributeHost(data, attr, host);
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	    throw new ActiveDataException();
+	}
+    }
+
+    public void unschedule( Data data)  throws ActiveDataException {
+	try {
+	    cds.removeData(data);
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
 	    throw new ActiveDataException();

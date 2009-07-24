@@ -308,6 +308,16 @@ public class DataScheduler {
 	return result;
     }
 
+
+    public synchronized void removeData(Data data) {
+	int pdx = dataCache.search(data.getuid());
+	if (pdx!=-1) {
+	    CacheEntry ce = (CacheEntry) dataCache.elementAt(pdx);	
+	    ce.getData().setstatus(DataStatus.TODELETE);
+	}
+    }
+
+
     /**
      * <code>start</code> launches periodic Scheduling
      */

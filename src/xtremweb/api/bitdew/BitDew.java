@@ -206,6 +206,13 @@ public class BitDew {
 	}
     }
 
+    public void deleteData(Data data) throws BitDewException {
+	//set the new status to TODELETE value
+	data.setstatus(DataStatus.TODELETE);
+	DBInterfaceFactory.getDBInterface().makePersistent(data);
+	putData(data);
+    }
+
     /**
      * <code>createLocator</code> creates  a new locator.
      *

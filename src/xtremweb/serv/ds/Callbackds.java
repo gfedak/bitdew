@@ -98,6 +98,10 @@ public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
 	ds.associateDataAttributeHost(data, attr, host);
     }
 
+    public void removeData(Data data) throws RemoteException {
+	ds.removeData(data);
+    }
+
     //FIXME IT'S BAD
     public void associateAttribute(String datauid, String attruid) throws RemoteException {
 	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();

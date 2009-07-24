@@ -1,17 +1,18 @@
 package xtremweb.role.p2p;
 
-
 import xtremweb.core.log.*;
 import xtremweb.api.bitdew.BitDew;
+import xtremweb.api.bitdew.BitDewException;
 import xtremweb.serv.dc.DataUtil;
 import xtremweb.api.transman.TransferManager;
 import xtremweb.core.com.idl.ComWorld;
 import xtremweb.core.obj.dc.Data;
-
+import xtremweb.core.obj.dc.Locator;
 import java.util.Vector;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+
 /**
  *  <code>P2P</code>.
  *
@@ -26,7 +27,7 @@ public class P2P {
     private BitDew bitdew;
     private TransferManager transferManager;
 
-    Logger log = LoggerFactory.getLogger("PutGet");
+    Logger log = LoggerFactory.getLogger("P2P");
 
     private String hostName;
     private int port;
@@ -69,11 +70,14 @@ public class P2P {
 	log.info("starting BitDew P2P on host " + hostName + " on port " + port + " using directory " + dir);
 	log.info("scanning directory " + dir);
 
-
-	File fic = new File(dir,"binaryFile");
-	Data data = bitdew.createData(fic);
-	Locator loc = bitdew.createLocator("binaryFile");
-	bitdew.put(data,loc);
+	try {
+	    File fic = new File(dir,"binaryFile");
+	    Data data = bitdew.createData(fic);
+	    Locator loc = bitdew.createLocator("binaryFile");
+	    bitdew.put(data,loc);
+	} catch (BitDewException bde) {
+	    log.fatal("not able to create files");
+	}
 
 	System.out.print("> ");
 	try {
