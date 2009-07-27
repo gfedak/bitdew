@@ -157,23 +157,31 @@ public class ActiveData {
 
             while (iter.hasNext()) {
 		Data data = (Data) iter.next();
-		toDelete+=data.getuid() + " ";
 		data.setstatus(DataStatus.TODELETE);
-
-		//add attribute to attruid
+		
+		toDelete+=data.getuid() + " ";
+		log.debug("!!!!! d:"  + data.getuid() +  "|a: " + data.getattruid());
+	     
+		//look for the attributes in the attributes cache
 		Attribute attr = attributes.get(data.getattruid());
 
-		//FIXME do we really need attributes here ?
+		//if it's not there, get it from ds service and add it in
+		// the attributes cache
 		if ((attr == null) && (data.getattruid() != null)) {
 		    attr = cds.getAttributeByUid(data.getattruid());
 		    if (attr == null)
-			log.warn("BIZARRE");
+			log.debug("cannot get attribute " + data.getattruid() + " from the DS service");
 		    else
 			attributes.put(attr.getuid(),attr);
 		}
 
+		//now call the delete callback
 		for(ActiveDataCallback callback : callbacks) {
-		    log.debug ("calling callback Schedule on data data  [d " + data.getuid() + ":a " + attr.getuid()  + "]"  );
+		    if ((data==null) || (attr==null))
+			log.debug("on callback delete " + ((data==null)?" data is null ":"") + ((attr==null)?" attr is null ":"")); 
+		    else {
+			log.debug ("calling callback Delete on data data  [d: " + data.getuid() + "|a: " + attr.getuid()  + "]"  );
+		    }
 		    callback.onDataDeleted(data,attr);
 		}
 
@@ -210,6 +218,7 @@ public class ActiveData {
 	    tx.commit();
 	} catch (Exception e) {
 	    log.debug("exception occured when running active data " + e);
+	    e.printStackTrace();
 	} finally {
 	    if (tx.isActive())
 		tx.rollback();

@@ -7,9 +7,14 @@ ROADMAP
 	- DataCollection and DataChunk
 
 July xxx 2009
-	version 0.2.1
+	version 0.2.2
 	- cmdline tool can schedule data
 	- cmdline tool can put and get data
+
+August XX, 2009
+	version 0.2.1
+	- user can delete a data using bitdew.deleteData(Data data)
+	- user can remove a data from the scheduler using activeData.remove(Data data)
 
 July 23, 2009	
 	version 0.2.0 (Thanks to Bing TANG, Wuhan University of Technology China)

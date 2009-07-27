@@ -162,7 +162,7 @@ public class Version {
     <!-- Compile the java code from ${src} into ${build} -->
     <target name="compile" depends="init"
 	    description="compile the source " >
-      <javac compiler="modern" srcdir="src" destdir="${build}" source="1.5"/>
+      <javac compiler="modern" srcdir="src" debug="on" destdir="${build}" source="1.5"/>
       <rmic base="${build}"
 	    classname="xtremweb.core.com.handler.HandlerRMIdc" 
 	    classpath="${classpath}"/>
