@@ -31,6 +31,17 @@ import java.io.*;
 import jargs.gnu.CmdLineParser;
 import java.util.Vector;
 
+/*!
+ * @defgroup cmdline Using BitDew
+ *  Using BitDew
+ *  @{
+ *  @section starting the services
+ * @code
+ java  java -jar bitdew-stand-alone.jar serv dc dt dr ds serv
+ * @endcode
+
+ * @}
+ */
 
 public class CommandLineTool {
 

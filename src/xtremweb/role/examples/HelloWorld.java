@@ -18,53 +18,6 @@ import xtremweb.core.obj.ds.Attribute;
 
 public class HelloWorld {
 
-    /*! @mainpage BitDew: An Open Source Middleware for Large Scale Data Management
-     *
-     * This is a short introduction to run the exemple in the BitDew
-     * source package 
-     *
-     * @section download Downloading BitDew
-     *
-     * Please Download BitDew from the BitDew web site
-     * hppt://www.BitDew.net
-     * 
-     * You can get a complete documentation on the web site.
-     *
-     * @section run_sec Running the examples
-     *
-     * To install the BitDew software follow the steps :
-     * <ol>
-     *  <li> deflate the BitDew archive</li>
-     *  <li> move in the BitDew directory</li>
-     * </ol>
-     *
-     * If you modify the source and if you need to compile again
-     * BitDew, run the following command :
-     @code
-     ./build.sh
-     @endcode
-     * 
-     * Examples have similar structure : the example code is usually a
-     * client. You will need to execte the different services to be
-     * able to start the exemples
-     * <ol>
-     * <li>start a server. Open a terminal window and start the
-     * following command</li>
-
-     @code
-     java -jar bitdew-stand-alone.jar serv dc dt dr ds
-     @endcode
-
-     * <li> start the example
-
-     @code
-     java -cp bitdew-stand-alone.jar xtremweb.role.examples.HelloWorld localhost
-     @endcode
-     * 
-     *<li> Please, consult the documentation specific for each  example !
-     </ol>
-     */
-
     /*! \example HelloWorld.java
      *
      *
