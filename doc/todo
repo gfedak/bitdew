@@ -1,6 +1,3 @@
-* rechercher les fichiers .idl dans le repertoire de services
-et integrer a ant
-* deplacer le test dans les services
 * attention repertoire com/idl et idl/xsl
 * faire statefull service
 * faire un main service loader generique
@@ -12,9 +9,14 @@ et integrer a ant
 	- il faut que un attribute ai une liste de data
 	- comme ca le scheduler sera self contained (pas besoin de scanner le
 	catalog)
-	- ajouter une methode schedule data
 * put some default value when creating poxwo objects 
 * transformer le ActiveDataCallback en un EventHandler
 * fixer le protocol.setserver et locator.set_drname
 * virer TransferType vers dt
 * APIFactory.createAPIs(comms, "BitDew", "ActiveData", "TransferManager");
+
+* Documentation :
+ repertoires doc qui ne doivent pas etre documente
+ deplacer la mainpage
+ faire les section Downloading (main), Configuring (conf), Using (cmdline), Programming (apis), Examples (examples)
+

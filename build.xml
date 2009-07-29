@@ -197,7 +197,7 @@ public class Version {
 -->
    
     <target name="release"  description="generate the distribution"
-	    depends="clean, version, init, dist, tests, jar, deflate-jars, standalone-jar, apidoc, srczip"/>
+	    depends="clean, version, init, dist, tests, jar, deflate-jars, standalone-jar, javadoc, srczip"/>
 
     <target name="srczip">
       <zip destfile="dist/bitdew-src-${version}.zip"  excludes=".svn, *~">
@@ -316,8 +316,11 @@ public class Version {
     documentation, the uer guide
     ===================================================================
     -->
+<target name="doc" depends="javadoc,doxygen,userguide" description="documentation generation">
+  <echo message="generating the complete documentation"/>
+</target>
 
-<target name="apidoc" description="api documentation">
+<target name="javadoc" description="api documentation">
   <javadoc   destdir="doc/api"
 	     author="true"
 	     version="true"
@@ -339,15 +342,6 @@ public class Version {
   <exec dir="." executable="doxygen"
 	failonerror="true" os="Mac OS X"/>
 </target>
-
-<!--
-<target name="srcdoc"	 description="src documentation">
-  <taskdef name="doxygen"
-	   classname="org.doxygen.tools.DoxygenTask"
-	   classpath="lib/ant-doxygen.jar" />
-  <doxygen configFilename="Doxyfile"/>
- </target>
--->
 
 <target name="userguide" depends="init"
 	description="generates user guide with texinfo">
