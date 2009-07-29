@@ -19,7 +19,8 @@ public class JDHTDistributedDataCatalog extends DistributedDataCatalogImpl imple
     protected JDHT jDHT = null;
     protected String url = null;
     protected int DEFAULT_PORT = 5500;
-    /**
+ 
+   /**
      * Creates a new <code>JDHTDistributedDataCatalog</code> instance.
      *
      */
