@@ -11,14 +11,15 @@ September xxx 2009
 	- cmdline tool can schedule data
 	- cmdline tool can put and get data
 	- new documentation : every documentation is now produced by Doxygen
+	- modification of te scheduler to allow Data to be sent following a specific order (for instance Biggest Data First)
 
-August XX, 2009
+August 03, 2009
 	version 0.2.1
 	- user can delete a data using bitdew.deleteData(Data data)
 	- user can remove a data from the scheduler using activeData.remove(Data data)
 	- new PingPong example which shows how to produce and delete Data
-	- modification of te scheduler to allow Data to be sent following a specific order (for instance Biggest Data First)
- 
+	- updated doxygen documentation which documents the release only
+
 July 23, 2009	
 	version 0.2.0 (Thanks to Bing TANG, Wuhan University of Technology China)
 	- scheduler implements the "distrib" attributes :

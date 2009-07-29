@@ -39,7 +39,7 @@ import java.util.Vector;
  * @code
  java  java -jar bitdew-stand-alone.jar serv dc dt dr ds serv
  * @endcode
-
+ backslash_verbinclude doc/help-output.txt
  * @}
  */
 

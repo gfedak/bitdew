@@ -11,8 +11,54 @@ import xtremweb.core.com.idl.ComWorld;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.ds.Attribute;
 
+
+    /*! \example PingPong.java
+     *
+     *
+     * The first example shows how to create Data, set an Attribute to the 
+     * Data and schedule the Data.
+     * You should definitely have a look in the source code, PingPong.java.
+
+     * 
+     * Examples have similar structure : the example code is usually a
+     * client. You will need to execute the different services to be
+     * able to start the exemple
+
+     * <ol>
+     * <li>start a server. Open a terminal window and start the
+     * following command</li>
+
+     @code
+     java -jar bitdew-stand-alone.jar serv dc dt dr ds
+     @endcode
+
+     * <li> open a new terminal window and start the example
+
+     @code
+     java -cp bitdew-stand-alone.jar xtremweb.role.examples.HelloWorld localhost
+     @endcode
+
+     * <li> start for the second time the example in a new shell so that the data created can be scheduled somewhere. Wait for a few seconds.
+
+     @code
+     java -cp bitdew-stand-alone.jar xtremweb.role.examples.HelloWorld localhost
+     @endcode
+
+     * <li> On each shell you should see a message similar to :
+
+     @code
+     Received data: Hello World, whose uid is 8a356580-445f-31dd-887a-39748b0f20e7 and with Attribute helloWorldAttr
+     @endcode
+
+     * <li> This show that each HelloWorld program have exchanged data. As you can see, the two uids are different, which means that two data were created.
+
+    *<li> Source code of the HelloWorld class:
+     */
+
+
+
 /**
- * <code>PingPong</code>.
+ * <code>PingPong</code> shows how to create and delete Data and how to react to data schedule and deletion
  *
  * @author <a href="mailto:Gilles.Fedak@inria.fr">Gilles Fedak</a>
  * @version 1.0
@@ -28,8 +74,9 @@ public class PingPong {
     /**
      * Creates a new <code>PingPong</code> instance.
      *
-     * @param host a <code>String</code> value
-     * @param port an <code>int</code> value
+     * @param host  <code>String</code>, the hostName of the dc, dr and ds server
+     * @param port <code>int</code>, port on which the server hould be contacted
+     * @exception Exception if an error occurs
      */
     public PingPong(String host, int port) throws Exception {
 
@@ -43,6 +90,11 @@ public class PingPong {
 
     }
 
+    /**
+     * <code>Ping</code> create a Data Ping and schedule it. Then  waits for the Pong data and delete it.
+     *
+     * @exception Exception if an error occurs
+     */
     public void Ping() throws Exception{
 
 	//now creates  data named Ping
@@ -69,6 +121,12 @@ public class PingPong {
      */
     public class PingCallback implements ActiveDataCallback {
 
+	/**
+	 * <code>onDataScheduled</code> will be called when a data is received
+	 *
+	 * @param data a <code>Data</code> value
+	 * @param attr an <code>Attribute</code> value
+	 */
 	public void onDataScheduled(Data data, Attribute attr) {
 	    log.info("Received data: " + data.getname() + ", whose uid is " + data.getuid()  + ", and with Attribute " + attr.getname());
 	    try {
@@ -83,12 +141,22 @@ public class PingPong {
 	    }	    
 	}
 
+	/**
+	 *  <code>onDataDeleted</code> will be called when a data is deleted
+	 *
+	 * @param data a <code>Data</code> value
+	 * @param attr an <code>Attribute</code> value
+	 */
 	public void onDataDeleted(Data data, Attribute attr) {
 	    log.info("Data : " + data.getname() + " has been deleted, whose uid is " + data.getuid());//  + ", and with Attribute " + attr.getname());
 	    //FIXME attr is null, I don't know why
 	}
     }
 
+    /**
+     *  <code>Pong</code> waits for the Ping Data. When Ping is received, it creates and schedule Pong and delete Ping,
+     *
+     */
     public void Pong() {
 	//register the PongCallback to handle Data creation 
 	activeData.registerActiveDataCallback(new PongCallback(bitdew, activeData));	
@@ -104,13 +172,19 @@ public class PingPong {
 	BitDew bitdew;
 	ActiveData activeData;
 
+	/**
+	 *  <code>PongCallback</code> will be called when a data is received
+	 *
+	 * @param bd a <code>BitDew</code> value
+	 * @param ad an <code>ActiveData</code> value
+	 */
 	public PongCallback(BitDew bd, ActiveData ad) {
 	    bitdew = bd;
 	    activeData = ad;
 	}
 
 	/**
-	 * Describe <code>onDataScheduled</code> method here.
+	 *  <code>onDataScheduled</code> will be called when a data is received
 	 *
 	 * @param data a <code>Data</code> value
 	 * @param attr an <code>Attribute</code> value
@@ -142,22 +216,33 @@ public class PingPong {
 	    } 
 	}
 
+	/**
+	 *  <code>onDataDeleted</code> will be called when a data is deleted
+	 *
+	 * @param data a <code>Data</code> value
+	 * @param attr an <code>Attribute</code> value
+	 */
 	public void onDataDeleted(Data data, Attribute attr) {
 	    log.info("Data : " + data.getname() + " has been deleted, whose uid is " + data.getuid());//  + ", and with Attribute " + attr.getname());
 	    //FIXME attr is null, I don't know why
 	}
     }
 
-
-
+    /**
+     *  <code>usage</code> describes PingPong usage
+     *
+     */
     static public void usage() {
-	System.out.println("Usage : java xtremweb.role.examples.PingPong ping [hostName] [port]");
+	System.out.println("Usage : java xtremweb.role.examples.PingPong ping|pong [hostName] [port]");
 	System.exit(0);
     }
 
-
-    //usage is localhost if your services (dc, ds) run on the same host
-    //otherwise
+    /**
+     *  <code>main</code> method launches PingPong example
+     *
+     * @param args a <code>String</code> value
+     * @exception Exception if an error occurs
+     */
     public static void main(String[] args) throws Exception {
 	String role;
 	if ((args.length == 0) || (args.length > 2))
