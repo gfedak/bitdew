@@ -1,0 +1,171 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+  <head>  
+    <title>BitDew</title> 
+    
+    <meta name="generator" content="muse.el">  
+    <meta http-equiv="Content-Type"          content="text/html; charset=iso-8859-1"> 
+    <link rel="stylesheet" type="text/css" charset="utf-8" href="stylesheet/site.css" /> 
+    <link rel="stylesheet" type="text/css" href="stylesheet/rssbox.css" />
+    <script src="scripts/rss.js" language="JavaScript" type="text/javascript"></script><script src="scripts/ajax.js" language="JavaScript" type="text/javascript"></script>
+  </head>  
+
+  <body>
+
+    <div id="navbar">
+      <ul>
+	<li><a href="http://bitdew.gforge.inria.fr">Home</a></li>
+	<li><a href="http://gforge.inria.fr/projects/bitdew/">Project</a></li>
+	<li><a href="http://gforge.inria.fr/plugins/wiki/index.php?id=321&type=g">Wiki</a></li>
+	<li><a href="http://gforge.inria.fr/docman/?group_id=321">Documentation</a></li>
+	<li><a href="http://gforge.inria.fr/frs/?group_id=321">Download</a></li>
+      </ul>
+    </div>
+
+
+    <center><img src="bitdew-banner.png" vspace="20" width="444" height="136"></center>
+
+    <h1>OpenSource Middleware for Data Desktop Grids</h1>
+
+    <center>  <b>Gilles Fedak, Haiwu He / INRIA-Futurs</b></center> 
+
+    <div id="rssBox"></div>
+
+   <!-- Page published by Emacs Muse begins here -->
+<h2>What is BitDew ?</h2>
+
+<p class="first">The BitDew framework is a programmable environment for
+management and distribution of data on computational Desktop Grids.</p>
+
+
+<p>BitDew is a subsystem which can be easily integrated into  Desktop
+Grid systems (XtremWeb, BOINC, Condor etc..). Currently, Desktop Grids are
+mostly limited to embarrassingly parallel applications with few data
+dependencies. BitDew objective is to broaden the use of Desktop Grids.
+Our approach is to break the &quot;data wall&quot; by providing in single package  the key P2P technologies (DHT, BitTorrent) and high level programming interfaces. We first target Desktop Grid with peta-scale data system : up to 1K files/nodes, with size up to 1GB  and distributed to 10K to 100K nodes.</p>
+
+<p>The BitDew framework will enable the support for data-intense
+parameter sweep applications, long-running applications which requires
+distributed checkpoint services, workflow applications and maybe in
+the future soft-realtime and stream processing applications.</p>
+
+
+
+<h2>What Can I do with BitDew ?</h2>
+
+<p class="first">BitDew offers programmers a simple API for creating, accessing,
+storing and moving data with ease, even on highly dynamic and volatile
+environments.</p>
+
+<p>The BitDew programming model relies on 5 abstractions to manage
+the data : <em>i) replication</em> indicates how many occurrences of a
+data should be available at the same time on the network, <em>ii) fault-tolerance</em> controls the policy in presence of machine crash,
+<em>iii) lifetime</em> is an attribute absolute or relative to the
+existence of other data, which decides the life cycle of a data in the
+system, <em>iv) affinity</em> drives movement of data according to
+dependency rules, <em>v) protocol</em> gives the runtime environment hints about
+the protocol to distribute the data (http, ftp or bittorrent). Programmers define for every data
+these simple criteria, and let the BitDew runtime environment manage operations of
+data creation, deletion, movement, replication, and fault-tolerance
+operation.</p>
+
+
+<h2>Bitdew Architecture</h2>
+
+<p class="first">The BitDew runtime environment is a flexible environment implementing the API. It relies both on centralized and distributed protocols for indexing, storage
+and transfers providing reliability, scalability and high-performance.</p>
+
+<p>The architecture follows a classical three-tiers schema commonly found in
+Desktop Grids: it divides the world in two sets of nodes : stable nodes
+and volatile nodes. Stable nodes run various independent services which
+compose the runtime environment: Data Repository (DR), Data Catalog (DC), Data
+Transfer (DT) and Data Scheduler (DC). We call these nodes the
+<em>service hosts</em>. Volatile nodes can either ask for storage resources
+(we call them <em>client hosts</em>) or offer their local storage (they are
+called <em>reservoir hosts</em>). Usually, programmers will not
+use directly the various D* services; instead they will use the API which in turn
+hides the complexity of internal protocols.</p>
+
+<p>The Bitdew runtime
+environment delegates a large number of operation to third party
+components : 1) Meta-data information are serialized using a traditional
+SQL database, 2) data transfer are realized out-of-band by specialized
+file transfer protocols and 3) publish and look-up of data replica is
+enabled by the means of of DHT protocols. One feature of the system is
+that all of these components can be replaced and plugged-in by the users,
+allowing them to select the most adequate subsystem according to their own
+criteria like performance, reliability and scalability.</p>
+
+
+<h2>Download and Licence</h2>
+
+<p class="first">BitDew is still in a development phase. We have released several versions under the GPL-v3 or CeCill-v2.0 licence (at user's choice). Be warned that this program  is unstable, lacks documentation and may only be used by confirmed developers. However, it can be tried by CS students or researchers for experimentations or education.</p>
+
+
+<h2>See BitDew in Action</h2>
+
+<ul>
+<li>The world famous bioinformtics BLAST application over BitDew at CCGRID'09. Meet us in Shanghai, where present our last results.</li>
+
+<li>BitDew at SuperComputing'08 ! We present our technical paper on Thursday 1PM in Ballroom G. Meet us at the INRIA booth and see a live demo of BitDew !</li>
+
+<li>BitDew has been presented (invited talk) at UPGRADE-CN'08 (3rd Workshop on  the Use of P2P, GRID and Agents for the Development of Content Networks) in conjunction with HPDC'08,  June 23-27, 2008, Boston, MA, USA.</li>
+
+<li>BitDew will participate to the First IEEE International Scalable Computing Challenge (SCALE 2008) during the CCGRID'08 conference, May 19-22, 2008, Lyon, France. We will demonstrate our approach to provide the popular genomic BLAST application on Desktop Grid using a new data-driven RPC model.</li>
+
+<li>Try it by yourself ! Version 0.2.1 has been released.</li>
+</ul>
+
+
+<h2>Publications</h2>
+
+<ul>
+<li>The reference publication for BitDew is the SC08 technical paper which can be <a href="http://portal.acm.org/citation.cfm?id=1413370.1413416&amp;coll=GUIDE&amp;dl=GUIDE&amp;CFID=47377914&amp;CFTOKEN=46265177">downloaded here</a>.</li>
+</ul>
+
+<p><em>BitDew: A Programmable Environment for Large-Scale Data Management and Distribution</em>  &mdash; Gilles Fedak, Haiwu He and Franck Cappello  published at SC'08, Austin Texas, 2008</p>
+
+<p>If you cite BitDew, please use the following citation</p>
+
+<pre class="example">
+@inproceedings{bitdew,
+author = {Fedak, Gilles and He, Haiwu and Cappello, Franck},
+title = {BitDew: a programmable environment for large-scale data management and distribution},
+booktitle = {SC '08: Proceedings of the 2008 ACM/IEEE conference on Supercomputing},
+year = {2008},
+isbn = {978-1-4244-2835-9},
+pages = {1--12},
+location = {Austin, Texas},
+publisher = {IEEE Press},
+address = {Piscataway, NJ, USA},
+}
+</pre>
+
+<ul>
+<li>An extended version of this paper has been published in the Journal of Network and Computer Applications and can be  <a href="http://www.sciencedirect.com/science?_ob=ArticleURL&amp;_udi=B6WKB-4W38RND-1&amp;_user=10&amp;_rdoc=1&amp;_fmt=&amp;_orig=search&amp;_sort=d&amp;_docanchor=&amp;view=c&amp;_acct=C000050221&amp;_version=1&amp;_urlVersion=0&amp;_userid=10&amp;md5=1ea8fbc038a1153ba5012f08f985dd00">downloaded here</a></li>
+</ul>
+
+<p><em>BitDew: A data management and distribution service with multi-protocol file transfer and metadata abstraction</em>,  Gilles Fedak, Haiwu He and Franck Cappello, Journal of Network and Computer Applications, Volume 32, Issue 5, September 2009, Pages 961-975</p>
+
+<ul>
+<li>Our most recent work around the execution of Data-intense Bag-of-Task application has been published in CCGRID'09</li>
+</ul>
+
+<p><em>BLAST Application with Data-aware Desktop Grid Middleware</em>. Haiwu He,Gilles Fedak, Bing Tang and Franck Cappello. Proceeding of 9th IEEE/ACM International Symposium on Cluster Computing and the Grid Page 284-291 (CCGrid'09), Shanghai, China</p>
+
+
+
+
+    <div id="navbar">
+      <ul>
+	<li><a href="http://bitdew.gforge.inria.fr">Home</a></li>
+	<li><a href="http://gforge.inria.fr/projects/bitdew/">Project</a></li>
+	<li><a href="http://gforge.inria.fr/plugins/wiki/index.php?id=321&type=g">Wiki</a></li>
+	<li><a href="http://gforge.inria.fr/docman/?group_id=321">Documentation</a></li>
+	<li><a href="http://gforge.inria.fr/frs/?group_id=321">Download</a></li>
+      </ul>
+    </div>
+
+
+</body></html>
+

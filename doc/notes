@@ -19,6 +19,7 @@ mettre les changements dans Changelog
 faire build.sh release puis dezipper le fichier dans le /tmp et faire a nouveau un build.sh release 
 * creer une nouvelle release
  svn copy svn+ssh://gilles@scm.gforge.inria.fr/svn/bitdew/trunk-1/ svn+ssh://gilles@scm.gforge.inria.fr/svn/bitdew/tags/0.0.1
+cd tags
 svn co  svn+ssh://gilles@scm.gforge.inria.fr/svn/bitdew/tags/0.0.1
 ./build.sh release
 svn add dist
