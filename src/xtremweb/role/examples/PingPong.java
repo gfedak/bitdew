@@ -15,8 +15,14 @@ import xtremweb.core.obj.ds.Attribute;
     /*! \example PingPong.java
      *
      *
-     * The first example shows how to create Data, set an Attribute to the 
-     * Data and schedule the Data.
+     * The PingPong example shows how 2 programs exchange data and
+     * communicate following the classical ping pon communication
+     * scheme. In addition, it illustrates how to delete Data and how 
+     * to react to  Data scheduling.
+     *
+     * The PigPong example extends the HelloWorld example which should
+     * be considered first.
+     *
      * You should definitely have a look in the source code, PingPong.java.
 
      * 
@@ -35,24 +41,51 @@ import xtremweb.core.obj.ds.Attribute;
      * <li> open a new terminal window and start the example
 
      @code
-     java -cp bitdew-stand-alone.jar xtremweb.role.examples.HelloWorld localhost
+     java -cp bitdew-stand-alone.jar xtremweb.role.examples.PingPong ping 
      @endcode
 
-     * <li> start for the second time the example in a new shell so that the data created can be scheduled somewhere. Wait for a few seconds.
+     * First, PingPong creates the Ping Data and schedules it.  It
+     * registers a callback and wait for the Pong Data to be scheduled.
+     *
+     *
+     * <li> Output of the pin shell should be similar to : 
+     @code
+     data Ping [01534a30-7ffe-31de-953d-cfc205e73a32] is successfully created and scheduled with attribute PingAttr = {replicat = -1 } 
+     @endcode
+   
+  * <li> start for the second time the example in a new shell. Wait for a few seconds.
 
      @code
-     java -cp bitdew-stand-alone.jar xtremweb.role.examples.HelloWorld localhost
+     java -cp bitdew-stand-alone.jar xtremweb.role.examples.PingPong pong
      @endcode
 
-     * <li> On each shell you should see a message similar to :
+     * <li> On the Pong shell you should see a message similar to :
 
      @code
-     Received data: Hello World, whose uid is 8a356580-445f-31dd-887a-39748b0f20e7 and with Attribute helloWorldAttr
+     Received data: Ping, whose uid is 01534a30-7ffe-31de-953d-cfc205e73a32, and with Attribute PingPong
+     data Pong [343f2db0-7ffe-31de-9b09-318d297a0db4] is successfully created and scheduled with attribute PingPong
+     delete and unschedule data Ping
      @endcode
 
-     * <li> This show that each HelloWorld program have exchanged data. As you can see, the two uids are different, which means that two data were created.
+     When the Ping Data is received, a Pong Data is created and
+     scheduled. In addition, the Ping data is deleted.
 
-    *<li> Source code of the HelloWorld class:
+     * <li> On the ping shell, you can see that Pong Data has been
+     * received, which will trigger the deletion of Pong Data.
+
+     @code 
+     Received data: Pong, whose uid is 343f2db0-7ffe-31de-9b09-318d297a0db4, and with Attribute PingPong
+     delete and unschedule data Pong
+     @endcode
+
+     * <li> Finnally, you can observe on both shell that Ping and Pong data has
+     * been deleted
+
+     @code
+     Data : Ping has been deleted, whose uid is   01534a30-7ffe-31de-953d-cfc205e73a32
+     Data : Pong has been deleted, whose uid is 343f2db0-7ffe-31de-9b09-318d297a0db4
+     @endcode
+    *<li> Source code of the PingPong class:
      */
 
 
