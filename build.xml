@@ -202,7 +202,7 @@ public class Version {
     <target name="srczip">
       <zip destfile="dist/bitdew-src-${version}.zip"  excludes=".svn, *~">
 	<zipfileset dir="."
-		    includes="README, Doxyfile, build.xml, bitdew.mf, build.sh, ant, Makefile,Licence_CeCILL_V2-fr.txt,Licence_GPL_V3.0-en.txt"
+		    includes="README, Doxyfile, build.xml, bitdew.mf, build.sh, ant, Makefile,Licence_CeCILL_V2-fr.txt,Licence_GPL_V3.0-en.txt, Changelog"
 		    prefix="bitdew-${version}/" />
 	<zipfileset dir="doc/api"
 		    prefix="bitdew-${version}/doc/api/" />

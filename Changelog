@@ -1,8 +1,13 @@
-ROADMAP
+**  ROADMAP **
 
 	version 1.0.0
-	- updated example section (Updater, AllToAll)
+	- updated example section (Updater, AllToAll, Service creation)
+	- documentation of API classes is complete
+	- userguide is complete
+	- command line utility allows main data manipulation
+	- tutorial applications (Master/Worker, P2P, CDN)
 
+September/October
 	version 0.3
 	- DataCollection and DataChunk
 
@@ -11,7 +16,13 @@ September xxx 2009
 	- cmdline tool can schedule data
 	- cmdline tool can put and get data
 	- new documentation : every documentation is now produced by Doxygen
-	- modification of te scheduler to allow Data to be sent following a specific order (for instance Biggest Data First)
+	- modification of the scheduler to allow Data to be sent following a specific order (for instance Biggest Data First)
+
+August 10, 2009
+	version 0.2.1.1
+	- bug fixes
+
+** HISTORY **
 
 August 03, 2009
 	version 0.2.1

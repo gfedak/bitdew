@@ -103,7 +103,6 @@ public class PingPong {
     BitDew bitdew;
     ActiveData activeData;
     
-
     /**
      * Creates a new <code>PingPong</code> instance.
      *
