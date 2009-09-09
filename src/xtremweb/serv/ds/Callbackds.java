@@ -82,6 +82,33 @@ public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
 	return attr;
     }
 
+    public Attribute getAttributeByName(String name){
+	Attribute attr = null;
+
+	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+
+	Transaction tx=pm.currentTransaction();
+
+	try {
+	    tx.begin();
+
+            Extent e=pm.getExtent(Attribute.class,true);
+            Query q=pm.newQuery(e, "name == \"" + name + "\"");
+	    q.setUnique(true);
+	    
+	    Attribute dataStored =(Attribute) q.execute();
+	    attr = (Attribute) pm.detachCopy(dataStored);
+	    tx.commit();
+        } finally {
+            if (tx.isActive())
+                tx.rollback();
+            pm.close();
+	}	
+	
+	return attr;
+
+    }
+
     public void associateDataAttribute(Data data, Attribute attr) throws RemoteException {
 	if (attr.getuid() == null) 
 	    attr = registerAttribute(attr);

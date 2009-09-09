@@ -19,7 +19,7 @@ import xtremweb.core.log.*;
 import xtremweb.core.db.*;
 import xtremweb.core.com.com.*;
 import xtremweb.core.com.idl.*;
-import xtremweb.core.obj.dc.Data;
+import xtremweb.core.obj.dc.*;
 import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dc.Locator;
 import xtremweb.core.obj.dt.Transfer;
@@ -312,4 +312,45 @@ public class ActiveData {
 	timeout = ms;
     }
 
+
+    public void schedule( DataCollection datacollection, Attribute attr, String oob)  throws ActiveDataException {
+	try {
+	    Data data=null;
+	    PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+
+	    Transaction tx=pm.currentTransaction();
+	    try {
+		tx.begin();
+
+		Extent e=pm.getExtent(DataChunk.class,true);
+		Iterator iter=e.iterator();
+	    
+		while (iter.hasNext()) {
+		    DataChunk datachunk = (DataChunk) iter.next();
+		    if (datachunk.getcollectionuid().equals(datacollection.getuid())){
+			Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class,  "uid == \"" + datachunk.getdatauid() + "\"");
+			query.setUnique(true);
+			Data dataStored = (Data) query.execute();
+			data = (Data) pm.detachCopy(dataStored);
+			data.setoob(oob);
+
+			schedule(data, attr);
+			log.debug("Oh ha, Schedule!! data uid="+data.getuid());
+		        log.debug("Oh ha, Schedule!! attr uid="+attr.getuid()+" distrib="+attr.getdistrib());
+			
+		    }
+		}
+           
+		tx.commit();
+	    } finally {
+		if (tx.isActive())
+		    tx.rollback();
+		pm.close();
+	    }	
+	    
+	} catch (Exception re) {
+	    log.debug("Cannot find service " + re);
+	    throw new ActiveDataException();
+	}
+    }
 }

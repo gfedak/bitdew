@@ -4,7 +4,7 @@
     <package name="xtremweb.core.obj.dc">
 
         <class name="Data" identity-type="application" table="DATA">
-         <field name="uid" primary-key="true"  value-strategy="auid">
+        <field name="uid" primary-key="true"  value-strategy="auid">
             <column name="UID"/>
         </field>
         <field name="name">
@@ -22,11 +22,10 @@
         <field name="status">
              <column name="STATUS" />
         </field>
-
         </class>
 
         <class name="Locator" identity-type="application" table="LOCATOR">
-         <field name="uid" primary-key="true" value-strategy="auid">
+        <field name="uid" primary-key="true" value-strategy="auid">
             <column name="UID"/>
         </field>
         <field name="datauid">
@@ -41,6 +40,42 @@
         <field name="ref">
              <column name="REF" />
         </field>
+        </class>
+
+        <class name="DataCollection" identity-type="application" table="DATACOLLECTION">
+        <field name="uid" primary-key="true"  value-strategy="auid">
+            <column name="UID"/>
+        </field>
+        <field name="name">
+             <column name="NAME" />
+        </field>
+        <field name="checksum">
+             <column name="CHECKSUM" />
+        </field>
+        <field name="size">
+             <column name="SIZE" />
+        </field>
+	<field name="chunks">
+	     <column name="CHUNKS" />
+	</field>
+        </class>
+
+        <class name="DataChunk" identity-type="application" table="DATACHUNK">
+        <field name="uid" primary-key="true"  value-strategy="auid">
+            <column name="UID"/>
+        </field>
+	<field name="datauid">
+	     <column name="DATAUID" />
+	</field>
+	<field name="collectionuid">
+	     <column name="COLLECTIONUID" />
+	</field>
+        <field name="index">
+             <column name="INDEX" />
+        </field>
+	<field name="offset">
+	     <column name="OFFSET" />
+	</field>
         </class>
     </package>
 </jdo>

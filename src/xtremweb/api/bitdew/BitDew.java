@@ -7,10 +7,13 @@ import xtremweb.core.db.*;
 import xtremweb.core.com.com.*;
 import xtremweb.core.com.idl.*;
 import xtremweb.core.obj.dc.Data;
+import xtremweb.core.obj.dc.DataCollection;
+import xtremweb.core.obj.dc.DataChunk;
 import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dc.Locator;
 import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.ds.Attribute;
+import xtremweb.core.util.filesplit.*;
 
 import xtremweb.serv.dt.*;
 import xtremweb.serv.dt.ftp.*;
@@ -458,7 +461,6 @@ public class BitDew {
      * @return a <code>Data</code> value
      * @exception BitDewException if an error occurs
      */
-
     public Data searchDataByUid(String dataUid) throws BitDewException {
 	try {
 	    return idc.getData(dataUid);
@@ -466,6 +468,26 @@ public class BitDew {
 	    log.debug("cannot find data : " + dataUid + " in DC\n" + re);
 	}
 	throw new BitDewException();
+    }
+
+    public String getUidByName(String name) throws BitDewException {
+	try {
+	    return idc.getUidByName(name);
+	} catch (RemoteException re) {
+	    log.debug("cannot find data: "  + name + " in DC\n" + re);
+	}
+	throw new BitDewException();
+
+    }
+
+    public Attribute getAttributeByName(String name) throws BitDewException {
+	try {
+	    return ids.getAttributeByName(name);
+	} catch (RemoteException re) {
+	    log.debug("cannot find attr: "  + name + " in DC\n" + re);
+	}
+	throw new BitDewException();
+
     }
 
     /**
@@ -522,5 +544,354 @@ public class BitDew {
 	}
 	throw new BitDewException();
     }
+
+    
+
+    /**
+     *  create a DataCollection object, all the files in this directory are put into this DataCollection object
+     *  directory should end with "/" or "\\"
+     */
+    public DataCollection createDataCollection(String directory) throws BitDewException {
+
+	ReadFileList rfl = new ReadFileList();
+	rfl.getFileList(directory);
+	int FileNum = rfl.FileNum; 
+	for (int i=0;i<FileNum;i++)
+	    log.debug(rfl.separatedFilesAndSize[i][0]+"+"+rfl.separatedFilesAndSize[i][1]);
+	long totalsize = rfl.totalsize;
+
+	DataCollection datacollection = new DataCollection();
+	datacollection.setname(directory);
+	datacollection.setchecksum(DataUtil.checksum(new File(directory+rfl.separatedFiles[FileNum-1])));
+	datacollection.setsize(totalsize);
+	datacollection.setchunks(FileNum);
+
+	try {
+	    
+	    DBInterfaceFactory.getDBInterface().makePersistent(datacollection);
+	    idc.putDataCollection(datacollection);
+	    log.debug("datacollection uid = " + datacollection.getuid());
+	    
+	    for (int i=0;i<FileNum;i++){
+		
+		Data data = new Data();
+		data.setname(rfl.separatedFiles[i]);
+		data.setchecksum(DataUtil.checksum(new File(directory+rfl.separatedFiles[i])));
+		data.setsize(Long.parseLong(rfl.separatedFilesAndSize[i][1]));
+		data.settype(0);
+
+		DBInterfaceFactory.getDBInterface().makePersistent(data);
+		idc.putData(data);
+		log.debug("uid = " + DataUtil.toString(data));
+		log.debug("data uid = "+ DataUtil.toString(data));
+		
+		DataChunk datachunk = new DataChunk();
+		datachunk.setdatauid(data.getuid());
+		datachunk.setcollectionuid(datacollection.getuid());
+		datachunk.setindex(0);
+		datachunk.setoffset(0);
+		
+		DBInterfaceFactory.getDBInterface().makePersistent(datachunk);
+		idc.putDataChunk(datachunk);
+		log.debug("datachunk uid = " + datachunk.getuid());
+	    }
+
+	    return datacollection;
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	} catch (Exception e) {
+	    log.debug("Error creating datacollection " + e);
+	}
+	throw new BitDewException();
+	
+    }
+
+
+    /**
+     * create a DataCollection object, give the full path of the big file, 
+     * split this big file first, 
+     */
+    public DataCollection createDataCollection(String fullNameAndPath, long blocksize) throws BitDewException {
+	Separator separator = new Separator();
+	separator.SepFile(fullNameAndPath, blocksize);
+
+	String directory = null;
+	int fn = fullNameAndPath.lastIndexOf("/");
+	if (fn!=-1)
+	    directory = fullNameAndPath.substring(0,fn+1);
+
+	log.debug("Oh ha, compute: Directory="+directory);
+	ReadFileList rfl = new ReadFileList();
+	rfl.getFileListFromSep(directory, (int)separator.BlockNum);
+	int FileNum = rfl.FileNum; 
+	for (int i=0;i<FileNum;i++)
+	    log.debug(rfl.separatedFilesAndSize[i][0]+"+"+rfl.separatedFilesAndSize[i][1]);
+	long totalsize = rfl.totalsize;
+
+	DataCollection datacollection = new DataCollection();
+	datacollection.setname(fullNameAndPath);
+	datacollection.setchecksum(DataUtil.checksum(new File(fullNameAndPath)));
+	datacollection.setsize(totalsize);
+	datacollection.setchunks(FileNum);
+
+	try {
+	    
+	    DBInterfaceFactory.getDBInterface().makePersistent(datacollection);
+	    idc.putDataCollection(datacollection);
+	    log.debug("datacollection uid = " + datacollection.getuid());
+	    
+	    for (int i=0;i<FileNum;i++){
+		
+		Data data = new Data();
+		data.setname(rfl.separatedFiles[i]);
+		data.setchecksum(DataUtil.checksum(new File(directory+rfl.separatedFiles[i])));
+		data.setsize(Long.parseLong(rfl.separatedFilesAndSize[i][1]));
+		data.settype(0);
+
+		DBInterfaceFactory.getDBInterface().makePersistent(data);
+		idc.putData(data);
+		log.debug("uid = " + DataUtil.toString(data));
+		log.debug("data uid = "+ DataUtil.toString(data));
+		
+		DataChunk datachunk = new DataChunk();
+		datachunk.setdatauid(data.getuid());
+		datachunk.setcollectionuid(datacollection.getuid());
+		datachunk.setindex(0);
+		datachunk.setoffset(0);
+		
+		DBInterfaceFactory.getDBInterface().makePersistent(datachunk);
+		idc.putDataChunk(datachunk);
+		log.debug("datachunk uid = " + datachunk.getuid());
+	    }
+
+	    return datacollection;
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	} catch (Exception e) {
+	    log.debug("Error creating datacollection " + e);
+	}
+	throw new BitDewException();
+	
+    }
+    
+
+    /**
+     * <code>put</code> file to a data
+     * 
+     * directory should end with "/" or "\\"
+     * @param directory a <code>String</code> value
+     * @param datacollection a <code>DataCollection</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public void put(String directory, DataCollection datacollection) throws BitDewException {
+    	boolean b = false;
+	
+	if (directory.endsWith("\\")||directory.endsWith("/"))
+	    b = true;
+	else
+	    log.debug("path error!");
+
+	Vector v =null;
+
+	int FileNum = datacollection.getchunks();
+
+        try{
+	    v = idc.getAllDataInCollection(datacollection.getuid());
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	} 
+	    
+	if (v.size()!=FileNum)
+	    b = false;
+	else{
+	    log.debug("Size is OK! and Size= "+v.size());
+	}
+	
+	if (b){
+	    for (int i=0; i<FileNum; i++){
+	        Data data = (Data) v.elementAt(i);
+	        String name = directory+data.getname();
+	        File file = new File(name);
+	        put(file, data);
+
+		log.debug("Put one data finished! data name= "+name);
+	        log.debug("Data------");
+	        log.debug("data uid= "+data.getuid());
+	        log.debug("data checksum= "+data.getchecksum());
+	        log.debug("data size= "+data.getsize());
+	        log.debug("data type= "+data.gettype());
+	        log.debug("data oob= "+data.getoob());
+	    }
+	}
+    }
+
+
+    /**
+     * directory should end with "/" or "\\"
+     * set oob for each Data
+     */
+    public void put(String directory, DataCollection datacollection, String oob) throws BitDewException {
+	boolean b = false;
+	
+	if (directory.endsWith("\\")||directory.endsWith("/"))
+	    b = true;
+	else
+	    log.debug("path error!");
+
+	Vector v =null;
+
+	int FileNum = datacollection.getchunks();
+
+        try{
+	    v = idc.getAllDataInCollection(datacollection.getuid());
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	} 
+	    
+	if (v.size()!=FileNum)
+	    b = false;
+	else{
+	    log.debug("Size is OK! and Size= "+v.size());
+	}
+	
+	if (b){
+	    for (int i=0; i<FileNum; i++){
+	        Data data = (Data) v.elementAt(i);
+	        String name = directory+data.getname();
+	        File file = new File(name);
+		data.setoob(oob);
+	        put(file, data);
+
+		log.debug("Put one data finished! data name= "+name);
+	        log.debug("Data------");
+	        log.debug("data uid= "+data.getuid());
+	        log.debug("data checksum= "+data.getchecksum());
+	        log.debug("data size= "+data.getsize());
+	        log.debug("data type= "+data.gettype());
+	        log.debug("data oob= "+data.getoob());
+	    }
+	}
+    }
+    
+    public DataCollection searchDataCollectionByUid(String datacollectionUid) throws BitDewException {
+	try {
+	    return idc.getDataCollection(datacollectionUid);
+	} catch (RemoteException re ) {
+	    log.debug("cannot find datacollection : " + datacollectionUid + " in DC\n" + re);
+	}
+	throw new BitDewException();
+    }
+
+    
+    /**
+     * get all Data in this datacollection, save them in the directory
+     * directory should end with "/" or "\\"
+     */
+    public void get(DataCollection datacollection, String directory) throws BitDewException {
+	boolean b = false;
+	
+	if (directory.endsWith("\\")||directory.endsWith("/"))
+	    b = true;
+	else
+	    log.debug("path error!");
+
+	Vector v =null;
+
+	int FileNum = datacollection.getchunks();
+
+        try{
+	    v = idc.getAllDataInCollection(datacollection.getuid());
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	} 
+	    
+	if (v.size()!=FileNum)
+	    b = false;
+	else{
+	    log.debug("Size is OK! and Size= "+v.size());
+	}
+	
+	if (b){
+	    for (int i=0; i<FileNum; i++){
+	        Data data = (Data) v.elementAt(i);
+	        String name = directory+data.getname();
+	        File file = new File(name);
+		log.debug("get one data finished! data name= "+name);
+	        log.debug("Data------");
+	        log.debug("data uid= "+data.getuid());
+	        log.debug("data checksum= "+data.getchecksum());
+	        log.debug("data size= "+data.getsize());
+	        log.debug("data type= "+data.gettype());
+	        log.debug("data oob= "+data.getoob());
+		get(data, file);
+	    }
+	}
+
+    }
+
+
+    /**
+     * first get all Data, then combine to a big file
+     *
+     */
+    public void combine(DataCollection datacollection, String directory) throws BitDewException {
+	boolean b = false;
+	
+	if (directory.endsWith("\\")||directory.endsWith("/"))
+	    b = true;
+	else
+	    log.debug("path error!");
+
+	Vector v =null;
+
+	int FileNum = datacollection.getchunks();
+
+        try{
+	    v = idc.getAllDataInCollection(datacollection.getuid());
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	} 
+	    
+	if (v.size()!=FileNum)
+	    b = false;
+	else{
+	    log.debug("Size is OK! and Size= "+v.size());
+	}
+	
+	if (b){
+	    for (int i=0; i<FileNum; i++){
+	        Data data = (Data) v.elementAt(i);
+	        String name = directory+data.getname();
+	        File file = new File(name);
+		log.debug("get one data finished! data name= "+name);
+	        log.debug("Data------");
+	        log.debug("data uid= "+data.getuid());
+	        log.debug("data checksum= "+data.getchecksum());
+	        log.debug("data size= "+data.getsize());
+	        log.debug("data type= "+data.gettype());
+	        log.debug("data oob= "+data.getoob());
+		get(data, file);
+	    }
+	    Data data0 = (Data) v.elementAt(0);
+            int len = data0.getname().length();
+	    if (data0.getname().substring(len-9, len-4).equals(".part")){
+	        log.debug("begin Combine datacollection");
+	        log.debug("directory="+directory);
+	        Combinator combinator = new Combinator();
+	        combinator.setDirectory(directory);
+	        combinator.CombFile();
+	        
+	        String combinedfile = directory + combinator.getRealName(data0.getname());
+	        String newMD5 = DataUtil.checksum(new File(combinedfile));
+	        String oldMD5 = datacollection.getchecksum();
+	        if (newMD5.equals(oldMD5))
+		    log.debug("Big File MD5 prefect!");
+	    }
+	}
+
+    }
+
+
+
 }
     // BitDew

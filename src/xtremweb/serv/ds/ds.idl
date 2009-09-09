@@ -29,6 +29,11 @@
 <Return type="Attribute"/>
 </Method>
 
+<Method name="getAttributeByName">
+<Param name="name" type="String" desc="Attribute name"/>
+<Return type="Attribute"/>
+</Method>
+
 <Method name="associateDataAttribute">
 <Param name="data"     type="Data" desc="Data"/>
 <Param name="attribute"     type="Attribute" desc="Attribute"/>

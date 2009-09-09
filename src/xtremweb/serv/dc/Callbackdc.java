@@ -16,6 +16,7 @@ import xtremweb.core.db.*;
 import xtremweb.core.obj.dc.*;
 import xtremweb.core.uid.*;
 import xtremweb.core.log.*;
+import xtremweb.core.obj.ds.*;
 
 import xtremweb.serv.dc.ddc.jdht.*;
 import xtremweb.serv.dc.ddc.*;
@@ -109,8 +110,6 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
 	    q.setUnique(true);
 
 	    Data dataStored =(Data) q.execute();
-	    if (dataStored==null) 
-		return null;
 	    data = (Data) pm.detachCopy(dataStored);
 	    tx.commit();
         } finally {
@@ -221,6 +220,193 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
 
     }
 
+    //////////////////////////////////////////////////
+    public  void putDataCollection(DataCollection datacollection) throws RemoteException {
+	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+	Transaction tx=pm.currentTransaction();
+	try {
+	    tx.begin();
+
+	    pm.makePersistent(datacollection);
+	    
+	    tx.commit();
+        } finally {
+            if (tx.isActive())
+                tx.rollback();
+            pm.close();
+	}	    
+    }
+
+    public DataCollection getDataCollection(String uid) throws RemoteException {
+	
+	DataCollection datacollection = null;
+
+	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+
+	Transaction tx=pm.currentTransaction();
+	try {
+	    tx.begin();
+
+            Extent e=pm.getExtent(DataCollection.class,true);
+            Query q=pm.newQuery(e, "uid == \"" + uid + "\"");
+	    q.setUnique(true);
+
+	    DataCollection dataStored =(DataCollection) q.execute();
+	    datacollection = (DataCollection) pm.detachCopy(dataStored);
+	    tx.commit();
+        } finally {
+            if (tx.isActive())
+                tx.rollback();
+            pm.close();
+	}	
+	
+	return datacollection;
+    }
+
+    public  void deleteDataCollection(DataCollection datacollection) throws RemoteException {
+	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+
+	Transaction tx=pm.currentTransaction();
+	try {
+	    tx.begin();
+	    
+	    pm.makePersistent(datacollection);
+	    pm.deletePersistent(datacollection);
+
+	    tx.commit();
+        } finally {
+            if (tx.isActive())
+                tx.rollback();
+            pm.close();
+	}	    
+    }
+
+    public  void putDataChunk(DataChunk datachunk) throws RemoteException {
+	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+	Transaction tx=pm.currentTransaction();
+	try {
+	    tx.begin();
+
+	    pm.makePersistent(datachunk);
+	    
+	    tx.commit();
+        } finally {
+            if (tx.isActive())
+                tx.rollback();
+            pm.close();
+	}	    
+    }
+
+    public DataChunk getDataChunk(String uid) throws RemoteException {
+	DataChunk datachunk = null;
+
+	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+
+	Transaction tx=pm.currentTransaction();
+	try {
+	    tx.begin();
+
+            Extent e=pm.getExtent(DataChunk.class,true);
+            Query q=pm.newQuery(e, "uid == \"" + uid + "\"");
+	    q.setUnique(true);
+
+	    DataChunk dataStored =(DataChunk) q.execute();
+	    datachunk = (DataChunk) pm.detachCopy(dataStored);
+	    tx.commit();
+        } finally {
+            if (tx.isActive())
+                tx.rollback();
+            pm.close();
+	}	
+	
+	return datachunk;
+    }
+
+    public  void deleteDataChunk(DataChunk datachunk) throws RemoteException {
+	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+
+	Transaction tx=pm.currentTransaction();
+	try {
+	    tx.begin();
+	    
+	    pm.makePersistent(datachunk);
+	    pm.deletePersistent(datachunk);
+
+	    tx.commit();
+        } finally {
+            if (tx.isActive())
+                tx.rollback();
+            pm.close();
+	}	        
+    }
+
+    public java.util.Vector getAllDataInCollection(String datacollectionuid) throws RemoteException{
+	java.util.Vector v = new Vector();
+
+	Data data=null;
+	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+
+	Transaction tx=pm.currentTransaction();
+	try {
+	    tx.begin();
+
+            Extent e=pm.getExtent(DataChunk.class,true);
+            Iterator iter=e.iterator();
+	    
+            while (iter.hasNext()) {
+		DataChunk datachunk = (DataChunk) iter.next();
+		if (datachunk.getcollectionuid().equals(datacollectionuid)){
+		   Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class,  "uid == \"" + datachunk.getdatauid() + "\"");
+		    query.setUnique(true);
+		    Data dataStored = (Data) query.execute();
+		    data = (Data) pm.detachCopy(dataStored);
+		    v.addElement(data);
+		}
+	    }
+           
+	    tx.commit();
+        } finally {
+            if (tx.isActive())
+                tx.rollback();
+            pm.close();
+	}	
+
+	return v;
+
+    }
+
+    
+    public String getUidByName(String name){
+	
+	String uid = "";
+
+	Data data = null;
+
+	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+
+	Transaction tx=pm.currentTransaction();
+	try {
+	    tx.begin();
+
+            Extent e=pm.getExtent(Data.class,true);
+            Query q=pm.newQuery(e, "name == \"" + name + "\"");
+	    q.setUnique(true);
+
+	    Data dataStored =(Data) q.execute();
+	    data = (Data) pm.detachCopy(dataStored);
+	    uid = data.getuid();
+	    tx.commit();
+        } finally {
+            if (tx.isActive())
+                tx.rollback();
+            pm.close();
+	}	
+	
+	return uid;
+    }
+
+    
+    ////////////////////////////////////////////////////////////////
     
 
     public static void main(String [] args) {
@@ -256,4 +442,5 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
 	    ;
 	}
     }
+
 } // Callbackobj

@@ -7,10 +7,6 @@
 	- command line utility allows main data manipulation
 	- tutorial applications (Master/Worker, P2P, CDN)
 
-September/October
-	version 0.3
-	- DataCollection and DataChunk
-
 September xxx 2009
 	version 0.2.2
 	- cmdline tool can schedule data
@@ -18,11 +14,12 @@ September xxx 2009
 	- new documentation : every documentation is now produced by Doxygen
 	- modification of the scheduler to allow Data to be sent following a specific order (for instance Biggest Data First)
 
-August 10, 2009
-	version 0.2.1.1
-	- bug fixes
-
 ** HISTORY **
+
+September 9, 2009
+	version 0.2.2
+	- introduce DataCollection and DataChunk (Thanks to Bing TANG, Wuhan University of Technology China)
+
 
 August 03, 2009
 	version 0.2.1
@@ -32,10 +29,10 @@ August 03, 2009
 	- updated doxygen documentation which documents the release only
 	- changed the licence to a double licencing scheme GPLv3.0 or CeCill v2.0
 
-July 23, 2009	
+July 23, 2009
 	version 0.2.0 (Thanks to Bing TANG, Wuhan University of Technology China)
 	- scheduler implements the "distrib" attributes :
-		distrib is the maximum number of data of this attribute which 
+		distrib is the maximum number of data of this attribute which
 	        can exist on one node
 
 July 02, 2009
@@ -47,33 +44,33 @@ June 25, 2009
 	version 0.1.2.1
 	- change the way the daemon is started (bug fix)
 	- changed the default value for the location of propertie file in the jar file (bug fix)
- 	- can specify the location of the properties file using -DPROPERTIES_FILE  
+ 	- can specify the location of the properties file using -DPROPERTIES_FILE
 
-August 6, 2008	
+August 6, 2008
 	version 0.1.2
 	- working HelloWorld and PutGet examples
 	- documentation of how to run the examples in
 	the doxygen source
-	
+
 June 10, 2008
 	version 0.1.1
 	- automated the build release process
 	- bugs and documentation fixes
-	
+
 May 4, 2008
 	version 0.1.0
 	- command line utility has the ability to create data, create
 	attribute and start services.
 	- jdk6 compliant
 	- documentation features a quickstart section.
-	
+
 April 21, 2008
 	version 0.0.2
 	- better formatting of the command line utility
 	- cmdtool can create attribute and start services
 	- bugfixes
 	- more documentation
-	
+
 Mars 12, 2008
 	version 0.0.1
 	- initial release

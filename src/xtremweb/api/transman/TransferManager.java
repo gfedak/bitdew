@@ -505,6 +505,46 @@ public class TransferManager {
 	}		
     }
 
+    public void waitFor(DataCollection datacollection, String oob) throws TransferManagerException {
+	log.debug("begin waitFor!");
+	try {
+	    
+	    Data data=null;
+	    PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+
+	    Transaction tx=pm.currentTransaction();
+	    try {
+		tx.begin();
+
+		Extent e=pm.getExtent(DataChunk.class,true);
+		Iterator iter=e.iterator();
+	    
+		while (iter.hasNext()) {
+		    DataChunk datachunk = (DataChunk) iter.next();
+		    if (datachunk.getcollectionuid().equals(datacollection.getuid())){
+			Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class,  "uid == \"" + datachunk.getdatauid() + "\"");
+			query.setUnique(true);
+			Data dataStored = (Data) query.execute();
+			data = (Data) pm.detachCopy(dataStored);
+			data.setoob(oob);
+			waitFor(data);
+			log.debug("Oh ha Transfer waitfor data uid="+data.getuid());
+		    }
+		}
+           
+		tx.commit();
+	    } finally {
+		if (tx.isActive())
+		    tx.rollback();
+		pm.close();
+	    }	
+
+	} catch (Exception e) {
+	    throw new TransferManagerException();
+	}
+
+    }
+
     //This a comparator for the test
     class OOBTransferOrder implements Comparator {
 	

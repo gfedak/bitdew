@@ -21,6 +21,22 @@
 <Attribute name="publish" type="boolean" desc="Flag to set if the Locator can be published"/>
 </Object>
 
+<Object name="DataCollection">
+<Attribute  name="uid" type="String" desc="Uniq Identifier"/>
+<Attribute  name="name" type="String" desc="Name of the DataCollection"/>
+<Attribute  name="checksum" type="String" desc="MD5 file signature algorithm"/>
+<Attribute  name="size" type="long" desc="Total file size"/>
+<Attribute  name="chunks" type="int" desc="the number of chunks in this collection"/>
+</Object>
+
+<Object name="DataChunk">
+<Attribute  name="uid" type="String" desc="Uniq Identifier"/>
+<Attribute  name="datauid" type="String" desc="UID of Data Object"/>
+<Attribute  name="collectionuid" type="String" desc="UID of DataCollection object"/>
+<Attribute  name="index" type="int" desc="index position of this chunk"/>
+<Attribute  name="offset" type="long" desc="number of offset"/>
+</Object>
+
 <Method name="createData">
 <Param  name="name" type="String" desc="Name of the Data"/>
 <Param  name="checksum" type="String" desc="MD5 file signature algorithm"/>
@@ -30,7 +46,7 @@
 </Method>
 
 <Method name="createData">
-<Return type="Data" desc="Created data"/>
+<Return type="Data" desc="Created Data"/>
 </Method>
 
 <Method name="putData">
@@ -67,6 +83,50 @@
 <Method name="getDDCEntryPoint">
 <Return type="String"/>
 </Method>
+
+
+
+<Method name="putDataCollection">
+<Param name="datacollection" type="DataCollection" desc="DataCollection to put" />
+<Return type="void"/>
+</Method>
+
+<Method name="getDataCollection">
+<Param name="uid" type="String" desc="DataCollection UID" />
+<Return type="DataCollection" desc="DataCollection Returned" />
+</Method>
+
+<Method name="deleteDataCollection">
+<Param name="datacollection" type="DataCollection" />
+<Return type="void"/>
+</Method>
+
+<Method name="getAllDataInCollection">
+<Param name="datacollectionuid" type="String" />
+<Return type="java.util.Vector" />
+</Method>
+
+
+<Method name="putDataChunk">
+<Param name="datachunk" type="DataChunk" desc="DataChunk to put" />
+<Return type="void"/>
+</Method>
+
+<Method name="getDataChunk">
+<Param name="uid" type="String" desc="DataChunk UID" />
+<Return type="DataChunk" desc="DataChunk Returned"/>
+</Method>
+
+<Method name="deleteDataChunk">
+<Param name="datachunk" type="DataChunk"/>
+<Return type="void"/>
+</Method>
+
+<Method name="getUidByName">
+<Param name="name" type="String"/>
+<Return type="String"/>
+</Method>
+
 
 </Module>
 
