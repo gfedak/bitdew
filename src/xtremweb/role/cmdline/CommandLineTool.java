@@ -30,6 +30,7 @@ import xtremweb.core.http.*;
 import java.io.*;
 import jargs.gnu.CmdLineParser;
 import java.util.Vector;
+import java.util.ArrayList;
 
 /*!
  * @defgroup cmdline Using BitDew
@@ -146,6 +147,56 @@ public class CommandLineTool {
 	    }
 	}//create
 
+	//schedule data and attribute
+	if (otherArgs[0].equals("sched")) {
+	    if (otherArgs.length<3)  
+		usage(HelpFormat.LONG);
+	    String attr_uid = otherArgs[1];
+
+	    //verify that this attribute exists
+	    Attribute attr = null;
+	    try {
+		attr = activeData.getAttributeByUid(attr_uid);
+	    } catch (ActiveDataException ade) {
+		log.info("Attribute with uid " + attr_uid + " doesn't exist in the system : " + ade);
+		System.exit(2);
+	    }
+
+	    //build the list of data to schedule and check them
+	    ArrayList<Data> toSchedule = new ArrayList<Data>();
+	    for (int i=2 ; i<otherArgs.length; i++) {
+		try {
+		    Data d = bitdew.searchDataByUid(otherArgs[i]);
+		    if (d!=null)  {
+			toSchedule.add(d);
+		    } else 
+			log.info("Error : Data with uid " + otherArgs[i] +  " doesn't exist in the system ");
+		} catch (BitDewException bde) {
+		    log.info("Data with uid " + otherArgs[i] +  " doesn't exist in the system : " + bde);
+		}
+	    }
+
+	    //exit if there is nothing to do
+	    if (toSchedule.isEmpty()) 
+		System.exit(2);
+
+	    //schedule the data list
+	    String msg =  "Scheduling Data : ";
+	    for (Data data : toSchedule) {
+		try {
+		    activeData.schedule(data, attr);
+		    if (verbose)
+			msg+= "\n" + DataUtil.toString(data);
+		    else
+			msg+="[" + data.getname() + "|" + data.getuid() + "] ";
+		} catch (ActiveDataException ade) {
+		    log.info("Unable to schedule data " +  "[" + data.getname() + "|" + data.getuid() + "] " + "with attribute " + AttributeUtil.toString(attr) + " : " + ade);
+		}
+	    }
+	    String tmp = AttributeUtil.toString(attr);
+	    log.info(msg.substring(0,msg.length()-1) + (verbose?"\n":"")+" with Attribute " + tmp.substring(5,tmp.length()));
+	}//schedulde
+
 	//put file [dataId]
 	if (otherArgs[0].equals("put")) {
 	    if ((otherArgs.length!=2) && (otherArgs.length!=3) ) 
@@ -252,6 +303,10 @@ public class CommandLineTool {
 	}//get
     } // CommandLineTool constructor
 
+    public boolean isServer() {
+	return server;
+    }
+
     private String[] parse(String[] args) {
 	
 	//if there's no argument display helps
@@ -318,16 +373,19 @@ public class CommandLineTool {
 	    usage.option("    lftabs=dataId", "relative lifetime. The data will be obsolete when dataId is    deleted.");
 	    usage.option("    oob=protocol", "out-of-band file transfer protocol. Protocol can be one of the following [dummy|ftp|bittorrent]");
 	    usage.option("    ft=[true|false]", "fault tolerance. If true data will be rescheduled if one host  holding the data is considered as dead.");
-	    //	    usage.option("setattr","set attribute to data");
+	    usage.option("    distrib=int","maximum number of data of this attribute, a host can hold. The special value -1  means that this number is infinite");
 	    usage.ln();
 	    usage.section("Data:");
 	    usage.option("data file_name","create a new data from the file file_name");
+	    usage.ln();
+	    usage.section("Scheduling:");
+	    usage.option("sched attr_uid data_uid [data_uids ..... ]","associate and attribute given by its uid to one one or several data");
 	    usage.ln();
 	    usage.section("File:");
 	    usage.option("put file_name [dataId]","copy a file in the data space. If dataId is not specified, a new data will be created from the file.");
 	    usage.option("get dataId [file_name]","get the file from dataId.");
 	    usage.ln();
-	    usage.option("    distrib=int","maximum number of data of this attribute, a host can hold. The special value -1  means that this number is infinite");
+
 	    //	    usage.option("--file filename","file name to be created" );
 	    //	    usage.option("--attr attruid","attribute uid associated to the data" );
 
@@ -342,6 +400,7 @@ public class CommandLineTool {
     public static void main(String[] args){
 	CommandLineTool cmd = new CommandLineTool(args);
 	//FIXME We shouldn't have to explicitely exit
-	System.exit(0);
+	if (!cmd.isServer()) 
+	    System.exit(0);
     }
 } // CommandLineTool

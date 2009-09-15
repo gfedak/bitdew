@@ -71,7 +71,8 @@ public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
 	    q.setUnique(true);
 
 	    Attribute tmp =(Attribute) q.execute();
-	    attr = (Attribute) pm.detachCopy(tmp);
+	    if (tmp != null)
+		attr = (Attribute) pm.detachCopy(tmp);
 	    tx.commit();
         } finally {
             if (tx.isActive())

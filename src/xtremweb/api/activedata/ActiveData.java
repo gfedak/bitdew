@@ -291,6 +291,17 @@ public class ActiveData {
 	}
     }
 
+    public Attribute getAttributeByUid(String uid) throws  ActiveDataException {
+	Attribute attr = null;
+	try {
+	    attr = cds.getAttributeByUid(uid);
+	} catch (RemoteException re) {	    
+	    throw new ActiveDataException("cannot get attribute " + uid + " from the DS service");
+	}
+	if (attr == null) 
+	    throw new ActiveDataException("cannot get attribute " + uid + " from the DS service");
+	return attr;
+    }
 
     public Attribute createAttribute(String def)   throws ActiveDataException {
 	Attribute attr = AttributeUtil.parseAttribute(def);
