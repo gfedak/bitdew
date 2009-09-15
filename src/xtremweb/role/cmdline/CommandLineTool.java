@@ -101,7 +101,6 @@ public class CommandLineTool {
 		activeData = new ActiveData(comms);		
 		bitdew = new BitDew(comms);
 		transferManager = new TransferManager(comms);
-		transferManager.start();
 	    } catch(ModuleLoaderException e) {
 		log.warn("Cannot find service " + e);
 		log.warn("Make sure that your classpath is correctly set");
@@ -158,7 +157,6 @@ public class CommandLineTool {
 		System.exit(0);	
 	    }
 
-
 	    Data data = null;
 	    try {
 		//no dataId
@@ -179,6 +177,7 @@ public class CommandLineTool {
 	    }
 	    try {
 		//FIXME to allow several oob protocol
+		transferManager.start(true);
 		bitdew.put(file, data, "http");
 		transferManager.waitFor(data);
 		transferManager.stop();
@@ -191,7 +190,6 @@ public class CommandLineTool {
 		System.exit(0);
 	    } 
 	}//put
-
 
 	//get dataId file
 	if (otherArgs[0].equals("get")) {
@@ -238,7 +236,7 @@ public class CommandLineTool {
 	    }
 	    //get the data
 	    try {
-		transferManager.start();
+		transferManager.start(true);
 		bitdew.get(data, file);
 		transferManager.waitFor(data);
 		transferManager.stop();
@@ -252,7 +250,6 @@ public class CommandLineTool {
 		}
 	    
 	}//get
-
     } // CommandLineTool constructor
 
     private String[] parse(String[] args) {
@@ -344,5 +341,7 @@ public class CommandLineTool {
 
     public static void main(String[] args){
 	CommandLineTool cmd = new CommandLineTool(args);
+	//FIXME We shouldn't have to explicitely exit
+	System.exit(0);
     }
 } // CommandLineTool

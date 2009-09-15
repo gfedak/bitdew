@@ -163,6 +163,8 @@ public class TransferManager {
     public void stop() {
 	log.debug("Stopping TM Engine");
 	timer.cancel();
+	timer.purge();
+	timer = null;
     }
 
  
