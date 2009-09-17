@@ -42,7 +42,12 @@ public class DBInterface {
 		persisted=true;
 	    }
 	} catch (Exception sqle) {
-	    log.warn("Error when persisting object : " + sqle);	    
+	    //some time there are some error when persisting. In this case, we just wait and try again.
+	    log.warn("Error when persisting object : " + sqle + "\ntrying again in 500ms ");
+	    try {
+		Thread.sleep(500);
+	    } catch (InterruptedException ie) 
+		  {}
 	} finally {
 	    if (tx.isActive()) {
 		tx.rollback();
