@@ -34,13 +34,116 @@ import java.util.ArrayList;
 
 /*!
  * @defgroup cmdline Using BitDew
- *  Using BitDew
  *  @{
- *  @section starting the services
- * @code
- java  java -jar bitdew-stand-alone.jar serv dc dt dr ds serv
- * @endcode
- backslash_verbinclude doc/help-output.txt
+
+@section Quickstart
+
+The simplest way is to use the file @c bitdew-stand-alone-x.y.z.jar  which contains all the files and libraries inclued in one signle jar file.
+
+You can launch the command-line tool simply with the following command, which will display the usage :
+
+@code
+java -jar bitdew-stand-alone-x.y.z.jar
+@endcode
+
+and to obtain the complete list of options :
+
+@code
+java -jar bitdew-stand-alone-x.y.z.jar --help
+@endcode
+
+The tool can either start services or act as a client. 
+
+To start all of the services supported by BitDew simply run the  following command :
+
+@code
+java -jar bitdew-stand-alone-x.y.z.jar serv dc dr dt ds
+@endcode
+
+This will start the following services dc : Data Catalog, dr : Data Repository, dt : Data Transfer and ds: Data Scheduling.
+
+
+@section Invoking the command line tool
+
+The format for running the BitDew command line program is:
+
+@code
+java -jar  bitdew-stand-alone-x.y.z.jar [Options] Commands [Command Options]
+@endcode
+
+If the command line seems too long to type for you, we recommand to set an alias in your @file{.bashrc} as this :
+
+@code
+alias bitdew="java -jar  /path_to/bitdew-stand-alone-x.y.z.jar "
+@endcode
+
+@subsection basic Basic data operation
+
+To create a new data in BitDew from an existing file (for instance @c /tmp/foo.zip), simply run the command put with the name of the file, which will produce the following output :
+
+@code
+% java -jar  bitdew-stand-alone-x.y.z.jar put /tmp/foo.zip
+@endcode
+
+To schedule, you have to create an attribute and 
+
+@subsection help Obtaining help
+
+BitDew supports the following options, shown by
+the output of @c java -jar  bitdew-stand-alone-x.y.z.jar @c --help:
+
+
+@code
+BitDew command line client
+
+Usage : java -jar bitdew-stand-alone.jar [Options] Commands [Command Options]
+
+Options:
+  -h, --help                    display this helps
+  -v, --verbose                 display debugging information
+  -d, --dir                     working directory
+      --host                    service hostname
+      --port                    service port
+
+Services:
+      serv [dc|dr|dt|ds]        start the list of services separated by a space
+
+Attributes:
+      attr attr_definition      create attribute where attr_definition has the syntax att_Name 
+                                = {field1=value1, field2=value2}.
+                                Field can have the following values :
+          replicat=int          number of data replicat in the system. The special value -1    
+                                means that the data will be replicated to each node
+          affinity=dataId       affinity to data Identifier. Schedule the data on node where   
+                                dataId is present.
+          lftabs=int            absolute life time. The value is the life duration in minutes.
+          lftabs=dataId         relative lifetime. The data will be obsolete when dataId is    
+                                deleted.
+          oob=protocol          out-of-band file transfer protocol. Protocol can be one of the 
+                                following [dummy|ftp|bittorrent]
+          ft=[true|false]       fault tolerance. If true data will be rescheduled if one host  
+                                holding the data is considered as dead.
+          distrib=int           maximum number of data of this attribute, a host can hold. The 
+                                special value -1  means that this number is infinite
+
+Data:
+      data file_name            create a new data from the file file_name
+
+Scheduling:
+      sched attr_uid data_uid [data_uids ..... ]
+                                associate and attribute given by its uid to one one or several 
+                                data
+
+File:
+      put file_name [dataId]    copy a file in the data space. If dataId is not specified, a new
+                                data will be created from the file.
+      get dataId [file_name]    get the file from dataId.
+ @endcode
+
+@subsection create Creating Data
+
+@subsection file Moving Files to and from the Data Space
+
  * @}
  */
 
