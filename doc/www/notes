@@ -1,7 +1,0 @@
-
-utilisateur gilles
-
-Le site web sur gforge:
-/home/groups/bitdew/htdocs
-
-scp index.html gilles@scm.gforge.inria.fr:/home/groups/bitdew/htdocs/
