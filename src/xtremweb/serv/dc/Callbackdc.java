@@ -34,6 +34,7 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
    
     protected Logger log = LoggerFactory.getLogger("DC Service");
     protected DistributedDataCatalog ddc = null;
+    private     DBInterface dbi = DBInterfaceFactory.getDBInterface();
 
     public Callbackdc() {
 	try {
@@ -69,19 +70,7 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
 
 
     public void putData(Data data)  throws RemoteException {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
-	try {
-	    tx.begin();
-
-	    pm.makePersistent(data);
-	    
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
+	dbi.makePersistent(data);
     }
 
     public String getDDCEntryPoint()  throws RemoteException {
@@ -168,20 +157,7 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
     }
 
     public void putLocator(Locator locator)  throws RemoteException {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
-
-	log.debug("************** protocol **************" + locator.getprotocoluid());
-	locator.setpublish(true);
-	try {
-	    tx.begin();
-	    pm.makePersistent(locator);
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
+	    dbi.makePersistent(locator);
     }
 
 
@@ -223,19 +199,7 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
 
     //////////////////////////////////////////////////
     public  void putDataCollection(DataCollection datacollection) throws RemoteException {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
-	try {
-	    tx.begin();
-
-	    pm.makePersistent(datacollection);
-	    
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	    
+	    dbi.makePersistent(datacollection);
     }
 
     public DataCollection getDataCollection(String uid) throws RemoteException {
@@ -283,19 +247,7 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
     }
 
     public  void putDataChunk(DataChunk datachunk) throws RemoteException {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
-	try {
-	    tx.begin();
-
-	    pm.makePersistent(datachunk);
-	    
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	    
+	    dbi.makePersistent(datachunk);
     }
 
     public DataChunk getDataChunk(String uid) throws RemoteException {

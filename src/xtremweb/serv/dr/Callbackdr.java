@@ -120,19 +120,8 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
     }
 
     public void registerProtocol(Protocol proto) {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
-	try {
-	    tx.begin();
-
-	    pm.makePersistent(proto);
-	    
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
+	DBInterface dbi = DBInterfaceFactory.getDBInterface();
+	dbi.makePersistent(proto);
     }
     
     //FIXME THAT'S UGLY !!!!!

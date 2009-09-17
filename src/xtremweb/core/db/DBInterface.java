@@ -9,6 +9,7 @@ package xtremweb.core.db;
  * @author <a href="mailto:">Gilles Fedak</a>
  * @version 1.0
  */
+import xtremweb.core.log.*;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -20,32 +21,32 @@ import javax.jdo.Extent;
 import javax.jdo.Query;
 import javax.jdo.JDOHelper;
 import javax.jdo.Transaction;
+import java.sql.SQLException;
 
 //FIXME is this class used at all ????
 
 public class DBInterface {
 
-    public DBInterface() {
-
-
-    } // DBInterface constructor
-    
+    private Logger log = LoggerFactory.getLogger("Data Scheduler Test");
 
     public void makePersistent(Object obj) {
 	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
 	Transaction tx=pm.currentTransaction();
 
+	boolean persisted = false;
 	try {
-	    tx.begin();
-
-	    pm.makePersistent(obj);
-
-	    tx.commit();
+	    while (!persisted) { 
+		tx.begin();
+		pm.makePersistent(obj);
+		tx.commit();
+		persisted=true;
+	    }
+	} catch (Exception sqle) {
+	    log.warn("Error when persisting object : " + sqle);	    
 	} finally {
 	    if (tx.isActive()) {
 		tx.rollback();
-	    }
-	    
+	    }    
 	    pm.close();
 	}
     }

@@ -117,44 +117,34 @@ public abstract class OOBTransferImpl implements OOBTransfer {
      *  <code>persist</code> the OOBTransfer to the local database
      */
     public void persist() {
+	DBInterface dbi = DBInterfaceFactory.getDBInterface();
 
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
 	String tuid = transfer.getuid();
 	if ((transfer!=null)&&(transfer.getuid()!=null)) 
 	    logfac.debug("Transfer already persisted : " + transfer.getuid());
 
-	try {
-	    tx.begin();
-	    pm.makePersistent(data);
-	    pm.makePersistent(remote_protocol);
-	    pm.makePersistent(local_protocol);
+	dbi.makePersistent(data);
+	dbi.makePersistent(remote_protocol);
+	dbi.makePersistent(local_protocol);
+	
+	remote_locator.setdatauid(data.getuid());
+	local_locator.setdatauid(data.getuid());
+	
+	remote_locator.setprotocoluid(remote_protocol.getuid());
+	local_locator.setprotocoluid(local_protocol.getuid());
+	
+	dbi.makePersistent(remote_locator);
+	dbi.makePersistent(local_locator);
+	
+	transfer.setlocatorremote(remote_locator.getuid());
+	transfer.setlocatorlocal(local_locator.getuid());
+	transfer.setdatauid(data.getuid());
+	dbi.makePersistent(transfer);
 
-	    remote_locator.setdatauid(data.getuid());
-	    local_locator.setdatauid(data.getuid());
-
-	    remote_locator.setprotocoluid(remote_protocol.getuid());
-	    local_locator.setprotocoluid(local_protocol.getuid());
-
-	    pm.makePersistent(remote_locator);
-	    pm.makePersistent(local_locator);
-
-	    transfer.setlocatorremote(remote_locator.getuid());
-	    transfer.setlocatorlocal(local_locator.getuid());
-	    transfer.setdatauid(data.getuid());
-	    pm.makePersistent(transfer);
-	    tx.commit();
-
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}
-
+	
 	//FIXME: should have an assert here
 	if ( (tuid!=null) && (!tuid.equals( transfer.getuid()))) 
 	    logfac.debug(" Transfer has been incorrectly persisted    " + tuid + "  !="  + transfer.getuid());
-
     }
 
     /**
