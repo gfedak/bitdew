@@ -22,7 +22,7 @@ import java.util.*;
  *
  * Created: Mon Oct  8 11:35:41 2007
  *
- * @author <a href="mailto:fedak@lri7-234.lri.fr">Gilles Fedak</a>
+ * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
  */
 public class DataSchedulerTest {

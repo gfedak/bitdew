@@ -6,7 +6,7 @@ package xtremweb.api.activedata;
  *
  * Created: Fri Aug 17 14:27:42 2007
  *
- * @author <a href="mailto:fedak@lri7-234.lri.fr">Gilles Fedak</a>
+ * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
  */
 import xtremweb.core.util.SortedVector;

@@ -56,7 +56,7 @@ public class TransferManager {
 
     private Timer timer;
 
-    private int concurrentDowload=1;
+    private long maxDownloads=1;
 
     private final static PerfMonitor perf = PerfMonitorFactory.createPerfMonitor("TransferManager", "hits per second", 3000);
 
@@ -261,47 +261,48 @@ public class TransferManager {
 		    
 		case TransferStatus.READY :
 		    log.debug("READY");			
-		    try {
-			log.debug("start tranfer : " + trans.getuid());
-			//correct transfer creation
-			if (TransferType.isLocal(trans.gettype()))
-			    dt.startTransfer(trans.getuid());
-			//going to start the transfer
-			oob = getOOBTransfer(trans);
-			if (TransferType.isLocal(trans.gettype())) {
-			    log.debug("oob connect");
-			    oob.connect();
+		    if (ongoingTransfers() < maxDownloads) {
+			try {
+			    log.debug("start tranfer : " + trans.getuid());
+			    //correct transfer creation
+			    if (TransferType.isLocal(trans.gettype()))
+				dt.startTransfer(trans.getuid());
+			    //going to start the transfer
+			    oob = getOOBTransfer(trans);
+			    if (TransferType.isLocal(trans.gettype())) {
+				log.debug("oob connect");
+				oob.connect();
+			    }
+			    if (trans.gettype() == TransferType.UNICAST_SEND_SENDER_SIDE ) {
+				log.debug("oob sendSenderSide");
+				oob.sendSenderSide();
+			    }
+			    if (trans.gettype() == TransferType.UNICAST_SEND_RECEIVER_SIDE ) {
+				log.debug("oob sendReceiverSide");
+				oob.sendReceiverSide();
+			    }
+			    if (trans.gettype() == TransferType.UNICAST_RECEIVE_RECEIVER_SIDE ) {
+				log.debug("oob receiveReceiverSide");
+				oob.receiveReceiverSide();
+			    }
+			    if (trans.gettype() == TransferType.UNICAST_RECEIVE_SENDER_SIDE ) {
+				log.debug("oob receiveSenderSide");
+				oob.receiveSenderSide();
+			    }
+			    if (TransferType.isLocal(trans.gettype())) {
+				dt.setTransferStatus(trans.getuid(), 
+						     TransferStatus.TRANSFERING);
+			    }
+			} catch (RemoteException re) {
+			    trans.setstatus(TransferStatus.INVALID);
+			    break;
+			} catch (OOBException oobe) {
+			    trans.setstatus(TransferStatus.INVALID);
+			    break;
 			}
-			if (trans.gettype() == TransferType.UNICAST_SEND_SENDER_SIDE ) {
-			    log.debug("oob sendSenderSide");
-			    oob.sendSenderSide();
-			}
-			if (trans.gettype() == TransferType.UNICAST_SEND_RECEIVER_SIDE ) {
-			    log.debug("oob sendReceiverSide");
-			    oob.sendReceiverSide();
-			}
-			if (trans.gettype() == TransferType.UNICAST_RECEIVE_RECEIVER_SIDE ) {
-			    log.debug("oob receiveReceiverSide");
-			    oob.receiveReceiverSide();
-			}
-			if (trans.gettype() == TransferType.UNICAST_RECEIVE_SENDER_SIDE ) {
-			    log.debug("oob receiveSenderSide");
-			    oob.receiveSenderSide();
-			}
-			if (TransferType.isLocal(trans.gettype())) {
-			    dt.setTransferStatus(trans.getuid(), 
-						 TransferStatus.TRANSFERING);
-			}
-		    } catch (RemoteException re) {
-			trans.setstatus(TransferStatus.INVALID);
-			break;
-		    } catch (OOBException oobe) {
-			trans.setstatus(TransferStatus.INVALID);
+			trans.setstatus(TransferStatus.TRANSFERING);
 			break;
 		    }
-		    trans.setstatus(TransferStatus.TRANSFERING);
-		    break;
-
 		case TransferStatus.INVALID :
 		    log.debug("INVALID");
 		    try {
@@ -398,7 +399,25 @@ public class TransferManager {
 	perf.addSample(end - start);
     }
 
-
+    public long ongoingTransfers() {
+	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+	Transaction tx=pm.currentTransaction();	
+	long result=-1;
+	try {
+	    tx.begin();
+	    Query query = pm.newQuery(xtremweb.core.obj.dt.Transfer.class, "status == " + TransferStatus.TRANSFERING );
+	    query.setResult("count(uid)");
+	    List results = (List)query.execute();
+	    Iterator iter = results.iterator();
+	    result = ((Long) iter.next()).longValue();
+	    tx.commit();
+	} finally {
+            if (tx.isActive())
+                tx.rollback();
+            pm.close();
+	}
+	return result;
+    }
 
     //FIXME c pas top; mettre une limite au premier resultat retourne
     public boolean downloadComplete() {
@@ -438,6 +457,13 @@ public class TransferManager {
 	return true;
     }
 
+    public void setMaximumConcurrentDownloads(long cd) {
+	maxDownloads = cd;
+    }
+
+    public long getMaximumConcurrentDonwloads() {
+	return maxDownloads;
+    }
     /**
      *  <code>waitForAllData</code> waits for all transfers to complete.
      *
