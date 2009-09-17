@@ -40,19 +40,8 @@ public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
     }
     
     public Attribute registerAttribute(Attribute attr) throws RemoteException {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
-	try {
-	    tx.begin();
-
-	    pm.makePersistent(attr);
-	    
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}
+	DBInterface dbi = DBInterfaceFactory.getDBInterface();
+	dbi.makePersistent(attr);
 	ds.updateAttribute(attr);
 	return attr;
     }
