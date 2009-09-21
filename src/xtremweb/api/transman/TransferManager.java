@@ -12,7 +12,6 @@ package xtremweb.api.transman;
 
 import xtremweb.core.iface.*;
 import xtremweb.core.obj.dt.Transfer;
-
 import xtremweb.core.db.*;
 import xtremweb.core.obj.dc.*;
 import xtremweb.core.obj.dr.*;
@@ -37,8 +36,8 @@ import javax.jdo.Extent;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
 import java.util.Properties;
-
-
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * <code>TransferManager</code>.
@@ -55,6 +54,8 @@ public class TransferManager {
     private int timeout = 1000; 
 
     private Timer timer;
+    private Lock timerLock = new ReentrantLock();
+    private static int timerSchedules = 0;
 
     private long maxDownloads=1;
 
@@ -141,12 +142,21 @@ public class TransferManager {
      */
     public void start(boolean isDaemon) { 
 	log.debug("Starting TM Engine");
-	if (timer==null) timer=new Timer("TransferManagerTimer", isDaemon); 
-	timer.schedule(new TimerTask() { 
-		public void run() { 
-		    checkTransfer();
-		} 
-	    } , 0, timeout ); 
+	try {
+	    timerLock.lock();
+	    if (timer==null) {
+		timer=new Timer("TransferManagerTimer", isDaemon); 
+		timer.schedule(new TimerTask() { 
+			public void run() { 
+			    checkTransfer();
+			} 
+		    } , 0, timeout ); 
+		timerSchedules++;
+		log.debug("timer schedules : " + timerSchedules );
+	    }
+	} finally {
+	    timerLock.unlock();
+	}
     }
 
     /**
@@ -162,9 +172,14 @@ public class TransferManager {
      */
     public void stop() {
 	log.debug("Stopping TM Engine");
-	timer.cancel();
-	timer.purge();
-	timer = null;
+	try {
+	    timerLock.lock();
+	    timer.cancel();
+	    timer.purge();
+	    timer = null;
+	} finally {
+	    timerLock.unlock();
+	}
     }
 
  
@@ -407,9 +422,7 @@ public class TransferManager {
 	    tx.begin();
 	    Query query = pm.newQuery(xtremweb.core.obj.dt.Transfer.class, "status == " + TransferStatus.TRANSFERING );
 	    query.setResult("count(uid)");
-	    List results = (List)query.execute();
-	    Iterator iter = results.iterator();
-	    result = ((Long) iter.next()).longValue();
+	    result = ((Long) query.execute()).longValue();
 	    tx.commit();
 	} finally {
             if (tx.isActive())
