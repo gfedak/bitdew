@@ -20,7 +20,7 @@ import java.math.BigInteger;
 /**
  *  <code>DataUtil</code> is a set ogf utilitary methods.
  *
- * @author <a href="mailto:fedak@fedak@lri.fr">Gilles Fedak</a>
+ * @author <a href="mailto:Gilles.Fedak@inria.fr">Gilles Fedak</a>
  * @version 1.0
  */
 public class DataUtil {

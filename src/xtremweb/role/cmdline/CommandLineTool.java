@@ -482,7 +482,8 @@ public class CommandLineTool {
 	    usage.option("data file_name","create a new data from the file file_name");
 	    usage.ln();
 	    usage.section("Scheduling:");
-	    usage.option("sched attr_uid data_uid [data_uids ..... ]","associate and attribute given by its uid to one one or several data");
+	    usage.option("sched attr_uid data_uid [data_uids ..... ]","schedule one or a list of data with the specified attribute");
+	    //	    usage.option("unsched data_uid [data_uids ..... ]","unschedule one or a list of data");
 	    usage.ln();
 	    usage.section("File:");
 	    usage.option("put file_name [dataId]","copy a file in the data space. If dataId is not specified, a new data will be created from the file.");

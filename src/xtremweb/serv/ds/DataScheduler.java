@@ -86,8 +86,8 @@ public class DataScheduler {
 	}
     }
 
-    //fill the cache 
-    public void checkData() {
+    /*fill the cache 
+    public void checkDataFuck() {
 	PersistenceManagerFactory pmf = DBInterfaceFactory.getPersistenceManagerFactory();
 	PersistenceManager pm = pmf.getPersistenceManager();
 	Transaction tx=pm.currentTransaction();
@@ -119,7 +119,7 @@ public class DataScheduler {
 	    pm.close();
 	}
     }
-
+    */
     public void updateAttribute(Attribute attr) {
 	Iterator iter=dataCache.iterator();	
 	while (iter.hasNext()) {
@@ -318,9 +318,9 @@ public class DataScheduler {
     }
 
 
-    /**
+    /*
      * <code>start</code> launches periodic Scheduling
-     */
+     
     public void start() { 
 	log.debug("Starting Data Scheduler");
 	if (timer==null) timer=new Timer(); 
@@ -330,7 +330,7 @@ public class DataScheduler {
 		} 
 	    } , 0, timeout ); 
     }
-
+    */
     public  void setAliveTimeout(long t) {
 	Owner.setAliveTimeout(t);
     }

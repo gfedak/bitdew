@@ -5,7 +5,7 @@ import java.lang.*;
 
 /**
  * <code>SortedVector</code> is a class which keeps the element of the
- * vector sorted. It provides a log2 binary search. The ggod thing is
+ * vector sorted. It provides a log2 binary search. The good thing is
  * that it can store any element  and can be paramertrized with a
  * dedicated comparator. 
  *
