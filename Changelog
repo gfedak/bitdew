@@ -9,7 +9,6 @@
 
 September xxx 2009
 	version 0.X.X
-	- cmdline tool can schedule data
 	- cmdline tool can manage data repository
 	- new documentation : every documentation is now produced by Doxygen
 	- modification of the scheduler to allow Data to be sent following a specific order (for instance Biggest Data First)
@@ -17,10 +16,11 @@ September xxx 2009
 
 September xxx, 2009
 	version 0.2.3
-		- cmdline tool can put and get data
-	
-** HISTORY **
+	- cmdline tool can put and get data
+	- cmdline tool can schedule data
 
+
+** HISTORY **
 
 September 9, 2009
 	version 0.2.2

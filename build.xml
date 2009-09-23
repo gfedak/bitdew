@@ -339,8 +339,9 @@ public class Version {
 	description="call doxygen to generate a rich doc">
   <exec dir="." executable="doxygen"
 	failonerror="true" os="Linux"/>
-  <exec dir="." executable="doxygen"
+  <exec dir="." executable="/Applications/Doxygen.app/Contents/Resources/doxygen"
 	failonerror="true" os="Mac OS X"/>
+<!-- make sure that /Applications/Doxygen.app/Contents/Resources/ is in the PATH-->
 </target>
 
 <target name="userguide" depends="init"
