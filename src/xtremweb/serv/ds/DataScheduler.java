@@ -134,7 +134,7 @@ public class DataScheduler {
 	int idx=dataCache.search(data.getuid());
 	if ( idx == -1) {
 	     ce = new CacheEntry(data, attr);
-	     ce.updateOwner(host);
+	     ce.setOwner(host);
 	    dataCache.addElement(ce);
 	    return;
 	} 
