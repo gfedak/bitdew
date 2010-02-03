@@ -1,4 +1,4 @@
-- refaire la premiere page avec un vrai style
+ok - refaire la premiere page avec un vrai style
 
 -refaire le systeme de build
 
@@ -7,10 +7,10 @@ Documentation des namespace
 - filtrer (degager) les tests dans la documentation des namespace 
 
 Dans la definition des classes :
-- virer les "Definition at lines..."
-- virer les "References ...
-- virer les "referenced by ..."
-- virer les chemins absolus /home/fedak/bitdew/trunk-1/  src
+ok - virer les "Definition at lines..."
+ok - virer les "References ...
+ok - virer les "referenced by ..."
+ok - virer les chemins absolus /home/fedak/bitdew/trunk-1/  src
 - essayer de revoir les style minable des titres de soussections (declaration des fonctions)
 
 Dans la documentation des fichiers
@@ -18,7 +18,7 @@ Dans la documentation des fichiers
 - inclure les sources (?)
 
 Dans la documentation des exemples
-- mettre les exemples a la suite des modules
+ok - mettre les exemples a la suite des modules
 - mettre un vrai style au code java
 - mettre des hyper-link sur les noms d'Objet, package, methodes
 

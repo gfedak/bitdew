@@ -2,6 +2,10 @@
 #
 # -i.orig -p
 use strict ;
+use Cwd;
+use Cwd 'abs_path';
+my $cwd = getcwd();
+my $src = abs_path("$cwd/../src");
 
 
 sub patch
@@ -25,11 +29,14 @@ sub patch
 	  open (NEW, "> tmp.tex") or die "cannot open $dossier : $!";
       while (<OLD>) {
 #	  s/<\/body>/$google_analytics/g;
+	  s/::/\./g;
 	  s/^Definition at line/%Definition at line/g;
 	  s/^References/%References/g;
-	  s/^Referenced by/%Referenced by/g;
 #fix for hypertatget which doesn't start at the beginning of line
-	  s/[^\S]\hypertarget/\n\hypertarget/g;
+	  s/\S\\hypertarget/\n\\hypertarget/g;
+	  s/^Referenced by/%Referenced by/g;
+	  s/$src\///g;
+
 	  print NEW $_ or die "cannot write : $!";
       }
       close (NEW) or die "cannot close : $!";
@@ -40,5 +47,3 @@ sub patch
  
 
 patch ("doxygen/latex");
-
- 
