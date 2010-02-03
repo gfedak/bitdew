@@ -1,0 +1,25 @@
+- refaire la premiere page avec un vrai style
+
+-refaire le systeme de build
+
+Documentation des namespace
+- mettre toutes les docs sur une seule page
+- filtrer (degager) les tests dans la documentation des namespace 
+
+Dans la definition des classes :
+- virer les "Definition at lines..."
+- virer les "References ...
+- virer les "referenced by ..."
+- virer les chemins absolus /home/fedak/bitdew/trunk-1/  src
+- essayer de revoir les style minable des titres de soussections (declaration des fonctions)
+
+Dans la documentation des fichiers
+- mettre toutes les documentations sur une seule page
+- inclure les sources (?)
+
+Dans la documentation des exemples
+- mettre les exemples a la suite des modules
+- mettre un vrai style au code java
+- mettre des hyper-link sur les noms d'Objet, package, methodes
+
+# reduire a 400-500 pages (?)
