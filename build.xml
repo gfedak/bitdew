@@ -3,7 +3,7 @@
       Ant build file
   </description>
 
-  <property name="version" value="0.2.3" />
+  <property name="version" value="0.2.4" />
 
   <!-- set global properties for this build -->
   <property name="src" location="src"/>
@@ -22,11 +22,13 @@
 
   <property environment="env" />
 
-  <!-- property name="ibis"   value="${env.IBIS_HOME}" / -->
-  <!-- import file="${ibis}/build-files/apps/build-rmi-app.xml"/-->
-
-  <!-- property name="compiler" value="jikes"/ -->
-
+ 
+    <!--
+    ===================================================================
+    SETTINGS : project classpath
+    ===================================================================
+    -->
+  
     <path id="id.project.classpath">
     <pathelement location="${build}" />
     <pathelement location="${conf}" />
@@ -35,17 +37,19 @@
     </fileset>
   </path>
 
+  <property name="project.classpath" refid="id.project.classpath"/>
+  <!--echo>classpath ::   ${project.classpath}</echo -->
+
   <property name = "saxon6"
           value = "org.xmLP.ant.taskdefs.optional.Saxon6Liaison"/>
   <property name = "saxon6.classpath"
-          value = "${lib}/saxon.jar"/>
+          value = "${project.classpath}"/>
   <taskdef name = "mtxslt"
-         classname = "org.xmLP.ant.taskdefs.xslt.XSLTProcess"/>
-
-  <property name="project.classpath" refid="id.project.classpath"/>
+         classname = "org.xmLP.ant.taskdefs.xslt.XSLTProcess"
+	   classpath="${project.classpath}"/>
 
   <tstamp prefix="time"/>
-  <!--echo>classpath ::   ${project.classpath}</echo -->
+
   
     <!--
     ===================================================================
@@ -162,7 +166,7 @@ public class Version {
     <!-- Compile the java code from ${src} into ${build} -->
     <target name="compile" depends="init"
 	    description="compile the source " >
-      <javac compiler="modern" srcdir="src" debug="on" destdir="${build}" source="1.5"/>
+      <javac compiler="modern" srcdir="src" debug="on" destdir="${build}" source="1.5" classpath="${project.classpath}"/>
       <rmic base="${build}"
 	    classname="xtremweb.core.com.handler.HandlerRMIdc" 
 	    classpath="${classpath}"/>
@@ -283,7 +287,7 @@ public class Version {
     ===================================================================
 -->
 <target name="enhance" description="JPOX enhancement"  depends="check_idl" unless="enhancer.notRequired">
-  <taskdef name="jpoxenhancer" classname="org.jpox.enhancer.tools.EnhancerTask" />
+  <taskdef name="jpoxenhancer" classname="org.jpox.enhancer.tools.EnhancerTask" classpath="${project.classpath}"/>
   
 
   <jpoxenhancer 
