@@ -14,7 +14,6 @@ import xtremweb.core.obj.dc.Locator;
 import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.ds.Attribute;
 import xtremweb.core.util.filesplit.*;
-
 import xtremweb.serv.dt.*;
 import xtremweb.serv.dt.ftp.*;
 import xtremweb.serv.dc.ddc.*;
@@ -24,13 +23,14 @@ import xtremweb.serv.ds.*;
 import xtremweb.api.transman.*;
 
 import java.io.File;
+import java.io.*;
 import java.rmi.RemoteException;
 import java.util.Vector;
 
 /**
  *  <code>BitDew</code> programming interface.
  *
- * @author <a href="mailto:fedak@dick">Gilles Fedak</a>
+ * @author <a href="mailto:Gilles.Fedak@inria.fr">Gilles Fedak</a>
  * @version 1.0
  */
 public class BitDew {
@@ -44,6 +44,9 @@ public class BitDew {
 
     private DistributedDataCatalog ddc = null;
     private String myHost="test_that_dude";
+
+    private long splittime;
+    private long creattime;
 
     /**
      * Creates a new <code>BitDew</code> instance.
@@ -116,7 +119,7 @@ public class BitDew {
     }
 
     /**
-     * <code>createData</code> creates Data.
+     * <code>createData</code> creates Data with its name set as specified .
      *
      * @param name a <code>String</code> value
      * @return a <code>Data</code> value
@@ -187,6 +190,14 @@ public class BitDew {
     }
 
 
+    /**
+     *  <code>updateData</code> updates the data fields (name, size, checksum) 
+     * with the file characteristics and put the file in the data slot.
+     *
+     * @param data a <code>Data</code> value
+     * @param file a <code>File</code> value
+     * @exception BitDewException if an error occurs
+     */
     public void updateData(Data data, File file) throws BitDewException {
 	//set the new file value
 	Data tmp =  DataUtil.fileToData(file);
@@ -209,6 +220,12 @@ public class BitDew {
 	}
     }
 
+    /**
+     *  <code>deleteData</code> deletes data
+     *
+     * @param data a <code>Data</code> value
+     * @exception BitDewException if an error occurs
+     */
     public void deleteData(Data data) throws BitDewException {
 	//set the new status to TODELETE value
 	data.setstatus(DataStatus.TODELETE);
@@ -256,7 +273,7 @@ public class BitDew {
 
     /**
      * <code>put</code> convenience method to register a data already
-     * present in a data repository without having to copy the data.
+     * present in a data repository without having to copy the data repository.
      *
      * @param data a <code>Data</code> value
      * @param remote_locator a <code>Locator</code> value
@@ -470,9 +487,17 @@ public class BitDew {
 	throw new BitDewException();
     }
 
-    public String getUidByName(String name) throws BitDewException {
+
+    /**
+     *  <code>getDataUidByName</code> returns Data Uid accordings to the name
+     *
+     * @param name a <code>String</code> value
+     * @return a <code>String</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public String getDataUidByName(String name) throws BitDewException {
 	try {
-	    return idc.getUidByName(name);
+	    return idc.getDataUidByName(name);
 	} catch (RemoteException re) {
 	    log.debug("cannot find data: "  + name + " in DC\n" + re);
 	}
@@ -480,6 +505,25 @@ public class BitDew {
 
     }
 
+    /**
+     *  <code>getDataByName</code> returns the Data according to the name
+     *
+     * @param name a <code>String</code> value
+     * @return a <code>Data</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public Data getDataByName(String name) throws BitDewException {
+	String uid = getDataUidByName(name);
+	return searchDataByUid(uid);
+    }
+
+    /**
+     *  <code>getAttributeByName</code> returns the Attribute according to the name
+     *
+     * @param name a <code>String</code> value
+     * @return an <code>Attribute</code> value
+     * @exception BitDewException if an error occurs
+     */
     public Attribute getAttributeByName(String name) throws BitDewException {
 	try {
 	    return ids.getAttributeByName(name);
@@ -489,6 +533,24 @@ public class BitDew {
 	throw new BitDewException();
 
     }
+
+    /**
+     *  <code>getAttributeByUid</code> returns the Attribute according to its Uid
+     *
+     * @param uid a <code>String</code> value
+     * @return an <code>Attribute</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public Attribute getAttributeByUid(String uid) throws BitDewException {
+	try {
+	    return ids.getAttributeByUid(uid);
+	} catch (RemoteException re) {
+	    log.debug("cannot find attr: "  + uid + " in DC\n" + re);
+	}
+	throw new BitDewException();
+
+    }
+
 
     /**
      *  <code>ddcSearch</code> searches data in the distributed data catalog.
@@ -548,11 +610,16 @@ public class BitDew {
     
 
     /**
-     *  create a DataCollection object, all the files in this directory are put into this DataCollection object
+     * <code>createDataCollection</code>create a DataCollection object, all the files in this directory 
+     * are put into this DataCollection object 
      *  directory should end with "/" or "\\"
+     * @param directory a <code>String</code> value
+     * @return a <code>DataCollection</code> value
+     * @exception BitDewException if an error occurs
      */
     public DataCollection createDataCollection(String directory) throws BitDewException {
 
+	long t2 = System.currentTimeMillis();
 	ReadFileList rfl = new ReadFileList();
 	rfl.getFileList(directory);
 	int FileNum = rfl.FileNum; 
@@ -588,13 +655,15 @@ public class BitDew {
 		DataChunk datachunk = new DataChunk();
 		datachunk.setdatauid(data.getuid());
 		datachunk.setcollectionuid(datacollection.getuid());
-		datachunk.setindex(0);
-		datachunk.setoffset(0);
+		datachunk.setindex(i);
+		datachunk.setoffset(i);
 		
 		DBInterfaceFactory.getDBInterface().makePersistent(datachunk);
 		idc.putDataChunk(datachunk);
 		log.debug("datachunk uid = " + datachunk.getuid());
 	    }
+	    long t3 = System.currentTimeMillis();
+	    setCreatTime(t3-t2);
 
 	    return datacollection;
 	} catch (RemoteException re) {
@@ -606,14 +675,24 @@ public class BitDew {
 	
     }
 
-
     /**
-     * create a DataCollection object, give the full path of the big file, 
-     * split this big file first, 
+     * <code>createDataCollection</code> create a DataCollection object given the full path of the file and the chunck size. 
+     * Also split this file in chuncks.
+     * @param fullNameAndPath a <code>String</code> value
+     * @param blocksize a <code>long</code> value
+     * @return a <code>DataCollection</code> value
+     * @exception BitDewException if an error occurs
      */
     public DataCollection createDataCollection(String fullNameAndPath, long blocksize) throws BitDewException {
-	Separator separator = new Separator();
-	separator.SepFile(fullNameAndPath, blocksize);
+	long t1 = System.currentTimeMillis();
+	SeparatorChannel separator = new SeparatorChannel();
+	try{
+	    separator.SepFile(fullNameAndPath, blocksize);
+	}catch (IOException ioe){
+	    ioe.printStackTrace();
+	}
+	long t2 = System.currentTimeMillis();
+	setSplitTime(t2-t1);
 
 	String directory = null;
 	int fn = fullNameAndPath.lastIndexOf("/");
@@ -630,7 +709,11 @@ public class BitDew {
 
 	DataCollection datacollection = new DataCollection();
 	datacollection.setname(fullNameAndPath);
+	//	long tang = System.currentTimeMillis();
 	datacollection.setchecksum(DataUtil.checksum(new File(fullNameAndPath)));
+	//datacollection.setchecksum("0");
+	//	long bing = System.currentTimeMillis();
+	//	log.debug("md5sum for gss.tar.gz is:"+((bing-tang)/1000));
 	datacollection.setsize(totalsize);
 	datacollection.setchunks(FileNum);
 
@@ -656,13 +739,15 @@ public class BitDew {
 		DataChunk datachunk = new DataChunk();
 		datachunk.setdatauid(data.getuid());
 		datachunk.setcollectionuid(datacollection.getuid());
-		datachunk.setindex(0);
-		datachunk.setoffset(0);
+		datachunk.setindex(i);
+		datachunk.setoffset(i);
 		
 		DBInterfaceFactory.getDBInterface().makePersistent(datachunk);
 		idc.putDataChunk(datachunk);
 		log.debug("datachunk uid = " + datachunk.getuid());
 	    }
+	    long t3 = System.currentTimeMillis();
+	    setCreatTime(t3-t2);
 
 	    return datacollection;
 	} catch (RemoteException re) {
@@ -676,16 +761,17 @@ public class BitDew {
     
 
     /**
-     * <code>put</code> file to a data
-     * 
-     * directory should end with "/" or "\\"
+     * <code>put</code> each file of a directory into a DataCollection. 
+     * Directory path should end with "/" or "\\"
      * @param directory a <code>String</code> value
      * @param datacollection a <code>DataCollection</code> value
+     * @return a <code>Vector</code> value
      * @exception BitDewException if an error occurs
      */
-    public void put(String directory, DataCollection datacollection) throws BitDewException {
+    public Vector put(String directory, DataCollection datacollection) throws BitDewException {
     	boolean b = false;
-	
+	Vector uidList = new Vector();
+
 	if (directory.endsWith("\\")||directory.endsWith("/"))
 	    b = true;
 	else
@@ -721,18 +807,26 @@ public class BitDew {
 	        log.debug("data size= "+data.getsize());
 	        log.debug("data type= "+data.gettype());
 	        log.debug("data oob= "+data.getoob());
+		uidList.addElement(data.getuid());
 	    }
 	}
+	return uidList;
     }
 
 
     /**
-     * directory should end with "/" or "\\"
+     * <code>put</code> directory should end with "/" or "\\"
      * set oob for each Data
+     * @param directory a <code>String</code> value
+     * @param datacollection a <code>DataCollection</code> value
+     * @param oob a <code>String</code> value
+     * @return a <code>Vector</code> value
+     * @exception BitDewException if an error occurs
      */
-    public void put(String directory, DataCollection datacollection, String oob) throws BitDewException {
+    public Vector put(String directory, DataCollection datacollection, String oob) throws BitDewException {
 	boolean b = false;
-	
+	Vector uidList = new Vector();
+
 	if (directory.endsWith("\\")||directory.endsWith("/"))
 	    b = true;
 	else
@@ -769,10 +863,19 @@ public class BitDew {
 	        log.debug("data size= "+data.getsize());
 	        log.debug("data type= "+data.gettype());
 	        log.debug("data oob= "+data.getoob());
+		uidList.addElement(data.getuid());
 	    }
 	}
+	return uidList;
     }
     
+    /**
+     *  <code>searchDataCollectionByUid</code> returns a DataCollection according to its Uid
+     *
+     * @param datacollectionUid a <code>String</code> value
+     * @return a <code>DataCollection</code> value
+     * @exception BitDewException if an error occurs
+     */
     public DataCollection searchDataCollectionByUid(String datacollectionUid) throws BitDewException {
 	try {
 	    return idc.getDataCollection(datacollectionUid);
@@ -782,14 +885,36 @@ public class BitDew {
 	throw new BitDewException();
     }
 
+    /**
+     *  <code>searchDataCollectionByName</code> returns a DataCollection according to its name
+     *
+     * @param datacollectionname a <code>String</code> value
+     * @return a <code>DataCollection</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public DataCollection searchDataCollectionByName(String datacollectionname) throws BitDewException {
+	try {
+	    return idc.getDataCollectionByName(datacollectionname);
+	} catch (RemoteException re ) {
+	    log.debug("cannot find datacollection : " + datacollectionname + " in DC\n" + re);
+	}
+	throw new BitDewException();
+    }    
+
     
     /**
-     * get all Data in this datacollection, save them in the directory
+     * <code> get</code> all Data in this datacollection, save them in the directory.
      * directory should end with "/" or "\\"
+     * @param datacollection a <code>DataCollection</code> value
+     * @param directory a <code>String</code> value
+     * @param oob a <code>String</code> value
+     * @return a <code>Vector</code> value
+     * @exception BitDewException if an error occurs
      */
-    public void get(DataCollection datacollection, String directory) throws BitDewException {
+    public Vector get(DataCollection datacollection, String directory, String oob) throws BitDewException {
 	boolean b = false;
-	
+	Vector uidList = new Vector();
+
 	if (directory.endsWith("\\")||directory.endsWith("/"))
 	    b = true;
 	else
@@ -816,6 +941,9 @@ public class BitDew {
 	        Data data = (Data) v.elementAt(i);
 	        String name = directory+data.getname();
 	        File file = new File(name);
+		data.setoob(oob);
+		get(data, file);
+
 		log.debug("get one data finished! data name= "+name);
 	        log.debug("Data------");
 	        log.debug("data uid= "+data.getuid());
@@ -823,20 +951,27 @@ public class BitDew {
 	        log.debug("data size= "+data.getsize());
 	        log.debug("data type= "+data.gettype());
 	        log.debug("data oob= "+data.getoob());
-		get(data, file);
+		uidList.addElement(data.getuid());
 	    }
 	}
-
+	return uidList;
     }
 
 
     /**
-     * first get all Data, then combine to a big file
+     * <code> get</code> all Data in this datacollection, save them in the directory.
+     * directory should end with "/" or "\\"
+     * get a datacollection
      *
+     * @param datacollection a <code>DataCollection</code> value
+     * @param directory a <code>String</code> value
+     * @return a <code>Vector</code> value
+     * @exception BitDewException if an error occurs
      */
-    public void combine(DataCollection datacollection, String directory) throws BitDewException {
+    public Vector get(DataCollection datacollection, String directory) throws BitDewException {
 	boolean b = false;
-	
+	Vector uidList = new Vector();
+
 	if (directory.endsWith("\\")||directory.endsWith("/"))
 	    b = true;
 	else
@@ -863,6 +998,8 @@ public class BitDew {
 	        Data data = (Data) v.elementAt(i);
 	        String name = directory+data.getname();
 	        File file = new File(name);
+		get(data, file);
+
 		log.debug("get one data finished! data name= "+name);
 	        log.debug("Data------");
 	        log.debug("data uid= "+data.getuid());
@@ -870,16 +1007,58 @@ public class BitDew {
 	        log.debug("data size= "+data.getsize());
 	        log.debug("data type= "+data.gettype());
 	        log.debug("data oob= "+data.getoob());
-		get(data, file);
+		uidList.addElement(data.getuid());
 	    }
+	}
+	return uidList;
+    }
+
+
+    /**
+     * <code>combine</code> all Data exist, then combine to a big file, and check MD5
+     *
+     * @param datacollection a <code>DataCollection</code> value
+     * @param file a <code>String</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public void combine(DataCollection datacollection, String file) throws BitDewException {
+	boolean b = false;
+	
+	if (directory.endsWith("\\")||directory.endsWith("/"))
+	    b = true;
+	else
+	    log.debug("path error!");
+
+	Vector v =null;
+
+	int FileNum = datacollection.getchunks();
+
+        try{
+	    v = idc.getAllDataInCollection(datacollection.getuid());
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	} 
+	    
+	if (v.size()!=FileNum)
+	    b = false;
+	else{
+	    log.debug("Size is OK! and Size= "+v.size());
+	}
+	
+	if (b){
+	    
 	    Data data0 = (Data) v.elementAt(0);
             int len = data0.getname().length();
 	    if (data0.getname().substring(len-9, len-4).equals(".part")){
 	        log.debug("begin Combine datacollection");
 	        log.debug("directory="+directory);
-	        Combinator combinator = new Combinator();
+	        CombinatorChannel combinator = new CombinatorChannel();
 	        combinator.setDirectory(directory);
-	        combinator.CombFile();
+		try{
+		    combinator.CombFile();
+		}catch(IOException ioe){
+		    ioe.printStackTrace();
+		}
 	        
 	        String combinedfile = directory + combinator.getRealName(data0.getname());
 	        String newMD5 = DataUtil.checksum(new File(combinedfile));
@@ -888,10 +1067,164 @@ public class BitDew {
 		    log.debug("Big File MD5 prefect!");
 	    }
 	}
-
     }
 
 
+    /**
+     * <code>combine</code> assembles data chunks already downloaded into a single file
+     * @param directory a <code>String</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public void combine(String directory) throws BitDewException {
+        log.debug("begin Combine datacollection");
+        CombinatorChannel combinator = new CombinatorChannel();
+        combinator.setDirectory(directory);
+	try{
+	    boolean a = combinator.CombFile();
+	    if (a)
+		log.debug("combine completed!");
+	}catch(IOException ioe){
+	    ioe.printStackTrace();
+	}
+    }
 
+    /**
+     * <code>get</code> get  parts of a DataCollection. The chunks interval is specified by the begeining and end index.
+     *
+     * @param datacollection a <code>DataCollection</code> value
+     * @param directory a <code>String</code> value
+     * @param oob a <code>String</code> value
+     * @param indexbegin an <code>int</code> value
+     * @param indexend an <code>int</code> value
+     * @return a <code>Vector</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public Vector get(DataCollection datacollection, String directory, String oob,  int indexbegin, int indexend) throws BitDewException {
+	
+	Vector uidList = new Vector();
+	if ((indexbegin>=0)&&(indexend>=0))
+	    if (indexend < indexbegin)
+		return null;
+	
+	boolean b = false;
+	
+	if (directory.endsWith("\\")||directory.endsWith("/"))
+	    b = true;
+	else
+	    log.debug("path error!");
+
+	Vector v =null;
+
+	int FileNum = indexend-indexbegin+1;
+
+        try{
+	    v = idc.getDataInCollection(datacollection.getuid(), indexbegin, indexend);
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	} 
+	    
+	if (v.size()!=FileNum)
+	    b = false;
+	else{
+	    log.debug("Size is OK! and Size= "+v.size());
+	}
+	
+	if (b){
+	    for (int i=0; i<FileNum; i++){
+	        Data data = (Data) v.elementAt(i);
+	        String name = directory+data.getname();
+	        File file = new File(name);
+		data.setoob(oob);
+		log.debug("get one data finished! data name= "+name);
+	        log.debug("Data------");
+	        log.debug("data uid= "+data.getuid());
+	        log.debug("data checksum= "+data.getchecksum());
+	        log.debug("data size= "+data.getsize());
+	        log.debug("data type= "+data.gettype());
+	        log.debug("data oob= "+data.getoob());
+		get(data, file);
+		uidList.addElement(data.getuid());
+	    }
+	}
+	return uidList;
+    }
+
+    /**
+     * <code>get</code> get  parts of a DataCollection. The chunks interval is specified by the begeining and end index.
+     *
+     * @param datacollectionuid a <code>String</code> value
+     * @param directory a <code>String</code> value
+     * @param oob a <code>String</code> value
+     * @param indexbegin an <code>int</code> value
+     * @param indexend an <code>int</code> value
+     * @return a <code>Vector</code> value
+     * @exception BitDewException if an error occurs
+     */
+    public Vector get(String datacollectionuid, String directory, String oob, int indexbegin, int indexend) throws BitDewException {
+	Vector uidList = new Vector();
+
+	if ((indexbegin>=0)&&(indexend>=0))
+	    if (indexend < indexbegin)
+		return null;
+	
+	boolean b = false;
+	
+	if (directory.endsWith("\\")||directory.endsWith("/"))
+	    b = true;
+	else
+	    log.debug("path error!");
+
+	Vector v =null;
+
+	int FileNum = indexend-indexbegin+1;
+
+        try{
+	    v = idc.getDataInCollection(datacollectionuid, indexbegin, indexend);
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	} 
+	    
+	if (v.size()!=FileNum)
+	    b = false;
+	else{
+	    log.debug("Size is OK! and Size= "+v.size());
+	}
+	
+	if (b){
+	    for (int i=0; i<FileNum; i++){
+	        Data data = (Data) v.elementAt(i);
+	        String name = directory+data.getname();
+	        File file = new File(name);
+		data.setoob(oob);
+		log.debug("get one data finished! data name= "+name);
+	        log.debug("Data------");
+	        log.debug("data uid= "+data.getuid());
+	        log.debug("data checksum= "+data.getchecksum());
+	        log.debug("data size= "+data.getsize());
+	        log.debug("data type= "+data.gettype());
+	        log.debug("data oob= "+data.getoob());
+		get(data, file);
+		uidList.addElement(data.getuid());
+	    }
+	}
+	return uidList;
+    }
+
+    private long getSplitTime(){
+	return this.splittime;
+    }
+    
+    private void setSplitTime(long t){
+	this.splittime = t;
+    }
+    
+    private long getCreatTime(){
+	return this.creattime;
+    }
+    
+    private void setCreatTime(long t){
+	this.creattime = t;
+    }
+    
 }
     // BitDew
