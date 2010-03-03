@@ -29,6 +29,7 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Extent;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
+import java.util.Vector;
 
 public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
    
@@ -202,6 +203,15 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
 	    dbi.makePersistent(datacollection);
     }
 
+    //BING FIXME
+    public  Vector getDataInCollection( String datacollectionuid, int indexbegin, int indexend ) throws RemoteException  {
+	return new Vector();
+    }
+    //BING FIXME
+    public DataCollection getDataCollectionByName(String name) throws RemoteException {
+	return new DataCollection();
+    }
+
     public DataCollection getDataCollection(String uid) throws RemoteException {
 	
 	DataCollection datacollection = null;
@@ -293,8 +303,8 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
 	}	        
     }
 
-    public java.util.Vector getAllDataInCollection(String datacollectionuid) throws RemoteException{
-	java.util.Vector v = new Vector();
+    public Vector getAllDataInCollection(String datacollectionuid) throws RemoteException{
+	Vector v = new Vector();
 
 	Data data=null;
 	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
@@ -329,7 +339,7 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
     }
 
     
-    public String getUidByName(String name){
+    public String getDataUidByName(String name){
 	
 	String uid = "";
 

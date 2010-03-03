@@ -1018,10 +1018,10 @@ public class BitDew {
      * <code>combine</code> all Data exist, then combine to a big file, and check MD5
      *
      * @param datacollection a <code>DataCollection</code> value
-     * @param file a <code>String</code> value
+     * @param directory a <code>String</code> value
      * @exception BitDewException if an error occurs
      */
-    public void combine(DataCollection datacollection, String file) throws BitDewException {
+    public void combine(DataCollection datacollection, String directory) throws BitDewException {
 	boolean b = false;
 	
 	if (directory.endsWith("\\")||directory.endsWith("/"))

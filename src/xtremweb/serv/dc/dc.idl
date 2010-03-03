@@ -96,6 +96,13 @@
 <Return type="DataCollection" desc="DataCollection Returned" />
 </Method>
 
+
+<Method name="getDataCollectionByName">
+<Param name="name" type="String" desc="DataCollection name" />
+<Return type="DataCollection" desc="DataCollection Returned" />
+</Method>
+
+
 <Method name="deleteDataCollection">
 <Param name="datacollection" type="DataCollection" />
 <Return type="void"/>
@@ -103,6 +110,14 @@
 
 <Method name="getAllDataInCollection">
 <Param name="datacollectionuid" type="String" />
+<Return type="java.util.Vector" />
+</Method>
+
+
+<Method name="getDataInCollection">
+<Param name="datacollectionuid" type="String" />
+<Param name="indexbegin" type="int" />
+<Param name="indexend" type="int" />
 <Return type="java.util.Vector" />
 </Method>
 
@@ -122,7 +137,7 @@
 <Return type="void"/>
 </Method>
 
-<Method name="getUidByName">
+<Method name="getDataUidByName">
 <Param name="name" type="String"/>
 <Return type="String"/>
 </Method>
