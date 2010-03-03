@@ -13,9 +13,14 @@
 	- modification of the scheduler to allow Data to be sent following a specific order (for instance Biggest Data First)
 	- new FileServer example
 
+	version 0.2.4
+	- ability to retreive part of a collection (Bing Tang)
+	- improved I/O performance when treating large file or directory
+	with DataCollection (Bing Tang)
+	- SDK to allow fast application developpment with BitDew
 	
 ** HISTORY **
-	
+
 January 8, 2010
 	version 0.2.3
 	- cmdline tool can put and get data
