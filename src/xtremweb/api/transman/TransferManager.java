@@ -39,6 +39,7 @@ import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import xtremweb.core.util.uri.*;
 /**
  * <code>TransferManager</code>.
  *
@@ -57,7 +58,8 @@ public class TransferManager {
     private Lock timerLock = new ReentrantLock();
     private static int timerSchedules = 0;
 
-    private long maxDownloads=1;
+    private long maxDownloads=10;
+    private static Vector ongoingUid = new Vector(); 
 
     private final static PerfMonitor perf = PerfMonitorFactory.createPerfMonitor("TransferManager", "hits per second", 3000);
 
@@ -316,8 +318,9 @@ public class TransferManager {
 			    break;
 			}
 			trans.setstatus(TransferStatus.TRANSFERING);
-			break;
 		    }
+			break;
+		    
 		case TransferStatus.INVALID :
 		    log.debug("INVALID");
 		    try {
@@ -374,6 +377,7 @@ public class TransferManager {
 		    //The transfer ends when the sender is aware that the
 		    try {
 			oob = getOOBTransfer(trans);
+			oob.disconnect();
 			if ( TransferType.isLocal(trans.gettype()) ) {
 			    dt.endTransfer(trans.getuid());
 			    trans.setstatus(TransferStatus.TODELETE);
@@ -546,44 +550,97 @@ public class TransferManager {
 	}		
     }
 
-    public void waitFor(DataCollection datacollection, String oob) throws TransferManagerException {
+    public void retriveData() {
+	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+	Transaction tx=pm.currentTransaction();
+	try {
+	    tx.begin();
+	    Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class);
+	    Collection results = (Collection)query.execute();
+	    if (results==null) {
+		log.debug("pas de resultat");
+		return;
+	    } else {
+		Iterator iter = results.iterator();
+		while (iter.hasNext()) {
+		    Data d = (Data) iter.next();
+		    System.out.println("scanning Data: uid= " + d.getuid() );
+		}
+	    }
+	    tx.commit();
+	} finally {
+            if (tx.isActive())
+                tx.rollback();
+            pm.close();
+	}	
+    }
+
+
+    public void waitFor(Vector<String> uidList) throws TransferManagerException {
 	log.debug("begin waitFor!");
 	try {
 	    
 	    Data data=null;
+	    int N = uidList.size();
 	    PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-
 	    Transaction tx=pm.currentTransaction();
 	    try {
 		tx.begin();
-
-		Extent e=pm.getExtent(DataChunk.class,true);
-		Iterator iter=e.iterator();
-	    
-		while (iter.hasNext()) {
-		    DataChunk datachunk = (DataChunk) iter.next();
-		    if (datachunk.getcollectionuid().equals(datacollection.getuid())){
-			Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class,  "uid == \"" + datachunk.getdatauid() + "\"");
-			query.setUnique(true);
-			Data dataStored = (Data) query.execute();
-			data = (Data) pm.detachCopy(dataStored);
-			data.setoob(oob);
-			waitFor(data);
-			log.debug("Oh ha Transfer waitfor data uid="+data.getuid());
-		    }
+		
+		for(int i=0; i<N; i++) {
+		    String  uid = uidList.elementAt(i);
+		    Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class,  "uid == \"" + uid+ "\"");
+		    query.setUnique(true);
+		    Data dataStored = (Data) query.execute();
+		    data = (Data) pm.detachCopy(dataStored);
+		    waitFor(data);
+		    log.debug("Oh ha Transfer waitfor data uid="+data.getuid());
 		}
-           
+		
 		tx.commit();
 	    } finally {
 		if (tx.isActive())
 		    tx.rollback();
 		pm.close();
 	    }	
-
+	    
 	} catch (Exception e) {
+	    System.out.println(e);
 	    throw new TransferManagerException();
 	}
-
+	
+    }
+    
+    public void waitFor(BitDewURI uri) throws TransferManagerException {
+	log.debug("begin waitFor!");
+	try {
+	    
+	    Data data=null;
+	    PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+	    Transaction tx=pm.currentTransaction();
+	    try {
+		tx.begin();
+		
+		String  uid = uri.getUid();
+		Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class,  "uid == \"" + uid+ "\"");
+		query.setUnique(true);
+		Data dataStored = (Data) query.execute();
+		data = (Data) pm.detachCopy(dataStored);
+		waitFor(data);
+		log.debug("Oh ha Transfer waitfor data uid="+data.getuid());
+		
+		tx.commit();
+	    } finally {
+		if (tx.isActive())
+		    tx.rollback();
+		pm.close();
+	    }	
+	    
+	} catch (Exception e) {
+	    System.out.println(e);
+	    throw new TransferManagerException();
+	}
+	
     }
 
     //This a comparator for the test

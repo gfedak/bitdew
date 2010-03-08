@@ -27,6 +27,9 @@ import java.io.*;
 import java.rmi.RemoteException;
 import java.util.Vector;
 
+import xtremweb.core.util.filesplit.*;
+import xtremweb.core.util.uri.*;
+
 /**
  *  <code>BitDew</code> programming interface.
  *
@@ -1208,6 +1211,19 @@ public class BitDew {
 	    }
 	}
 	return uidList;
+    }
+
+    public void get(String uri, File file) throws BitDewException{
+	BitDewURI bduri = new BitDewURI(uri);
+	String dataUid = bduri.getUid();
+	Data data = searchDataByUid(dataUid);
+	get(data, file);
+    }
+
+    public void get(BitDewURI uri, File file) throws BitDewException{
+	String dataUid = uri.getUid();
+	Data data = searchDataByUid(dataUid);
+	get(data, file);
     }
 
     private long getSplitTime(){
