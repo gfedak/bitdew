@@ -72,6 +72,11 @@ public class ActiveData {
 	init();
     }
 
+    //FIXME BING
+    public ActiveData(Vector comms, boolean oups) {
+	this(comms);
+    }
+
     public ActiveData(Vector comms) {
 
 	for (Object o : comms) {

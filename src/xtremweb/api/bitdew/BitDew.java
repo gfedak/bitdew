@@ -758,8 +758,7 @@ public class BitDew {
 	} catch (Exception e) {
 	    log.debug("Error creating datacollection " + e);
 	}
-	throw new BitDewException();
-	
+	throw new BitDewException();	
     }
     
 
@@ -1226,19 +1225,19 @@ public class BitDew {
 	get(data, file);
     }
 
-    private long getSplitTime(){
+    public long getSplitTime(){
 	return this.splittime;
     }
     
-    private void setSplitTime(long t){
+    public void setSplitTime(long t){
 	this.splittime = t;
     }
     
-    private long getCreatTime(){
+    public long getCreatTime(){
 	return this.creattime;
     }
     
-    private void setCreatTime(long t){
+    public void setCreatTime(long t){
 	this.creattime = t;
     }
     
