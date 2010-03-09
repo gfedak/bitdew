@@ -9,6 +9,7 @@ package xtremweb.api.activedata;
  * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
  */
+
 import xtremweb.core.util.SortedVector;
 import java.util.*;
 
@@ -62,6 +63,10 @@ public class ActiveData {
     DBInterface dbi = DBInterfaceFactory.getDBInterface();
 
     protected Logger log = LoggerFactory.getLogger("Active Data");
+
+    //FIXME BING
+    public boolean closedel = false;   //default, with data deletion
+
     /**
      * Creates a new <code>ActiveData</code> instance.
      *
@@ -72,11 +77,6 @@ public class ActiveData {
 	init();
     }
 
-    //FIXME BING
-    public ActiveData(Vector comms, boolean oups) {
-	this(comms);
-    }
-
     public ActiveData(Vector comms) {
 
 	for (Object o : comms) {
@@ -85,6 +85,16 @@ public class ActiveData {
 	}
 	init();
     }
+
+    //FIXME BING
+    /**
+     * add a flag b, to create an ActiveData with data deletion function or without
+     */
+    public ActiveData(Vector comms, boolean b){
+	closedel = b;
+	this(comms);
+    }
+
 
     public void init() {
 	cache = new Vector();	
@@ -139,9 +149,16 @@ public class ActiveData {
 
             while (iter.hasNext()) {
 		Data data = (Data) iter.next();
-		//		log.debug("checking data " + data.getuid() + " : " + DataStatus.toString(data.getstatus()));
-		if (data.getstatus() != DataStatus.TODELETE)
-		    datasync.add(data.getuid());
+
+		//FIXME BING
+		if (closedel) {
+		    //closedel=true,      old, works good, but you can not delete a data
+		    datasync.add(data.getuid()); 
+		    else {
+			//closedel=false,     new, works not good, but you can delete a data
+			if (data.getstatus() != DataStatus.TODELETE)
+			    datasync.add(data.getuid());
+		    }
 	    }
 
 	    Vector newdatauid = cds.sync(host, datasync);
@@ -150,10 +167,6 @@ public class ActiveData {
 	    //check for data to delete
 	    for (int i=0; i<newdatauid.size(); i++)
 		datauids += "uid != \"" + ((String) newdatauid.elementAt(i)) + "\" && "; 
-	    //	    if (newdatauid.size()>0) 
-	    //	datauids = datauids.substring(0, datauids.length()-4);
-	    //	    log.debug("going to check for deletion : " + datauids);
-
 
 	    Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class, datauids + "  status != " + DataStatus.TODELETE );		
 	    Collection result = (Collection) query.execute();	       
@@ -165,7 +178,6 @@ public class ActiveData {
 		data.setstatus(DataStatus.TODELETE);
 		
 		toDelete+=data.getuid() + " ";
-		log.debug("!!!!! d:"  + data.getuid() +  "|a: " + data.getattruid());
 	     
 		//look for the attributes in the attributes cache
 		Attribute attr = attributes.get(data.getattruid());
@@ -230,6 +242,7 @@ public class ActiveData {
 	    pm.close();
 	}
     }
+    
 
     public void registerActiveDataCallback(ActiveDataCallback callback) {
 	callbacks.add(callback);
@@ -277,16 +290,6 @@ public class ActiveData {
 	}
     }
 
-    public void unschedule( Data data)  throws ActiveDataException {
-	try {
-	    cds.removeData(data);
-	} catch (RemoteException re) {
-	    log.debug("Cannot find service " + re);
-	    throw new ActiveDataException();
-	}
-    }
-
-
     public void pin(Data data,  Host host)  throws ActiveDataException  {
 	try {
 	    cds.associateDataHost(data, host);
@@ -296,16 +299,13 @@ public class ActiveData {
 	}
     }
 
-    public Attribute getAttributeByUid(String uid) throws  ActiveDataException {
-	Attribute attr = null;
+    public void unschedule( Data data)  throws ActiveDataException {
 	try {
-	    attr = cds.getAttributeByUid(uid);
-	} catch (RemoteException re) {	    
-	    throw new ActiveDataException("cannot get attribute " + uid + " from the DS service");
+	    cds.removeData(data);
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	    throw new ActiveDataException();
 	}
-	if (attr == null) 
-	    throw new ActiveDataException("cannot get attribute " + uid + " from the DS service");
-	return attr;
     }
 
     public Attribute createAttribute(String def)   throws ActiveDataException {
@@ -368,5 +368,9 @@ public class ActiveData {
 	    log.debug("Cannot find service " + re);
 	    throw new ActiveDataException();
 	}
+    }
+
+    public Host getHost(){
+	return host;
     }
 }
