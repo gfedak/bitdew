@@ -9,7 +9,6 @@ package xtremweb.api.activedata;
  * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
  */
-
 import xtremweb.core.util.SortedVector;
 import java.util.*;
 
@@ -91,8 +90,8 @@ public class ActiveData {
      * add a flag b, to create an ActiveData with data deletion function or without
      */
     public ActiveData(Vector comms, boolean b){
-	closedel = b;
 	this(comms);
+	closedel = b;
     }
 
 
@@ -151,7 +150,7 @@ public class ActiveData {
 		Data data = (Data) iter.next();
 
 		//FIXME BING
-		if (closedel) {
+		if (closedel) 
 		    //closedel=true,      old, works good, but you can not delete a data
 		    datasync.add(data.getuid()); 
 		    else {
@@ -290,6 +289,16 @@ public class ActiveData {
 	}
     }
 
+    public void unschedule( Data data)  throws ActiveDataException {
+	try {
+	    cds.removeData(data);
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	    throw new ActiveDataException();
+	}
+    }
+
+
     public void pin(Data data,  Host host)  throws ActiveDataException  {
 	try {
 	    cds.associateDataHost(data, host);
@@ -299,13 +308,16 @@ public class ActiveData {
 	}
     }
 
-    public void unschedule( Data data)  throws ActiveDataException {
+    public Attribute getAttributeByUid(String uid) throws  ActiveDataException {
+	Attribute attr = null;
 	try {
-	    cds.removeData(data);
-	} catch (RemoteException re) {
-	    log.debug("Cannot find service " + re);
-	    throw new ActiveDataException();
+	    attr = cds.getAttributeByUid(uid);
+	} catch (RemoteException re) {	    
+	    throw new ActiveDataException("cannot get attribute " + uid + " from the DS service");
 	}
+	if (attr == null) 
+	    throw new ActiveDataException("cannot get attribute " + uid + " from the DS service");
+	return attr;
     }
 
     public Attribute createAttribute(String def)   throws ActiveDataException {
