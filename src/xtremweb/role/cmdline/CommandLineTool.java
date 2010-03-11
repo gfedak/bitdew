@@ -189,10 +189,8 @@ public class CommandLineTool {
 	    
 	    Vector services =  new Vector();
 	    for (String s: otherArgs) {
-		if (s.equals("dc") ||
-		    s.equals("ds") ||
-		    s.equals("dr") ||
-		    s.equals("dt"))
+		//TODO the rest of the command line will be tried to be loaded as service
+		//that would be better to try scan for the available services
 		    services.add(s);
 	    }
 	    ServiceLoader sl = new ServiceLoader("RMI", port, services);
