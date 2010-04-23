@@ -154,6 +154,10 @@ public class DataSchedulerTest {
 
 
     @Test public void testRemoveDataFromCache() {
+
+	//set the maxumum number if data to Schedule
+	ds.setNumberOfDataToSchedule(1);
+
 	//creates the data cache
 	Data d1 = new Data(), d2 = new Data(), d3 = new Data(), d4 = new Data();
 	dbi.makePersistent(d1);	
@@ -363,6 +367,9 @@ public class DataSchedulerTest {
     }
 
     @Test public void testGetNewDataFromCache() {
+
+	//set the maxumum number if data to Schedule
+	ds.setNumberOfDataToSchedule(1);
 
 	//creates the data cache
 	Data d1 = new Data(), d2 = new Data(), d3 = new Data(), d4 = new Data();
@@ -1277,6 +1284,9 @@ public class DataSchedulerTest {
 
     @Test public void testSyncData() {
 
+	//set the maxumum number if data to Schedule
+	ds.setNumberOfDataToSchedule(1);
+
 	//creates the data cache
 	Data d1 = new Data(), d2 = new Data(), d3 = new Data(), d4 = new Data();
 	dbi.makePersistent(d1);	
@@ -1338,6 +1348,10 @@ public class DataSchedulerTest {
     }
 
     @Test public void testDistrib(){
+
+	//set the maxumum number if data to Schedule
+	ds.setNumberOfDataToSchedule(1);
+
 	Data d1 = new Data(), d2 = new Data(), d3 = new Data(), d4 = new Data();
 	dbi.makePersistent(d1);	
 	dbi.makePersistent(d2);	
