@@ -64,9 +64,12 @@ public class HandlerRMITemplate extends UnicastRemoteObject {
 
     public HandlerRMITemplate() throws RemoteException {
 	super(rmiBackPort );
-
     }
     
+    public void setRmiBackPort(int port) {
+	rmiBackPort = port;
+    }
+
     public void setupPerfMonitor(String module) {
 	moduleName = module;
 	try {
