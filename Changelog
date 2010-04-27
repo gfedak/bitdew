@@ -18,8 +18,9 @@
 	- improved I/O performance when treating large file or directory
 	with DataCollection (Bing Tang)
 	- SDK to allow fast application developpment with BitDew
-	- BitDew implements a URI Scheme such as bitdew://dc.somewher.com/XXX-XXX-XXX-XXX 
-	to retreive the data (Bing Tang)
+	- BitDew implements a URI Scheme such as 
+	    bitdew://dc.somewher.com/XXX-XXX-XXX-XXX 	
+	    to retreive the data (Bing Tang)
 
 ** HISTORY **
 
