@@ -18,7 +18,6 @@ public class ModuleLoader {
     private static boolean handlersIntialised = false;
     public static final String rootServiceClassPath = "xtremweb.serv";
     public static final String rootComClassPath = "xtremweb.core.com.com";
-    //    public static  int rmiBackPort = 4327;
 
     private static Logger log =  LoggerFactory.getLogger(ModuleLoader.class);
 

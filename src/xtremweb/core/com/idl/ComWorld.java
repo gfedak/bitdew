@@ -17,9 +17,27 @@ public class ComWorld {
     
     private static Host host = null;
     
-    private static Logger log = LoggerFactory.getLogger(ComWorld.class);
+    private static Logger log = LoggerFactory.getLogger("ComWorld");
 
-    public static final int RMI_DEFAULT_PORT = 4325;
+    private static final int RMI_DEFAULT_CLIENT_PORT = 4325;
+    private static final int RMI_DEFAULT_SERVER_PORT = 4327;
+    private static final int RMI_DEFAULT_REGISTRY_PORT = 4327;
+
+    private static int rmiClientPort;
+    private static int rmiServerPort;
+    private static int rmiRegistryPort;
+
+
+    static {
+	try {
+	    Properties prop = ConfigurationProperties.getProperties();
+	    rmiClientPort =  (Integer.valueOf(prop.getProperty("xtremweb.core.com.rmi.client.port", "" + RMI_DEFAULT_CLIENT_PORT))).intValue();
+	    rmiServerPort =  (Integer.valueOf(prop.getProperty("xtremweb.core.com.rmi.server.port", "" + RMI_DEFAULT_SERVER_PORT))).intValue();
+	    rmiRegistryPort =  (Integer.valueOf(prop.getProperty("xtremweb.core.com.rmi.registry.port", "" + RMI_DEFAULT_RMIREGISTRY_PORT))).intValue();
+	} catch(Exception e) {
+	    log.debug("cannot configure rmi ports");
+	}
+    }
 
     /**
      * Creates a new <code>ComWorld</code> instance.
@@ -49,7 +67,7 @@ public class ComWorld {
 
 	if (port==0) {
 	    if (media.toLowerCase().equals("rmi")) {
-		port = (Integer.valueOf(mainprop.getProperty("xtremweb.core.com.rmi.port", "" + RMI_DEFAULT_PORT))).intValue();
+		return rmiClientPort;
 	    }
 	}
 	return port;

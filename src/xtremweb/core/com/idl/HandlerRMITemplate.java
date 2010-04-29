@@ -23,8 +23,6 @@ public class HandlerRMITemplate extends UnicastRemoteObject {
 
     //    private final static PerfMonitor perf = PerfMonitorFactory.createPerfMonitor("ServiceCalls", "hits per second", 3000);
     private final static PerfMonitor perf = PerfMonitorFactory.createPerfMonitor("ServiceCalls");
-    public static int rmiBackPort;
-    public static final int RMI_DEFAULT_BACKPORT = 4327;
 
     protected CallbackTemplate callback;
 
@@ -53,21 +51,10 @@ public class HandlerRMITemplate extends UnicastRemoteObject {
 		    } 
 		} , 0, 1000 ); 
 	}
-	try {
-	    Properties prop = ConfigurationProperties.getProperties();
-	    rmiBackPort =  (Integer.valueOf(prop.getProperty("xtremweb.core.com.rmi.backPort", "" + RMI_DEFAULT_BACKPORT))).intValue();
-	} catch(Exception e) {
-	    modulePerf = false;
-	}
-
     }
 
     public HandlerRMITemplate() throws RemoteException {
-	super(rmiBackPort );
-    }
-    
-    public void setRmiBackPort(int port) {
-	rmiBackPort = port;
+	super(ComWorld.getRmiServerPort() );
     }
 
     public void setupPerfMonitor(String module) {
@@ -83,7 +70,6 @@ public class HandlerRMITemplate extends UnicastRemoteObject {
     public void registerCallback( CallbackTemplate cb) {
 	callback = cb;
     }
-    
 
     public static void addSamples() {
 	//	log.debug("adding samples : " + count++);
