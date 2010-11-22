@@ -269,6 +269,7 @@ public class ActiveData {
 	    fixoob(data, attr);
 	    
 	    data.setattruid(attr.getuid());
+	    DBInterfaceFactory.getDBInterface().makePersistent(data);
 	    cdc.putData(data);
 	    cds.associateDataAttribute(data, attr);
 	} catch (RemoteException re) {
@@ -281,6 +282,7 @@ public class ActiveData {
 	try {
 	    fixoob(data, attr);
 	    data.setattruid(attr.getuid());
+	    DBInterfaceFactory.getDBInterface().makePersistent(data);
 	    cdc.putData(data);
 	    cds.associateDataAttributeHost(data, attr, host);
 	} catch (RemoteException re) {

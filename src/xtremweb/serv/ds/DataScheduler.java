@@ -41,7 +41,7 @@ public class DataScheduler {
     private DataQueue dataCache;
     private Vector toSchedule;
 
-    private int numberOfDataToSchedule = 1;
+    private int numberOfDataToSchedule = 5;
 
     protected Logger log = LoggerFactory.getLogger("Data Scheduler");
 

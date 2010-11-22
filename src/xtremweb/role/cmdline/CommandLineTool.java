@@ -186,12 +186,15 @@ public class CommandLineTool {
 
 	//start services
 	if (otherArgs[0].equals("serv")) {
-	    
+	    boolean skipserv=false;
 	    Vector services =  new Vector();
 	    for (String s: otherArgs) {
 		//TODO the rest of the command line will be tried to be loaded as service
 		//that would be better to try scan for the available services
+		if (skipserv)
 		    services.add(s);
+		else 
+		    skipserv=true;
 	    }
 	    ServiceLoader sl = new ServiceLoader("RMI", port, services);
 	    UIFactory.createUIFactory();
