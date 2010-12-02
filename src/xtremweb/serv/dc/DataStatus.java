@@ -21,7 +21,12 @@ public class DataStatus {
      *
      */
     public static final int RELEASED    = 1;
-
+    
+    /**
+     * 	<code>IN_LOCAL_CACHE</code> data is free to be used
+     * 
+     */
+    public static final int IN_LOCAL_CACHE    = 3;
     /**
      * <code>TODELETE</code> data is ready to be deleted.
      *
