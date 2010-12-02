@@ -174,7 +174,7 @@ public class ActiveData {
 
             while (iter.hasNext()) {
 		Data data = (Data) iter.next();
-		data.setstatus(DataStatus.TODELETE);
+		data.setstatus(DataStatus.IN_LOCAL_CACHE);
 		
 		toDelete+=data.getuid() + " ";
 	     
