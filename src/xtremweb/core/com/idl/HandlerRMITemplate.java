@@ -1,11 +1,16 @@
 package xtremweb.core.com.idl;
-import java.rmi.*;
-import java.util.*;
+
+import xtremweb.core.perf.*;
+import xtremweb.core.log.*;
+import xtremweb.core.conf.*;
 import java.rmi.server.UnicastRemoteObject;
 
-import xtremweb.core.log.*;
-import xtremweb.core.perf.*;
-import xtremweb.core.conf.*;
+import java.util.Vector;
+import java.util.HashMap;
+import java.util.Properties;
+import java.util.TimerTask;
+import java.rmi.RemoteException;
+import java.util.Timer;
 
 /**
  * HandlerRMI.java
@@ -66,7 +71,7 @@ public class HandlerRMITemplate extends UnicastRemoteObject {
 	    log.warn("cannot add the performance monitor for service : " + moduleName);
 	}		
     }
-
+    
     public void registerCallback( CallbackTemplate cb) {
 	callback = cb;
     }

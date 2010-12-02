@@ -33,7 +33,7 @@ public class ComWorld {
 	    Properties prop = ConfigurationProperties.getProperties();
 	    rmiClientPort =  (Integer.valueOf(prop.getProperty("xtremweb.core.com.rmi.client.port", "" + RMI_DEFAULT_CLIENT_PORT))).intValue();
 	    rmiServerPort =  (Integer.valueOf(prop.getProperty("xtremweb.core.com.rmi.server.port", "" + RMI_DEFAULT_SERVER_PORT))).intValue();
-	    rmiRegistryPort =  (Integer.valueOf(prop.getProperty("xtremweb.core.com.rmi.registry.port", "" + RMI_DEFAULT_RMIREGISTRY_PORT))).intValue();
+	    rmiRegistryPort =  (Integer.valueOf(prop.getProperty("xtremweb.core.com.rmi.registry.port", "" + RMI_DEFAULT_REGISTRY_PORT))).intValue();
 	} catch(Exception e) {
 	    log.debug("cannot configure rmi ports");
 	}
@@ -167,5 +167,18 @@ public class ComWorld {
 	}
 	throw new ModuleLoaderException( "cannot instantiate the  class " + className);
     }
+
+    public static int getRmiClientPort() {
+	return ComWorld.rmiClientPort;
+    }
+
+    public static int getRmiServerPort() {
+	return ComWorld.rmiServerPort;
+    }
+
+    public static int getRmiRegistryPort() {
+	return ComWorld.rmiRegistryPort;
+    }
+
 
 } // ComWorld
