@@ -38,7 +38,7 @@ import java.util.Properties;
 
 public class DataScheduler {
 
-    private DataQueue dataCache;
+    private DataQueue schedulerDataCache;
     private Vector toSchedule;
 
     private int numberOfDataToSchedule = 5;
@@ -55,7 +55,7 @@ public class DataScheduler {
      * Creates a new <code>DataScheduler</code> instance.
      */
     public DataScheduler() {
-	dataCache = new DataQueue();
+	schedulerDataCache = new DataQueue();
     }
 
     public void setNumberOfDataToSchedule(int num){
@@ -67,19 +67,19 @@ public class DataScheduler {
     }
 
     public void addDataAttribute(Data data, Attribute attr) {
-	dataCache.addElement( new CacheEntry(data, attr) );
+	schedulerDataCache.addElement( new CacheEntry(data, attr) );
     }
 
-    public SortedVector getDataCache(){
-	return dataCache;
+    public SortedVector getschedulerDataCache(){
+	return schedulerDataCache;
     }
 
     public void reset() {
-	dataCache.clear();
+	schedulerDataCache.clear();
     }
 
     public void resetOwners() {
-	Iterator iter=dataCache.iterator();	
+	Iterator iter=schedulerDataCache.iterator();	
 	while (iter.hasNext()) {
 	    CacheEntry ce = (CacheEntry) iter.next();
 	    ce.resetOwners();
@@ -101,14 +101,14 @@ public class DataScheduler {
 		Data data = (Data) iter.next();
 		//if it's int the 
 		//		log.debug("look for data in the cache " + data.getuid() );
-		if (dataCache.search(data.getuid()) == -1) {
+		if (schedulerDataCache.search(data.getuid()) == -1) {
 		    //look for the corresponding attribute
 		    Query query = pm.newQuery(xtremweb.core.obj.ds.Attribute.class,  "uid == \"" + data.getattruid() + "\"");
 		    query.setUnique(true);
 		    Attribute attribute = (Attribute) query.execute();
 		    log.debug("adding data in the cache " + data.getuid() + AttributeUtil.toString(attribute));
 		    CacheEntry ce = new CacheEntry(data, attribute);
-		    dataCache.addElement(ce);
+		    schedulerDataCache.addElement(ce);
 		}
 	    }	
 	} catch (Exception e) {
@@ -121,7 +121,7 @@ public class DataScheduler {
     }
     */
     public void updateAttribute(Attribute attr) {
-	Iterator iter=dataCache.iterator();	
+	Iterator iter=schedulerDataCache.iterator();	
 	while (iter.hasNext()) {
 	    CacheEntry ce = (CacheEntry) iter.next();
 	    if (attr.getuid().equals(ce.getAttributeUid()))
@@ -131,35 +131,35 @@ public class DataScheduler {
 
     public void associateDataAttributeHost(Data data, Attribute attr, Host host) {
 	CacheEntry ce;
-	int idx=dataCache.search(data.getuid());
+	int idx=schedulerDataCache.search(data.getuid());
 	if ( idx == -1) {
 	     ce = new CacheEntry(data, attr);
 	     ce.setOwner(host);
-	    dataCache.addElement(ce);
+	    schedulerDataCache.addElement(ce);
 	    return;
 	} 
-	ce= (CacheEntry) dataCache.elementAt(idx); 
+	ce= (CacheEntry) schedulerDataCache.elementAt(idx); 
 	ce.updateOwner(host);
     }
 
     public void associateDataHost(Data data, Host host) {
 	CacheEntry ce;
-	int idx=dataCache.search(data.getuid());
+	int idx=schedulerDataCache.search(data.getuid());
 	if ( idx == -1) 
 	    return;
-	ce= (CacheEntry) dataCache.elementAt(idx); 
+	ce= (CacheEntry) schedulerDataCache.elementAt(idx); 
 	ce.updateOwner(host);
     }
 
     public void associateDataAttribute(Data data, Attribute attr) {
 	CacheEntry ce;
-	int idx=dataCache.search(data.getuid());
+	int idx=schedulerDataCache.search(data.getuid());
 	if ( idx == -1) {
 	    ce = new CacheEntry(data, attr);
-	    dataCache.addElement(ce);
+	    schedulerDataCache.addElement(ce);
 	    return;
 	} 
-	ce= (CacheEntry) dataCache.elementAt(idx); 
+	ce= (CacheEntry) schedulerDataCache.elementAt(idx); 
 	ce.setAttribute(attr);
     }
 
@@ -172,11 +172,11 @@ public class DataScheduler {
 	//If the data is not put in the result vector then it will
 	//be destroyed locally by the node
 	for (int i=0; i<uidslist.size(); i++) {
-	    int idx = dataCache.search(uidslist.elementAt(i));
+	    int idx = schedulerDataCache.search(uidslist.elementAt(i));
 	    // the data is not present in the cache
 	    if (idx==-1) 
 		continue;
-	    CacheEntry ce = (CacheEntry) dataCache.elementAt(idx);
+	    CacheEntry ce = (CacheEntry) schedulerDataCache.elementAt(idx);
 	    Data data = ce.getData();
 	    Attribute attr = ce.getAttribute();
 
@@ -195,13 +195,13 @@ public class DataScheduler {
 	    }
 	    //now check for relative data
 	    if ( AttributeType.isAttributeTypeSet( attr, AttributeType.LFTREL )) {
-		int idxrel = dataCache.search(attr.getlftrel());
+		int idxrel = schedulerDataCache.search(attr.getlftrel());
 		//if the relative data is not in the cache
 		if (idxrel == -1) {
 		    data.setstatus(DataStatus.TODELETE);
 		    continue;
 		}
-		Data datarel = ((CacheEntry) dataCache.elementAt(idxrel)).getData();
+		Data datarel = ((CacheEntry) schedulerDataCache.elementAt(idxrel)).getData();
 		//if the relative data  has status TODELETE, the data is deleted
 		if ( datarel.getstatus() == DataStatus.TODELETE ) {
 		    data.setstatus(DataStatus.TODELETE);
@@ -221,8 +221,8 @@ public class DataScheduler {
 	Vector result = new Vector();
 	
 	//check for data which are not scheduled yet
-	for (int i=0; i<dataCache.size(); i++) {
-	    CacheEntry ce = (CacheEntry) dataCache.elementAt(i);
+	for (int i=0; i<schedulerDataCache.size(); i++) {
+	    CacheEntry ce = (CacheEntry) schedulerDataCache.elementAt(i);
 	    Data data = ce.getData();
 	    Attribute attr = ce.getAttribute();
 
@@ -247,10 +247,10 @@ public class DataScheduler {
 		String obj=attr.getaffinity();
 		int idx=uidslist.lastIndexOf(obj);
 		if (idx!=-1){ //can find it in worker cache
-		    int jdx = dataCache.search(uidslist.elementAt(idx));
+		    int jdx = schedulerDataCache.search(uidslist.elementAt(idx));
 		    //and the data is also present in the scheduler cache, at the same time
 		    if (jdx!=-1){
-			CacheEntry ce1=(CacheEntry)dataCache.elementAt(jdx);
+			CacheEntry ce1=(CacheEntry)schedulerDataCache.elementAt(jdx);
 			Data d1 = ce1.getData();
 			if (d1.getstatus()!=DataStatus.TODELETE)  //not to delete
 			     addElement = true; 
@@ -274,9 +274,9 @@ public class DataScheduler {
 		    //to check how many data share the same attr on this host
 		    //count the numbers of data which share the same attr with Data data
 		    for(int p=0; p<uidslist.size(); p++){
-			int pdx = dataCache.search(uidslist.elementAt(p));
+			int pdx = schedulerDataCache.search(uidslist.elementAt(p));
 			if (pdx!=-1){
-			    CacheEntry ce2=(CacheEntry)dataCache.elementAt(pdx);
+			    CacheEntry ce2=(CacheEntry)schedulerDataCache.elementAt(pdx);
 			    Attribute attr2 = ce2.getAttribute();
 			    if (attr2.getuid().equals(attr.getuid()))
 				count = count +1;
@@ -310,9 +310,9 @@ public class DataScheduler {
 
 
     public synchronized void removeData(Data data) {
-	int pdx = dataCache.search(data.getuid());
+	int pdx = schedulerDataCache.search(data.getuid());
 	if (pdx!=-1) {
-	    CacheEntry ce = (CacheEntry) dataCache.elementAt(pdx);	
+	    CacheEntry ce = (CacheEntry) schedulerDataCache.elementAt(pdx);	
 	    ce.getData().setstatus(DataStatus.TODELETE);
 	}
     }
