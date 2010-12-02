@@ -70,7 +70,7 @@ public class DataScheduler {
 	schedulerDataCache.addElement( new CacheEntry(data, attr) );
     }
 
-    public SortedVector getschedulerDataCache(){
+    public SortedVector getDataCache(){
 	return schedulerDataCache;
     }
 
