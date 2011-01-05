@@ -24,6 +24,7 @@ import xtremweb.api.bitdew.BitDew;
 import xtremweb.api.bitdew.BitDewException;
 import xtremweb.api.transman.TransferManager;
 import xtremweb.api.transman.TransferManagerException;
+import xtremweb.api.transman.TransferManagerFactory;
 import xtremweb.core.com.idl.ComWorld;
 import xtremweb.core.com.idl.CommRMITemplate;
 import xtremweb.core.com.idl.ModuleLoaderException;
@@ -45,7 +46,6 @@ import xtremweb.core.obj.dr.Protocol;
  */
 public class FTPAvailable {
 
-    private TransferManager tf;
 
     private Vector<String> duids;
     /**
@@ -145,8 +145,8 @@ public class FTPAvailable {
 		    "dc", "dr", "dt", "ds");
 	    bd = new BitDew(comms);
 	    cl = new FTPClient();
-	    tf = new TransferManager(comms);
-	    tf.start();
+	    //tf = new TransferManager(comms);
+	    //tf.start();
 
 	} catch (ModuleLoaderException e) {
 	    log.debug("Exception in FTPAvailable constructor");
@@ -155,13 +155,9 @@ public class FTPAvailable {
 
     }
 
-    public TransferManager getTf() {
-	return tf;
-    }
+    
 
-    public void setTf(TransferManager tf) {
-	this.tf = tf;
-    }
+   
 
     /**
      * Program usage string
@@ -190,15 +186,16 @@ public class FTPAvailable {
 	try {
 	    // retreive the data object
 
-	    for (int i = 0; i < getDuids().size(); i++) {
+	    for (int i = 0; i < 1; i++) {
 		log.debug("enter into for of getFiles");
 		String s = getData(i);
 		File file = new File("result" + i + ".txt");
 		Data data;
 		data = getBitDewApi().searchDataByUid(s);
+		log.debug("Data captured just as it is uid" + data.getuid() + " md5: " + data.getchecksum() + " size:" + data.getsize());
 		getBitDewApi().get(data, file);
-		getTf().waitFor(data);
-		getTf().stop();
+		TransferManagerFactory.getTransferManager().waitFor(data);
+		TransferManagerFactory.getTransferManager().stop();
 		// log.info("data has been successfully copied to " + fileName);
 	    }
 	} catch (BitDewException e) {
@@ -207,7 +204,7 @@ public class FTPAvailable {
 	} catch (TransferManagerException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
-	}
+	} 
     }
 
     /**
@@ -283,25 +280,29 @@ public class FTPAvailable {
 	    FTPFile[] files = cl.listFiles();
 	    log.debug(getReplyString());
 	    log.debug("Number of files " + files.length);
-	    for (int i = 0; i < files.length; i++) {
-		String name = files[i].getName();
-		log.debug("Name of file " + name);
-		if (md5support)
+	    if (md5support)
 		    md5 = getSignatures(pathname);
+	    for (int i = 0; i < 5; i++) {
+		String name = files[i].getName();
+		
+		if(name.equals("CHECKSUMS.md5")||name.equals("CHECKSUMS.md5.asc"))
+		    continue;
+		
+		log.debug("Name of file " + name);		
 		long size = files[i].getSize();
 		Data data = bd.createData(name);
 		data.setoob("FTP");
 		data.setsize(files[i].getSize());
-		// log.debug("data checksum " + md5.getProperty(name));
+		data.setchecksum(md5.getProperty(name));
+		Locator remote_locator = prepareRemoteLocator(data);
+		// bd.putLocator(local_locator);
+		log.debug("data to put md5:" + data.getchecksum() + " uid: "+data.getuid()+" size: " + data.getsize() + " name " + data.getname());
+		bd.putData(data);
+		bd.put(data, remote_locator);
 		
-		    data.setchecksum(md5.getProperty(name));
-		    //Locator local_locator = prepareLocalLocator(data);
-		    Locator remote_locator = prepareRemoteLocator(data);
-		    // bd.putLocator(local_locator);
-		    bd.put(data, remote_locator);
-		    log.info("File " + name + " successfully available, uid="
-			    + data.getuid());
-		
+		log.info("File " + name + " successfully available, uid="
+			+ data.getuid());
+
 	    }
 	    log.info("To retrive any of these files please use get <datauid> <file_name>");
 
@@ -360,7 +361,7 @@ public class FTPAvailable {
 	    Matcher matcher = ptt.matcher(fromFile("sigs.md5"));
 	    while (matcher.find()) {
 		log.debug("entered to while, expression recognized");
-		String[] tokens = matcher.group().split("  ");
+		String[] tokens = matcher.group().split("  ./");
 		log.debug("Tokens : t" + tokens[1] + " p" + tokens[0]);
 		// if(tokens[1].)
 		p.put(tokens[1], tokens[0]);
