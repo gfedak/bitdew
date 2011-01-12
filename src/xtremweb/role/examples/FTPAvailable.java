@@ -1,5 +1,7 @@
 package xtremweb.role.examples;
-//TODO hacer el test completo
+
+//TODO there is a problem when FTPAvailable and PUtGet are launched in the same thread; the
+//transfer doesnt finish and havs the type senderreceiver
 //TODO mirar las repercusiones en el repository
 import jargs.gnu.CmdLineParser;
 import java.io.BufferedReader;
@@ -46,26 +48,25 @@ public class FTPAvailable {
      * (dr,dc,dt) and makes available files on a remote ftp folder in bitdew.
      * Then you can use "PutGet get" option to request new available files.
      * 
-     * <ol> 
-     * <li> Modify the file xtremweb.properties located at conf directory adding data concerning the ftp server:
-     * @code
-     * xtremweb.serv.dr.protocols=dummy http <B>ftp</B>
-     * xtremweb.serv.dr.ftp.name=ftp
-     * xtremweb.serv.dr.ftp.server=ftp.lip6.fr
-     * xtremweb.serv.dr.ftp.port=21
-     * xtremweb.serv.dr.ftp.login=anonymous
-     * xtremweb.serv.dr.ftp.path=/pub/linux/distributions/slackware/slackware-current
+     * <ol> <li> Modify the file xtremweb.properties located at conf directory
+     * adding data concerning the ftp server:
+     * 
+     * @code xtremweb.serv.dr.protocols=dummy http <B>ftp</B>
+     * xtremweb.serv.dr.ftp.name=ftp xtremweb.serv.dr.ftp.server=ftp.lip6.fr
+     * xtremweb.serv.dr.ftp.port=21 xtremweb.serv.dr.ftp.login=anonymous
+     * xtremweb
+     * .serv.dr.ftp.path=/pub/linux/distributions/slackware/slackware-current
      * xtremweb.serv.dr.ftp.passwd=none
      * 
-     * @endcode
-     * <li> Make sure that in the folder you want to make available exist the file CHECKSUMS.md5. The software needs
-     * this file in order to successfully complete a transfer. The file must have this syntax :
+     * @endcode <li> Make sure that in the folder you want to make available
+     * exist the file CHECKSUMS.md5. The software needs this file in order to
+     * successfully complete a transfer. The file must have this syntax :
      * 
-     * @code
-     * 928143c5d1a7825bc5f3c1d18fde1e31  ./ANNOUNCE.13_1
-     * c08333e6569a6fd66fd59999bfa94eb5  ./BOOTING.TXT
-     * 19494cd00c011661a882c23772eaa7f0  ./CHANGES_AND_HINTS.TXT
-     * 18810669f13b87348459e611d31ab760  ./COPYING
+     * @code 928143c5d1a7825bc5f3c1d18fde1e31 ./ANNOUNCE.13_1
+     * c08333e6569a6fd66fd59999bfa94eb5 ./BOOTING.TXT
+     * 19494cd00c011661a882c23772eaa7f0 ./CHANGES_AND_HINTS.TXT
+     * 18810669f13b87348459e611d31ab760 ./COPYING
+     * 
      * @endcode
      * 
      * <li> Execute the following command </li>
@@ -107,7 +108,7 @@ public class FTPAvailable {
      * 
      * </ol>
      */
-    //Testing purposes
+    // Testing purposes
     private Vector<String> duids;
     /**
      * Apache FTPClient object
@@ -123,7 +124,7 @@ public class FTPAvailable {
      * Password of the ftp account (if necessary)
      */
     private String passwd;
-    
+
     /**
      * Login of the ftp account (if neccessary)
      */
@@ -176,14 +177,15 @@ public class FTPAvailable {
      * @param pathname
      *            folders pathname
      */
-    public FTPAvailable()
-    {
-	
+    public FTPAvailable() {
+
     }
-    public FTPAvailable(String host, int port, String login,
-	    String passwd, String pathname) {
+
+    public FTPAvailable(String host, int port, String login, String passwd,
+	    String pathname) {
 	try {
-	   
+	    String[] serverargs = { "serv", "dc", "dr", "dt" };
+	    new CommandLineTool(serverargs);
 	    duids = new Vector();
 	    this.pathname = pathname;
 	    this.host = host;
@@ -203,8 +205,38 @@ public class FTPAvailable {
 
     }
 
-    /**
-     * Program usage string
+    public void setDebugMode() {
+	log.setLevel("debug");
+    }
+
+    /*
+     * public static void main(String[] args) { FTPAvailable ftp = new
+     * FTPAvailable("perso.ens-lyon.fr", 21, "jsaray", "mejvac07", "/testing");
+     * ftp.setDebugMode(); try { ftp.connect(); ftp.login();
+     * ftp.changeDirectory(); ftp.makeAvailable(); PutGet pg = null;
+     * 
+     * pg = new PutGet("localhost", 4325);
+     * 
+     * 
+     * 
+     * for (int i = 0; i < 1; i++) { String s = ftp.getData(i);
+     * System.out.println("Trying  " + s); pg.get("newfile" + i + ".txt", s);
+     * 
+     * } System.out.println("termino"); } catch (BitDewException e) {
+     * 
+     * e.printStackTrace();
+     * 
+     * } catch (TransferManagerException e) {
+     * 
+     * e.printStackTrace();
+     * 
+     * } catch (Exception e) {
+     * 
+     * e.printStackTrace();
+     * 
+     * } }
+     * 
+     * /** Program usage string
      */
     private static void printUsage() {
 	System.err
@@ -217,17 +249,20 @@ public class FTPAvailable {
 			+ "-l ftp session username (if empty the program tries to connect as anonymous user\n"
 			+ "-k ftp session password");
     }
+
     /**
      * Program main method
      * 
      * @param args
      */
+
     public static void main(String[] args) {
 
 	try {
 	    CmdLineParser parser = new CmdLineParser();
-	    CmdLineParser.Option verbose = parser.addBooleanOption('v',"verbose");
-	    
+	    CmdLineParser.Option verbose = parser.addBooleanOption('v',
+		    "verbose");
+
 	    CmdLineParser.Option host = parser.addStringOption('h', "host");
 	    CmdLineParser.Option port = parser.addIntegerOption('p', "port");
 	    CmdLineParser.Option dir = parser.addStringOption('d', "dir");
@@ -236,8 +271,9 @@ public class FTPAvailable {
 	    CmdLineParser.Option passwd = parser.addStringOption('k',
 		    "password");
 	    parser.parse(args);
-	    Boolean verb = (Boolean)parser.getOptionValue(verbose, Boolean.FALSE);
-	   
+	    Boolean verb = (Boolean) parser.getOptionValue(verbose,
+		    Boolean.FALSE);
+
 	    String hostValue = (String) parser.getOptionValue(host,
 		    "ftp.lip6.fr");
 	    Integer portValue = (Integer) parser.getOptionValue(port,
@@ -248,12 +284,9 @@ public class FTPAvailable {
 		    "anonymous");
 	    String pswValue = (String) parser.getOptionValue(passwd, null);
 
-	    String[] serverargs = { "serv", "dc", "dt", "dr" };
-	    new CommandLineTool(serverargs);
-	    
-	    FTPAvailable ftpa = new FTPAvailable(hostValue,
-		    portValue, loginValue, pswValue, dirValue);
-	    if(verb.booleanValue())
+	    FTPAvailable ftpa = new FTPAvailable(hostValue, portValue,
+		    loginValue, pswValue, dirValue);
+	    if (verb.booleanValue())
 		ftpa.setDebugMode();
 	    ftpa.connect();
 	    ftpa.login();
@@ -264,17 +297,12 @@ public class FTPAvailable {
 	    printUsage();
 	    System.exit(2);
 	} catch (Exception e) {
-	    System.err.println("There was a problem on program execution : Reason " + e.getMessage());
+	    System.err
+		    .println("There was a problem on program execution : Reason "
+			    + e.getMessage());
 	    e.printStackTrace();
 	}
-	
-	
 
-    }
-    
-    public void setDebugMode()
-    {
-	log.setLevel("debug");
     }
 
     /**
@@ -291,16 +319,17 @@ public class FTPAvailable {
 	    FTPFile[] files = cl.listFiles();
 	    log.debug(getReplyString());
 	    log.debug("Number of files " + files.length);
-	    
+
 	    log.info("calculating md5 signatures from CHECKSUMS.md5");
 	    md5 = getSignatures();
-	    
+
 	    for (int i = 0; i < files.length; i++) {
 		String name = files[i].getName();
 		if (name.equals("CHECKSUMS.md5")
-			|| name.equals("CHECKSUMS.md5.asc")|| files[i].isDirectory())
+			|| name.equals("CHECKSUMS.md5.asc")
+			|| files[i].isDirectory())
 		    continue;
-		
+
 		log.debug("Name of file " + name);
 		Data data = bd.createData(name);
 		data.setoob("FTP");
@@ -383,7 +412,7 @@ public class FTPAvailable {
      * @throws FileNotFoundException
      *             if a CHECKSUMS.MD5 file could not be found
      */
-    public Properties getSignatures()throws Exception {
+    public Properties getSignatures() throws Exception {
 	Properties p = new Properties();
 	boolean exist = false;
 	FileOutputStream fos;
@@ -405,18 +434,18 @@ public class FTPAvailable {
 		    exist = true;
 		    log.debug(str + " is a file");
 		    String[] tokens = str.split("  ./");
-		    if(tokens.length!=2)
-			throw new Exception("The md5 file is not propertly parsed I'm waiting <md5> ./<filename>");
+		    if (tokens.length != 2)
+			throw new Exception(
+				"The md5 file is not propertly parsed I'm waiting <md5> ./<filename>");
 		    log.debug("Tokens : t" + tokens[1] + " p" + tokens[0]);
 		    p.put(tokens[1], tokens[0]);
 		}
-		
-		
+
 		str = br.readLine();
 	    }
-	    if(!exist)
-		    throw new Exception("The md5 file is not propertly parsed I'm waiting <md5> ./<filename>");
-	    
+	    if (!exist)
+		throw new Exception(
+			"The md5 file is not propertly parsed I'm waiting <md5> ./<filename>");
 
 	} catch (FileNotFoundException e) {
 	    e.printStackTrace();
@@ -447,10 +476,10 @@ public class FTPAvailable {
      * @param pathname
      *            the directory we want the FTP server to change
      */
-    public void changeDirectory()throws Exception {
+    public void changeDirectory() throws Exception {
 	try {
-	    
-	    if(!cl.changeWorkingDirectory(pathname))
+
+	    if (!cl.changeWorkingDirectory(pathname))
 		throw new Exception("Unknown directory " + pathname);
 	    log.info("changed directory to " + cl.pwd());
 	    log.info("server answer " + cl.getReplyString());
@@ -459,23 +488,25 @@ public class FTPAvailable {
 	}
 
     }
-    public void login()throws Exception
-    {try {
-	if (getLogin().equals("anonymous"))
-	{   if(!cl.login("anonymous", ""))
-		throw new Exception("Cannot possible to connect as anonymous");
+
+    public void login() throws Exception {
+	try {
+	    if (getLogin().equals("anonymous")) {
+		if (!cl.login("anonymous", ""))
+		    throw new Exception(
+			    "Cannot possible to connect as anonymous");
+	    }
+
+	    else {
+		if (!cl.login(getLogin(), getPasswd()))
+		    throw new Exception("Cannot be connected");
+	    }
+	} catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
-	    
-	else
-	{	
-	    if(!cl.login(getLogin(), getPasswd()))
-		throw new Exception("Cannot be connected");
-	}
-    } catch (IOException e) {
-	// TODO Auto-generated catch block
-	e.printStackTrace();
     }
-    }
+
     public String getLogin() {
 	return login;
     }
@@ -488,16 +519,15 @@ public class FTPAvailable {
      * This method connnects an instance of this class to the FTP server
      * specified during object construction
      */
-    public void connect() throws Exception{
+    public void connect() throws Exception {
 	try {
 	    cl.connect(host);
 	    log.info("connect server answer " + cl.getReplyString());
 	    log.info("connected to " + host);
-	    
-	}catch (UnknownHostException e) {
+
+	} catch (UnknownHostException e) {
 	    throw new Exception("Unknown host " + host);
-	} 
-	catch (SocketException e) {
+	} catch (SocketException e) {
 	    e.printStackTrace();
 	} catch (IOException e) {
 	    e.printStackTrace();
@@ -536,28 +566,27 @@ public class FTPAvailable {
 	}
 	return null;
     }
-    private void getFile(String s, String filen) {
+
+    public File getFile(String s, String filen) {
 	log.debug("enter into getFiles");
+	File file = null;
 	try {
 	    // retreive the data object
 
-	    for (int i = 0; i < 1; i++) {
-		log.debug("enter into for of getFiles");
-		File file = new File(filen);
-		Data data;
-		data = getBitDewApi().searchDataByUid(s);
-		log.debug("Data captured just as it is uid" + data.getuid()
-			+ " md5: " + data.getchecksum() + " size:"
-			+ data.getsize());
-		getBitDewApi().get(data, file);
-		TransferManagerFactory.getTransferManager().waitFor(data);
-		TransferManagerFactory.getTransferManager().stop();
-		log.info("data has been successfully copied to " + filen);
-	    }
+	    log.debug("enter into for of getFiles");
+	    file = new File(filen);
+	    Data data;
+	    data = getBitDewApi().searchDataByUid(s);
+	    log.debug("Data captured just as it is uid" + data.getuid()
+		    + " md5: " + data.getchecksum() + " size:" + data.getsize());
+	    getBitDewApi().get(data, file);
+	    // TransferManagerFactory.getTransferManager().waitFor(data);
+	    // TransferManagerFactory.getTransferManager().stop();
+	    log.info("data has been successfully copied to " + filen);
+
 	} catch (BitDewException e) {
 	    e.printStackTrace();
-	} catch (TransferManagerException e) {
-	    e.printStackTrace();
 	}
+	return file;
     }
 }
