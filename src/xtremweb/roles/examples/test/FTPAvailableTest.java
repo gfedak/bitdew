@@ -2,6 +2,8 @@ package xtremweb.roles.examples.test;
 
 import java.io.File;
 import java.util.Properties;
+import java.util.Vector;
+
 import org.apache.commons.net.io.CopyStreamException;
 import junit.framework.TestCase;
 
@@ -20,9 +22,9 @@ public class FTPAvailableTest extends TestCase {
 
     private FTPAvailable ftp;
 
-    private final String testhost = "perso.ens-lyon.fr";
-    private final String testlogin = "jsaray";
-    private final String testpath = "/testing";
+    private final String testhost = "ftp.lip6.fr";
+    private final String testlogin = "anonymous";
+    private final String testpath = "/pub/linux/distributions/slackware/slackware-current";
     
 
     /**
@@ -37,11 +39,11 @@ public class FTPAvailableTest extends TestCase {
     // connection
     public void setUp() {
 	
-	ftp = new FTPAvailable(testhost, 21, testlogin, "mejvac07", testpath);
+	ftp = new FTPAvailable();;
 	//ftp.setDebugMode();
 	try {
-	    ftp.connect();
-	    ftp.login();
+	    ftp.connect(testhost);
+	    ftp.login(testlogin,null);
 	} catch (Exception e) {
 	    fail();
 	    e.printStackTrace();
@@ -52,7 +54,7 @@ public class FTPAvailableTest extends TestCase {
     public void testChangeDirectory() {
 
 	try {
-	    ftp.changeDirectory();
+	    ftp.changeDirectory(testpath);
 	    assertEquals(ftp.getCurrentDirectory(), testpath);
 	} catch (Exception e) {
 	    fail();
@@ -64,10 +66,10 @@ public class FTPAvailableTest extends TestCase {
     public void testGetSignatures() {
 	Properties p;
 	try {
-	    ftp.changeDirectory();
+	    ftp.changeDirectory(testpath);
 	    p = ftp.getSignatures();
 	    assertNotNull(p);
-	    /*assertNotNull(p.get("COPYRIGHT.TXT"));
+	    assertNotNull(p.get("COPYRIGHT.TXT"));
 	    assertNotNull(p.get("README_LVM.TXT"));
 	    assertNotNull(p.get("README_CRYPT.TXT"));
 	    assertNotNull(p.get("SPEAK_INSTALL.TXT"));
@@ -78,8 +80,8 @@ public class FTPAvailableTest extends TestCase {
 	    assertEquals(p.get("README_CRYPT.TXT"),
 		    "f7a6a57330634d5eb77eae3f3d5c32bc");
 	    assertEquals(p.get("SPEAK_INSTALL.TXT"),
-		    "058f7b10e84d0d51d7725e923ed11cc9");*/
-	    assertNotNull(p.get("test.txt"));
+		    "058f7b10e84d0d51d7725e923ed11cc9");
+	    //assertNotNull(p.get("test.txt"));
 	} catch (Exception e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
@@ -98,12 +100,12 @@ public class FTPAvailableTest extends TestCase {
 	    e1.printStackTrace();
 	}
 	 try {
-	     ftp.changeDirectory();
-	     ftp.makeAvailable();
+	     ftp.changeDirectory(testpath);
+	     Vector v = ftp.makeAvailable(testpath);
 	for (int i = 0; i < 1; i++) 
 	{
-	    String s = ftp.getData(i);
-	    System.out.println("Trying  " +s);
+	    String s = (String)v.get(i);
+	    System.out.println("Trying  " + s);
 	    BitDew bd = new BitDew(ComWorld.getMultipleComms("localhost","rmi",4325,"dr","dt","dc"));
 	    Data d = bd.searchDataByUid(s);
 	    assertNotNull(d);
