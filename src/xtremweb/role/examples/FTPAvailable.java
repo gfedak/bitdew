@@ -130,7 +130,25 @@ public class FTPAvailable {
      */
     private Logger log = LoggerFactory.getLogger("FTPAvailable");
     
-    public FTPAvailable(){}
+    public FTPAvailable(){
+	
+	
+    String[] serverargs = { "serv", "dc", "dr", "dt" };
+    new CommandLineTool(serverargs);
+    Vector comms;
+    try {
+	comms = ComWorld.getMultipleComms("localhost", "rmi", 4325,
+	    "dc", "dr", "dt");
+	 dr = (InterfaceRMIdr) comms.get(1);
+	    bd = new BitDew(comms);
+	    cl = new FTPClient();
+    } catch (ModuleLoaderException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+    }
+   
+	
+    }
     /**
      * FTPAvailable constructor
      * 
