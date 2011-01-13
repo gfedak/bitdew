@@ -109,46 +109,16 @@ public class FTPAvailable {
      * </ol>
      */
     // Testing purposes
-    private Vector<String> duids;
+    
     /**
      * Apache FTPClient object
      */
     private FTPClient cl;
 
     /**
-     * Host of the remote ftp server
-     */
-    private String host;
-
-    /**
-     * Password of the ftp account (if necessary)
-     */
-    private String passwd;
-
-    /**
-     * Login of the ftp account (if neccessary)
-     */
-    private String login;
-
-    /**
-     * Pathname of the folder we want to make available
-     */
-    private String pathname;
-
-    /**
-     * Port number of the ftp connection (default 21)
-     */
-    private int port;
-
-    /**
      * BitDew API to make available the FTP folder
      */
     private BitDew bd;
-
-    /**
-     * BitDew server default port
-     */
-    private int commsport = 4325;
 
     /**
      * Data repository RMI interface
@@ -159,9 +129,8 @@ public class FTPAvailable {
      * Log4J loggger
      */
     private Logger log = LoggerFactory.getLogger("FTPAvailable");
-
-    private Vector comms;
-
+    
+    public FTPAvailable(){}
     /**
      * FTPAvailable constructor
      * 
@@ -177,66 +146,35 @@ public class FTPAvailable {
      * @param pathname
      *            folders pathname
      */
-    public FTPAvailable() {
-
-    }
-
-    public FTPAvailable(String host, int port, String login, String passwd,
+    public FTPAvailable(boolean b,String host, int port, String login, String passwd,
 	    String pathname) {
 	try {
+	    if(b)
+		log.setLevel("debug");
 	    String[] serverargs = { "serv", "dc", "dr", "dt" };
 	    new CommandLineTool(serverargs);
-	    duids = new Vector();
-	    this.pathname = pathname;
-	    this.host = host;
-	    this.passwd = passwd;
-	    this.login = login;
-	    this.port = port;
-	    comms = ComWorld.getMultipleComms("localhost", "rmi", commsport,
+	    Vector comms = ComWorld.getMultipleComms("localhost", "rmi", 4325,
 		    "dc", "dr", "dt");
 	    dr = (InterfaceRMIdr) comms.get(1);
 	    bd = new BitDew(comms);
 	    cl = new FTPClient();
-
+	    connect(host);
+	    login(login,passwd);
+	    changeDirectory(pathname);
+	    makeAvailable(pathname);
 	} catch (ModuleLoaderException e) {
 	    log.debug("Exception in FTPAvailable constructor");
 	    e.printStackTrace();
+	} catch (Exception e) {
+	    System.err
+	    .println("There was a problem on program execution : Reason "
+		    + e.getMessage());
+	    e.printStackTrace();
 	}
-
     }
-
-    public void setDebugMode() {
-	log.setLevel("debug");
-    }
-
-    /*
-     * public static void main(String[] args) { FTPAvailable ftp = new
-     * FTPAvailable("perso.ens-lyon.fr", 21, "jsaray", "mejvac07", "/testing");
-     * ftp.setDebugMode(); try { ftp.connect(); ftp.login();
-     * ftp.changeDirectory(); ftp.makeAvailable(); PutGet pg = null;
-     * 
-     * pg = new PutGet("localhost", 4325);
-     * 
-     * 
-     * 
-     * for (int i = 0; i < 1; i++) { String s = ftp.getData(i);
-     * System.out.println("Trying  " + s); pg.get("newfile" + i + ".txt", s);
-     * 
-     * } System.out.println("termino"); } catch (BitDewException e) {
-     * 
-     * e.printStackTrace();
-     * 
-     * } catch (TransferManagerException e) {
-     * 
-     * e.printStackTrace();
-     * 
-     * } catch (Exception e) {
-     * 
-     * e.printStackTrace();
-     * 
-     * } }
-     * 
-     * /** Program usage string
+    
+    /**
+     * This method prits the way of using FTPAvailable command
      */
     private static void printUsage() {
 	System.err
@@ -249,7 +187,6 @@ public class FTPAvailable {
 			+ "-l ftp session username (if empty the program tries to connect as anonymous user\n"
 			+ "-k ftp session password");
     }
-
     /**
      * Program main method
      * 
@@ -284,40 +221,31 @@ public class FTPAvailable {
 		    "anonymous");
 	    String pswValue = (String) parser.getOptionValue(passwd, null);
 
-	    FTPAvailable ftpa = new FTPAvailable(hostValue, portValue,
+	    FTPAvailable ftpa = new FTPAvailable(verb.booleanValue(),hostValue, portValue,
 		    loginValue, pswValue, dirValue);
-	    if (verb.booleanValue())
-		ftpa.setDebugMode();
-	    ftpa.connect();
-	    ftpa.login();
-	    ftpa.changeDirectory();
-	    ftpa.makeAvailable();
+
+	    
 	} catch (CmdLineParser.OptionException e) {
 	    System.err.println(e.getMessage());
 	    printUsage();
 	    System.exit(2);
-	} catch (Exception e) {
-	    System.err
-		    .println("There was a problem on program execution : Reason "
-			    + e.getMessage());
-	    e.printStackTrace();
 	}
-
     }
 
     /**
      * This method creates the locators necessaries so bitdew can recognize the
      * data in a remote ftp folder on the data grid.
      */
-    public void makeAvailable() {
+    public Vector makeAvailable(String pathname) {
 	Properties md5 = null;
+	Vector v = new Vector();
 	try {
 	    log.info("Making available folder ... ");
 	    log.debug("connection type " + cl.getDataConnectionMode());
 
 	    cl.enterLocalPassiveMode();
 	    FTPFile[] files = cl.listFiles();
-	    log.debug(getReplyString());
+	    log.debug(cl.getReplyString());
 	    log.debug("Number of files " + files.length);
 
 	    log.info("calculating md5 signatures from CHECKSUMS.md5");
@@ -335,7 +263,7 @@ public class FTPAvailable {
 		data.setoob("FTP");
 		data.setsize(files[i].getSize());
 		data.setchecksum(md5.getProperty(name));
-		Locator remote_locator = prepareRemoteLocator(data);
+		Locator remote_locator = prepareRemoteLocator(pathname,data);
 		log.debug("data to put md5:" + data.getchecksum() + " uid: "
 			+ data.getuid() + " size: " + data.getsize() + " name "
 			+ data.getname());
@@ -344,7 +272,7 @@ public class FTPAvailable {
 
 		log.info("File " + name + " successfully available, uid="
 			+ data.getuid());
-
+		v.add(data.getuid());
 	    }
 	    log.info("To retrieve any of these files in your system on a file <file_name> please use PutGet get <file_name> <uid>");
 
@@ -356,7 +284,7 @@ public class FTPAvailable {
 	    log.debug("weird exception");
 	    e.printStackTrace();
 	}
-
+	return v;
     }
 
     /**
@@ -369,27 +297,26 @@ public class FTPAvailable {
 	    e.printStackTrace();
 	}
     }
-
-    public String getData(int pos) {
-	return duids.get(pos);
-    }
-
-    public Vector getDuids() {
-	return duids;
-    }
-
+    /**
+     * Gets bitdew api in order to start and cancel transfers
+     * @return
+     */
     public BitDew getBitDewApi() {
 	return bd;
     }
-
-    public Locator prepareRemoteLocator(Data data) {
+    
+    /**
+     * Given a data, this method prepares the ftp locator
+     * @param data
+     * @return
+     */
+    public Locator prepareRemoteLocator(String pathname,Data data) {
 	File f = new File("local");
 	Protocol prot;
 	Locator remote_locator = null;
 	try {
 	    prot = dr.getProtocolByName("ftp");
 	    remote_locator = new Locator();
-	    duids.add(data.getuid());
 	    prot.setpath(f.getPath());
 	    remote_locator.setdatauid(data.getuid());
 	    remote_locator.setprotocoluid(prot.getuid());
@@ -440,13 +367,11 @@ public class FTPAvailable {
 		    log.debug("Tokens : t" + tokens[1] + " p" + tokens[0]);
 		    p.put(tokens[1], tokens[0]);
 		}
-
 		str = br.readLine();
 	    }
 	    if (!exist)
 		throw new Exception(
 			"The md5 file is not propertly parsed I'm waiting <md5> ./<filename>");
-
 	} catch (FileNotFoundException e) {
 	    e.printStackTrace();
 	} catch (IOException e) {
@@ -454,7 +379,13 @@ public class FTPAvailable {
 	}
 	return p;
     }
-
+    
+    /**
+     * This method is used to download SIGNATURES.md5 file
+     * @param s
+     * @param fos
+     * @return
+     */
     public boolean retrieveFile(String s, FileOutputStream fos) {
 	boolean b = false;
 	try {
@@ -476,7 +407,7 @@ public class FTPAvailable {
      * @param pathname
      *            the directory we want the FTP server to change
      */
-    public void changeDirectory() throws Exception {
+    public void changeDirectory(String pathname) throws Exception {
 	try {
 
 	    if (!cl.changeWorkingDirectory(pathname))
@@ -488,43 +419,39 @@ public class FTPAvailable {
 	}
 
     }
-
-    public void login() throws Exception {
+    
+    /**
+     * login method
+     * @throws Exception
+     */
+    public void login(String user,String passwd) throws Exception {
 	try {
-	    if (getLogin().equals("anonymous")) {
+	    if (user.equals("anonymous")) {
 		if (!cl.login("anonymous", ""))
 		    throw new Exception(
 			    "Cannot possible to connect as anonymous");
 	    }
 
 	    else {
-		if (!cl.login(getLogin(), getPasswd()))
+		if (!cl.login(user, passwd))
 		    throw new Exception("Cannot be connected");
 	    }
 	} catch (IOException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
     }
-
-    public String getLogin() {
-	return login;
-    }
-
-    public String getPasswd() {
-	return passwd;
-    }
+    
+   
 
     /**
      * This method connnects an instance of this class to the FTP server
      * specified during object construction
      */
-    public void connect() throws Exception {
+    public void connect(String host) throws Exception {
 	try {
 	    cl.connect(host);
 	    log.info("connect server answer " + cl.getReplyString());
 	    log.info("connected to " + host);
-
 	} catch (UnknownHostException e) {
 	    throw new Exception("Unknown host " + host);
 	} catch (SocketException e) {
@@ -533,25 +460,6 @@ public class FTPAvailable {
 	    e.printStackTrace();
 	}
     }
-
-    /**
-     * Gets the FTP server answer to a before issued commmand
-     * 
-     * @return a string with server's answer
-     */
-    public String getReplyString() {
-	return cl.getReplyString();
-    }
-
-    /**
-     * Gets the FTP reply code to a before issued command.
-     * 
-     * @return an integer representing ftp reply code
-     */
-    public int getReplyCode() {
-	return cl.getReplyCode();
-    }
-
     /**
      * Returns the current directory from which we are retrieving files.
      * 
@@ -566,27 +474,33 @@ public class FTPAvailable {
 	}
 	return null;
     }
-
-    public File getFile(String s, String filen) {
-	log.debug("enter into getFiles");
-	File file = null;
-	try {
-	    // retreive the data object
-
-	    log.debug("enter into for of getFiles");
-	    file = new File(filen);
-	    Data data;
-	    data = getBitDewApi().searchDataByUid(s);
-	    log.debug("Data captured just as it is uid" + data.getuid()
-		    + " md5: " + data.getchecksum() + " size:" + data.getsize());
-	    getBitDewApi().get(data, file);
-	    // TransferManagerFactory.getTransferManager().waitFor(data);
-	    // TransferManagerFactory.getTransferManager().stop();
-	    log.info("data has been successfully copied to " + filen);
-
-	} catch (BitDewException e) {
-	    e.printStackTrace();
-	}
-	return file;
-    }
+    /*
+     * public static void main(String[] args) { FTPAvailable ftp = new
+     * FTPAvailable("perso.ens-lyon.fr", 21, "jsaray", "mejvac07", "/testing");
+     * ftp.setDebugMode(); try { ftp.connect(); ftp.login();
+     * ftp.changeDirectory(); ftp.makeAvailable(); PutGet pg = null;
+     * 
+     * pg = new PutGet("localhost", 4325);
+     * 
+     * 
+     * 
+     * for (int i = 0; i < 1; i++) { String s = ftp.getData(i);
+     * System.out.println("Trying  " + s); pg.get("newfile" + i + ".txt", s);
+     * 
+     * } System.out.println("termino"); } catch (BitDewException e) {
+     * 
+     * e.printStackTrace();
+     * 
+     * } catch (TransferManagerException e) {
+     * 
+     * e.printStackTrace();
+     * 
+     * } catch (Exception e) {
+     * 
+     * e.printStackTrace();
+     * 
+     * } }
+     * 
+     * /** Program usage string
+     */
 }
