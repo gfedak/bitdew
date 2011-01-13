@@ -1,8 +1,5 @@
 package xtremweb.role.examples;
 
-//TODO there is a problem when FTPAvailable and PUtGet are launched in the same thread; the
-//transfer doesnt finish and havs the type senderreceiver
-//TODO mirar las repercusiones en el repository
 import jargs.gnu.CmdLineParser;
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,24 +40,26 @@ import xtremweb.role.cmdline.CommandLineTool;
  */
 public class FTPAvailable {
 
-    /*
-     * ! \example FTPAvailable.java This example starts bitdew services
-     * (dr,dc,dt) and makes available files on a remote ftp folder in bitdew.
-     * Then you can use "PutGet get" option to request new available files.
+    /*! \example FTPAvailable.java
+     * 
+     * This example starts bitdew services (dr,dc,dt) and makes available files
+     * on a remote ftp folder in bitdew. Then you can use "PutGet get" option to
+     * request new available files.
      * 
      * <ol> <li> Modify the file xtremweb.properties located at conf directory
-     * adding data concerning the ftp server:
+     * adding data concerning the ftp server:</li>
      * 
-     * @code xtremweb.serv.dr.protocols=dummy http <B>ftp</B>
+     * @code xtremweb.serv.dr.protocols=dummy http ftp
      * xtremweb.serv.dr.ftp.name=ftp xtremweb.serv.dr.ftp.server=ftp.lip6.fr
      * xtremweb.serv.dr.ftp.port=21 xtremweb.serv.dr.ftp.login=anonymous
      * xtremweb
      * .serv.dr.ftp.path=/pub/linux/distributions/slackware/slackware-current
      * xtremweb.serv.dr.ftp.passwd=none
      * 
-     * @endcode <li> Make sure that in the folder you want to make available
-     * exist the file CHECKSUMS.md5. The software needs this file in order to
-     * successfully complete a transfer. The file must have this syntax :
+     * @endcode <li> Make sure that in the folder you want to make available,
+     * exist the file CHECKSUMS.md5. FTPAvailable.java needs this file in order
+     * to successfully complete a transfer. The file must be similar to this
+     * one: (remember to include ./ before filename)</li>
      * 
      * @code 928143c5d1a7825bc5f3c1d18fde1e31 ./ANNOUNCE.13_1
      * c08333e6569a6fd66fd59999bfa94eb5 ./BOOTING.TXT
@@ -72,15 +71,16 @@ public class FTPAvailable {
      * <li> Execute the following command </li>
      * 
      * @code java -cp bitdew-stand-alone.jar xtremweb.role.examples.FTPAvailable
-     * -s -h ftp.lip6.fr -d /pub/linux/distributions/slackware/slackware-current
+     * -h ftp.lip6.fr -d /pub/linux/distributions/slackware/slackware-current
      * 
      * @endcode
      * 
      * <li> This command will : <ol> <li>launch Bitdew services needed for this
-     * experience (dc,dt,dr) <li>connect to FTP server ftp.lip6.fr <li>make
-     * available files under the
-     * /pub/linux/distributions/slackware/slackware-current directory </ol> <li>
-     * At the end of the command execution you should get something like this :
+     * experience (dc,dt,dr) </li><li>connect to FTP server ftp.lip6.fr</li>
+     * <li>make available files under the
+     * /pub/linux/distributions/slackware/slackware-current directory</li> </ol>
+     * </li> <li>At the end of the command execution you should get something
+     * like this :</li>
      * 
      * @code File ANNOUNCE.13_1 successfully available,
      * uid=6390d3a0-1cbc-31e0-ab7e-c0c64755d3e6 File BOOTING.TXT successfully
@@ -91,25 +91,21 @@ public class FTPAvailable {
      * <file_name> <uid>
      * 
      * @endcode <li> You can execute PutGet get command in order to retrieve a
-     * file from the ftp server, for example :
+     * file from the ftp server, for example :</li>
      * 
      * @code java -cp xtremweb.role.examples.PutGet get LOCAL_BOOTING.TXT
      * 639edd60-1cbc-31e0-ab7e-c0c64755d3e6
      * 
-     * @endcode <li> This command will download the file of uid
+     * @endcode
+     * 
+     * <li> This command will download the file of uid
      * 639edd60-1cbc-31e0-ab7e-c0c64755d3e6 (remotely BOOTING.TXT) to the local
-     * file LOCAL_BOOTING.TXT, you should get the following message:
+     * file LOCAL_BOOTING.TXT, you should get the following message:</li>
      * 
      * @code [ INFO] data has been successfully copied to LOCAL_BOOTING.TXT
      * 
-     * @endcode
-     * 
-     * <li> Source code of the ftp available example
-     * 
-     * </ol>
+     * @endcode Application code source : </ol>
      */
-    // Testing purposes
-    
     /**
      * Apache FTPClient object
      */
@@ -129,33 +125,34 @@ public class FTPAvailable {
      * Log4J loggger
      */
     private Logger log = LoggerFactory.getLogger("FTPAvailable");
-    
-    public FTPAvailable(){
-	
-	
-    String[] serverargs = { "serv", "dc", "dr", "dt" };
-    new CommandLineTool(serverargs);
-    Vector comms;
-    try {
-	comms = ComWorld.getMultipleComms("localhost", "rmi", 4325,
-	    "dc", "dr", "dt");
-	 dr = (InterfaceRMIdr) comms.get(1);
+    /**
+     * FTPAvailable default constructor
+     */
+    public FTPAvailable() {
+
+	String[] serverargs = { "serv", "dc", "dr", "dt" };
+	new CommandLineTool(serverargs);
+	Vector comms;
+	try {
+	    comms = ComWorld.getMultipleComms("localhost", "rmi", 4325, "dc",
+		    "dr", "dt");
+	    dr = (InterfaceRMIdr) comms.get(1);
 	    bd = new BitDew(comms);
 	    cl = new FTPClient();
-    } catch (ModuleLoaderException e) {
-	// TODO Auto-generated catch block
-	e.printStackTrace();
+	} catch (ModuleLoaderException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+
     }
-   
-	
-    }
+
     /**
      * FTPAvailable constructor
      * 
      * @param host
-     *            the host address we want to connect
+     *            the host address you want to connect
      * @param port
-     *            the port used to ftp
+     *            the port used to ftp 
      * @param login
      *            your login, (or anonymous if FTP server is not using
      *            authentication)
@@ -164,10 +161,10 @@ public class FTPAvailable {
      * @param pathname
      *            folders pathname
      */
-    public FTPAvailable(boolean b,String host, int port, String login, String passwd,
-	    String pathname) {
+    public FTPAvailable(boolean b, String host, int port, String login,
+	    String passwd, String pathname) {
 	try {
-	    if(b)
+	    if (b)
 		log.setLevel("debug");
 	    String[] serverargs = { "serv", "dc", "dr", "dt" };
 	    new CommandLineTool(serverargs);
@@ -177,7 +174,7 @@ public class FTPAvailable {
 	    bd = new BitDew(comms);
 	    cl = new FTPClient();
 	    connect(host);
-	    login(login,passwd);
+	    login(login, passwd);
 	    changeDirectory(pathname);
 	    makeAvailable(pathname);
 	} catch (ModuleLoaderException e) {
@@ -185,14 +182,14 @@ public class FTPAvailable {
 	    e.printStackTrace();
 	} catch (Exception e) {
 	    System.err
-	    .println("There was a problem on program execution : Reason "
-		    + e.getMessage());
+		    .println("There was a problem on program execution : Reason "
+			    + e.getMessage());
 	    e.printStackTrace();
 	}
     }
-    
+
     /**
-     * This method prits the way of using FTPAvailable command
+     * This method prints the syntax of FTPAvailable command
      */
     private static void printUsage() {
 	System.err
@@ -205,6 +202,7 @@ public class FTPAvailable {
 			+ "-l ftp session username (if empty the program tries to connect as anonymous user\n"
 			+ "-k ftp session password");
     }
+
     /**
      * Program main method
      * 
@@ -239,10 +237,9 @@ public class FTPAvailable {
 		    "anonymous");
 	    String pswValue = (String) parser.getOptionValue(passwd, null);
 
-	    FTPAvailable ftpa = new FTPAvailable(verb.booleanValue(),hostValue, portValue,
-		    loginValue, pswValue, dirValue);
+	    FTPAvailable ftpa = new FTPAvailable(verb.booleanValue(),
+		    hostValue, portValue, loginValue, pswValue, dirValue);
 
-	    
 	} catch (CmdLineParser.OptionException e) {
 	    System.err.println(e.getMessage());
 	    printUsage();
@@ -251,7 +248,7 @@ public class FTPAvailable {
     }
 
     /**
-     * This method creates the locators necessaries so bitdew can recognize the
+     * This method creates the locators necessaries to bitdew can recognize the
      * data in a remote ftp folder on the data grid.
      */
     public Vector makeAvailable(String pathname) {
@@ -271,6 +268,7 @@ public class FTPAvailable {
 
 	    for (int i = 0; i < files.length; i++) {
 		String name = files[i].getName();
+		//if the file is a checksum file, we do not want to make it available:
 		if (name.equals("CHECKSUMS.md5")
 			|| name.equals("CHECKSUMS.md5.asc")
 			|| files[i].isDirectory())
@@ -281,7 +279,7 @@ public class FTPAvailable {
 		data.setoob("FTP");
 		data.setsize(files[i].getSize());
 		data.setchecksum(md5.getProperty(name));
-		Locator remote_locator = prepareRemoteLocator(pathname,data);
+		Locator remote_locator = prepareRemoteLocator(pathname, data);
 		log.debug("data to put md5:" + data.getchecksum() + " uid: "
 			+ data.getuid() + " size: " + data.getsize() + " name "
 			+ data.getname());
@@ -315,20 +313,14 @@ public class FTPAvailable {
 	    e.printStackTrace();
 	}
     }
+
     /**
-     * Gets bitdew api in order to start and cancel transfers
+     * Given a data, this method prepares a remote ftp locator
+     * @param data the data to build the ftp locator
+     * @param pathname the remote pathname were the file reside
      * @return
      */
-    public BitDew getBitDewApi() {
-	return bd;
-    }
-    
-    /**
-     * Given a data, this method prepares the ftp locator
-     * @param data
-     * @return
-     */
-    public Locator prepareRemoteLocator(String pathname,Data data) {
+    public Locator prepareRemoteLocator(String pathname, Data data) {
 	File f = new File("local");
 	Protocol prot;
 	Locator remote_locator = null;
@@ -397,14 +389,15 @@ public class FTPAvailable {
 	}
 	return p;
     }
-    
+
     /**
-     * This method is used to download SIGNATURES.md5 file
-     * @param s
-     * @param fos
-     * @return
+     * This method retrieves a file from the ftp server (used for SIGNATURES.md5 )
+     * 
+     * @param s file name
+     * @param fos outputstream to store the file
+     * @return true if the command could be succesfully completed, else false
      */
-    public boolean retrieveFile(String s, FileOutputStream fos) {
+    private boolean retrieveFile(String s, FileOutputStream fos) {
 	boolean b = false;
 	try {
 	    cl.enterLocalPassiveMode();
@@ -437,12 +430,14 @@ public class FTPAvailable {
 	}
 
     }
-    
+
     /**
-     * login method
-     * @throws Exception
+     * This method try to logs in the FTP server signaled by the user
+     * @param user the user name
+     * @param passwd the password
+     * @throws Exception if a problem is found
      */
-    public void login(String user,String passwd) throws Exception {
+    public void login(String user, String passwd) throws Exception {
 	try {
 	    if (user.equals("anonymous")) {
 		if (!cl.login("anonymous", ""))
@@ -458,12 +453,10 @@ public class FTPAvailable {
 	    e.printStackTrace();
 	}
     }
-    
-   
 
     /**
      * This method connnects an instance of this class to the FTP server
-     * specified during object construction
+     * @host the host we want to connect
      */
     public void connect(String host) throws Exception {
 	try {
@@ -478,47 +471,4 @@ public class FTPAvailable {
 	    e.printStackTrace();
 	}
     }
-    /**
-     * Returns the current directory from which we are retrieving files.
-     * 
-     * @return
-     */
-    public String getCurrentDirectory() {
-	try {
-	    log.debug("current working directory " + cl.printWorkingDirectory());
-	    return cl.printWorkingDirectory();
-	} catch (IOException e) {
-	    e.printStackTrace();
-	}
-	return null;
-    }
-    /*
-     * public static void main(String[] args) { FTPAvailable ftp = new
-     * FTPAvailable("perso.ens-lyon.fr", 21, "jsaray", "mejvac07", "/testing");
-     * ftp.setDebugMode(); try { ftp.connect(); ftp.login();
-     * ftp.changeDirectory(); ftp.makeAvailable(); PutGet pg = null;
-     * 
-     * pg = new PutGet("localhost", 4325);
-     * 
-     * 
-     * 
-     * for (int i = 0; i < 1; i++) { String s = ftp.getData(i);
-     * System.out.println("Trying  " + s); pg.get("newfile" + i + ".txt", s);
-     * 
-     * } System.out.println("termino"); } catch (BitDewException e) {
-     * 
-     * e.printStackTrace();
-     * 
-     * } catch (TransferManagerException e) {
-     * 
-     * e.printStackTrace();
-     * 
-     * } catch (Exception e) {
-     * 
-     * e.printStackTrace();
-     * 
-     * } }
-     * 
-     * /** Program usage string
-     */
 }
