@@ -145,6 +145,8 @@ public class FTPAvailable {
 	}
 
     }
+    
+   
 
     /**
      * FTPAvailable constructor
@@ -418,17 +420,17 @@ public class FTPAvailable {
      * @param pathname
      *            the directory we want the FTP server to change
      */
-    public void changeDirectory(String pathname) throws Exception {
+    public String changeDirectory(String pathname) throws Exception {
 	try {
-
 	    if (!cl.changeWorkingDirectory(pathname))
 		throw new Exception("Unknown directory " + pathname);
 	    log.info("changed directory to " + cl.pwd());
 	    log.info("server answer " + cl.getReplyString());
+	    
 	} catch (IOException e) {
 	    e.printStackTrace();
 	}
-
+	return cl.printWorkingDirectory();
     }
 
     /**
