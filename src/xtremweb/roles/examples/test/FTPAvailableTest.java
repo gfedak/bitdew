@@ -54,8 +54,8 @@ public class FTPAvailableTest extends TestCase {
     public void testChangeDirectory() {
 
 	try {
-	    ftp.changeDirectory(testpath);
-	    assertEquals(ftp.getCurrentDirectory(), testpath);
+	    String curr=ftp.changeDirectory(testpath);
+	    assertEquals(curr, testpath);
 	} catch (Exception e) {
 	    fail();
 	    e.printStackTrace();
