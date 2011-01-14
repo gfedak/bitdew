@@ -168,10 +168,10 @@ public class FTPAvailable {
 	try {
 	    if (b)
 		log.setLevel("debug");
-	    String[] serverargs = { "serv", "dc", "dr", "dt" };
+	    String[] serverargs = { "serv", "dc", "dr", "dt","ds"};
 	    new CommandLineTool(serverargs);
 	    Vector comms = ComWorld.getMultipleComms("localhost", "rmi", 4325,
-		    "dc", "dr", "dt");
+		    "dc", "dr", "dt","ds");
 	    dr = (InterfaceRMIdr) comms.get(1);
 	    bd = new BitDew(comms);
 	    cl = new FTPClient();
