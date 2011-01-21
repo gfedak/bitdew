@@ -22,7 +22,6 @@ import xtremweb.serv.ds.*;
 
 import xtremweb.api.transman.*;
 
-import java.io.File;
 import java.io.*;
 import java.rmi.RemoteException;
 import java.util.Vector;
@@ -141,8 +140,24 @@ public class BitDew {
 	}
 	throw new BitDewException();
     }
+    
+    public Data createData(String name,String protocol,long size, String checksum)throws BitDewException
+    {
+	try {
+	    Data data = new Data();
+	    data.setname(name);
+	    data.setoob(protocol);
+	    data.setsize(size);
+	    data.setchecksum(checksum);
+	    DBInterfaceFactory.getDBInterface().makePersistent(data);
+	    idc.putData(data);  
+	    return data;
 
-
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	}
+	throw new BitDewException();
+    }
     /**
      * <code>createData</code> creates Data.
      *
@@ -152,6 +167,7 @@ public class BitDew {
      * @return a <code>Data</code> value
      * @exception BitDewException if an error occurs
      */
+    //TODO size is originally declared as long and here is int
     public Data createData(String name, String protocol, int size)  throws BitDewException {
 	try {
 	    Data data = new Data();
@@ -192,7 +208,17 @@ public class BitDew {
 	throw new BitDewException();
     }
 
-
+    public void associateDataLocator(Data d,Locator lo) throws BitDewException
+    {
+	DBInterfaceFactory.getDBInterface().makePersistent(d);
+	try {
+	    idc.putData(d);
+	    put(d,lo);
+	} catch (RemoteException re) {
+	    log.debug("Cannot find service " + re);
+	    throw new BitDewException();
+	}
+    }
     /**
      *  <code>updateData</code> updates the data fields (name, size, checksum) 
      * with the file characteristics and put the file in the data slot.
@@ -210,11 +236,14 @@ public class BitDew {
 	DBInterfaceFactory.getDBInterface().makePersistent(data);
 	putData(data);
     }
-
-    private void putData(Data data) throws BitDewException {
-	//if data has not been locally serialized, do it now
-	if (data.getuid() == null) 
-	    DBInterfaceFactory.getDBInterface().makePersistent(data);
+    
+    /**
+     * This method saves a data locally and in catalog service.
+     * @param data data to save
+     * @throws BitDewException if a problem occurs
+     */
+    public void putData(Data data) throws BitDewException {
+	DBInterfaceFactory.getDBInterface().makePersistent(data);
 	try {
 	    idc.putData(data);  
 	} catch (RemoteException re) {
@@ -255,6 +284,31 @@ public class BitDew {
 	}
 	throw new BitDewException();
     } 
+    
+    /**
+     * Creates the associated remote locator for a given data
+     * @param data: the data we want to associate a Locator
+     * @return Locator a remote locator sharing protocol,reference and uid  with data 
+     */
+    public Locator createRemoteLocator(Data data) {
+	File f = new File("local");
+	Protocol prot;
+	Locator remote_locator = null;
+	try {
+	    prot = idr.getProtocolByName("ftp");
+	    log.debug(" The protocol extracted has the following data :  Path : " + prot.getpath() + " Login : " + prot.getlogin() + " Passwd : " + prot.getpassword());
+	    remote_locator = new Locator();
+	    prot.setpath(f.getPath());
+	    remote_locator.setdatauid(data.getuid());
+	    remote_locator.setprotocoluid(prot.getuid());
+	    remote_locator.setdrname(((CommRMITemplate) idr).getHostName());
+	    remote_locator.setref(data.getname());
+	    remote_locator.setpublish(true);
+	} catch (RemoteException e) {
+	    e.printStackTrace();
+	}
+	return remote_locator;
+    }
 
     /**
      *  <code>putLocator</code> registers locator
@@ -266,6 +320,7 @@ public class BitDew {
 	try {
 	    idc.putLocator(loc);
 	    log.debug (" created locator " + loc.getuid());
+	    return;
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
 	} catch (Exception e) {
@@ -284,22 +339,18 @@ public class BitDew {
      */
     public void put(Data data, Locator remote_locator) throws BitDewException {
 	Protocol remote_proto;
-
 	try {
 	    if (remote_locator.getuid() == null)
 		DBInterfaceFactory.getDBInterface().makePersistent(remote_locator);
 	    remote_proto = idr.getProtocolByName(data.getoob());
-
 	    log.debug("Remote_proto fetched : " + remote_proto.getuid() + " : " +remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() );
 	} catch (RemoteException re) {
 	    log.debug("Cannot find a oob protocol " + data.getoob() + " " + re);
 	    throw new BitDewException();
 	}
-
 	remote_locator.setdatauid(data.getuid());
 	remote_locator.setdrname(((CommRMITemplate) idr).getHostName());
 	remote_locator.setprotocoluid(remote_proto.getuid());	
-
 	try {
 	    idc.putLocator(remote_locator);
 	    log.debug("registred new locator");
