@@ -39,11 +39,11 @@ public class FTPAvailableTest extends TestCase {
     // connection
     public void setUp() {
 	
-	ftp = new FTPAvailable();;
-	//ftp.setDebugMode();
+	ftp = new FTPAvailable(true,null);;
+	
 	try {
-	    ftp.connect(testhost);
-	    ftp.login(testlogin,null);
+	    ftp.connect();
+	    ftp.login();
 	} catch (Exception e) {
 	    fail();
 	    e.printStackTrace();
@@ -54,7 +54,7 @@ public class FTPAvailableTest extends TestCase {
     public void testChangeDirectory() {
 
 	try {
-	    String curr=ftp.changeDirectory(testpath);
+	    String curr=ftp.changeDirectory();
 	    assertEquals(curr, testpath);
 	} catch (Exception e) {
 	    fail();
@@ -66,7 +66,7 @@ public class FTPAvailableTest extends TestCase {
     public void testGetSignatures() {
 	Properties p;
 	try {
-	    ftp.changeDirectory(testpath);
+	    ftp.changeDirectory();
 	    p = ftp.getSignatures();
 	    assertNotNull(p);
 	    assertNotNull(p.get("COPYRIGHT.TXT"));
@@ -86,8 +86,8 @@ public class FTPAvailableTest extends TestCase {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
-
     }
+
 
     @Test
     public void testMakeAvailable() {
@@ -100,8 +100,8 @@ public class FTPAvailableTest extends TestCase {
 	    e1.printStackTrace();
 	}
 	 try {
-	     ftp.changeDirectory(testpath);
-	     Vector v = ftp.makeAvailable(testpath);
+	     ftp.changeDirectory();
+	     Vector v = ftp.makeAvailable();
 	for (int i = 0; i < 1; i++) 
 	{
 	    String s = (String)v.get(i);
@@ -128,16 +128,14 @@ public class FTPAvailableTest extends TestCase {
 	    
 	}
 	} 
-	 catch (BitDewException e) {
-		
+	 catch (BitDewException e) {	
 		e.printStackTrace();
 		fail();
 	    } catch (TransferManagerException e) {
 		
 	    e.printStackTrace();
 	    fail();
-	} catch (Exception e) {
-	   
+	} catch (Exception e) {	   
 		e.printStackTrace();
 		 fail();
 	    }
