@@ -171,12 +171,10 @@ public class FTPAvailable {
 	    parser.parse(args);
 	    Boolean verb = (Boolean) parser.getOptionValue(verbose,Boolean.FALSE);
 	    String fileName = (String) parser.getOptionValue(fileNameo,null);
-	    System.out.println("q paso ome fileName value " + fileName);
 	    if(fileName!=null)
 	    {	
 		String tot = System.getProperty("user.dir") + "/" + fileName;
 		System.setProperty("PROPERTIES_FILE", tot);
-		System.out.println("entro al if tio joder");
 	    }
 	    String[] serverargs = { "serv", "dc", "dr", "dt" };
 	    new CommandLineTool(serverargs);
