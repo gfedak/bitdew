@@ -28,7 +28,7 @@ import java.io.File;
  */
 public abstract class OOBTransferImpl implements OOBTransfer {
 
-    protected static Logger logfac = LoggerFactory.getLogger(OOBTransferImpl.class);
+    protected static Logger log = LoggerFactory.getLogger(OOBTransferImpl.class);
 
     /**
      * Data <code>data</code> is the reference to the data transfered
@@ -76,7 +76,7 @@ public abstract class OOBTransferImpl implements OOBTransfer {
      * @param tuid a <code>String</code> value: Transfer unique id
      */
     public OOBTransferImpl(String tuid) {
-	logfac.debug(tuid);
+	log.debug(tuid);
 	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
 	Transaction tx=pm.currentTransaction();
 	try {
@@ -84,7 +84,7 @@ public abstract class OOBTransferImpl implements OOBTransfer {
 	    Query query = pm.newQuery(xtremweb.core.obj.dt.Transfer.class, "uid == \"" + tuid + "\"");
 	    query.setUnique(true);
 	    transfer = (Transfer) pm.detachCopy(query.execute());
-	    logfac.debug( "transfer " + transfer.getuid() + ":" + transfer.getoob() + ":" + transfer.gettype());
+	    log.debug( "transfer " + transfer.getuid() + ":" + transfer.getoob() + ":" + transfer.gettype());
 	    tx.commit();
         } finally {
             if (tx.isActive())
@@ -121,8 +121,8 @@ public abstract class OOBTransferImpl implements OOBTransfer {
 
 	String tuid = transfer.getuid();
 	if ((transfer!=null)&&(transfer.getuid()!=null)) 
-	    logfac.debug("Transfer already persisted : " + transfer.getuid());
-
+	    log.debug("Transfer already persisted : " + transfer.getuid());
+	log.debug(" data snapshot just before persisting uid" + data.getuid() + "md5 " + data.getchecksum() + " size " + data.getsize());
 	dbi.makePersistent(data);
 	dbi.makePersistent(remote_protocol);
 	dbi.makePersistent(local_protocol);
@@ -144,13 +144,13 @@ public abstract class OOBTransferImpl implements OOBTransfer {
 	
 	//FIXME: should have an assert here
 	if ( (tuid!=null) && (!tuid.equals( transfer.getuid()))) 
-	    logfac.debug(" Transfer has been incorrectly persisted    " + tuid + "  !="  + transfer.getuid());
+	    log.debug(" Transfer has been incorrectly persisted    " + tuid + "  !="  + transfer.getuid());
     }
 
     /**
      *  <code>poolTransfer</code> pools the local file to determine if
      *  it has the same characteristic, size and md5 checksum, than
-     *  the origina data.
+     *  the original data.
      *  returns true if the two files are similar, false otherwise .
      *
      * @return a <code>boolean</code> value
@@ -163,11 +163,11 @@ public abstract class OOBTransferImpl implements OOBTransfer {
 	else
 	    localFile = new File (new File(local_protocol.getpath()), local_locator.getref());
 	if (!localFile.exists()) {
-	    logfac.debug("File " + local_protocol.getpath()  + " " + local_locator.getref() + " does not exist ");
+	    log.debug("File " + local_protocol.getpath()  + " " + local_locator.getref() + " does not exist ");
 	    return false;
 	}
 	String localChecksum = DataUtil.checksum(localFile);
-	logfac.debug("Pooling [static][local]: " + data.getuid() + " size [" + data.getsize() + "][" + localFile.length()  + "] md5sum [" +  data.getchecksum() + "][" + localChecksum + "]" );
+	log.debug("Pooling [static][local]: " + data.getuid() + " size [" + data.getsize() + "][" + localFile.length()  + "] md5sum [" +  data.getchecksum() + "][" + localChecksum + "]" );
 	return (( localFile.length() == data.getsize()) && (localChecksum.equals(data.getchecksum())));
     }
 
