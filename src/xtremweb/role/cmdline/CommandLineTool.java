@@ -25,6 +25,9 @@ import xtremweb.core.obj.dc.Locator;
 import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.ds.Attribute;
 import xtremweb.serv.ds.AttributeType;
+import xtremweb.serv.dt.OOBException;
+import xtremweb.serv.dt.OOBTransfer;
+import xtremweb.serv.dt.OOBTransferFactory;
 import xtremweb.core.log.*;
 import xtremweb.core.http.*;
 import java.io.*;
@@ -331,11 +334,17 @@ public class CommandLineTool {
 		System.exit(0);
 	    }
 	    try {
-		//FIXME to allow several oob protocol
-		transferManager.start(true);
-		bitdew.put(file, data, "http");
-		transferManager.waitFor(data);
-		transferManager.stop();
+		
+		
+		OOBTransfer oobTransfer=bitdew.put(file, data, "scp");;
+		Vector comms = ComWorld.getMultipleComms(host,"rmi",port,"dr","dc","dt");
+		TransferManager transman = TransferManagerFactory.getTransferManager((InterfaceRMIdr)comms.get(0),(InterfaceRMIdt)comms.get(2));
+		transman.registerTransfer(oobTransfer.getTransfer().getuid(), oobTransfer);
+		log.debug("Succesfully created OOB transfer " + oobTransfer);
+		
+		
+		transman.waitFor(data);
+		transman.stop();
 		log.info("Transfer complete");
 	    } catch (TransferManagerException tme) {
 		log.warn(" Transfer data : " + tme);
@@ -343,6 +352,9 @@ public class CommandLineTool {
 	    }   catch (BitDewException bde) {
 		log.warn(" Cannot transfer data : " + bde);
 		System.exit(0);
+	    } catch (ModuleLoaderException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
 	    } 
 	}//put
 
@@ -392,7 +404,9 @@ public class CommandLineTool {
 	    //get the data
 	    try {
 		transferManager.start(true);
-		bitdew.get(data, file);
+		OOBTransfer oobt = bitdew.get(data, file);	
+		transferManager.registerTransfer(oobt.getTransfer().getuid(), oobt);
+		log.debug("Succesfully created OOB transfer " + oobt);
 		transferManager.waitFor(data);
 		transferManager.stop();
 		log.info("Transfer complete");
