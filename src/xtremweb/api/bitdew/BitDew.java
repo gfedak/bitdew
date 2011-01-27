@@ -208,12 +208,12 @@ public class BitDew {
 	throw new BitDewException();
     }
 
-    public void associateDataLocator(Data d,Locator lo) throws BitDewException
+    public OOBTransfer associateDataLocator(Data d,Locator lo) throws BitDewException
     {
 	DBInterfaceFactory.getDBInterface().makePersistent(d);
 	try {
 	    idc.putData(d);
-	    put(d,lo);
+	    return put(d,lo);
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
 	    throw new BitDewException();
@@ -290,12 +290,12 @@ public class BitDew {
      * @param data: the data we want to associate a Locator
      * @return Locator a remote locator sharing protocol,reference and uid  with data 
      */
-    public Locator createRemoteLocator(Data data) {
+    public Locator createRemoteLocator(Data data,String protocol) {
 	File f = new File("local");
 	Protocol prot;
 	Locator remote_locator = null;
 	try {
-	    prot = idr.getProtocolByName("ftp");
+	    prot = idr.getProtocolByName(protocol);
 	    log.debug(" The protocol extracted has the following data :  Path : " + prot.getpath() + " Login : " + prot.getlogin() + " Passwd : " + prot.getpassword());
 	    remote_locator = new Locator();
 	    prot.setpath(f.getPath());
@@ -337,9 +337,22 @@ public class BitDew {
      * @param remote_locator a <code>Locator</code> value
      * @exception BitDewException if an error occurs
      */
-    public void put(Data data, Locator remote_locator) throws BitDewException {
+    public OOBTransfer put(Data data, Locator remote_locator) throws BitDewException {
 	Protocol remote_proto;
+	File file = new File(data.getname());
+	Locator local_locator = new Locator();
+	Protocol local_proto = new Protocol();
+	local_proto.setname("local");
 	try {
+	
+	local_locator.setdatauid(data.getuid());
+		//	local_locator.setdrname("localhost");
+		//	local_locator.setprotocoluid(local_proto.getuid());
+	local_locator.setref(file.getAbsolutePath());
+		
+	log.debug("Local Locator : " + file.getAbsolutePath());
+	    
+	    
 	    if (remote_locator.getuid() == null)
 		DBInterfaceFactory.getDBInterface().makePersistent(remote_locator);
 	    remote_proto = idr.getProtocolByName(data.getoob());
@@ -358,6 +371,17 @@ public class BitDew {
 	    log.debug("Cannot register locator " + re);
 	    throw new BitDewException();
 	}
+	Transfer t = new Transfer();
+	t.setlocatorremote(remote_locator.getuid());
+	t.settype(TransferType.UNICAST_SEND_SENDER_SIDE);
+	OOBTransfer oobt=null;
+	try {
+	    oobt = OOBTransferFactory.createOOBTransfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
+	} catch (OOBException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+	return oobt;
     }
 
 
@@ -440,6 +464,7 @@ public class BitDew {
 	// should put a status to the locator ????
 	//no, data has now status LOCK and UNLOCK
 	try {
+	    remote_locator.setpublish(true);
 	    idc.putLocator(remote_locator);
 	    log.debug("registred new locator");
 	} catch (RemoteException re) {
@@ -517,7 +542,7 @@ public class BitDew {
 	   throw new BitDewException("Error when transfering data from : " + remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
 	}
 	
-	log.debug("Succesfully retreived data [" + data.getuid()+ "] to local storage [" + local_locator.getref()  + "] " + remote_proto.getname() +"://[" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "]@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
+	
 	return oobTransfer;
     }
 
