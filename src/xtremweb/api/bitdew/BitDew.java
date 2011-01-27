@@ -369,9 +369,9 @@ public class BitDew {
      * @param oob a <code>String</code> value, protocol to use to transfer the data
      * @exception BitDewException if an error occurs
      */
-    public void put(File file, Data data, String oob) throws BitDewException {
+    public OOBTransfer put(File file, Data data, String oob) throws BitDewException {
 	data.setoob(oob);
-	put(file, data);
+	return put(file, data);
     }
 
     /**
@@ -381,7 +381,7 @@ public class BitDew {
      * @param data a <code>Data</code> value
      * @exception BitDewException if an error occurs
      */
-    public void put(File file, Data data) throws BitDewException {
+    public OOBTransfer put(File file, Data data) throws BitDewException {
 	
 	// No local protocol
 	Protocol local_proto = new Protocol();
@@ -431,9 +431,7 @@ public class BitDew {
 	OOBTransfer oobTransfer;
 	try {
 	    oobTransfer = OOBTransferFactory.createOOBTransfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
-	    TransferManager transman = TransferManagerFactory.getTransferManager(idr, idt);
-	    transman.registerTransfer(t.getuid(), oobTransfer);
-	    log.debug("Succesfully created OOB transfer " + oobTransfer);
+	   
 	} catch(OOBException oobe) {
 	   log.debug("Error when creating OOBTransfer " + oobe);
 	   throw new BitDewException("Error when transfering data to ftp server : " + remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
@@ -450,6 +448,7 @@ public class BitDew {
 	}
 
 	log.debug("Succesfully created data [" + data.getuid()+ "] with remote storage [" + remote_locator.getref()  + "] " + remote_proto.getname() +"://[" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "]@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
+	return oobTransfer;
     }
 
     /**
@@ -459,8 +458,8 @@ public class BitDew {
      * @param file a <code>File</code> value
      * @exception BitDewException if an error occurs
      */
-    public void get(Data data, File file) throws BitDewException {
-
+    public OOBTransfer get(Data data, File file) throws BitDewException {
+	OOBTransfer oobTransfer=null;
 	// No local protocol
 	Protocol local_proto = new Protocol();
 	local_proto.setname("local");
@@ -507,10 +506,7 @@ public class BitDew {
 	//	Data data = DataUtil.fileToData(file);
 	
 	try {
-	    OOBTransfer oobTransfer = OOBTransferFactory.createOOBTransfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
-	    TransferManager transman = TransferManagerFactory.getTransferManager(idr, idt);
-	    transman.registerTransfer(t.getuid(), oobTransfer);
-	    log.debug("Succesfully created OOB transfer " + oobTransfer);
+	    oobTransfer = OOBTransferFactory.createOOBTransfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
 	    /*	    oobTransfer.connect();
 	    oobTransfer.receiveReceiverSide();
 	    oobTransfer.waitFor();
@@ -522,6 +518,7 @@ public class BitDew {
 	}
 	
 	log.debug("Succesfully retreived data [" + data.getuid()+ "] to local storage [" + local_locator.getref()  + "] " + remote_proto.getname() +"://[" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "]@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
+	return oobTransfer;
     }
 
 
