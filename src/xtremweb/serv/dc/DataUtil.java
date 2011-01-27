@@ -71,14 +71,12 @@ public class DataUtil {
 
 	    BigInteger hash = new BigInteger( 1, messageDigest.digest() );
 	    String nopad = hash.toString(16);
-	    log.debug("before padding " + nopad);
 	    if(nopad.length()!=32)//some leftside digits are 0 and the biginteger conversion is skipping them
 	    {	while(nopad.length()!=32)//padd some 0's
 	    	{    nopad = "0" + nopad;
 	    	}
 	    }
 	    String pad = nopad;
-	    log.debug(" no wrong number " + pad);
 	    return pad;
 	    
 	} catch (FileNotFoundException fnfe) {
