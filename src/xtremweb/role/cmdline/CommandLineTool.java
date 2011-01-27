@@ -336,7 +336,7 @@ public class CommandLineTool {
 	    try {
 		
 		
-		OOBTransfer oobTransfer=bitdew.put(file, data, "scp");;
+		OOBTransfer oobTransfer=bitdew.put(file, data, "http");;
 		Vector comms = ComWorld.getMultipleComms(host,"rmi",port,"dr","dc","dt");
 		TransferManager transman = TransferManagerFactory.getTransferManager((InterfaceRMIdr)comms.get(0),(InterfaceRMIdt)comms.get(2));
 		transman.registerTransfer(oobTransfer.getTransfer().getuid(), oobTransfer);
