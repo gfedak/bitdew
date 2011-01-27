@@ -93,7 +93,15 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
 			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.dummy.path","."));
 			registerProtocol(protocol);
 		    }
-		    
+		    if (protoName.equals("scp")){			
+			log.debug("Setting scp protocol from the configuration file");
+			protocol.setlogin(mainprop.getProperty("xtremweb.serv.dr.scp.login","insertAlogin"));
+			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.scp.server","insertAserver"));
+			protocol.setpassword(mainprop.getProperty("xtremweb.serv.dr.scp.key","insertAPassword"));
+			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.scp.path","insertAPath"));
+			protocol.setport(Integer.parseInt(mainprop.getProperty("xtremweb.serv.dr.scp.port","22")));
+			registerProtocol(protocol);
+		    }
 		    if (protoName.equals("bittorrent")) {
 			log.debug("Setting Bittorrent protocol from the configuration file");
 			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.bittorrent.path","torrent"));
