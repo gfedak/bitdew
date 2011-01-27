@@ -14,14 +14,10 @@ import java.util.Properties;
 import java.util.Vector;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.io.CopyStreamException;
 
 import xtremweb.api.bitdew.BitDew;
 import xtremweb.api.bitdew.BitDewException;
-import xtremweb.api.transman.TransferManagerException;
-import xtremweb.api.transman.TransferManagerFactory;
 import xtremweb.core.com.idl.ComWorld;
-import xtremweb.core.com.idl.CommRMITemplate;
 import xtremweb.core.com.idl.ModuleLoaderException;
 import xtremweb.core.iface.InterfaceRMIdr;
 import xtremweb.core.log.Logger;
@@ -254,8 +250,6 @@ public class FTPAvailable {
 	boolean exist = false;
 	FileOutputStream fos;
 	try {
-	    log.debug("entered into getSignatures, number of files "
-		    + cl.listFiles().length);
 	    fos = new FileOutputStream(new File("sigs.md5"));
 	    boolean result; 
 	    cl.enterLocalPassiveMode();
@@ -267,8 +261,6 @@ public class FTPAvailable {
 	    BufferedReader br = new BufferedReader(new FileReader("sigs.md5"));
 	    String str = br.readLine();
 	    while (str != null) {
-		log.debug("enter in while get signatures");
-		log.debug("tam del split " + str.split("/").length);
 		if (str.split("/").length == 2) {
 		    exist = true;
 		    log.debug(str + " is a file");
@@ -276,7 +268,6 @@ public class FTPAvailable {
 		    if (tokens.length != 2)
 			throw new Exception(
 				"The md5 file is not propertly parsed I'm waiting <md5> ./<filename>");
-		    log.debug("Tokens : t" + tokens[1] + " p" + tokens[0]);
 		    p.put(tokens[1], tokens[0]);
 		}
 		str = br.readLine();
@@ -323,7 +314,7 @@ public class FTPAvailable {
 	    if (user.equals("anonymous")) {
 		if (!cl.login(user, ""))
 		    throw new Exception(
-			    "Cannot possible to connect as anonymous");
+			    "Is not possible to connect as anonymous");
 	    }
 	    else {
 		if (!cl.login(user, passwd))
