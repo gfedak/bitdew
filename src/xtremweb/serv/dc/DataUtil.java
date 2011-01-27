@@ -9,6 +9,9 @@ package xtremweb.serv.dc;
  * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
  */
+import xtremweb.api.bitdew.BitDew;
+import xtremweb.core.log.Logger;
+import xtremweb.core.log.LoggerFactory;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.uid.*;
 
@@ -26,7 +29,7 @@ import java.math.BigInteger;
 public class DataUtil {
 
     private static String digits = "0123456789ABCDEF";
-
+    private static Logger log = LoggerFactory.getLogger(DataUtil.class);
     /**
      * Creates a new <code>DataUtil</code> instance.
      *
@@ -67,7 +70,16 @@ public class DataUtil {
 	    fis.close();
 
 	    BigInteger hash = new BigInteger( 1, messageDigest.digest() );
-	    return hash.toString( 16 );
+	    String nopad = hash.toString(16);
+	    log.debug("before padding " + nopad);
+	    if(nopad.length()!=32)//some leftside digits are 0 and the biginteger conversion is skipping them
+	    {	while(nopad.length()!=32)//padd some 0's
+	    	{    nopad = "0" + nopad;
+	    	}
+	    }
+	    String pad = nopad;
+	    log.debug(" no wrong number " + pad);
+	    return pad;
 	    
 	} catch (FileNotFoundException fnfe) {
 	    System.out.println("No such file" + fnfe);
