@@ -2,6 +2,7 @@ package xtremweb.serv.dt;
 
 import xtremweb.serv.dt.ftp.*;
 import xtremweb.serv.dt.http.*;
+import xtremweb.serv.dt.scp.ScpTransfer;
 import xtremweb.serv.dt.dummy.*;
 import xtremweb.core.log.*;
 import xtremweb.core.db.*;
@@ -136,6 +137,8 @@ public class OOBTransferFactory {
 		return new HttpTransfer(d,t,rl,ll,rp,lp); 
 	    if (rp.getname().toLowerCase().equals("dummy")) 
 		return new DummyTransfer(d,t,rl,ll,rp,lp); 
+	    if (rp.getname().toLowerCase().equals("scp"))
+		return new ScpTransfer(d,t,rl,ll,rp,lp);
 	} else  if (rp.getname().toLowerCase().equals("local")) {
 	    if (lp.getname().toLowerCase().equals("ftp")) 
 		return new FtpTransfer(d,t,rl,ll,rp,lp);
