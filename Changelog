@@ -12,8 +12,13 @@
 	- new documentation : every documentation is now produced by Doxygen
 	- modification of the scheduler to allow Data to be sent following a specific order (for instance Biggest Data First)
 	- new FileServer example
+	
+	version 0.2.5
+	
+** HISTORY **
 
-	version 0.2.4
+January 28, 2011
+	version 0.2.4 
 	- ability to retreive part of a collection (Bing TANG)
 	- improved I/O performance when treating large file or directory
 	with DataCollection (Bing Tang)
@@ -21,9 +26,8 @@
 	- BitDew implements a URI Scheme such as 
 	    bitdew://dc.somewher.com/XXX-XXX-XXX-XXX 	
 	    to retreive the data (Bing Tang)
-
-** HISTORY **
-
+	- example that makes available the files inside a remote folder in a ftp server (josé)
+	
 January 8, 2010
 	version 0.2.3
 	- cmdline tool can put and get data
