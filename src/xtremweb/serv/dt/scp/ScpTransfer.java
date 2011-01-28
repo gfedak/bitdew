@@ -16,8 +16,12 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
     private ScpManager scpm;
     
     public ScpTransfer(Data d,Transfer t,Locator l1, Locator l2, Protocol p1, Protocol p2)
-    {	super(d,t,l1,l2,p1,p2);
-	scpm = new ScpManager(remote_protocol.getlogin(),remote_protocol.getserver(),local_locator.getref(),remote_protocol.getpath());
+    {	super(d,t,l1,l2,p1,p2);//String user, String host, String lfile, String rfile
+    	log.debug("Crucial data for SCPTransfer : login " +  remote_protocol.getlogin() + " \n");
+    	log.debug("                               host  " +  remote_protocol.getserver() + " \n");
+    	log.debug("                               localfile address " + local_locator.getref());
+    	log.debug("                               remotefile address " + remote_locator.getref());
+	scpm = new ScpManager(remote_protocol.getlogin(),remote_protocol.getserver(),local_locator.getref(),remote_locator.getref());
     }
     
     public String toString()
