@@ -207,7 +207,7 @@ public class FTPAvailable {
 			|| files[i].isDirectory())
 		    continue;
 		Data data = bd.createData(name,"FTP",files[i].getSize(),md5.getProperty(name));
-		Locator remote_locator = bd.createRemoteLocator(data);
+		Locator remote_locator = bd.createRemoteLocator(data,"ftp");
 		bd.associateDataLocator(data, remote_locator);
 		log.info("File " + name + " , uid="+ data.getuid());
 		v.add(data.getuid());
