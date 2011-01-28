@@ -40,26 +40,26 @@ public class ScpManager {
     private String lfile;
     private String rfile;
     private Session session;
-    protected static  Logger log = LoggerFactory.getLogger(FtpTransfer.class);
-    public ScpManager(String user, String host, String lfile, String rfile)
-    {
+    protected static Logger log = LoggerFactory.getLogger(FtpTransfer.class);
+
+    public ScpManager(String user, String host, String lfile, String rfile) {
 	this.user = user;
 	this.host = host;
 	this.lfile = lfile;
 	this.rfile = rfile;
     }
-    
+
     public void connect() {
-	    JSch jsch = new JSch();	    
-	    try {
-		jsch.addIdentity("/home/jsaray/.ssh/id_rsa","mejvac07");
-		jsch.setKnownHosts("/home/jsaray/.ssh/known_hosts");
-		session = jsch.getSession(user, host, 22);
-		session.connect();
-	    } catch (JSchException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	    }
+	JSch jsch = new JSch();
+	try {
+	    jsch.addIdentity("/home/jsaray/.ssh/id_rsa", "mejvac07");
+	    jsch.setKnownHosts("/home/jsaray/.ssh/known_hosts");
+	    session = jsch.getSession(user, host, 22);
+	    session.connect();
+	} catch (JSchException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
     }
 
     public void disconnect() {
@@ -69,7 +69,7 @@ public class ScpManager {
     public void send() {
 	FileInputStream fis = null;
 	try {
-log.debug("enter send scpmanager");
+	    log.debug("enter send scpmanager");
 	    // exec 'scp -t rfile' remotely
 	    String command = "scp -p -t " + rfile;
 	    Channel channel = session.openChannel("exec");
