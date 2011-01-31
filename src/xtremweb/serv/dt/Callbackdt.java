@@ -44,7 +44,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
     protected Logger log = LoggerFactory.getLogger("DT Service");
 
     //FIXME it brokes our design rules !!!!
-   
+    protected TransferManager tm;
 
     /**
      * Creates a new <code>Callbackdt</code> instance.
@@ -52,7 +52,8 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      */
     public Callbackdt() {
 
-	
+	tm = TransferManagerFactory.getTransferManager();
+	tm.start();
 
 	Properties mainprop;
 	try {
@@ -121,7 +122,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 	    oobt.persist();
 	    log.debug("Succesfully created transfer [" + t.getuid() + "] data [" + data.getuid()+ "] with remote storage [" + rl.getref()  + "] " + rp.getname() +"://[" + rp.getlogin() + ":" +  rp.getpassword() +  "]@" + rl.getdrname() + ":" +  rp.getport() +"/" + rp.getpath() + "/" + rl.getref() + "\n" + oobt);
 	    
-	    //tm.registerTransfer(t.getuid(), oobt);
+	    tm.registerTransfer(t.getuid(), oobt);
 	} catch( OOBException e) {
 	    log.debug("Exception when registring oob transfer " + e);
 	    throw new RemoteException();
@@ -135,7 +136,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
     }
 
     public boolean poolTransfer(String transferID) throws RemoteException {
-	log.debug("pooling transfer : " + transferID);
+	log.debug("pooling transfer : " + transferID );
 	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
 	Transaction tx=pm.currentTransaction();
 	
@@ -147,7 +148,8 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 				      "uid == \"" + transferID + "\"");
 	    query.setUnique(true);
 	    Transfer t = (Transfer) query.execute();
-	    log.debug("value of t is " + t);
+	    log.debug("value of t is " + t + " type of t is " + t.gettype());
+	    
 	    if (t==null) {
 		log.debug (" t " + transferID + " is null ");
 	    } else {
