@@ -14,10 +14,7 @@ import xtremweb.core.iface.*;
 import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.db.*;
 import xtremweb.core.obj.dc.*;
-import xtremweb.core.obj.dr.*;
 import xtremweb.serv.dt.*;
-import xtremweb.core.uid.*;
-import xtremweb.core.conf.*;
 import xtremweb.core.util.*;
 
 import xtremweb.core.log.Logger;
@@ -26,16 +23,13 @@ import xtremweb.core.perf.PerfMonitor;
 import xtremweb.core.perf.PerfMonitorFactory;
 
 import java.util.*;
-import java.io.File;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Iterator;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
-import javax.jdo.Extent;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
-import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
