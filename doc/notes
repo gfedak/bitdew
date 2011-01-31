@@ -12,19 +12,33 @@ permission javax.jdo.spi.JDOPermission "getMetadata";
 
 pour faire une nouvelle release:
 * changer de numero de version
-editer le numero de version dans build.xml
-generer la nouvelle version avec build.sh version
-mettre les changements dans Changelog
+	editer le numero de version dans build.xml
+	generer la nouvelle version avec build.sh version (tache version)
+	
+	mettre les changements dans Changelog
+	faire svn commit en resoluant tout les conflits/modifications.
 * tester : 
-faire build.sh release puis dezipper le fichier dans le /tmp et faire a nouveau un build.sh release 
+	faire build.sh release puis dezipper le fichier dans le /tmp et faire a nouveau un build.sh release 
+	tester les exemples et l'outil en ligne de commande
+	
 * creer une nouvelle release
- svn copy svn+ssh://gilles@scm.gforge.inria.fr/svn/bitdew/trunk-1/ svn+ssh://gilles@scm.gforge.inria.fr/svn/bitdew/tags/0.0.1
-cd tags
-svn co  svn+ssh://gilles@scm.gforge.inria.fr/svn/bitdew/tags/0.0.1
-./build.sh release
-svn add dist
-svn ci dist
+	 svn copy svn+ssh://gilles@scm.gforge.inria.fr/svn/bitdew/trunk-1/ svn+ssh://gilles@scm.gforge.inria.fr/svn/bitdew/tags/0.2.4
+	cd tags
+	svn co  svn+ssh://gilles@scm.gforge.inria.fr/svn/bitdew/tags/0.2.4
+	./build.sh release
+	svn add dist
+	svn ci dist
 
+* publier la release
+	sur gforge dans la section file
+	faire une annonce sur le blog
+
+* générer la documentation
+	à partir des sources de la release (bitdew-src-0.X.X.zip), exécuter doxygen
+	faire un scp sur le site web de la forge
+	publier le html.zip dans la partie documentation de la forge
+	
+--- FIN NOUVELLE RELEASE------------------------------------------------------------------------
 java -cp lib/xalan-2.5.1.jar:lib/xercesImpl-2.5.0.jar:lib/xml-apis.jar org.apache.xalan.xslt.Process -IN foo.xml -XSL foo.xsl -OUT foo.out
  java -cp lib/xalan-2.5.1.jar:lib/xercesImpl-2.5.0.jar:lib/xml-apis.jar org.apache.xalan.xslt.Process -IN idl/test.idl -XSL idl/object.xsl  
 java -jar lib/saxon.jar -t idl/test.idl  idl/object.xsl 
