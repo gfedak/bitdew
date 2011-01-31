@@ -291,12 +291,8 @@ public class FTPAvailable {
      */
     public String changeDirectory() throws Exception {
 	cl.pwd();
-	System.out.println(" el path actual es " + cl.getReplyString());
-	System.out.println(" el path a cambiar es " + prot.getpath());
 	    if (!cl.changeWorkingDirectory(prot.getpath()))
 		throw new Exception("Unknown directory " + prot.getpath());
-	    log.info("changed directory to " + cl.pwd());
-	    log.info("server answer " + cl.getReplyString());
 	return cl.printWorkingDirectory();
     }
 
