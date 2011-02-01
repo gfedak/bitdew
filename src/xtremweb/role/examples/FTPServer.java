@@ -200,6 +200,8 @@ public class FTPServer {
 	log.info("calculating md5 signatures from CHECKSUMS.md5");
 	// for each file in the remote directory
 	for (int i = 0; i < files.length; i++) {
+	    if(files[i].isDirectory())//we are only interested in files
+		continue;
 	    String name = files[i].getName();
 	    // create a bitdew data setting the ftp protocol
 	    Data data = bd.createData(name, "FTP", files[i].getSize(),
