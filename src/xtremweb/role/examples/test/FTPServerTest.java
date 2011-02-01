@@ -30,13 +30,12 @@ public class FTPServerTest extends TestCase {
     // TODO look for allowing username and password, currently just anonymous
     // connection
     public void setUp() {
-	try{
-	ftp = new FTPServer();
-	}catch(Exception e)
-	{
+	try {
+	    ftp = new FTPServer();
+	} catch (Exception e) {
 	    fail();
 	}
-	
+
     }
 
     @Test
@@ -52,29 +51,24 @@ public class FTPServerTest extends TestCase {
     @Test
     public void testMakeAvailable() {
 	Properties p;
-	
+
 	try {
 	    ftp.browseFtpServer();
 	    Vector v = ftp.makeAvailable();
 	    assertNotNull(v);
-	    
+
 	} catch (Exception e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
     }
 
-
-  
-
     public void tearDown() {
-	try{
-	ftp.disconnect();
-	}catch(Exception e)
-	{
+	try {
+	    ftp.disconnect();
+	} catch (Exception e) {
 	    fail();
 	}
     }
 
 }
-
