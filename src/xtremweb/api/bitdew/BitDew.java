@@ -131,7 +131,7 @@ public class BitDew {
 	try {
 	    Data data = new Data();
 	    data.setname(name);
-	    DBInterfaceFactory.getDBInterface().makePersistent(data);
+	    //DBInterfaceFactory.getDBInterface().makePersistent(data);
 	    idc.putData(data);  
 	    return data;
 
@@ -208,6 +208,14 @@ public class BitDew {
 	throw new BitDewException();
     }
 
+    /**
+     * <code>associateDataLocator</code> inserts a data in the catalog and then associates a locator to a data. Finally
+     * it returns the associated OOBTransfer
+     * @param d the data
+     * @param lo the locator
+     * @return OOBTransfer the transfer to get this data
+     * @throws BitDewException if a problem occurs
+     */
     public OOBTransfer associateDataLocator(Data d,Locator lo) throws BitDewException
     {
 	DBInterfaceFactory.getDBInterface().makePersistent(d);
@@ -327,6 +335,20 @@ public class BitDew {
 	    log.debug("Error creating data " + e);
 	}
 	throw new BitDewException();
+    }
+    
+    /**
+     * Returns a protocol object from his string name
+     * @param protocol the protocol name
+     * @throws BitDew Exception if there was a problem
+     * @return a protocol object that has the name in protocol parameter
+     */
+    public Protocol getProtocolByName(String protocol)throws BitDewException
+    {	try {
+	    return idr.getProtocolByName(protocol);
+	} catch (RemoteException e) {
+	    throw new BitDewException("Problem getting the protocol " + protocol);
+	}
     }
 
     /**
