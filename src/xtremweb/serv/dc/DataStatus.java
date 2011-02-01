@@ -23,7 +23,7 @@ public class DataStatus {
     public static final int RELEASED    = 1;
     
     /**
-     * 	<code>IN_LOCAL_CACHE</code> data is free to be used
+     * 	<code>IN_LOCAL_CACHE</code> data is in machine cache
      * 
      */
     public static final int IN_LOCAL_CACHE    = 3;
@@ -34,7 +34,7 @@ public class DataStatus {
     public static final int TODELETE    = 2;
 
     //strings for debuging purpose
-    private static final String[] strings = { "LOCK", "RELEASED", "TODELETE" };
+    private static final String[] strings = { "LOCK", "RELEASED", "TODELETE","INLOCALCACHE" };
 
     /**
      * <code>toString</code> returns the name of the status.
