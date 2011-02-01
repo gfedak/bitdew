@@ -113,32 +113,7 @@ public class FTPServer {
      */
     private Logger log = LoggerFactory.getLogger("FTPServer");
     
-    /**
-     * Program main method
-     * @param args program arguments
-     */
-    public static void main(String[] args) {
-	try {
-	    // if a property file is specified, then use it
-	    if (args.length == 1) {
-		File fp = new File(System.getProperty("user.dir") +"/"+ args[0]);
-		if (fp.exists())
-		    System.setProperty("PROPERTIES_FILE", args[0]);
-		else
-		    printUsage();
-	    }
-	    FTPServer ftpa = new FTPServer();
-	    //search the folder specified in the properties file
-	    ftpa.browseFtpServer();
-	    //enrich files on this folder to make them accessible through bitdew
-	    ftpa.makeAvailable();
-	    ftpa.disconnect();
-	} catch (Exception e) {
-	    System.err.println(e.getMessage());
-	    e.printStackTrace();
-	    System.exit(2);
-	}
-    }
+    
     
     /**
      * Creates a new <code>FTPServer</code> instance.
@@ -208,7 +183,6 @@ public class FTPServer {
      * @throws Exception if a problem occurs 
      */
     public void makeAvailable()throws Exception {
-	HashMap md5 = null;
 	Vector v = new Vector();
 	//get integrity signature for each file, this is needed so the transfer manager
 	//can successfuly complete a transfer
@@ -281,5 +255,32 @@ public class FTPServer {
 	    throw new Exception(
 		    "The md5 file is not propertly parsed I'm waiting <md5> ./<filename>");
 	return p;
+    }
+
+    /**
+     * Program main method
+     * @param args program arguments
+     */
+    public static void main(String[] args) {
+	try {
+	    // if a property file is specified, then use it
+	    if (args.length == 1) {
+		File fp = new File(System.getProperty("user.dir") +"/"+ args[0]);
+		if (fp.exists())
+		    System.setProperty("PROPERTIES_FILE", args[0]);
+		else
+		    printUsage();
+	    }
+	    FTPServer ftpa = new FTPServer();
+	    //search the folder specified in the properties file
+	    ftpa.browseFtpServer();
+	    //enrich files on this folder to make them accessible through bitdew
+	    ftpa.makeAvailable();
+	    ftpa.disconnect();
+	} catch (Exception e) {
+	    System.err.println(e.getMessage());
+	    e.printStackTrace();
+	    System.exit(2);
+	}
     }
 }
