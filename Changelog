@@ -17,7 +17,7 @@
 	
 ** HISTORY **
 
-January 28, 2011
+February 1, 2011
 	version 0.2.4 
 	- ability to retreive part of a collection (Bing TANG)
 	- improved I/O performance when treating large file or directory
@@ -26,7 +26,9 @@ January 28, 2011
 	- BitDew implements a URI Scheme such as 
 	    bitdew://dc.somewher.com/XXX-XXX-XXX-XXX 	
 	    to retreive the data (Bing Tang)
-	- example that makes available the files inside a remote folder in a ftp server (josé)
+	- example that makes available the files inside a remote folder in a ftp server (jose)
+	- API changes in BitDew component as it was depending on Transfer manager. Now put and get returns a transfer (jose)
+	- All examples are running without loops (jose)
 	
 January 8, 2010
 	version 0.2.3
