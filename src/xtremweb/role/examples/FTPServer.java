@@ -39,7 +39,7 @@ public class FTPServer {
 
     /*! \example FTPServer.java
      * 
-     * This example starts bitdew services (dr,dc,dt) and makes existing files
+     * This example starts bitdew services (dr, dc, dt, ds) and makes existing files
      * on a remote ftp folder available in bitdew. Then you can use the
      * "CommandLineTool get" option to download the files served by
      * the FTP server.
@@ -132,7 +132,7 @@ public class FTPServer {
     public FTPServer() {
 
 	//First, we start the services dc dr dt on this node
-	String[] serverargs = { "serv", "dc", "dr", "dt" };
+	String[] serverargs = { "serv", "dc", "dr", "dt", "ds" };
 	new CommandLineTool(serverargs);
 
 	//Second, we create local connections to this services in
@@ -140,7 +140,7 @@ public class FTPServer {
 	Vector comms;
 	try {
 	    //comms is a vector containing the interfaces to each services 
-	    comms = ComWorld.getMultipleComms("localhost", "rmi", 4325, "dc","dr", "dt");
+	    comms = ComWorld.getMultipleComms("localhost", "rmi", 4325, "dc","dr", "dt", "ds");
 	    //the bitdew API is created and initialized. It will be
 	    //used later to create data
 	    bd = new BitDew(comms);

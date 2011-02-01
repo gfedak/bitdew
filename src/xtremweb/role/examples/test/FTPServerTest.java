@@ -1,4 +1,4 @@
-package xtremweb.roles.examples.test;
+package xtremweb.role.examples.test;
 
 import java.io.File;
 import java.util.Properties;
@@ -30,7 +30,7 @@ public class FTPServerTest extends TestCase {
     // connection
     public void setUp() {
 	
-	ftp = new FTPServer(true,null);;
+	ftp = new FTPServer();
 	
 	try {
 	    ftp.connect();
