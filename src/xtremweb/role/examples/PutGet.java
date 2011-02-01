@@ -1,9 +1,13 @@
 package xtremweb.role.examples;
 
+import xtremweb.core.iface.InterfaceRMIdr;
+import xtremweb.core.iface.InterfaceRMIdt;
 import xtremweb.core.log.*;
 import xtremweb.api.bitdew.BitDew;
 import xtremweb.serv.dc.DataUtil;
+import xtremweb.serv.dt.OOBTransfer;
 import xtremweb.api.transman.TransferManager;
+import xtremweb.api.transman.TransferManagerFactory;
 import xtremweb.core.com.idl.ComWorld;
 import xtremweb.core.obj.dc.Data;
 
@@ -77,7 +81,7 @@ public class PutGet {
 
     private BitDew bitdew;
     private TransferManager transferManager;
-
+    Vector comms;
     Logger log = LoggerFactory.getLogger("PutGet");
 
     /**
@@ -88,7 +92,7 @@ public class PutGet {
 
 	//intialize the communication vectors which will be used by
 	//the API
-	Vector comms = ComWorld.getMultipleComms(host, "rmi", port, "dc", "dr", "dt");
+	comms = ComWorld.getMultipleComms(host, "rmi", port, "dc", "dr", "dt");
 
 	//now intialize the APIs
 	bitdew = new BitDew(comms);
@@ -107,8 +111,10 @@ public class PutGet {
 	log.info(" successfully created " + DataUtil.toString(data));
 
 	//copy the local file to the remote file using the http protocol
-	bitdew.put( file, data, "http");
-
+	OOBTransfer oobt = bitdew.put( file, data, "http");
+	
+	transferManager.registerTransfer(oobt);
+	log.debug("Succesfully created OOB transfer " + oobt);
 	//wait for data transfer completion and stop transfer manager
 	transferManager.waitFor(data);	
 	transferManager.stop();
@@ -125,7 +131,8 @@ public class PutGet {
 	Data data = bitdew.searchDataByUid(dataUid);	    
 	
 	//copy the remote data into the local file
-	bitdew.get(data, file);	
+	OOBTransfer oob = bitdew.get(data, file);	
+	transferManager.registerTransfer(oob);
 
 	//wait for the data transfer to complete and stop the transfer manager
 	transferManager.waitFor(data);	
