@@ -9,7 +9,7 @@ package xtremweb.api.activedata;
  * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
  */
-import xtremweb.core.util.SortedVector;
+
 import java.util.*;
 
 import xtremweb.serv.ds.*;
@@ -17,26 +17,18 @@ import xtremweb.serv.dc.*;
 import xtremweb.core.iface.*;
 import xtremweb.core.log.*;
 import xtremweb.core.db.*;
-import xtremweb.core.com.com.*;
 import xtremweb.core.com.idl.*;
 import xtremweb.core.obj.dc.*;
-import xtremweb.core.obj.dr.Protocol;
-import xtremweb.core.obj.dc.Locator;
-import xtremweb.core.obj.dt.Transfer;
-
 import xtremweb.core.obj.ds.Attribute;
 import xtremweb.core.obj.ds.Host;
 
-import java.io.File;
 import java.rmi.RemoteException;
-import java.util.Collection;
-import java.util.Iterator;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Extent;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
-import java.util.Properties;
+
 
 
 public class ActiveData {
@@ -171,10 +163,12 @@ public class ActiveData {
 	    Collection result = (Collection) query.execute();	       
 	    iter=result.iterator();
 	    String toDelete = "";
-
+	    //erase anything different in cache from what the scheduler returns.
             while (iter.hasNext()) {
+        	
 		Data data = (Data) iter.next();
-		data.setstatus(DataStatus.IN_LOCAL_CACHE);
+		log.debug("enter while first data is " +data.getname() + "status " +data.getstatus());
+		data.setstatus(DataStatus.TODELETE);
 		
 		toDelete+=data.getuid() + " ";
 	     
@@ -206,6 +200,7 @@ public class ActiveData {
 		log.debug("uids deleted " + toDelete);
 	    //FIXME get better performances
 	    //check for data to download
+	    //for each data that the scheduler returns; check if it is new or is already present
 	    for (int i=0; i<newdatauid.size(); i++) {
 		String uid =  ((String) newdatauid.elementAt(i));
 		query = pm.newQuery(xtremweb.core.obj.dc.Data.class,  "uid == \"" + uid + "\" && status != " + DataStatus.TODELETE  );
