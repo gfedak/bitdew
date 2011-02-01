@@ -122,7 +122,7 @@ public class TransferManagerTest {
 
 	    log.debug("Succesfully created  transfer [" + t.getuid() + "] data [" + data.getuid()+ "] with remote storage [" + remote_locator.getref()  + "] " + remote_proto.getname() +"://[" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "]@" + remote_locator.getdrname() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
 
-	    tm.registerTransfer(t.getuid(), oobt);
+	    tm.registerTransfer(oobt);
 
 	    /*
 	    try {
