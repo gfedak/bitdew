@@ -110,7 +110,6 @@ public class BitDew {
     public Data createData() throws BitDewException {
 	try {
 	    Data data = new Data();
-	    DBInterfaceFactory.getDBInterface().makePersistent(data);
 	    idc.putData(data);  
 	    return data;
 
