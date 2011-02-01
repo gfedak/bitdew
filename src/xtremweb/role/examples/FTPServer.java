@@ -203,6 +203,8 @@ public class FTPServer {
 	    if(files[i].isDirectory())//we are only interested in files
 		continue;
 	    String name = files[i].getName();
+	    if(name.equals("CHECKSUMS.md5") || name.equals("CHECKSUMS.md5.asc"))//checksum has not a md5 in itself, so we skip it
+		continue;
 	    // create a bitdew data setting the ftp protocol
 	    Data data = bd.createData(name, "FTP", files[i].getSize(),
 		    (String) digests.get(name));
