@@ -114,7 +114,7 @@ public class TransferManager {
      * @param tuid a <code>String</code> value
      * @param oobt an <code>OOBTransfer</code> value
      */
-    public void registerTransfer(String tuid, OOBTransfer oobt) {
+    public void registerTransfer(OOBTransfer oobt) {
 	//	OOBTransferFactory.persistOOBTransfer(oobt);
 	oobt.persist();
     }
