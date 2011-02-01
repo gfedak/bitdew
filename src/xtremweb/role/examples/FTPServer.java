@@ -229,7 +229,7 @@ public class FTPServer {
 	    log.info("File " + name + " , uid=" + data.getuid());
 	    v.add(data.getuid());
 	}
-	log.info("To retrieve any of these files in your system on a file <file_name> please use CmdLineTool get <uid> <file_name>");
+	log.info("To retrieve any of these files in your system on a file <file_name> please use java -jar bitdew-standalone-0.X.X.jar get <uid> <file_name>");
     }
 
     /**
