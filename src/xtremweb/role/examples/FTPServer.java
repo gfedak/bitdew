@@ -32,44 +32,53 @@ import xtremweb.role.cmdline.CommandLineTool;
  * desktop grid.
  * 
  * @author jsaray
- * 
+ *
+ * @version 1.0
  */
 public class FTPServer {
 
-    /*! \example FTPAvailable.java
+    /*! \example FTPServer.java
      * 
-     * This example starts bitdew services (dr,dc,dt) and makes available files
-     * on a remote ftp folder in bitdew. Then you can use "CommandLineTool get" option to
-     * request new available files.
+     * This example starts bitdew services (dr,dc,dt) and makes existing files
+     * on a remote ftp folder available in bitdew. Then you can use the
+     * "CommandLineTool get" option to download the files served by
+     * the FTP server.
      * 
      * <ol> <li> Download and locate the file <a>xtremweb.properties</a>  in the same 
-     * directory that the jar distribution.</li>
+     * directory than the jar distribution.</li>
+     *
      * <li> Uncomment the commented lines concerning the ftp configuration, by default it 
-     * will connects to ftp.lip6.fr, but you can change the configuration with your own ftp configuration data
-     * (hostname,port,directory to make available,username and password). If you leave the passwd field unfilled, FTPAvailable
+     * will connects to ftp.lip6.fr, but you can change the
+     * configuration with your own ftp configuration data 
+     * (hostname,port,directory to be made available, username and
+     * password). If you leave the passwd field unfilled, FTPServer 
      * will try to perform an anonymous connection </li>
      * @code #xtremweb.serv.dr.protocols=dummy http ftp
      * #xtremweb.serv.dr.ftp.server=ftp.lip6.fr
      * #xtremweb.serv.dr.ftp.port=21 xtremweb.serv.dr.ftp.login=anonymous
      * #xtremweb.serv.dr.ftp.path=/pub/linux/distributions/slackware/slackware-current
      * #xtremweb.serv.dr.ftp.passwd=
-     * @endcode <li> In the remote ftp folder must
-     * exist the file CHECKSUMS.md5. FTPAvailable needs this file in order
-     * to successfully complete a transfer. It should have the format <md5_checksum> './'<filename>, for example</li>
+     * @endcode 
+     *
+     * <li> The file CHECKSUMS.md5 must exist in the remote ftp folder.
+     * FTPServer will use the checksum information provided in this file in order
+     * to successfully download the file.  CHECKSUMS.md5  should have
+     * the following format <md5_checksum> './'<filename>, for example</li>
      * @code 928143c5d1a7825bc5f3c1d18fde1e31 ./ANNOUNCE.13_1
      * c08333e6569a6fd66fd59999bfa94eb5 ./BOOTING.TXT
      * 19494cd00c011661a882c23772eaa7f0 ./CHANGES_AND_HINTS.TXT
      * 18810669f13b87348459e611d31ab760 ./COPYING
      * @endcode
      * 
-     * <li> Execute the following command </li>
-     * @code java -cp bitdew-stand-alone.jar xtremweb.role.examples.FTPAvailable -f myfile.properties
+     * <li> To run the example, execute the following command : </li>
+     * @code java -cp bitdew-stand-alone.jar xtremweb.role.examples.FTPServer -f xtremweb.properties
      * @endcode
      * 
-     * <li> This command will : <ol> <li>launch Bitdew services needed for this
+     * <li> This command will : 
+     *<ol> <li>launch Bitdew services needed for this
      * experiment (data catalog,data transfer management,data repository) </li>
      * <li>connect to the configured FTP server ("xtremweb.serv.dr.ftp.server" property)</li>
-     * <li>Build bitdew infrastructure (Data,Locators) needed to make files on 
+     * <li>Create the bitdew objects (Data,Locators) needed to make files on 
      * the configured folder (property xtremweb.serv.dr.ftp.path) visible </li> </ol>
      * </li> <li>At the end of the command execution you should get something
      * like this :</li>
@@ -114,21 +123,32 @@ public class FTPServer {
     /**
      * Log4J loggger
      */
-    private Logger log = LoggerFactory.getLogger("FTPAvailable");
+    private Logger log = LoggerFactory.getLogger("FTPServer");
+
+
     /**
-     * FTPAvailable default constructor
+     * Creates a new <code>FTPServer</code> instance.
      */
-    public FTPServer(boolean verbosity,String fileName) {
-	String[] serverargs = { "serv", "dc", "dr", "dt","ds" };
+    public FTPServer() {
+
+	//First, we start the services dc dr dt on this node
+	String[] serverargs = { "serv", "dc", "dr", "dt" };
 	new CommandLineTool(serverargs);
+
+	//Second, we create local connections to this services in
+	//order to create retreive information and create the data
 	Vector comms;
 	try {
-	    if (verbosity)
-		log.setLevel("debug");
-	    comms = ComWorld.getMultipleComms("localhost", "rmi", 4325, "dc","dr", "dt","ds");
+	    //comms is a vector containing the interfaces to each services 
+	    comms = ComWorld.getMultipleComms("localhost", "rmi", 4325, "dc","dr", "dt");
+	    //the bitdew API is created and initialized. It will be
+	    //used later to create data
+	    bd = new BitDew(comms);
+	    //we need to retreive some information about the FTP
+	    //protocol. This information are available through the
+	    //Data repository interface.
 	    dr = (InterfaceRMIdr) comms.get(1);
 	    prot = dr.getProtocolByName("ftp");
-	    bd = new BitDew(comms);
 	    cl = new FTPClient();
 	} catch (ModuleLoaderException e) {
 	    e.printStackTrace();
@@ -138,58 +158,21 @@ public class FTPServer {
 
     }
     
-   
-
     /**
-     * This method prints the syntax of FTPAvailable command
+     * This method prints the syntax of FTPServer command
      */
     private static void printUsage() {
 	System.err
-		.println("Usage : FTPAvailable [-v][-f <fileName>] "
+		.println("Usage : FTPServer [file.properties]"
 			+ "Options:\n"
-			+ "-v verbosity\n"
-			+ "-f name of a .properties file");
+			+ "file.properties : name of a .properties file");
 			
-    }
-
-    /**
-     * Program main method
-     * 
-     * @param args
-     */
-
-    public static void main(String[] args) {
-	System.out.println(System.getProperty("user.dir"));
-	try {
-	    CmdLineParser parser = new CmdLineParser();
-	    CmdLineParser.Option verbose = parser.addBooleanOption('v',"verbose");
-	    CmdLineParser.Option fileNameo = parser.addStringOption('f', "file");
-	    parser.parse(args);
-	    Boolean verb = (Boolean) parser.getOptionValue(verbose,Boolean.FALSE);
-	    String fileName = (String) parser.getOptionValue(fileNameo,null);
-	    if(fileName!=null)
-	    {	
-		String tot = System.getProperty("user.dir") + "/" + fileName;
-		System.setProperty("PROPERTIES_FILE", tot);
-	    }
-	    String[] serverargs = { "serv", "dc", "dr", "dt" };
-	    new CommandLineTool(serverargs);
-	    FTPServer ftpa = new FTPServer(verb.booleanValue(),fileName);
-	    ftpa.connect();
-	    ftpa.login();
-	    ftpa.changeDirectory();
-	    ftpa.makeAvailable();
-	    ftpa.disconnect();
-	} catch (Exception e) {
-	    System.err.println(e.getMessage());
-	    printUsage();
-	    System.exit(2);
-	}
     }
 
     /**
      * This method creates the locators needed so bitdew can recognize the
      * data in a remote ftp folder on the data grid.
+     * @return a <code>Vector</code> value
      */
     public Vector makeAvailable() {
 	Properties md5 = null;
@@ -240,9 +223,9 @@ public class FTPServer {
      * that file and builds a properties structure to provide an easy access to
      * the md5 file signatures.
      * 
-     * @param pathname
      * @return a hash structure <name of file,md5 signature>
-     * @throws FileNotFoundException
+     * @exception Exception if an error occurs
+     * @exception FileNotFoundException
      *             if a CHECKSUMS.MD5 file could not be found
      */
     public Properties getSignatures() throws Exception {
@@ -286,8 +269,8 @@ public class FTPServer {
     /**
      * Changes directory to the one signaled by pathname
      * 
-     * @param pathname
-     *            the directory we want the FTP server to change
+     * @return a <code>String</code> value
+     * @exception Exception if an error occurs
      */
     public String changeDirectory() throws Exception {
 	cl.pwd();
@@ -298,9 +281,7 @@ public class FTPServer {
 
     /**
      * This method try to logs in the FTP server signaled by the user
-     * @param user the user name
-     * @param passwd the password
-     * @throws Exception if a problem is found
+     * @exception Exception if a problem is found
      */
     public void login() throws Exception {
 	String user=prot.getlogin();
@@ -322,6 +303,7 @@ public class FTPServer {
     }
     /**
      * This method connnects an instance of this class to the FTP server
+     * @exception Exception if an error occurs
      * @host the host we want to connect
      */
     public void connect() throws Exception {
@@ -339,4 +321,35 @@ public class FTPServer {
 	    e.printStackTrace();
 	}
     }
+
+
+    /**
+     * Program main method
+     * 
+     * @param args
+     */
+
+    public static void main(String[] args) {
+	try {
+	    //if a property file is specified, then use it
+	    if (args.length ==1) {
+		File fp = new File(args[1]);
+		if (fp.exists())
+		    System.setProperty("PROPERTIES_FILE", args[1]);
+	    }
+
+	    FTPServer ftpa = new FTPServer();
+	    ftpa.connect();
+	    ftpa.login();
+	    ftpa.changeDirectory();
+	    ftpa.makeAvailable();
+	    ftpa.disconnect();
+	} catch (Exception e) {
+	    System.err.println(e.getMessage());
+	    printUsage();
+	    System.exit(2);
+	}
+    }
+
+
 }
