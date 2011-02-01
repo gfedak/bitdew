@@ -339,7 +339,7 @@ public class CommandLineTool {
 		OOBTransfer oobTransfer=bitdew.put(file, data, "http");
 		Vector comms = ComWorld.getMultipleComms(host,"rmi",port,"dr","dc","dt");
 		TransferManager transman = TransferManagerFactory.getTransferManager((InterfaceRMIdr)comms.get(0),(InterfaceRMIdt)comms.get(2));
-		transman.registerTransfer(oobTransfer.getTransfer().getuid(), oobTransfer);
+		transman.registerTransfer(oobTransfer);
 		log.debug("Succesfully created OOB transfer " + oobTransfer);
 		
 		
@@ -405,7 +405,7 @@ public class CommandLineTool {
 	    try {
 		transferManager.start(true);
 		OOBTransfer oobt = bitdew.get(data, file);	
-		transferManager.registerTransfer(oobt.getTransfer().getuid(), oobt);
+		transferManager.registerTransfer(oobt);
 		log.debug("Succesfully created OOB transfer " + oobt);
 		transferManager.waitFor(data);
 		transferManager.stop();
