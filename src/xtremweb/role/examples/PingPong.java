@@ -134,7 +134,7 @@ public class PingPong {
 	
 	//creates an Attribute, which has the property to create a
 	//data replica for every host
-	Attribute attr = activeData.createAttribute("attr PingPong = {replicat = 1 }");
+	Attribute attr = activeData.createAttribute("attr PingPong = {replicat = -1 }");
 
 	//associates the Attribute with the Data
 	activeData.schedule(ping, attr);
