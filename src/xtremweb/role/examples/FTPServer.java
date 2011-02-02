@@ -65,7 +65,7 @@ public class FTPServer {
      * 
      * <li> To run the example, execute the following command : </li>
      * 
-     * @code java -cp bitdew-stand-alone.jar xtremweb.role.examples.FTPServer -f
+     * @code java -cp bitdew-stand-alone.jar xtremweb.role.examples.FTPServer
      * xtremweb.properties
      * 
      * @endcode
