@@ -35,10 +35,10 @@ public class FTPServer {
      * dt, ds) and makes existing files on a remote ftp folder available in
      * bitdew. Then you can use the "CommandLineTool get" option to download the
      * files served by the FTP server. <ol> <li> Download and locate the file <a
-     * href="xtremweb.properties">xtremweb.properties</a> in the same directory
+     * href="http://www.bitdew.net/xtremweb.properties">xtremweb.properties</a> in the same directory
      * than the jar distribution.</li>
      * 
-     * <li> Uncomment the commented lines concerning the ftp configuration, by
+     * <li> Uncomment the lines concerning the ftp configuration, by
      * default it will connects to ftp.lip6.fr, but you can change the
      * configuration with your own ftp configuration data
      * (hostname,port,directory to be made available, username and
@@ -47,8 +47,7 @@ public class FTPServer {
      * @code #xtremweb.serv.dr.protocols=dummy http ftp
      * #xtremweb.serv.dr.ftp.server=ftp.lip6.fr #xtremweb.serv.dr.ftp.port=21
      * #xtremweb.serv.dr.ftp.login=anonymous
-     * #xtremweb.serv.dr.ftp.path=/pub/linux
-     * /distributions/slackware/slackware-current
+     * #xtremweb.serv.dr.ftp.path=/pub/linux/distributions/slackware/slackware-current
      * #xtremweb.serv.dr.ftp.passwd=anonymous
      * 
      * @endcode <li> The file CHECKSUMS.md5 must exist in the remote ftp folder.
@@ -65,12 +64,11 @@ public class FTPServer {
      * 
      * <li> To run the example, execute the following command : </li>
      * 
-     * @code java -cp bitdew-stand-alone.jar xtremweb.role.examples.FTPServer
-     * xtremweb.properties
+     * @code java -cp bitdew-stand-alone-X.X.X.jar xtremweb.role.examples.FTPServer xtremweb.properties
      * 
      * @endcode
      * 
-     * <li> This command will :<ol> <li>launch Bitdew services needed for this
+     * <li> This command will :<ol> <li>launch the Bitdew services needed for this
      * experiment (data catalog,data transfer management,data repository) </li>
      * <li>connect to the configured FTP server ("xtremweb.serv.dr.ftp.server"
      * property)</li> <li>Create the bitdew objects (Data,Locators) needed to
@@ -78,19 +76,15 @@ public class FTPServer {
      * visible </li> </ol> </li> <li>At the end of the command execution you
      * should get something like this :</li>
      * 
-     * @code File ANNOUNCE.13_1 successfully
-     * available,uid=6390d3a0-1cbc-31e0-ab7e-c0c64755d3e6 File BOOTING.TXT
-     * successfully available, uid=639edd60-1cbc-31e0-ab7e-c0c64755d3e6 File
-     * CHANGES_AND_HINTS.TXT successfully available,
-     * uid=63a45ba0-1cbc-31e0-ab7e-c0c64755d3e6 To retrieve any of these files
-     * in your system inside a file <file_name> please use
-     * xtremweb.role.cmdline.CommandLineTool get <uid> <file_name>
+     * @code File ANNOUNCE.13_1 successfully available,uid=6390d3a0-1cbc-31e0-ab7e-c0c64755d3e6 
+     * File BOOTING.TXT successfully available, uid=639edd60-1cbc-31e0-ab7e-c0c64755d3e6 
+     * File CHANGES_AND_HINTS.TXT successfully available, uid=63a45ba0-1cbc-31e0-ab7e-c0c64755d3e6 
+     * To retrieve any of these files in your system inside a file <file_name> 
      * 
      * @endcode <li> You can execute CommandLineTool get command in order to
      * retrieve a file from the ftp server, for example :</li>
      * 
-     * @code java -cp xtremweb.role.cmdline.CommandLineTool get
-     * 639edd60-1cbc-31e0-ab7e-c0c64755d3e6 LOCAL_BOOTING.TXT
+     * @code java -jar bitdew-stand-alone-X.X.X.jar get 639edd60-1cbc-31e0-ab7e-c0c64755d3e6 LOCAL_BOOTING.TXT
      * 
      * @endcode
      * 
@@ -215,7 +209,7 @@ public class FTPServer {
 	    log.info("File " + name + " , uid=" + data.getuid());
 	    v.add(data.getuid());
 	}
-	log.info("To retrieve any of these files in your system on a file <file_name> please use java -cp bitdew-standalone-0.X.X.jar get <uid> <file_name>");
+	log.info("To retrieve any of these files in your system on a file <file_name> please use java -jar bitdew-stand-alone-0.X.X.jar get <uid> <file_name>");
 	return v;
     }
 
