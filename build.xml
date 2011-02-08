@@ -436,6 +436,6 @@ public class Version {
   </junitreport> 
 </target>
 <target name="unpack-release" depends="release">
-  <unzip source="${dist}/bitdew-src-${version}.zip" dest="${dist}"/>
+  <unzip src="${dist}/bitdew-src-${version}.zip" dest="${dist}"/>
 </target>
 </project>
