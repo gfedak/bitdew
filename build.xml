@@ -4,7 +4,7 @@
   </description>
 
   <property name="version" value="0.2.4" />
-
+  <property environment="env" />
   <!-- set global properties for this build -->
   <property name="src" location="src"/>
   <property name="lib" location="lib"/>
@@ -16,14 +16,15 @@
   <property name="dist" location="dist"/>
   <property name="obj" location="${src}/xtremweb/core/obj"/>
   <property name="xsl" location="${src}/xtremweb/core/idl/xsl/"/>
-  <property name="cobertura.dir" value="/home/jsaray/Applications/cobertura-1.9.4.1" />
+  <property name="cobertura.dir" value="${env.COB_HOME}" />
   <property name="reports" location="reports"/>
   <property name="reports.tests" location="${reports}/tests"/>
   <property name="reports.html" location="${reports}/html"/>
   <property name="instrumented.dir" location="instr"/>
   <property name="coveragereport.dir" location="covreport"/>
-  <property environment="env" />
-
+  
+ 
+  
  
     <!--
     ===================================================================
