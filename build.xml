@@ -10,12 +10,13 @@
   <property name="lib" location="lib"/>
   <property name="build" location="build"/>
   <property name="conf" location="conf"/>
+  <property name="dist" location="dist"/>
   <property name="enhancer.classpath" value="build:lib/jpox-enhancer.jar:lib/jdo.jar:lib/log4j.jar:lib/bcel.jar"/>
   <property name="timestampdir" location="timestamp"/>
   <property name="dist" location="dist"/>
   <property name="obj" location="${src}/xtremweb/core/obj"/>
   <property name="xsl" location="${src}/xtremweb/core/idl/xsl/"/>
-  <property name="cobertura.dir" value="/home/jfrancis/cobertura-1.9.4.1" />
+  <property name="cobertura.dir" value="/home/jsaray/Applications/cobertura-1.9.4.1" />
   <property name="reports" location="reports"/>
   <property name="reports.tests" location="${reports}/tests"/>
   <property name="reports.html" location="${reports}/html"/>
@@ -418,7 +419,7 @@ public class Version {
     <formatter type="plain" usefile="false"/>
   </junit>
 </target>
-<target name="sonar-req" depends="instrum,tests,cobertura-reports"/>
+<target name="sonar-req" depends="unpack-release,instrum,tests,cobertura-reports"/>
 <target name="cobertura-reports">
   <cobertura-report format="xml" destdir="${coveragereport.dir}" >
     <fileset dir="${src}">
@@ -433,6 +434,8 @@ public class Version {
     </fileset> 
     <report format="frames" todir="${reports.html}"/>
   </junitreport> 
-  
+</target>
+<target name="unpack-release" depends="release">
+  <unzip source="${dist}/bitdew-src-${version}.zip" dest="${dist}"/>
 </target>
 </project>
