@@ -420,7 +420,7 @@ public class Version {
     <formatter type="plain" usefile="false"/>
   </junit>
 </target>
-<target name="sonar-req" depends="unpack-release,instrum,tests,cobertura-reports"/>
+<target name="sonar-req" depends="instrum,tests,cobertura-reports"/>
 <target name="cobertura-reports">
   <cobertura-report format="xml" destdir="${coveragereport.dir}" >
     <fileset dir="${src}">
