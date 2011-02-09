@@ -383,7 +383,7 @@ public class Version {
 
  <target name="tests" description="JUnit4 test suite" depends="">
    <junit fork="yes" printsummary="yes" haltonfailure="yes" clonevm="true">
-	<sysproperty key="net.sourceforge.cobertura.datafile" file="${basedir}/cobertura.ser" />
+	<sysproperty key="net.sourceforge.cobertura.datafile" file="cobertura.ser" />
      <!-- FIXME classpath refid="project.classpath" / Quel merdier ce classpath, je comprends rien mais bon au moins ca marche -->
      <classpath location="${instrumented.dir}" />
      <classpath>
