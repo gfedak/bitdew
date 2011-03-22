@@ -45,9 +45,6 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
 	    log.warn("Not able to find configuration protocols : " + ce);
 	    mainprop = new Properties();
 	}
-
-	
-
 	String temp = mainprop.getProperty("xtremweb.serv.dr.protocols","dummy http");
 	if (temp==null) temp="dummy http";
 	log.debug("list of protocols to load :" + temp);
@@ -95,10 +92,13 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
 		    }
 		    if (protoName.equals("scp")){			
 			log.debug("Setting scp protocol from the configuration file");
-			protocol.setlogin(mainprop.getProperty("xtremweb.serv.dr.scp.login","insertAlogin"));
-			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.scp.server","insertAserver"));
-			protocol.setpassword(mainprop.getProperty("xtremweb.serv.dr.scp.key","insertAPassword"));
-			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.scp.path","insertAPath"));
+			protocol.setpassphrase(mainprop.getProperty("xtremweb.serv.dr.scp.passphrase",null));
+			protocol.setprivatekeypath(mainprop.getProperty("xtremweb.serv.dr.scp.prkeypath",null));
+			protocol.setknownhosts(mainprop.getProperty("xtremweb.serv.dr.scp.knownhosts",null));
+			protocol.setlogin(mainprop.getProperty("xtremweb.serv.dr.scp.login",null));
+			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.scp.server",null));
+			protocol.setpassword(mainprop.getProperty("xtremweb.serv.dr.scp.key",null));
+			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.scp.path",null));
 			protocol.setport(Integer.parseInt(mainprop.getProperty("xtremweb.serv.dr.scp.port","22")));
 			registerProtocol(protocol);
 		    }
@@ -210,7 +210,7 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
     }
 
     private String protoToString(Protocol remote_protocol) {
-	return remote_protocol.getname() + "://" + remote_protocol.getlogin() + ":(" +  remote_protocol.getpassword() +  ")@" + remote_protocol.getserver() + ":" +  remote_protocol.getport();
+	return remote_protocol.getname() + "://" + remote_protocol.getlogin() + "@" + remote_protocol.getserver() + ":" +  remote_protocol.getport();
     }
 
     public String browse() {
