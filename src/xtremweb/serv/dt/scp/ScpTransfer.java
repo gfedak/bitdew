@@ -65,11 +65,6 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 	    e.printStackTrace();
 	}
     }
-    
-    /**
-     * This method is unimplemented because of the nature of a scp transfer
-     */
-    public void blockingSendReceiverSide() throws OOBException {}
 
     /**
      * This method is unimplemented due to the scp transfer's nature
@@ -97,4 +92,18 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 	scpm.disconnect();
 
     }
+    
+    /**
+     * Pool the transfer (blocking transfer, so it returns inmediatly
+     */
+    public boolean poolTransfer()
+    {
+    	return !isTransfering();
+    }
+
+	@Override
+	public void blockingSendReceiverSide() throws OOBException {
+		// TODO Auto-generated method stub
+		
+	}
 }

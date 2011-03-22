@@ -1,22 +1,39 @@
 package xtremweb.serv.dt.test;
 
 
+import java.io.File;
+import java.util.Properties;
+import java.util.Vector;
+
+import org.junit.Test;
+
 import junit.framework.TestCase;
+import xtremweb.api.bitdew.BitDew;
+import xtremweb.api.bitdew.BitDewException;
+import xtremweb.api.transman.TransferManager;
+import xtremweb.api.transman.TransferManagerException;
+import xtremweb.core.com.idl.ComWorld;
+import xtremweb.core.com.idl.ModuleLoaderException;
+import xtremweb.core.conf.ConfigurationProperties;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
+import xtremweb.core.obj.dc.Data;
+import xtremweb.core.serv.ServiceLoader;
 import xtremweb.role.cmdline.CommandLineTool;
+import xtremweb.serv.dc.DataUtil;
+import xtremweb.serv.dt.OOBTransfer;
 import xtremweb.serv.dt.ftp.FtpTransfer;
 
 public class ScpTransferTest extends TestCase {
 	
-	/**
+    /**
      * Logger
      */
     protected static Logger log = LoggerFactory.getLogger(FtpTransfer.class);
 	private CommandLineTool clt;
 	public void setUp()
-	{	String[] args = {"serv","dc","dt","dr","ds"};
-		clt = new CommandLineTool(args);
+	{	//String[] services = { "dc", "dr", "dt", "ds" };
+		//ServiceLoader sl = new ServiceLoader("RMI", 4325, services);
 	}
 	public static void main(String[] args)
 	{
@@ -26,14 +43,12 @@ public class ScpTransferTest extends TestCase {
 		
 		System.out.println("termino");
 	}
-	/**
-	 * This method sends a file via scp and then try
-	 * to recover it.
-	 */
+	
+	@Test
 	public void testBothMethods()
-	{	//try {
+	{	/*try {
 		
-		/*Properties p = ConfigurationProperties.getProperties();
+		Properties p = ConfigurationProperties.getProperties();
 		if(p.getProperty("xtremweb.serv.dr.scp.name")!= null)
 		{
 			String path = System.getProperty("user.dir");
@@ -74,11 +89,10 @@ public class ScpTransferTest extends TestCase {
 		} catch (TransferManagerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (ConfigurationException e) {
+		} catch (xtremweb.core.conf.ConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
-		
+		} */
 	}
 	
 	public void tearDown()

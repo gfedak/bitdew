@@ -21,23 +21,26 @@ import xtremweb.core.obj.dc.Locator;
 import xtremweb.api.transman.*;
 import java.io.*;
 
-public class FtpTransfer  
-    extends BlockingOOBTransferImpl 
-    implements BlockingOOBTransfer, OOBTransfer {
+public class FtpTransfer extends BlockingOOBTransferImpl implements
+	BlockingOOBTransfer, OOBTransfer {
 
     protected FTPClient ftp;
 
-    protected static  Logger log = LoggerFactory.getLogger(FtpTransfer.class);
+    protected static Logger log = LoggerFactory.getLogger(FtpTransfer.class);
 
-    public FtpTransfer(Data d, Transfer t, Locator rl, Locator ll, Protocol rp,  Protocol lp ) {
-	super(d,t,rl,ll,rp,lp);
+    public FtpTransfer(Data d, Transfer t, Locator rl, Locator ll, Protocol rp,
+	    Protocol lp) {
+	super(d, t, rl, ll, rp, lp);
 	transfer.setoob(this.getClass().toString());
     } // Ftpsender constructor
 
     public String ftptoString() {
-	return "ftp://[" + remote_protocol.getlogin() + ":" +  remote_protocol.getpassword() +  "]@" + remote_protocol.getserver() + ":" +  remote_protocol.getport();
+	return "ftp://[" + remote_protocol.getlogin() + ":"
+		+ remote_protocol.getpassword() + "]@"
+		+ remote_protocol.getserver() + ":" + remote_protocol.getport();
     }
-    public void connect ()  throws OOBException {
+
+    public void connect() throws OOBException {
 	log.debug("connect " + ftptoString());
 	ftp = new FTPClient();
 
@@ -45,96 +48,104 @@ public class FtpTransfer
 	    int reply;
 	    ftp.connect(remote_protocol.getserver(), remote_protocol.getport());
 	    log.debug(ftp.getReplyString());
-	    
-	    // After connection attempt, you should check the reply code to verify
+
+	    // After connection attempt, you should check the reply code to
+	    // verify
 	    // success.
 	    reply = ftp.getReplyCode();
-	    
-	    if(!FTPReply.isPositiveCompletion(reply)) {
-		ftp.disconnect();		
-		log.debug("FTP server refused connection : " + ftptoString()); 
+
+	    if (!FTPReply.isPositiveCompletion(reply)) {
+		ftp.disconnect();
+		log.debug("FTP server refused connection : " + ftptoString());
 	    }
 
-	    //login as anonymous
-	    if (!ftp.login( remote_protocol.getlogin(), remote_protocol.getpassword())) {
+	    // login as anonymous
+	    if (!ftp.login(remote_protocol.getlogin(), remote_protocol
+		    .getpassword())) {
 		log.debug("FTP server wrong login " + ftptoString());
-		
-	    } else 
+
+	    } else
 		log.debug("Succesfully logged into " + ftptoString());
 
-	    //FIXME, make this configurable
+	    // FIXME, make this configurable
 	    ftp.enterLocalPassiveMode();
 	} catch (Exception e) {
-	    log.debug ("" + e);
-	    throw new OOBException("FTP Cannot open ftp session " + ftptoString());
+	    log.debug("" + e);
+	    throw new OOBException("FTP Cannot open ftp session "
+		    + ftptoString());
 	}
-    }	
-	
+    }
 
-    public void blockingSendSenderSide   () throws OOBException {
+    public void blockingSendSenderSide() throws OOBException {
 	try {
 	    if (remote_protocol.getpath() != null)
 		ftp.changeWorkingDirectory(remote_protocol.getpath());
 
-	    FileInputStream is = new FileInputStream( new File(local_locator.getref()));
+	    FileInputStream is = new FileInputStream(new File(local_locator
+		    .getref()));
 	    ftp.setFileType(FTP.BINARY_FILE_TYPE);
-	    if (! ftp.storeFile (remote_locator.getref(), is)) {
+	    if (!ftp.storeFile(remote_locator.getref(), is)) {
 		log.debug("Upload Error");
 	    } else {
 		log.debug("Upload Success");
-	    } // end of else	     
+	    } // end of else
 	} catch (Exception e) {
 	    log.debug("Error" + e);
-	    throw new OOBException("FTP errors when sending  " + ftptoString() + "/" + remote_locator.getref() );
+	    throw new OOBException("FTP errors when sending  " + ftptoString()
+		    + "/" + remote_locator.getref());
 	} // end of try-catch
     }
 
-    public void blockingSendReceiverSide   () throws OOBException {
+    public void blockingSendReceiverSide() throws OOBException {
     }
-    public void blockingReceiveReceiverSide() throws OOBException  {
+
+    public void blockingReceiveReceiverSide() throws OOBException {
 	log.debug("start receive receiver size");
 	try {
 	    if (remote_protocol.getpath() != null)
 		ftp.changeWorkingDirectory(remote_protocol.getpath());
 	    log.debug("changed directory to " + remote_protocol.getpath());
-	    FileOutputStream os = new FileOutputStream( new File(local_locator.getref()));
+	    FileOutputStream os = new FileOutputStream(new File(local_locator
+		    .getref()));
 
 	    ftp.setFileType(FTP.BINARY_FILE_TYPE);
-	    log.debug("going to get " + remote_locator.getref() + "to " + local_locator.getref() );
-	    if (! ftp.retrieveFile (remote_locator.getref(), os )) {		
+	    log.debug("going to get " + remote_locator.getref() + "to "
+		    + local_locator.getref());
+	    if (!ftp.retrieveFile(remote_locator.getref(), os)) {
 		log.debug("Download Error : " + ftp.getReplyString());
-		error=true;
+		error = true;
 	    } else {
 		log.debug("Download Success");
-	    } // end of else	     
+	    } // end of else
 	} catch (Exception e) {
 	    log.debug("Error" + e);
-	    throw new OOBException("FTP errors when receiving receive " + ftptoString() + "/" + remote_locator.getref() );
+	    throw new OOBException("FTP errors when receiving receive "
+		    + ftptoString() + "/" + remote_locator.getref());
 	} // end of try-catch
-	
+
 	log.debug("FIN du transfer");
     }
 
-    public void blockingReceiveSenderSide() throws OOBException  {
+    public void blockingReceiveSenderSide() throws OOBException {
     }
 
     public void disconnect() throws OOBException {
 
-	if(ftp.isConnected()) {
+	if (ftp.isConnected()) {
 	    try {
 		ftp.logout();
 		ftp.disconnect();
-	    } catch(IOException ioe) {
+	    } catch (IOException ioe) {
 		System.out.println("Error" + ioe);
 	    }
 	}
     }
 
-    public static void main(String [] args) {
-	//IT4S BROKEN
+    public static void main(String[] args) {
+	// IT4S BROKEN
 	Data data = new Data();
 
-	//Preparer le local
+	// Preparer le local
 	Protocol local_proto = new Protocol();
 	local_proto.setname("local");
 
@@ -159,39 +170,44 @@ public class FtpTransfer
 	remote_locator.setprotocoluid(remote_proto.getuid());
 	remote_locator.setref("binaryFile");
 
-	//prepar
+	// prepar
 	Transfer t = new Transfer();
 	t.setlocatorremote(remote_locator.getuid());
 	t.setlocatorlocal(local_locator.getuid());
 	t.settype(TransferType.UNICAST_RECEIVE_RECEIVER_SIDE);
-	//	Data data = DataUtil.fileToData(file);
-	
-	FtpTransfer ftp = new FtpTransfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
+	// Data data = DataUtil.fileToData(file);
 
-	 System.out.println(ftp.ftptoString());
+	FtpTransfer ftp = new FtpTransfer(data, t, remote_locator,
+		local_locator, remote_proto, local_proto);
+
+	System.out.println(ftp.ftptoString());
 
 	try {
-	    ftp.connect();	    
+	    ftp.connect();
 	    ftp.receiveReceiverSide();
 	    ftp.disconnect();
-	} catch(OOBException oobe) {
+	} catch (OOBException oobe) {
 	    System.out.println(oobe);
 	}
 
 	remote_locator.setref("copy_test.ps");
 	remote_proto.setpath("pub/incoming");
 	t.settype(TransferType.UNICAST_SEND_SENDER_SIDE);
-	ftp = new FtpTransfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
+	ftp = new FtpTransfer(data, t, remote_locator, local_locator,
+		remote_proto, local_proto);
 	System.out.println(ftp.ftptoString());
 	try {
-	    ftp.connect();	    
+	    ftp.connect();
 	    ftp.sendSenderSide();
 	    ftp.disconnect();
-	} catch(OOBException oobe) {
+	} catch (OOBException oobe) {
 	    System.out.println(oobe);
 	}
 
-	
     }
-    
+
+    public boolean poolTransfer() {
+	return !isTransfering();
+    }
+
 } // Ftpsender

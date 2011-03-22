@@ -12,73 +12,83 @@ package xtremweb.serv.dt;
  * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
  */
-import xtremweb.core.log.*;
-//FIXME
+import xtremweb.core.log.*; //FIXME
 import xtremweb.api.transman.TransferType;
 
-public class TransferThread  extends Thread {
+public class TransferThread extends Thread {
 
+	/**
+	 * The blocking transfer
+	 */
+	private BlockingOOBTransfer _oob;
 
-    private BlockingOOBTransfer _oob;
+	/**
+	 * Log
+	 */
+	protected static Logger log = LoggerFactory.getLogger(TransferThread.class);
 
-    protected static  Logger log = LoggerFactory.getLogger(TransferThread.class);
+	/**
+	 * flag of transferring, true if its being done; false otherwise
+	 */
+	protected boolean isTransfering = true;
 
-    protected boolean  isTransfering = true;
-
-    /**
-     * Creates a new <code>TransferThread</code> instance
-     *
-     * @param oob an <code>BlockingOOBTransfer</code> value
-     */
-    public TransferThread(BlockingOOBTransfer oob) {
-	_oob = oob;
-    }	
-
-    /**
-     * <code>run</code> starts the new thread.
-     */
-    public synchronized void run() {
-	log.debug("start of transfer run : "  +  TransferType.toString(_oob.getTransfer().gettype() ));
-	try {
-	    switch (_oob.getTransfer().gettype() ) {
-	    case TransferType.UNICAST_SEND_SENDER_SIDE:
-		_oob.blockingSendSenderSide();
-		break;
-	    case TransferType.UNICAST_SEND_RECEIVER_SIDE:
-		_oob.blockingSendReceiverSide();
-		break;
-	    case TransferType.UNICAST_RECEIVE_SENDER_SIDE:
-		_oob.blockingReceiveSenderSide();
-		break;
-	    case TransferType.UNICAST_RECEIVE_RECEIVER_SIDE:
-		_oob.blockingReceiveReceiverSide();
-		break;
-	    }
-
-	} catch (OOBException oobe) {
-	    log.debug("Error when performing " + TransferType.toString(_oob.getTransfer().gettype()) + " " + oobe );
-	} finally {
-	    isTransfering = false;
-	    notifyAll();
+	/**
+	 * Creates a new <code>TransferThread</code> instance
+	 * 
+	 * @param oob
+	 *            an <code>BlockingOOBTransfer</code> value
+	 */
+	public TransferThread(BlockingOOBTransfer oob) {
+		_oob = oob;
 	}
-	log.debug("end of transfer run");
-    }
 
-    public boolean isTransfering() {
-	return isTransfering;
-    }
+	/**
+	 * <code>run</code> starts the new thread.
+	 */
+	public synchronized void run() {
+		log.debug("start of transfer run : "
+				+ TransferType.toString(_oob.getTransfer().gettype()));
+		try {
+			switch (_oob.getTransfer().gettype()) {
+			case TransferType.UNICAST_SEND_SENDER_SIDE:
+				_oob.blockingSendSenderSide();
+				break;
+			case TransferType.UNICAST_SEND_RECEIVER_SIDE:
+				_oob.blockingSendReceiverSide();
+				break;
+			case TransferType.UNICAST_RECEIVE_SENDER_SIDE:
+				_oob.blockingReceiveSenderSide();
+				break;
+			case TransferType.UNICAST_RECEIVE_RECEIVER_SIDE:
+				_oob.blockingReceiveReceiverSide();
+				break;
+			}
 
-    public synchronized void waitFor() {
-	log.debug("starting waitFor");
-	while (isTransfering)  {
-	log.debug("still Waiting");
-	    try {
-		wait();
-	    } catch (InterruptedException e) {
-		log.fatal("wait end xp" + e);
-	    } // end of try-catch
+		} catch (OOBException oobe) {
+			log.debug("Error when performing "
+					+ TransferType.toString(_oob.getTransfer().gettype()) + " "
+					+ oobe);
+		} finally {
+			isTransfering = false;
+			notifyAll();
+		}
+		log.debug("end of transfer run");
 	}
-	log.debug("endWaitFor");
-    }
+
+	public boolean isTransfering() {
+		return isTransfering;
+	}
+
+	public synchronized void waitFor() {
+		log.debug("starting waitFor");
+		while (isTransfering) {
+			log.debug("still Waiting");
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				log.fatal("wait end xp" + e);
+			} // end of try-catch
+		}
+		log.debug("endWaitFor");
+	}
 }
-	 
