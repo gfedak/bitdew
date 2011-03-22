@@ -13,9 +13,14 @@
 	- modification of the scheduler to allow Data to be sent following a specific order (for instance Biggest Data First)
 	- new FileServer example
 	
-	version 0.2.5
+	version 0.2.6
 	
 ** HISTORY **
+
+March 22 2011 
+	version 0.2.5
+	-scp transfer (jose)
+	-ftp,http and scp do not check md5 as they already have this included. (jose)
 
 February 1, 2011
 	version 0.2.4 
