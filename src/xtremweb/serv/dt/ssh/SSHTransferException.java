@@ -1,8 +1,19 @@
 package xtremweb.serv.dt.ssh;
 
+/**
+ * Represents an SSHTransfer exception
+ * 
+ * @author jsaray
+ * 
+ */
 public class SSHTransferException extends Exception {
-	public SSHTransferException(String message)
-	{
-		super(message);
-	}
+
+    /**
+     * Unique constructor.
+     * 
+     * @param message
+     */
+    public SSHTransferException(String message) {
+	super(message);
+    }
 }
