@@ -9,6 +9,10 @@
 <Attribute  name="login" type="String" desc="Login name (if necessary)"/>
 <Attribute  name="password" type="String" desc="Password (if necessary)"/>
 <Attribute  name="path" type="String" desc="Path (if necessary)"/>
+<Attribute  name="knownhosts" type="String" desc="knownhost file in a secured connection"/>
+<Attribute  name="publickeypath" type="String" desc="public key path"/>
+<Attribute  name="privatekeypath" type="String" desc="private key path"/>
+<Attribute  name="passphrase" type="String" desc="passhphrase"/>
 </Object>
 
 <Method name="registerProtocol">
