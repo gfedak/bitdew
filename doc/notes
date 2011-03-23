@@ -40,6 +40,11 @@ pour faire une nouvelle release:
 
 	publier le html.zip dans la partie documentation de la forge
 	
+* run sonar to store release metrics:
+	go to sonar and log in, then click on configure, change all version occurrences by the new version (be careful !
+	there is one hided on sonar-req ant task, please click advanced and change the ant file of this task to the current
+	version. 
+	
 --- FIN NOUVELLE RELEASE------------------------------------------------------------------------
 java -cp lib/xalan-2.5.1.jar:lib/xercesImpl-2.5.0.jar:lib/xml-apis.jar org.apache.xalan.xslt.Process -IN foo.xml -XSL foo.xsl -OUT foo.out
  java -cp lib/xalan-2.5.1.jar:lib/xercesImpl-2.5.0.jar:lib/xml-apis.jar org.apache.xalan.xslt.Process -IN idl/test.idl -XSL idl/object.xsl  
