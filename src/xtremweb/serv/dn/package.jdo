@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<jdo>
+    <package name="xtremweb.core.obj.dn">
+    	<class name="Service" identity-type="application" table="SERVICE">
+    		<field name="uid" primary-key="true"  value-strategy="auid">
+            <column name="UID"/>
+        </field>
+        <field name="service">
+             <column name="SERVICE" />
+        </field>
+        <field name="bundle">
+             <column name="BUNDLE" />
+        </field>
+    	</class>
+    </package>
+</jdo>

@@ -1,0 +1,16 @@
+<Module name="dn">
+    <Object name="Service">
+	<Attribute name="uid" type="String" desc="Unique identifier"/>
+	<Attribute name="service" type="String" desc="Type of service, format dX"/>
+	<Attribute name="bundle" type="String" desc="either a host name of an IP address where the service resides"/>
+    </Object>
+    <Method name="registerService">
+	<Param name="serviceName" type="String"/>
+	<Param name="hostBundle" type="String"/>
+	<Return type="void"/>
+    </Method>
+    <Method name="getServiceAddress">
+	<Param name="serviceName" type="String"/>	
+	<Return type="String"/>
+    </Method> 
+</Module>
