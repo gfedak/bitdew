@@ -186,6 +186,9 @@ public class Version {
       <rmic base="${build}"
 	    classname="xtremweb.core.com.handler.HandlerRMIds" 
 	    classpath="${classpath}"/>
+ 	<rmic base="${build}"
+ 		    classname="xtremweb.core.com.handler.HandlerRMIdn" 
+ 		    classpath="${classpath}"/>
       <available property="bench_present"
 		 file="src/xtremweb/serv/bench/bench.idl"/>      
     </target>
