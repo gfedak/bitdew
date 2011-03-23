@@ -31,14 +31,9 @@ public class ScpTransferTest extends TestCase {
      */
     protected static Logger log = LoggerFactory.getLogger(FtpTransfer.class);
 	private CommandLineTool clt;
-	public void setUp()
-	{	//String[] services = { "dc", "dr", "dt", "ds" };
-		//ServiceLoader sl = new ServiceLoader("RMI", 4325, services);
-	}
 	public static void main(String[] args)
 	{
 		ScpTransferTest scpt = new ScpTransferTest();
-	//	scpt.setUp();
 		scpt.testBothMethods();
 		
 		System.out.println("termino");
@@ -46,7 +41,7 @@ public class ScpTransferTest extends TestCase {
 	
 	@Test
 	public void testBothMethods()
-	{	/*try {
+	{	try {
 		
 		Properties p = ConfigurationProperties.getProperties();
 		if(p.getProperty("xtremweb.serv.dr.scp.name")!= null)
@@ -92,7 +87,7 @@ public class ScpTransferTest extends TestCase {
 		} catch (xtremweb.core.conf.ConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} */
+		} 
 	}
 	
 	public void tearDown()
