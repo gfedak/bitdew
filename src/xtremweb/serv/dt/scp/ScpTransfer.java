@@ -9,6 +9,7 @@ import xtremweb.core.obj.dt.Transfer;
 import xtremweb.serv.dt.BlockingOOBTransferImpl;
 import xtremweb.serv.dt.OOBException;
 
+
 /**
  * Scp transfer implementation
  * @author jsaray
@@ -36,11 +37,7 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
      * @param p2 Remote protocol
      */
     public ScpTransfer(Data d,Transfer t,Locator l1, Locator l2, Protocol p1, Protocol p2)
-    {	super(d,t,l1,l2,p1,p2);//String user, String host, String lfile, String rfile
-    	log.debug("Crucial data for SCPTransfer : login " +  remote_protocol.getlogin() + " \n");
-    	log.debug("                               host  " +  remote_protocol.getserver() + " \n");
-    	log.debug("                               localfile address " + local_locator.getref());
-    	log.debug("                               remotefile address " + remote_locator.getref());
+    {	super(d,t,l1,l2,p1,p2);
 	scpm = new ScpManager(remote_protocol.getlogin(),remote_protocol.getserver(),local_locator.getref(),remote_locator.getref(),
 		remote_protocol.getprivatekeypath(),remote_protocol.getknownhosts(),remote_protocol.getpassphrase());
     }
@@ -56,14 +53,8 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
     /**
      * Securely send a file
      */
-    public void blockingSendSenderSide() throws OOBException {
-	try {log.debug("enter blocksendsenderside scptransfer");
-	    scpm.send();
-	    log.debug("out blocksendsenderside scptransfer");
-	} catch (Exception e) {
-	    System.out.println("Error in blockingSendSenderSide, scptransfer");
-	    e.printStackTrace();
-	}
+    public void blockingSendSenderSide() throws OOBException {	
+	scpm.send();
     }
 
     /**
@@ -101,9 +92,6 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
     	return !isTransfering();
     }
 
-	@Override
-	public void blockingSendReceiverSide() throws OOBException {
-		// TODO Auto-generated method stub
-		
-	}
+    public void blockingSendReceiverSide() throws OOBException {
+    }
 }
