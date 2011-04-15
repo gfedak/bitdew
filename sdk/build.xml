@@ -1,0 +1,459 @@
+<project name="bitdew" default="dist" basedir=".">
+	<description>
+      Ant build file
+  </description>
+
+	<property name="version" value="0.2.5" />
+	<property environment="env" />
+	<!-- set global properties for this build -->
+	<property name="src" location="src"/>
+	<property name="lib" location="lib"/>
+	<property name="build" location="build"/>
+	<property name="conf" location="conf"/>
+	<property name="dist" location="dist"/>
+	<property name="enhancer.classpath" value="build:lib/jpox-enhancer.jar:lib/jdo.jar:lib/log4j.jar:lib/bcel.jar"/>
+	<property name="timestampdir" location="timestamp"/>
+	<property name="dist" location="dist"/>
+	<property name="obj" location="${src}/xtremweb/core/obj"/>
+	<property name="xsl" location="${src}/xtremweb/core/idl/xsl/"/>
+	<property name="cobertura.dir" value="${env.COB_HOME}" />
+	<property name="reports" location="reports"/>
+	<property name="reports.tests" location="${reports}/tests"/>
+	<property name="reports.html" location="${reports}/html"/>
+	<property name="instrumented.dir" location="instr"/>
+	<property name="coveragereport.dir" location="covreport"/>
+
+
+
+
+	<!--
+    ===================================================================
+    SETTINGS : project classpath
+    ===================================================================
+    -->
+
+	<path id="id.project.classpath">
+		<pathelement location="${build}" />
+		<pathelement location="${conf}" />
+		<fileset dir="${lib}">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+	<path id="cobertura.classpath">
+		<fileset dir="${cobertura.dir}">
+			<include name="cobertura.jar" />
+			<include name="lib/**/*.jar" />
+		</fileset>
+	</path>
+	<property name="project.classpath" refid="id.project.classpath"/>
+	<!--echo>classpath ::   ${project.classpath}</echo -->
+	<property name = "saxon6"
+          value = "org.xmLP.ant.taskdefs.optional.Saxon6Liaison"/>
+	<property name = "saxon6.classpath"
+          value = "${project.classpath}"/>
+	<taskdef name = "mtxslt"
+         classname = "org.xmLP.ant.taskdefs.xslt.XSLTProcess"
+	   classpath="${project.classpath}"/>
+	<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
+	<tstamp prefix="time"/>
+
+
+	<!--
+    ===================================================================
+    TARGET : copy jdo metadata files
+    ===================================================================
+    -->
+	<target name="copy.metadata">
+		<copy todir="${build}">
+			<fileset dir="${src}" includes="**/*.jdo"/>
+		</copy>
+	</target>
+
+	<fileset id="id.idl.files" dir="${src}">
+		<include name="**/*.idl"/>
+	</fileset>
+
+	<property name="idl.files" refid="id.idl.files"/>
+
+	<echo>idl.file ::   ${idl.files}</echo>
+
+
+	<!-- setting the correct timestamp -->
+	<target name="check_idl">
+		<uptodate property="idl.notRequired">
+			<srcfiles dir= "${xsl}" includes="*.xsl"/>
+			<mapper type="merge" to="test.timestamp"/>
+		</uptodate>
+	</target>
+
+	<target name="check_enhancer">
+		<uptodate property="enhancer.notRequired">
+			<srcfiles dir= "${src}/xtremweb/core/obj" includes="**/*.xsl"/>
+			<mapper type="merge" to="enhancer.timestamp"/>
+		</uptodate>
+	</target>
+
+	<target name="idl" description="Preprocess the .idl files" depends="check_idl" unless="idl.notRequired">
+
+		<mtxslt processor = "${saxon6}"
+	      basedir = "src/xtremweb/serv/"
+	      includes ="**/*.idl"
+	      style = "src/xtremweb/core/idl/xsl/object.xsl"
+	      destdir="${timestampdir}"
+	      extension=".timestamp-obj"
+	      classpath = "${saxon6.classpath}"/>
+
+		<mtxslt processor = "${saxon6}"
+	      basedir = "src/xtremweb/serv/"
+	      includes ="**/*.idl"
+	      style = "src/xtremweb/core/idl/xsl/interface.xsl"
+	      destdir="${timestampdir}"
+	      extension=".timestamp-iface"
+	      classpath = "${saxon6.classpath}"/>
+		<mtxslt processor = "${saxon6}"
+	      basedir = "src/xtremweb/serv/"
+	      includes ="**/*.idl"
+	      style = "src/xtremweb/core/idl/xsl/handlerrmi.xsl"
+	      destdir="${timestampdir}"
+	      extension=".timestamp-handlerrmi"
+	      classpath = "${saxon6.classpath}"/>
+		<mtxslt processor = "${saxon6}"
+	      basedir = "src/xtremweb/serv/"
+	      includes ="**/*.idl"
+	      style = "src/xtremweb/core/idl/xsl/comrmi.xsl"
+	      destdir="${timestampdir}"
+	      extension=".timestamp-comrmi"
+	      classpath = "${saxon6.classpath}"/>
+	</target>
+
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp/>
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${dist}"/>
+		<mkdir dir="${build}"/>
+		<mkdir dir="${build}/META-INF"/>
+		<mkdir dir="${build}/lib"/>
+		<mkdir dir="${reports}"/>
+		<mkdir dir="${reports.tests}"/>
+		<mkdir dir="${reports.html}"/>
+	</target>
+
+	<!--
+    ===================================================================
+    TARGET : generates the version files
+    ===================================================================
+    -->
+
+	<target name="version" description="generates version files">
+		<echo message="generating version.texi"/>
+		<echo file="doc/userguide/version.texi" append="false">
+@set UPDATED ${time.TODAY}
+@set EDITION 1
+@set VERSION ${version}
+      </echo>
+		<echo message="generating Version.java"/>
+		<echo file="src/xtremweb/core/log/Version.java" append="false">
+package xtremweb.core.log;
+
+/**
+ * Version of BitDew package.
+ *
+ * Do not modify this file, it is generated by the build system.
+ */
+public class Version {
+    public final static String version = "${version}";
+
+    public static String versionToString() {
+        return version;
+    }
+}
+      </echo>
+	</target>
+	<!-- Compile the java code from ${src} into ${build} -->
+	<target name="compile" depends="init"
+	    description="compile the source " >
+		<javac compiler="modern" srcdir="src" debug="on" destdir="${build}" source="1.5" classpath="${project.classpath}"/>
+		<rmic base="${build}" includes="xtremweb/core/com/handler/HandlerRMI*.class" classpath="${project.classpath}" excludes="xtremweb/core/com/handler/HandlerRMIbench.class"/>
+		<available property="bench_present" file="src/xtremweb/serv/bench/bench.idl"/>
+	</target>
+
+	<!-- We compile bench only if it's here, because bench is removed from the release -->
+	<target name="compile_bench" if="bench_present">
+		<rmic base="${build}"
+	    classname="xtremweb.core.com.handler.HandlerRMIbench" 
+	    classpath="${classpath}"/>
+	</target>
+
+	<target name="dist" depends="init, idl, compile, compile_bench, copyjdo, enhance"
+	    description="build bitdew-${version}" >
+	</target>
+
+	<!--
+    ===================================================================
+    TARGET : prepare a new release
+    ===================================================================
+-->
+
+	<target name="release"  description="generate the distribution"
+	    depends="clean, version, init, dist, tests, jar, deflate-jars, standalone-jar, javadoc, srczip"/>
+
+	<target name="srczip">
+		<zip destfile="dist/bitdew-src-${version}.zip"  excludes=".svn, *~">
+			<zipfileset dir="."
+		    includes="README, Doxyfile, build.xml, bitdew.mf, build.sh, ant, Makefile,Licence_CeCILL_V2-fr.txt,Licence_GPL_V3.0-en.txt, Changelog"
+		    prefix="bitdew-${version}/" />
+			<zipfileset dir="doc/api"
+		    prefix="bitdew-${version}/doc/api/" />
+			<zipfileset dir="doc/userguide" 
+		    includes="bitdew-ug.texi, bitdew-ug.pdf, bitdew-ug.html" 
+		    prefix="bitdew-${version}/doc/userguide/" />
+			<zipfileset dir="src"
+		    excludes="**/bench/*, **/blast/*, **/mw/*, **/examples/*, **/reservoir/*, **/serv/obj/*, **/serv/test/*, **/core/obj/**, **/core/iface/**, **/core/com/com/**, **/core/com/handler/**"
+		    prefix="bitdew-${version}/src/" />
+			<zipfileset dir="src/xtremweb/role/examples"
+		    includes="HelloWorld.java, PutGet.java, PingPong.java, FTPServer.java"
+		    prefix="bitdew-${version}/src/xtremweb/role/examples/" />
+			<zipfileset dir="conf" 
+		    includes="java.policy, jpox.properties, dbcp.properties, log4j.properties, log4jcmdlinetool.properties, xtremweb.properties*" 
+		    prefix="bitdew-${version}/conf" />
+			<zipfileset dir="lib"
+		    prefix="bitdew-${version}/lib/" />
+			<zipfileset dir="build"
+		    prefix="bitdew-${version}/build/" />
+
+		</zip>
+	</target>
+
+	<!--
+    ===================================================================
+    TARGET : prepare the various jar files bitdew-${version}.jar is the library, 
+    bitdew-stand-alone-${version}.jar is the "executable"
+    ===================================================================
+-->
+
+	<target name="jar" depends="dist">
+		<jar destfile="dist/bitdew-lib-${version}.jar" basedir="${build}"/>
+	</target>
+
+	<target name="deflate-jars">
+		<unzip dest="temp-jar">
+			<patternset>
+				<exclude name="**/*.java"/>
+			</patternset>
+			<fileset dir="lib">
+				<include name="**/*.jar"/>
+				<exclude name="azureus.jar"/>
+			</fileset>
+		</unzip>
+	</target>
+
+	<target name="standalone-jar" depends="dist">
+		<jar destfile="dist/bitdew-stand-alone-${version}.jar" manifest="bitdew.mf">
+			<fileset dir="${build}"/>
+			<fileset dir="temp-jar"/>
+			<fileset dir="${conf}">
+				<include name="xtremweb.properties"/>
+				<include name="log4j.properties"/>
+				<include name="log4jcmdlinetool.properties"/>
+			</fileset>
+		</jar>
+	</target>
+
+	<!--
+    ===================================================================
+    TARGET : copy .jdo files
+    ===================================================================
+-->
+
+	<target name="copyjdo" description="Copy of .jdo files">
+		<copy todir="${build}/xtremweb/core/obj/">
+			<fileset dir="${src}/xtremweb/serv">
+				<include name="**/*.jdo"/>
+			</fileset>
+		</copy>
+	</target>
+
+
+
+	<!--
+    ===================================================================
+    TARGET : enhance
+    ===================================================================
+-->
+	<target name="enhance" description="JPOX enhancement"  depends="check_idl" unless="enhancer.notRequired">
+		<taskdef name="jpoxenhancer" classname="org.jpox.enhancer.tools.EnhancerTask" classpath="${project.classpath}"/>
+
+
+		<jpoxenhancer 
+      classpath="${project.classpath}" 
+      dir="${build}"
+      failonerror="true"
+      fork="true"
+      verbose="false">
+
+			<sysproperty key="log4j.configuration" value="file:conf/log4j.properties"/>
+		</jpoxenhancer>
+	</target>
+
+	<target name="clean" description="clean up">
+		<delete dir="${build}"/>
+		<delete dir="${timestampdir}"/>
+		<delete dir="src/xtremweb/core/iface"/>
+		<delete dir="src/xtremweb/core/obj"/>
+		<delete dir="src/xtremweb/core/com/handler"/>
+		<delete dir="src/xtremweb/core/com/com"/>
+		<delete dir="${reports}"/>
+		<delete file="dist/bitdew-lib-${version}.jar"/>
+		<delete file="dist/bitdew-stand-alone-${version}.jar"/>
+		<delete file="dist/bitdew-src-${version}.zip"/>
+	</target>
+
+	<!--
+    ===================================================================
+    TARGET : generates the developper documentation, the code
+    documentation, the uer guide
+    ===================================================================
+    -->
+	<target name="doc" depends="javadoc,doxygen,userguide" description="documentation generation">
+		<echo message="generating the complete documentation"/>
+	</target>
+
+	<target name="javadoc" description="api documentation">
+		<javadoc   destdir="doc/api"
+	     author="true"
+	     version="true"
+	     use="true"
+	     windowtitle="BitDew API">
+
+			<packageset dir="src" defaultexcludes="yes">
+				<include name="xtremweb/api/**"/>
+				<exclude name="**/test"/>
+			</packageset>
+			<group title="Api Packages" packages="xtremweb.api.*"/>
+		</javadoc>
+	</target>
+
+	<target name="doxygen" depends="init"
+	description="call doxygen to generate a rich doc">
+		<exec dir="." executable="doxygen"
+	failonerror="true" os="Linux"/>
+		<exec dir="." executable="/Applications/Doxygen.app/Contents/Resources/doxygen"
+	failonerror="true" os="Mac OS X"/>
+		<!-- make sure that /Applications/Doxygen.app/Contents/Resources/ is in the PATH-->
+	</target>
+
+	<target name="userguide" depends="init"
+	description="generates user guide with texinfo">
+		<exec dir="doc/userguide" executable="texi2pdf"
+	failonerror="true" os="Mac OS X">
+			<arg value="bitdew-ug.texi"/>
+		</exec>
+		<exec dir="doc/userguide" executable="texi2html"
+	failonerror="true" os="Mac OS X">
+			<arg value="bitdew-ug.texi"/>
+		</exec>
+		<exec dir="doc/userguide" executable="texi2pdf"
+	failonerror="true" os="Linux">
+			<arg value="bitdew-ug.texi"/>
+		</exec>
+		<exec dir="doc/userguide" executable="texi2html"
+	failonerror="true" os="Linux">
+			<arg value="bitdew-ug.texi"/>
+		</exec>
+	</target>
+
+	<!--
+    ===================================================================
+    TARGET : run the junit tests
+    ===================================================================
+    -->
+
+	<target name="tests" description="JUnit4 test suite" depends="">
+		<junit fork="yes" printsummary="yes" haltonfailure="yes" clonevm="true">
+			<sysproperty key="net.sourceforge.cobertura.datafile" file="cobertura.ser" />
+			<!-- FIXME classpath refid="project.classpath" / Quel merdier ce classpath, je comprends rien mais bon au moins ca marche -->
+			<classpath location="${instrumented.dir}" />
+			<classpath>
+				<pathelement path="lib/jsch-0.1.44.jar:lib/jakarta-oro-2.0.8.jar:lib/commons-net-1.3.0.jar:lib/commons-fileupload-1.1.1.jar:lib/servlet-api-2.5-6.1.1.jar:lib/jetty-util-6.1.1.jar:lib/jetty-html-6.1.1.jar:lib/jets3t-0.6.0.jar:lib/jetty-6.1.1.jar:lib/jcommon-1.0.9.jar:lib/jfreechart-1.0.5.jar:build:conf:lib/jpox-enhancer.jar:lib/commons-collections-3.1.jar:lib/commons-dbcp-1.2.1.jar:lib/commons-pool-1.2.jar:lib/jpox-dbcp-1.1.0-rc-1.jar:lib/jargs.jar:lib/mysql.jar:lib/hsqldb.jar:lib/bcel.jar:lib/jdo.jar:lib/jpox-1.1.0-rc-1.jar:lib/log4j.jar"/>
+			</classpath>
+			<classpath refid="cobertura.classpath" />
+			<batchtest fork="yes" todir="${reports.tests}">
+				<formatter type="plain" usefile="false" />
+				<formatter type="xml" usefile="true" />
+				<fileset dir="${src}">
+					<include name="**/*Test*.java" />
+				</fileset>
+			</batchtest>
+
+		</junit>
+	</target>
+	<target name="instrum" depends="compile">
+		<cobertura-instrument todir="${instrumented.dir}">
+			<ignore regex="org.apache.log4j.*" />
+			<fileset dir="${build}">
+				<include name="**/*.class" />
+				<exclude name="**/*Test.class" />
+			</fileset>
+		</cobertura-instrument>
+	</target>
+
+	<target name="test-unit" description="debugging test">
+		<junit haltonfailure="yes" clonevm="true">
+			<!-- FIXME classpath refid="project.classpath" / Quel merdier ce classpath, je comprends rien mais bon au moins ca marche -->
+			<classpath>
+				<pathelement path="build:conf:lib/jpox-enhancer.jar:lib/commons-collections-3.1.jar:lib/commons-dbcp-1.2.1.jar:lib/commons-pool-1.2.jar:lib/jpox-dbcp-1.1.0-rc-1.jar:lib/jargs.jar:lib/mysql.jar:lib/hsqldb.jar:lib/bcel.jar:lib/jdo.jar:lib/jpox-1.1.0-rc-1.jar:lib/log4j.jar"/>
+			</classpath>
+			<test name="xtremweb.serv.ds.test.DataSchedulerTest"/>
+			<formatter type="plain" usefile="false"/>
+		</junit>
+	</target>
+	<target name="sonar-req" depends="instrum,tests,cobertura-reports"/>
+	<target name="cobertura-reports">
+		<cobertura-report format="xml" destdir="${coveragereport.dir}" >
+			<fileset dir="${src}">
+				<include name="**/*.java" />
+			</fileset>
+		</cobertura-report>
+	</target>
+	<target name="tests-reports" description="JUnit report generation" depends="tests">
+		<junitreport todir="${reports.html}">
+			<fileset dir="${reports.tests}">
+				<include name="TEST-*.xml"/>
+			</fileset>
+			<report format="frames" todir="${reports.html}"/>
+		</junitreport>
+	</target>
+	<target name="unpack-release" depends="release">
+		<unzip src="${dist}/bitdew-src-${version}.zip" dest="${dist}"/>
+	</target>
+	<target name="sdk" depends="release">
+		<mkdir dir="${dist}/bitdew-sdk-${version}"/>
+		<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/serv"/>
+		<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/gen/service"/>
+		<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/core/obj"/>
+		<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/core/idl/xsl"/>
+		<mkdir dir="${dist}/bitdew-sdk-${version}/conf"/>
+		<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/core/com/com"/>
+		<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/core/com/handler"/>
+		<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/gen/service"/>
+		<mkdir dir="${dist}/bitdew-sdk-${version}/lib"/>
+		<copy todir="${dist}/bitdew-sdk-${version}/src/xtremweb/core/idl/xsl">
+			<fileset dir="src/xtremweb/core/idl/xsl"/>
+		</copy>
+		<copy todir="${dist}/bitdew-sdk-${version}/src/xtremweb/gen/service" file="src/xtremweb/gen/service/GenService.java"/>
+		<copy todir="${dist}/bitdew-sdk-${version}/lib" file="${dist}/bitdew-stand-alone-${version}.jar"/>
+		<copy todir="${dist}/bitdew-sdk-${version}/lib">
+			<fileset dir="lib"/>
+		</copy>
+		<copy todir="${dist}/bitdew-sdk-${version}/conf" file="conf/log4j.properties"/>
+		<copy todir="${dist}/bitdew-sdk-${version}" file="sdk/build.xml"/>
+		<zip basedir="${dist}/bitdew-sdk-${version}" destfile="${dist}/bitdew-sdk-${version}.zip"/>
+		<delete includeEmptyDirs="true">
+			<fileset dir="${dist}/bitdew-sdk-${version}"/>
+		</delete>
+	</target>
+	<target name="jar-sdk" depends="dist">
+		<jar destfile="${dist}/myservice.jar" basedir="${build}"/>
+	</target>
+</project>
