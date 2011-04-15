@@ -442,4 +442,30 @@ public class Version {
 <target name="unpack-release" depends="release">
   <unzip src="${dist}/bitdew-src-${version}.zip" dest="${dist}"/>
 </target>
+ 	<target name="sdk" depends="release">
+ 			<mkdir dir="${dist}/bitdew-sdk-${version}"/>
+ 			<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/serv"/>
+ 			<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/gen/service"/>
+ 			<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/core/obj"/>
+ 			<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/core/idl/xsl"/>
+ 			<mkdir dir="${dist}/bitdew-sdk-${version}/conf"/>
+ 			<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/core/com/com"/>
+ 			<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/core/com/handler"/>
+ 			<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/gen/service"/>
+ 			<mkdir dir="${dist}/bitdew-sdk-${version}/lib"/>
+ 			<copy todir="${dist}/bitdew-sdk-${version}/src/xtremweb/core/idl/xsl">
+ 				<fileset dir="src/xtremweb/core/idl/xsl"/>
+ 			</copy>
+ 			<copy todir="${dist}/bitdew-sdk-${version}/src/xtremweb/gen/service" file="src/xtremweb/gen/service/GenService.java"/>
+ 			<copy todir="${dist}/bitdew-sdk-${version}/lib" file="${dist}/bitdew-stand-alone-${version}.jar"/>
+ 			<copy todir="${dist}/bitdew-sdk-${version}/lib">
+ 				<fileset dir="lib"/>
+ 			</copy>
+ 			<copy todir="${dist}/bitdew-sdk-${version}/conf" file="conf/log4j.properties"/>
+ 			<copy todir="${dist}/bitdew-sdk-${version}" file="sdk/build.xml"/>
+ 			<zip basedir="${dist}/bitdew-sdk-${version}" destfile="${dist}/bitdew-sdk-${version}.zip"/>
+ 			<delete includeEmptyDirs="true">
+ 				<fileset dir="${dist}/bitdew-sdk-${version}"/>
+ 			</delete>
+ 		</target>
 </project>
