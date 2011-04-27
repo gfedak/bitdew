@@ -6,14 +6,26 @@ import java.io.FileWriter;
 import java.io.IOException;
 import org.apache.log4j.Logger;
 
+/**
+ * This class generates the infrastructure needed to generate the classes
+ * to integrate a new service in bitdew through the SDK.
+ * @author jsaray
+ */
 public class GenService {
-
+    /**
+     * Application logger
+     */
     private static Logger logger;
-
+    
+    /**
+     * Main method, 
+     * @param args the program parameters, a one-element array that contains the name 
+     * of the service that will be created
+     */
     public static void main(String[] args) {
 	try {
 	    logger = Logger.getLogger(GenService.class);
-	    if (args.length == 0) {
+	    if (args.length != 1) {
 		usage();
 		return;
 	    }
