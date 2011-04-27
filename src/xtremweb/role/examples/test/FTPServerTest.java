@@ -33,6 +33,7 @@ public class FTPServerTest extends TestCase {
 	try {
 	    ftp = new FTPServer();
 	} catch (Exception e) {
+	    e.printStackTrace();
 	    fail();
 	}
 
