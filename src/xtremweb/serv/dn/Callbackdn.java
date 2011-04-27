@@ -29,7 +29,7 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
      *    <li> Java VM 1.6 or later </li>
      *    </ol>
      * </li>
-     * <li> Download bitdew-sdk 0.2.6.zip</li>
+     * <li> Download bitdew-sdk-XXX.zip</li>
      * 
      * <li> Unzip, cd into de directory and type, 
      * 
@@ -46,7 +46,7 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
      * </ol>
      * 
      * <li> <b>dnaming.idl</b> is a xml file used to describe service method signatures and value objects. You must describe your method signatures here, 
-     * you can also discretionally describe the persistable value objects that your application will use if any. For our case we define service VO, as we are going to
+     * you can also discretionally describe the persistent value objects that your application will use if any. For our case we define service VO, as we are going to
      * manipulate and persist them. You can copy-paste the next example file </li>
      * 
      * @code
@@ -157,7 +157,7 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
      * 	ant -lib lib/mtxslt-1.5.jar jar-sdk
      * @endcode
      * 
-     * <li> Now You are ready to test your newly created service, execute
+     * <li> Now You are ready to test your brand-new created service, execute
      * 
      * @code
      * java -cp lib/bitdew-stand-alone-0.2.5.jar:dist/myservice.jar xtremweb.role.cmdline.CommandLineTool serv dc dr dnaming
@@ -188,6 +188,13 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
      *  Http Server started serving files on . with http://localhost:8080//data and uploading files with the servlet http://localhost:8080//fileupload
      * @endcode
      * 
+     * <li> You can see that in lines </li>
+     * @code
+     * ModuleLoader has registred callback: [dnaming]
+     * ModuleLoader has registred handler: [dnaming,RMI]
+       @endcode
+     * 
+     * <li> Bitdew has successfully recognized your service. </li>
      * </ol>
      */
 
