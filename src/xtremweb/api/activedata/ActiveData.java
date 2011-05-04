@@ -167,8 +167,9 @@ public class ActiveData {
             while (iter.hasNext()) {
         	
 		Data data = (Data) iter.next();
-		log.debug("enter while first data is " +data.getname() + "status " +data.getstatus());
-		data.setstatus(DataStatus.TODELETE);
+		log.debug("Data " +data.getname() + "status " +data.getstatus());
+		if(data.getstatus() == DataStatus.ON_SCHEDULER)
+		    data.setstatus(DataStatus.TODELETE);
 		
 		toDelete+=data.getuid() + " ";
 	     
@@ -184,15 +185,16 @@ public class ActiveData {
 		    else
 			attributes.put(attr.getuid(),attr);
 		}
-
+		if(data.getstatus() == DataStatus.TODELETE){
 		//now call the delete callback
-		for(ActiveDataCallback callback : callbacks) {
-		    if ((data==null) || (attr==null))
-			log.debug("on callback delete " + ((data==null)?" data is null ":"") + ((attr==null)?" attr is null ":"")); 
-		    else {
-			log.debug ("calling callback Delete on data data  [d: " + data.getuid() + "|a: " + attr.getuid()  + "]"  );
+		    for(ActiveDataCallback callback : callbacks) {
+			if ((data==null) || (attr==null))
+			    log.debug("on callback delete " + ((data==null)?" data is null ":"") + ((attr==null)?" attr is null ":"")); 
+			else {
+			    log.debug ("calling callback Delete on data data  [d: " + data.getuid() + "|a: " + attr.getuid()  + "]"  );
+			}
+			callback.onDataDeleted(data,attr);
 		    }
-		    callback.onDataDeleted(data,attr);
 		}
 
 	    }
@@ -264,9 +266,11 @@ public class ActiveData {
 	    fixoob(data, attr);
 	    
 	    data.setattruid(attr.getuid());
-	    DBInterfaceFactory.getDBInterface().makePersistent(data);
+	    
 	    cdc.putData(data);
 	    cds.associateDataAttribute(data, attr);
+	    data.setstatus(DataStatus.ON_SCHEDULER);
+	    DBInterfaceFactory.getDBInterface().makePersistent(data);
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
 	    throw new ActiveDataException();
@@ -277,9 +281,11 @@ public class ActiveData {
 	try {
 	    fixoob(data, attr);
 	    data.setattruid(attr.getuid());
-	    DBInterfaceFactory.getDBInterface().makePersistent(data);
+	    
 	    cdc.putData(data);
 	    cds.associateDataAttributeHost(data, attr, host);
+	    data.setstatus(DataStatus.ON_SCHEDULER);
+	    DBInterfaceFactory.getDBInterface().makePersistent(data);
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
 	    throw new ActiveDataException();

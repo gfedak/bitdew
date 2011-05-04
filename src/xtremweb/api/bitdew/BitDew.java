@@ -110,6 +110,7 @@ public class BitDew {
     public Data createData() throws BitDewException {
 	try {
 	    Data data = new Data();
+	    data.setstatus(DataStatus.ON_LOCAL_CACHE);
 	    idc.putData(data);  
 	    return data;
 
@@ -129,8 +130,9 @@ public class BitDew {
     public Data createData(String name) throws BitDewException {
 	try {
 	    Data data = new Data();
+	    data.setstatus(DataStatus.ON_LOCAL_CACHE);
 	    data.setname(name);
-	    //DBInterfaceFactory.getDBInterface().makePersistent(data);
+	    DBInterfaceFactory.getDBInterface().makePersistent(data);
 	    idc.putData(data);  
 	    return data;
 
@@ -144,6 +146,7 @@ public class BitDew {
     {
 	try {
 	    Data data = new Data();
+	    data.setstatus(DataStatus.ON_LOCAL_CACHE);
 	    data.setname(name);
 	    data.setoob(protocol);
 	    data.setsize(size);
@@ -170,6 +173,7 @@ public class BitDew {
     public Data createData(String name, String protocol, int size)  throws BitDewException {
 	try {
 	    Data data = new Data();
+	    data.setstatus(DataStatus.ON_LOCAL_CACHE);
 	    data.setname(name);
 	    data.setoob(protocol);
 	    data.setsize(size);
@@ -193,7 +197,7 @@ public class BitDew {
      */
     public Data createData(File file) throws BitDewException {
 	Data data = DataUtil.fileToData(file);
-
+	data.setstatus(DataStatus.ON_LOCAL_CACHE);
 	try {
 	    DBInterfaceFactory.getDBInterface().makePersistent(data);
 	    idc.putData(data);

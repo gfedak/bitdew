@@ -22,19 +22,19 @@ public class DataStatus {
      */
     public static final int RELEASED    = 1;
     
-    /**
-     * 	<code>IN_LOCAL_CACHE</code> data is in machine cache
-     * 
-     */
-    public static final int IN_LOCAL_CACHE    = 3;
+   
     /**
      * <code>TODELETE</code> data is ready to be deleted.
      *
      */
     public static final int TODELETE    = 2;
+    
+    public static final int ON_LOCAL_CACHE = 3;
+    
+    public static final int ON_SCHEDULER = 4;
 
     //strings for debuging purpose
-    private static final String[] strings = { "LOCK", "RELEASED", "TODELETE","INLOCALCACHE" };
+    private static final String[] strings = { "LOCK", "RELEASED", "TODELETE","ON_LOCAL_CACHE","ON_SCHEDULER" };
 
     /**
      * <code>toString</code> returns the name of the status.

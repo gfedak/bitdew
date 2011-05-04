@@ -1,5 +1,9 @@
 package xtremweb.gen.service;
 
+import jargs.gnu.CmdLineParser;
+import jargs.gnu.CmdLineParser.IllegalOptionValueException;
+import jargs.gnu.CmdLineParser.UnknownOptionException;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -25,11 +29,26 @@ public class GenService {
     public static void main(String[] args) {
 	try {
 	    logger = Logger.getLogger(GenService.class);
-	    if (args.length != 1) {
-		usage();
-		return;
+	    CmdLineParser parser = new CmdLineParser();
+	    CmdLineParser.Option nameservice = parser.addStringOption('s',"service");
+	    CmdLineParser.Option vos = parser.addStringOption('o',"objects");
+	    try {
+		parser.parse(args);
+	    } catch (IllegalOptionValueException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	    } catch (UnknownOptionException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
 	    }
-	    String service = args[0];
+	    
+	    String service = (String) parser.getOptionValue(nameservice,"dnaming");
+	    String objectstr = (String) parser.getOptionValue(vos,null);
+	    String[] objects = {};
+	    if(objectstr != null)
+		objects = objectstr.split(" "); 
+	  
+		
 	    System.setProperty("servname", service);
 	    System.out.println("user dir " + System.getProperty("user.dir"));
 	    File dir = new File(System.getProperty("user.dir")
@@ -74,11 +93,24 @@ public class GenService {
 	    bw = new BufferedWriter(new FileWriter(jdo));
 	    bw.write("<?xml version=\"1.0\"?>\n");
 	    bw.write("<jdo>\n");
+	    
 	    bw.write("<package name=\"xtremweb.core.obj." + service + "\">\n");
+	    for (int i=0; i < objects.length;i++){
+	    bw.write("<class name=\""+objects[i] +"\" identity-type=\"application\" table=\""+objects[i].toUpperCase() +"\">\n");
+	    bw.write("    <!-- PLEASE DO NOT ERASE THIS FIELD AS IT IS NECESSARY FOR JPOX (JDO FRAMEWORK ) TO RECOGNIZE EACH OBJECT WITH AN ID-->");  
+	    	bw.write("<field name=\"uid\" primary-key=\"true\"  value-strategy=\"auid\">\n");
+	            bw.write("<column name=\"UID\"/>\n");
+	          bw.write("</field>");
+	    bw.write("</class>");
+	    }
+	    
 	    bw.write("</package>\n");
 	    bw.write("</jdo>\n");
 	    bw.flush();
 	    bw.close();
+	    
+	    
+	    
 	    logger
 		    .info("File package.jdo succesfully generated in xtremweb.serv."
 			    + service);
