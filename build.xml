@@ -398,6 +398,8 @@ public class Version {
       <formatter type="xml" usefile="true" />
       <fileset dir="${src}">
         <include name="**/*Test*.java" />
+      	<exclude name="**/FTPServerTest.java"/>
+ 		
       </fileset>
     </batchtest>
     
