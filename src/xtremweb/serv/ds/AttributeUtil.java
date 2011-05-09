@@ -12,7 +12,12 @@ import xtremweb.core.obj.ds.Attribute;
  */
 
 import xtremweb.core.log.*;
+import xtremweb.role.cmdline.CommandLineToolHelper;
 import xtremweb.api.activedata.ActiveDataException;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 public class AttributeUtil {
 
@@ -67,65 +72,39 @@ public class AttributeUtil {
     }
 
 
-    public static Attribute parseAttribute(String  args) throws ActiveDataException {
-	return parseAttribute(args.split(" "));
-    }
-
-
-    //form attr name = {replicat = truc, oob=bittorrent  }
-    public static Attribute parseAttribute(String [] args) throws ActiveDataException {
-
+    public static Attribute parseAttribute(String  args) throws ActiveDataException,JsonSyntaxException {
+	args = CommandLineToolHelper.jsonize(args);
+	JsonObject jsono = new JsonParser().parse(args).getAsJsonObject();
 	Attribute attr = new Attribute();
 
-	String tmp = "";
-	for (int i=1; i<(args.length); i++) 
-	    tmp+=args[i];
+	if(jsono.get("name")!=null){
+	    attr.setname(jsono.get("name").getAsString());
 
-	//set attribute name
-	String name = tmp.substring(0,tmp.indexOf("={"));
-	attr.setname(name);
-
-	tmp=tmp.substring(tmp.indexOf("={")+2,tmp.length());
-	if (tmp.endsWith("}")) 
-	    tmp=tmp.substring(0,tmp.length()-1);
-
-	try {
-	    String[] pairs = tmp.split(",");
-	    
-	    for (int i=0; i<pairs.length; i++) {
-		String[] attrValue = pairs[i].split("=");
-		if (attrValue.length!=2)
-		    throw new ActiveDataException("bad syntax, see help");
-
-		if (attrValue[0].equals("replicat")) {
-		    AttributeType.setAttributeTypeOn(attr, AttributeType.REPLICAT);
-		    attr.setreplicat(Integer.parseInt(attrValue[1]));
-		} else if (attrValue[0].equals("ft")) {
-		    AttributeType.setAttributeTypeOn(attr, AttributeType.FT);
-		    attr.setft((attrValue[1]).equals("true"));
-		} else if (attrValue[0].equals("lftabs")) {
-		    AttributeType.setAttributeTypeOn(attr, AttributeType.LFTABS);		    
-		    long date = System.currentTimeMillis() + (Integer.parseInt(attrValue[1])*60000);
-		    attr.setlftabs(date);
-		} else if (attrValue[0].equals("lftrel")) {
-		    AttributeType.setAttributeTypeOn(attr, AttributeType.LFTREL);
-		    attr.setlftrel(attrValue[1]);
-		} else if (attrValue[0].equals("affinity")) {
-		    AttributeType.setAttributeTypeOn(attr, AttributeType.AFFINITY);
-		    attr.setaffinity(attrValue[1]);
-		} else if (attrValue[0].equals("oob")) {
-		    AttributeType.setAttributeTypeOn(attr, AttributeType.OOB);
-		    attr.setoob(attrValue[1]);
-		} else 	if (attrValue[0].equals("distrib")) {
-		    AttributeType.setAttributeTypeOn(attr, AttributeType.DISTRIB);
-		    attr.setdistrib(Integer.parseInt(attrValue[1]));
-		}
-	    }
-	} catch (Exception e) {
-	    log.debug("error reading attributes" + e);
-	    throw new ActiveDataException("bad syntax cannot parse attribute");
+	}
+	if(jsono.get("replicat")!=null){
+	    AttributeType.setAttributeTypeOn(attr, AttributeType.REPLICAT);
+	    attr.setreplicat(jsono.get("replicat").getAsInt());
+	}
+	if(jsono.get("affinity")!=null){
+	    AttributeType.setAttributeTypeOn(attr, AttributeType.AFFINITY);
+	    attr.setaffinity(jsono.get("affinity").getAsString());
+	}
+	if(jsono.get("lftabs")!=null){
+	    AttributeType.setAttributeTypeOn(attr, AttributeType.LFTABS);
+	    attr.setlftabs(jsono.get("lftabs").getAsLong());
+	}
+	if(jsono.get("oob")!=null){
+	    AttributeType.setAttributeTypeOn(attr, AttributeType.OOB);
+	    attr.setoob(jsono.get("oob").getAsString());
+	}
+	if(jsono.get("ft")!=null){
+	    AttributeType.setAttributeTypeOn(attr, AttributeType.FT);
+	    attr.setft(jsono.get("ft").getAsBoolean());
+	}
+	if(jsono.get("distrib")!=null){
+	    AttributeType.setAttributeTypeOn(attr, AttributeType.DISTRIB);
+	    attr.setdistrib(jsono.get("distrib").getAsInt());	
 	}
 	return attr;
-    } 
-
+    }
 }
