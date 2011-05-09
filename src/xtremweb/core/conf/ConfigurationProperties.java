@@ -1,7 +1,6 @@
 package xtremweb.core.conf;
 
 import java.util.Properties;
-import java.io.*;
 import xtremweb.core.log.*;
 /**
  * <code>ConfigurationProperties</code> permits to configure the
@@ -36,54 +35,21 @@ public class ConfigurationProperties {
      * @exception ConfigurationException if an error occurs
      */
     public ConfigurationProperties() throws ConfigurationException {
-	properties = new Properties();
-	propertiesFile = System.getProperty("PROPERTIES_FILE");
-	log.debug("properties file " + propertiesFile);
-	if (propertiesFile == null)
-	    propertiesFile = PROPERTIESFILE_DEFAULT;
-
-	InputStream data = null;
-
 	try {
-	    //load the data from a file of it exists
-	    if ((new File(propertiesFile)).exists()) {
-		data = new FileInputStream(propertiesFile);
-		properties.load(data);
-		log.info("set properties from file " + propertiesFile);
-		return;
-	    }
-	} catch (Exception e) {
-	    log.info("cannot load properties from file " + propertiesFile + " : " + e);
-	}
-
-	try {
-	    //load the properties from within the jar file
-	    propertiesFile = PROPERTIESJARFILE_DEFAULT;
-	    data = getClass().getResourceAsStream(propertiesFile);
-	    properties.load(data);
-	    log.info("set properties from resource file, bundled with jar " + getClass().getResource(propertiesFile));
-	} catch (Exception e) {
-	    log.info("cannot load properties from resource file, bundled with jar " + propertiesFile + " : " + e);
-	    throw new ConfigurationException();
+	    properties = PropertiesSourceFactory.newInstance("xtremweb.core.conf.JsonProperties").getProperties();
+	} catch (InstantiationException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (IllegalAccessException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (ClassNotFoundException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
 
     } // ConfigurationProperties constructor
     
-    /**
-     *  <code>reload</code> properties
-     *
-     * @param file a <code>String</code> value
-     * @exception ConfigurationException if an error occurs
-     */
-    public static void reload(String file) throws ConfigurationException {
-	propertiesFile = file;
-	try {
-	    properties.load(new FileInputStream(propertiesFile));
-	} catch (Exception e) {
-	    throw new ConfigurationException("cannot find " + propertiesFile);
-	}
-    } // ConfigurationProperties constr
-
     /**
      * <code>getProperties</code> gets the properties
      *
@@ -94,7 +60,6 @@ public class ConfigurationProperties {
 	if (properties==null) throw new ConfigurationException("Properties not defined");
 	return properties;
     }
-
     public static void setProperty(String key, String value) throws ConfigurationException {
 	if (properties==null) throw new ConfigurationException("Properties not defined");
 	properties.setProperty(key,value);
