@@ -35,9 +35,9 @@ public class FtpTransfer extends BlockingOOBTransferImpl implements
     } // Ftpsender constructor
 
     public String ftptoString() {
-	return "ftp://[" + remote_protocol.getlogin() + ":"
-		+ remote_protocol.getpassword() + "]@"
+	return "ftp://[" + remote_protocol.getlogin() + "@"
 		+ remote_protocol.getserver() + ":" + remote_protocol.getport();
+
     }
 
     public void connect() throws OOBException {
@@ -57,14 +57,17 @@ public class FtpTransfer extends BlockingOOBTransferImpl implements
 	    if (!FTPReply.isPositiveCompletion(reply)) {
 		ftp.disconnect();
 		log.debug("FTP server refused connection : " + ftptoString());
+		throw new OOBException("Server refused connection " + ftptoString());
+
 	    }
 
 	    // login as anonymous
 	    if (!ftp.login(remote_protocol.getlogin(), remote_protocol
 		    .getpassword())) {
 		log.debug("FTP server wrong login " + ftptoString());
-
+		throw new OOBException("Wrong login " + ftptoString());
 	    } else
+
 		log.debug("Succesfully logged into " + ftptoString());
 
 	    // FIXME, make this configurable
