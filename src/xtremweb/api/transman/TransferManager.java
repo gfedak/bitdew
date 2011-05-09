@@ -118,7 +118,24 @@ public class TransferManager {
 	//	OOBTransferFactory.persistOOBTransfer(oobt);
 	oobt.persist();
     }
-
+    
+    public int getTransferStatus(String tid)
+    {
+	PersistenceManagerFactory pmf = DBInterfaceFactory.getPersistenceManagerFactory();
+	PersistenceManager pm = pmf.getPersistenceManager();
+	Transaction tx=pm.currentTransaction();	
+	try {
+	    tx.begin();	    
+	    Query query = pm.newQuery(Transfer.class, "uid == '" + tid+"'"  ); 
+	    query.setUnique(true);
+	    Transfer t = (Transfer)query.execute();
+	    return t.getstatus();
+	}catch(Exception e )
+	{   log.info("an error occurred while interacting with bd ");
+	    e.printStackTrace();
+	}
+	return -1;
+    }
 
     public Transfer createTransfer() throws TransferManagerException {
 	try {
@@ -132,7 +149,6 @@ public class TransferManager {
 	}
 	throw new TransferManagerException();
     }
-
     /**
      * <code>start</code> launches periodic TM engine
      */
@@ -308,6 +324,8 @@ public class TransferManager {
 			    trans.setstatus(TransferStatus.INVALID);
 			    break;
 			} catch (OOBException oobe) {
+			    log.info("The transfer could not succesfully finish " + oobe.getMessage() +" it will be erased from cache");
+			    oobe.printStackTrace();
 			    trans.setstatus(TransferStatus.INVALID);
 			    break;
 			}
@@ -317,6 +335,7 @@ public class TransferManager {
 		    
 		case TransferStatus.INVALID :
 		    log.debug("INVALID");
+		   
 		    try {
 			if ( TransferType.isLocal(trans.gettype()) )
 			    dt.setTransferStatus(trans.getuid(), 
@@ -401,7 +420,10 @@ public class TransferManager {
 		    log.debug("ERROR");
 		
 		}
+		//pm.makePersistent(trans);
 	    }
+            
+            
 	    tx.commit();
 	} finally {
 	    if (tx.isActive())
