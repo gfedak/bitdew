@@ -268,7 +268,7 @@ public class Version {
 	<fileset dir="${build}"/>
 	<fileset dir="temp-jar"/>
 	<fileset dir="${conf}">
-	  <include name="xtremweb.properties"/>
+	  <include name="properties.json"/>
 	  <include name="log4j.properties"/>
 	  <include name="log4jcmdlinetool.properties"/>
 	</fileset>

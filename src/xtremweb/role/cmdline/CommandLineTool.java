@@ -635,6 +635,7 @@ public class CommandLineTool {
 			else
 				bitdew.registerSecuredProtocol(login, name, host, port, path,
 						knownhosts, prkeypath, pukeypath, passphrase);
+			log.info("Protocol "+ name + "added succesfully ");
 		} else {
 			log.info(" you need to describe a repository");
 		}

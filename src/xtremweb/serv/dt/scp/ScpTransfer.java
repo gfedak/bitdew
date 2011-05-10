@@ -303,7 +303,6 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 			session = jsch.getSession(user, host, 22);
 			session.connect();
 		} catch (JSchException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
