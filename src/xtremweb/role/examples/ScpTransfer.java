@@ -34,7 +34,12 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
      * This example shows how to implement a transfer in BitDew.
      * For this purpose, a scp transfer is implemented using Bitdew's multitransfer management toolbox. 
      * <ol> 
-     * 
+     * <li> Prerrequisites :
+     * 		<ol>
+     * 		   <li>Server capable of listening to scp</li>
+     * 		   <li>Java 1.6 or greater</li>
+     * 		</ol>
+     * </li>
      * <li> We use the <a href="http://www.jcraft.com/jsch/">JSch library</a> that implements transfers in a blocking way, the class provides <em>send()</em> and <em>receive()</em> methods
      * to safely send and receive a file.
      * </li>
@@ -283,7 +288,68 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
      * {
      *     return !isTransfering();
      * }
-     * @endcode Application code source : </ol>
+     * @endcode 
+     * 
+     * <li> Create a new file called ScpTransfer.java, copy-pasting the code you will find beneath, locate this file
+     * at the same hierarchy that your bitdew-stand-alone-XXX.jar file.</li>
+     * 
+     * <li> Perform a <em>cd</em> to the directory containing <em>ScpTransfer.java</em> and compile using</em>
+     * @code
+     * 	javac -cp bitdew-stand-alone-XXX.jar ScpTransfer.java </li>
+     * @endcode
+     * 
+     * <li> Launch bitdew services with : </li>
+     *  @code
+     *  java -jar bitdew-stand-alone-XXX.jar serv dc dt ds dr
+     *  @endcode
+     * <li> Add a scp repository using bitdew <em>add</em> command to perform your scp transfer
+     * @code
+     *  java -jar bitdew-standalone-XXX.jar add "{name: 'scp',path: '<remote_path_to_file>',
+     *  server:'<my_host>',port: 22,knownhosts:'<path_to_knownhost_file>',prkeypath:<path_to_private_key>,pukeypath:'<path_to_public_key_path>',passphrase:'yes',login:'<yourlogin>'}}
+     * @endcode
+     *  
+     * <li> A brief description of the parameters used in this command : 
+     * 		<ol>
+     * 			<li><b>Name:</b> protocol name, in this case scp</li>
+     * 			<li><b>Path:</b> remote directory you want to access by scp</li>
+     * 			<li><b>Server:</b> host name (myhost.mydomain.com)</li>
+     * 			<li><b>Port:</b> scp connecting port (usually 22)</li>
+     * 			<li><b>knownhosts:</b> path to your ssh known_hosts file</li>
+     * 			<li><b>prkeypath:</b> path to your private key path:</li>
+     * 			<li><b>pukeypath:</b> path to your public key path</li>
+     * 			<li><b>passphrase:</b> private key passphrase, if you dont want to write it directly in console, write "yes" to write it latter with a hidden input </li>
+     * 			<li><b>password:</b> if you are not using private keys, you can write your password, same that in passphrase, putting "yes" will allow you to introduce your password later
+     * 			in a safe manner </li>
+     * 		</ol>
+     * </li>
+     * 
+     * 
+     * <li>Create a file in the same directory <em>helloworld.txt</em> and write "Hello World !" on it</li>
+     * 
+     * <li>Send the file using</li>
+     * @code
+     *   
+     *   java -jar bitdew-stand-alone-XXX.jar:ScpTransfer.class put bitdew.mf scp 
+     * @endcode
+     * 
+     * <li> If you did things well, you should obtain the following output : </li>
+     * 
+     * @code
+     *   Data registred : data heeloworld.txt [6d8e45e0-7bc1-31e0-a4d6-1e20662fc11f] = { md5=fa58a431e1cdf9defb37e5a385b18085 size=903 }
+	 *   [Please insert passphrase for key : /home/user/.ssh/id_dsa]
+     * @endcode
+     * 
+     * <li> Take note of the 32 character uid, you will need it later. Enter your password, you should read after that, "Transfer finished" message</li>
+     * 
+     * <li> To make sure you put propertly the file in the repository, you can perform a get (replacing the 32 character uid by the one you receive) </li>
+     * 
+     * @code
+     *    java -jar bitdew-stand-alone-XXX.jar:ScpTransfer.class get 6d8e45e0-7bc1-31e0-a4d6-1e20662fc11f scp hello_copy.txt
+     * @endcode
+     * 
+     * <li> Equally than with put command, you will be prompted for password and a successfully message should be shown.</li> 
+     * </ol>
+     * Application code source : 
      */
 	/**
 	 * Log
