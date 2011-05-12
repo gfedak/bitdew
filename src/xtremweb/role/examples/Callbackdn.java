@@ -36,10 +36,11 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
      * <li> Unzip, cd into de directory and type, 
      * 
      * @code
-     *    java -cp lib/bitdew-stand-alone-XXX.jar xtremweb.gen.service.GenService -s dnaming -o Service
+     *    java -jar bitdew-stand-alone-XXX.jar gen -s dnaming -o Service
      * @endcode
      * 
-     * <li> Last command generate needed files to program a service called dnaming that will use the <a href=\"http://www.oracle.com/technetwork/java/index-jsp-135919.html\">jdo</a> persisten object Service
+     * <li> Last command generate needed files to program a service called dnaming that will use the <a href=\"http://www.oracle.com/technetwork/java/index-jsp-135919.html\">jdo</a> 
+     * persistent object Service</li>
      * 
      * <ol> 
      *  <li>dnaming.idl</li>
