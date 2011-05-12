@@ -30,8 +30,14 @@ import xtremweb.serv.dt.OOBException;
 import xtremweb.serv.dt.OOBTransfer;
 import xtremweb.serv.dt.OOBTransferFactory;
 import xtremweb.core.http.*;
+import xtremweb.gen.service.GenService;
+
 import java.io.*;
+
 import jargs.gnu.CmdLineParser;
+import jargs.gnu.CmdLineParser.IllegalOptionValueException;
+import jargs.gnu.CmdLineParser.UnknownOptionException;
+
 import java.util.Vector;
 import java.util.ArrayList;
 import com.google.gson.Gson;
@@ -176,7 +182,7 @@ public class CommandLineTool {
 	private static Logger log = LoggerFactory.getLogger("CommandLineTool");
 
 	public CommandLineTool(String[] args) {
-
+		
 		// force the log4J configuration to log level info without formatting
 		if (log instanceof Log4JLogger) {
 			try {
@@ -185,13 +191,11 @@ public class CommandLineTool {
 				log.debug(le.toString());
 			}
 		}
-
 		String[] otherArgs = parse(args);
-
 		// switch to verbose mode
 		if (verbose)
 			log.setLevel("debug");
-
+		
 		// if there's no other argument display helps
 		if (otherArgs.length == 0)
 			usage(HelpFormat.SHORT);
@@ -214,16 +218,18 @@ public class CommandLineTool {
 			server = true;
 			return;
 		} else {
-			try {
-				Vector comms = ComWorld.getMultipleComms(host, "rmi", port,
-						"dc", "dr", "dt", "ds");
-				activeData = new ActiveData(comms);
-				bitdew = new BitDew(comms);
-				transferManager = new TransferManager(comms);
-			} catch (ModuleLoaderException e) {
-				log.warn("Cannot find service " + e);
-				log.warn("Make sure that your classpath is correctly set");
-				System.exit(0);
+			if(!otherArgs[0].equals("gen")){
+				try {
+					Vector comms = ComWorld.getMultipleComms(host, "rmi", port,
+							"dc", "dr", "dt", "ds");
+					activeData = new ActiveData(comms);
+					bitdew = new BitDew(comms);
+					transferManager = new TransferManager(comms);
+				} catch (ModuleLoaderException e) {
+					log.warn("Cannot find service " + e);
+					log.warn("Make sure that your classpath is correctly set");
+					System.exit(0);
+				}
 			}
 		}
 		// add a protocol via commandLine
@@ -232,204 +238,24 @@ public class CommandLineTool {
 		}
 		// create attr
 		if (otherArgs[0].equals("attr")) {
-			if (otherArgs.length == 1)
-				usage(HelpFormat.LONG);
-			Attribute attr = null;
-			try {
-				attr = AttributeUtil.parseAttribute(otherArgs[1]);
-			} catch (ActiveDataException ade) {
-				log.warn(" Cannot parse attribute definition : " + ade);
-			} catch (JsonSyntaxException sex) {
-				log.fatal("Syntax exception " + sex.getMessage());
-			}
-			try {
-				Attribute _attr = activeData.registerAttribute(attr);
-				log.info("attribute registred : "
-						+ AttributeUtil.toString(_attr));
-			} catch (ActiveDataException ade) {
-				log.warn(" Cannot registrer attribute : " + ade);
-				System.exit(0);
-			}
+			attr(otherArgs);
 		}
-		try {
-			// create data
-			if (otherArgs[0].equals("data")) {
-				JsonObject jsono = new JsonParser().parse(otherArgs[1])
-						.getAsJsonObject();
-				File f;
-				String s, file = null, str = null;
-				Data data = null;
-				if (jsono.get("file") == null && jsono.get("string") == null) {
-					log.fatal("Syntax error, see usage ");
-					System.exit(0);
-				}
-				if (jsono.get("file") != null && jsono.get("string") != null) {
-					log.fatal("Syntax error, see usage ");
-					System.exit(0);
-				}
-				if (jsono.get("file") != null)
-					file = jsono.get("file").getAsString();
-				if (jsono.get("string") != null)
-					str = jsono.get("string").getAsString();
-				if (file != null) {
-					f = new File(file);
-					if (!f.exists()) {
-						log.warn(" File does not exist : " + otherArgs[1]);
-						System.exit(0);
-					}
-					data = bitdew.createData(f);
-					log.info("Data registred : " + DataUtil.toString(data));
-				}
-				if (str != null) {
-					data = bitdew.createData(str);
-					log.info("Data registred : " + DataUtil.toString(data));
-				}
-			}
-		} catch (BitDewException ade) {
-			log.warn(" Cannot registrer data : " + ade);
-			System.exit(0);
-		} catch (java.lang.IllegalStateException exc) {
-			log
-					.warn("Not a json object, probably you have spaces in your JSON object, if is the case use quotation marks");
+		if(otherArgs[0].equals("gen")){
+			
+			gen(otherArgs);
 		}
-		// create
-
+		// create data
+		if (otherArgs[0].equals("data")) {
+				data(otherArgs);
+		} 
 		// schedule data and attribute
 		if (otherArgs[0].equals("sched")) {
-
-			String jsonize = CommandLineToolHelper.jsonize(otherArgs[1]);
-			JsonObject jsono = new JsonParser().parse(jsonize)
-					.getAsJsonObject();
-			if (jsono.get("attr_uid") == null) {
-				log.fatal("Attribute id is mandatory");
-				System.exit(0);
-			}
-			String attr_uid = jsono.get("attr_uid").getAsString();
-			if (jsono.get("data_uids") == null) {
-				log.fatal("Datas must be associated with attribute");
-				System.exit(0);
-			}
-			JsonArray array = jsono.get("data_uids").getAsJsonArray();
-			if (array.size() == 0) {
-				log.fatal("Data array cannot be empty");
-				System.exit(0);
-			}
-			// verify that this attribute exists
-			Attribute attr = null;
-			try {
-				attr = activeData.getAttributeByUid(attr_uid);
-			} catch (ActiveDataException ade) {
-				log.info("Attribute with uid " + attr_uid
-						+ " doesn't exist in the system : " + ade);
-				System.exit(2);
-			}
-
-			// build the list of data to schedule and check them
-			ArrayList<Data> toSchedule = new ArrayList<Data>();
-			for (int i = 0; i < array.size(); i++) {
-				try {
-					Data d = bitdew.searchDataByUid(array.get(i).getAsString());
-					if (d != null) {
-						toSchedule.add(d);
-					} else
-						log.info("Error : Data with uid " + otherArgs[i]
-								+ " doesn't exist in the system ");
-				} catch (BitDewException bde) {
-					log.info("Data with uid " + otherArgs[i]
-							+ " doesn't exist in the system : " + bde);
-				}
-			}
-
-			// exit if there is nothing to do
-			if (toSchedule.isEmpty())
-				System.exit(2);
-
-			// schedule the data list
-			String msg = "Scheduling Data : ";
-			for (Data data : toSchedule) {
-				try {
-					activeData.schedule(data, attr);
-					if (verbose)
-						msg += "\n" + DataUtil.toString(data);
-					else
-						msg += "[" + data.getname() + "|" + data.getuid()
-								+ "] ";
-				} catch (ActiveDataException ade) {
-					log.info("Unable to schedule data " + "[" + data.getname()
-							+ "|" + data.getuid() + "] " + "with attribute "
-							+ AttributeUtil.toString(attr) + " : " + ade);
-				}
-			}
-			String tmp = AttributeUtil.toString(attr);
-			log.info(msg.substring(0, msg.length() - 1) + (verbose ? "\n" : "")
-					+ " with Attribute " + tmp.substring(5, tmp.length()));
+			sched(otherArgs);
 		}// schedulde
 
 		// put file [dataId]
 		if (otherArgs[0].equals("put")) {
-			OOBTransfer noobt = null;
-			if ((otherArgs.length != 3) && (otherArgs.length != 4))
-				usage(HelpFormat.LONG);
-
-			File file = new File(otherArgs[1]);
-			if (!file.exists()) {
-				log.warn(" File does not exist : " + otherArgs[1]);
-				System.exit(0);
-			}
-			String myprot = null;
-			Data data = null;
-			try {
-				// no dataId
-				if (otherArgs.length == 3) {
-					myprot = otherArgs[2];
-					data = bitdew.createData(file);
-					log.info("Data registred : " + DataUtil.toString(data));
-				} else {
-					data = bitdew.searchDataByUid(otherArgs[2]);
-					if (data == null) {
-						log.info("cannot find data whose uid is : "
-								+ otherArgs[2]);
-						System.exit(0);
-					}
-					bitdew.updateData(data, file);
-				}
-			} catch (BitDewException ade) {
-				log.warn(" Cannot registrer data : " + ade);
-				System.exit(0);
-			}
-			try {
-				OOBTransfer oobTransfer = bitdew.put(file, data, myprot);
-				Vector comms = ComWorld.getMultipleComms(host, "rmi", port,
-						"dr", "dc", "dt");
-				TransferManager transman = TransferManagerFactory
-						.getTransferManager((InterfaceRMIdr) comms.get(0),
-								(InterfaceRMIdt) comms.get(2));
-				Protocol protoc = oobTransfer.getRemoteProtocol();
-				System.out.println(" login i s " + protoc.getlogin());
-				String passwd = protoc.getpassword();
-				String passphrase = protoc.getpassphrase();
-				if (passwd != null && passwd.equals("yes"))
-					oobTransfer = promptPassword(protoc, oobTransfer);
-				if (passphrase != null && passphrase.equals("yes"))
-					oobTransfer = promptPassphrase(protoc, oobTransfer);
-				transman.registerTransfer(oobTransfer);
-				log.debug("Succesfully created OOB transfer " + oobTransfer);
-				transman.waitFor(data);
-				transman.stop();
-				log.info("Transfer finished");
-			} catch (TransferManagerException tme) {
-				log.warn(" Transfer data : " + tme);
-				System.exit(0);
-			} catch (BitDewException bde) {
-				log.warn(" Cannot transfer data : " + bde);
-				System.exit(0);
-			} catch (ModuleLoaderException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (OOBException e) {
-				log.fatal(" OOBException ");
-				e.printStackTrace();
-			}
+			put(otherArgs);
 		}// put
 
 		// get dataId file
@@ -505,6 +331,173 @@ public class CommandLineTool {
 			}
 		}// get
 	} // CommandLineTool constructor
+
+	private void gen(String[] otherArgs) {
+		
+		try {
+			
+			new GenService(otherArgs);
+		} catch (IOException e) {
+			log.fatal("There was a problem in writing your files " + e.getMessage());
+		}
+	}
+
+	private void sched(String[] otherArgs) {
+		String jsonize = CommandLineToolHelper.jsonize(otherArgs[1]);
+		JsonObject jsono = new JsonParser().parse(jsonize).getAsJsonObject();
+		if (jsono.get("attr_uid") == null) {
+			log.fatal("Attribute id is mandatory");
+			System.exit(0);
+		}
+		String attr_uid = jsono.get("attr_uid").getAsString();
+		if (jsono.get("data_uids") == null) {
+			log.fatal("Datas must be associated with attribute");
+			System.exit(0);
+		}
+		JsonArray array = jsono.get("data_uids").getAsJsonArray();
+		if (array.size() == 0) {
+			log.fatal("Data array cannot be empty");
+			System.exit(0);
+		}
+		// verify that this attribute exists
+		Attribute attr = null;
+		try {
+			attr = activeData.getAttributeByUid(attr_uid);
+		} catch (ActiveDataException ade) {
+			log.info("Attribute with uid " + attr_uid
+					+ " doesn't exist in the system : " + ade);
+			System.exit(2);
+		}
+
+		// build the list of data to schedule and check them
+		ArrayList<Data> toSchedule = new ArrayList<Data>();
+		for (int i = 0; i < array.size(); i++) {
+			try {
+				Data d = bitdew.searchDataByUid(array.get(i).getAsString());
+				if (d != null) {
+					toSchedule.add(d);
+				} else
+					log.info("Error : Data with uid " + otherArgs[i]
+							+ " doesn't exist in the system ");
+			} catch (BitDewException bde) {
+				log.info("Data with uid " + otherArgs[i]
+						+ " doesn't exist in the system : " + bde);
+			}
+		}
+
+		// exit if there is nothing to do
+		if (toSchedule.isEmpty())
+			System.exit(2);
+
+		// schedule the data list
+		String msg = "Scheduling Data : ";
+		for (Data data : toSchedule) {
+			try {
+				activeData.schedule(data, attr);
+				if (verbose)
+					msg += "\n" + DataUtil.toString(data);
+				else
+					msg += "[" + data.getname() + "|" + data.getuid()
+							+ "] ";
+			} catch (ActiveDataException ade) {
+				log.info("Unable to schedule data " + "[" + data.getname()
+						+ "|" + data.getuid() + "] " + "with attribute "
+						+ AttributeUtil.toString(attr) + " : " + ade);
+			}
+		}
+		String tmp = AttributeUtil.toString(attr);
+		log.info(msg.substring(0, msg.length() - 1) + (verbose ? "\n" : "")+ " with Attribute " + tmp.substring(5, tmp.length()));
+		
+	}
+
+	private void put(String[] otherArgs) {
+		OOBTransfer noobt = null;
+		if ((otherArgs.length != 3) && (otherArgs.length != 4))
+			usage(HelpFormat.LONG);
+
+		File file = new File(otherArgs[1]);
+		if (!file.exists()) {
+			log.warn(" File does not exist : " + otherArgs[1]);
+			System.exit(0);
+		}
+		String myprot = null;
+		Data data = null;
+		try {
+			// no dataId
+			if (otherArgs.length == 3) {
+				myprot = otherArgs[2];
+				data = bitdew.createData(file);
+				log.info("Data registred : " + DataUtil.toString(data));
+			} else {
+				data = bitdew.searchDataByUid(otherArgs[2]);
+				if (data == null) {
+					log.info("cannot find data whose uid is : "
+							+ otherArgs[2]);
+					System.exit(0);
+				}
+				bitdew.updateData(data, file);
+			}
+		} catch (BitDewException ade) {
+			log.warn(" Cannot registrer data : " + ade);
+			System.exit(0);
+		}
+		try {
+			OOBTransfer oobTransfer = bitdew.put(file, data, myprot);
+			Vector comms = ComWorld.getMultipleComms(host, "rmi", port,
+					"dr", "dc", "dt");
+			TransferManager transman = TransferManagerFactory
+					.getTransferManager((InterfaceRMIdr) comms.get(0),
+							(InterfaceRMIdt) comms.get(2));
+			Protocol protoc = oobTransfer.getRemoteProtocol();
+			System.out.println(" login i s " + protoc.getlogin());
+			String passwd = protoc.getpassword();
+			String passphrase = protoc.getpassphrase();
+			if (passwd != null && passwd.equals("yes"))
+				oobTransfer = promptPassword(protoc, oobTransfer);
+			if (passphrase != null && passphrase.equals("yes"))
+				oobTransfer = promptPassphrase(protoc, oobTransfer);
+			transman.registerTransfer(oobTransfer);
+			log.debug("Succesfully created OOB transfer " + oobTransfer);
+			transman.waitFor(data);
+			transman.stop();
+			log.info("Transfer finished");
+		} catch (TransferManagerException tme) {
+			log.warn(" Transfer data : " + tme);
+			System.exit(0);
+		} catch (BitDewException bde) {
+			log.warn(" Cannot transfer data : " + bde);
+			System.exit(0);
+		} catch (ModuleLoaderException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (OOBException e) {
+			log.fatal(" OOBException ");
+			e.printStackTrace();
+		}
+		
+	}
+
+	private void attr(String[] otherArgs) {
+		if (otherArgs.length == 1)
+			usage(HelpFormat.LONG);
+		Attribute attr = null;
+		try {
+			attr = AttributeUtil.parseAttribute(otherArgs[1]);
+		} catch (ActiveDataException ade) {
+			log.warn(" Cannot parse attribute definition : " + ade);
+		} catch (JsonSyntaxException sex) {
+			log.fatal("Syntax exception " + sex.getMessage());
+		}
+		try {
+			Attribute _attr = activeData.registerAttribute(attr);
+			log.info("attribute registred : "
+					+ AttributeUtil.toString(_attr));
+		} catch (ActiveDataException ade) {
+			log.warn(" Cannot registrer attribute : " + ade);
+			System.exit(0);
+		}
+		
+	}
 
 	public OOBTransfer promptPassphrase(Protocol protoc, OOBTransfer oobTransfer)
 			throws OOBException {
@@ -635,13 +628,53 @@ public class CommandLineTool {
 			else
 				bitdew.registerSecuredProtocol(login, name, host, port, path,
 						knownhosts, prkeypath, pukeypath, passphrase);
-			log.info("Protocol "+ name + "added succesfully ");
+			log.info("Protocol "+ name + " added succesfully ");
 		} else {
 			log.info(" you need to describe a repository");
 		}
 
 	}
-
+	
+	public void data(String[] otherArgs){
+		try {
+			JsonObject jsono = new JsonParser().parse(otherArgs[1])
+					.getAsJsonObject();
+			File f;
+			String s, file = null, str = null;
+			Data data = null;
+			if (jsono.get("file") == null && jsono.get("string") == null) {
+				log.fatal("Syntax error, see usage ");
+				System.exit(0);
+			}
+			if (jsono.get("file") != null && jsono.get("string") != null) {
+				log.fatal("Syntax error, see usage ");
+				System.exit(0);
+			}
+			if (jsono.get("file") != null)
+				file = jsono.get("file").getAsString();
+			if (jsono.get("string") != null)
+				str = jsono.get("string").getAsString();
+			if (file != null) {
+				f = new File(file);
+				if (!f.exists()) {
+					log.warn(" File does not exist : " + otherArgs[1]);
+					System.exit(0);
+				}
+				data = bitdew.createData(f);
+				log.info("Data registred : " + DataUtil.toString(data));
+			}
+			if (str != null) {
+				data = bitdew.createData(str);
+				log.info("Data registred : " + DataUtil.toString(data));
+			}
+		}catch (BitDewException ade) {
+			log.warn(" Cannot registrer data : " + ade);
+			System.exit(0);
+		} catch (java.lang.IllegalStateException exc) {
+			log.warn("Not a json object, probably you have spaces in your JSON object, if is the case use quotation marks");
+		}
+	}
+	
 	public void usage(HelpFormat format) {
 		Usage usage = new Usage();
 		switch (format) {
@@ -650,8 +683,7 @@ public class CommandLineTool {
 			usage.ln();
 			usage.section("BitDew command line client");
 			usage.ln();
-			usage
-					.usage("java -jar bitdew-stand-alone.jar [Options] Commands [Command Options]");
+			usage.usage("java -jar bitdew-stand-alone.jar [Options] Commands [Command Options]");
 			usage.ln();
 			usage.section("Options:");
 			usage.option("-h", "--help", "display this helps");
@@ -664,36 +696,32 @@ public class CommandLineTool {
 			usage.option("serv [dc|dr|dt|ds]",
 					"start the list of services separated by a space");
 			usage.ln();
+			
+			usage.section("Service generation");
+			usage.option("-s ","<service name>");
+			usage.option("-o", "<list of jdo objects>");
+			
+			
 			usage.section("Attributes:");
-			usage
-					.option(
-							"attr attr_definition",
-							"create attribute where attr_definition has the syntax att_Name = {field1=value1, field2=value2}.");
+			usage.option("attr attr_definition",
+							"create attribute where attr_definition has the syntax {name: '<attribute_name>', replicat: '<number_of_replicas>', ft: '<fault_tolerance>'," +
+							"lftabs: '<absolute_lifetime>', lftrel: '<relative_lifetime>',affinity: '<data_affinity>',oob: '<oob_protocol>',distrib: '<distrib>'}");
 			usage.option("", "Field can have the following values :");
-			usage
-					.option(
-							"    replicat=int",
+			usage.option("    replicat=int",
 							"number of data replicat in the system. The special value -1    means that the data will be replicated to each node");
-			usage
-					.option(
-							"    affinity=dataId",
+			usage.option("    affinity=dataId",
 							"affinity to data Identifier. Schedule the data on node where   dataId is present.");
-			usage
-					.option("    lftabs=int",
+			usage.option("    lftabs=int",
 							"absolute life time. The value is the life duration in minutes.");
-			usage
-					.option("    lftabs=dataId",
+			usage.option("    lftabs=dataId",
 							"relative lifetime. The data will be obsolete when dataId is    deleted.");
-			usage
-					.option(
+			usage.option(
 							"    oob=protocol",
 							"out-of-band file transfer protocol. Protocol can be one of the following [dummy|ftp|bittorrent]");
-			usage
-					.option(
+			usage.option(
 							"    ft=[true|false]",
 							"fault tolerance. If true data will be rescheduled if one host  holding the data is considered as dead.");
-			usage
-					.option(
+			usage.option(
 							"    distrib=int",
 							"maximum number of data of this attribute, a host can hold. The special value -1  means that this number is infinite");
 			usage.ln();
@@ -702,27 +730,15 @@ public class CommandLineTool {
 					"create a new data from the file file_name");
 			usage.ln();
 			usage.section("Scheduling:");
-			usage
-					.option("sched attr_uid data_uid [data_uids ..... ]",
+			usage.option("sched {attr_uid: '<attribute_id>', data_uids: [<datauid1>,<datauid2>,...,<datauidn>]}",
 							"schedule one or a list of data with the specified attribute");
 			// usage.option("unsched data_uid [data_uids ..... ]","unschedule one or a list of data");
 			usage.ln();
 			usage.section("File:");
-			usage
-					.option(
-							"put file_name [dataId]",
+			usage.option("put file_name [dataId]",
 							"copy a file in the data space. If dataId is not specified, a new data will be created from the file.");
 			usage.option("get dataId [file_name]", "get the file from dataId.");
 			usage.ln();
-
-			// usage.option("--file filename","file name to be created" );
-			// usage.option("--attr attruid","attribute uid associated to the data"
-			// );
-
-			// usage.option("--file filename","file name to be created" );
-			// usage.option("--attr attruid","attribute uid associated to the data"
-			// );
-
 			break;
 		case SHORT:
 			usage.usage("try java -jar bitdew-stand-alone-"
