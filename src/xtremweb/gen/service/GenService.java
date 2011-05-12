@@ -8,7 +8,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import org.apache.log4j.Logger;
+
+
+import xtremweb.core.log.Logger;
+import xtremweb.core.log.LoggerFactory;
+import xtremweb.role.examples.ScpTransfer;
 
 /**
  * This class generates the infrastructure needed to generate the classes
@@ -19,47 +23,26 @@ public class GenService {
     /**
      * Application logger
      */
-    private static Logger logger;
+	protected static Logger log = LoggerFactory.getLogger(GenService.class);
     
-    /**
-     * Main method, 
-     * @param args the program parameters, a one-element array that contains the name 
-     * of the service that will be created
-     */
-    public static void main(String[] args) {
-	try {
-	    logger = Logger.getLogger(GenService.class);
-	    CmdLineParser parser = new CmdLineParser();
-	    CmdLineParser.Option nameservice = parser.addStringOption('s',"service");
-	    CmdLineParser.Option vos = parser.addStringOption('o',"objects");
-	    try {
-		parser.parse(args);
-	    } catch (IllegalOptionValueException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	    } catch (UnknownOptionException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	    }
-	    
-	    String service = (String) parser.getOptionValue(nameservice,"dnaming");
-	    String objectstr = (String) parser.getOptionValue(vos,null);
+    
+    public GenService(String[] args) throws IOException
+    {	String service = args[1];
+	    String objectstr = "";
+	    for (int i = 2; i < args.length; i++) {
+			objectstr += args[i] + " ";
+		}
 	    String[] objects = {};
 	    if(objectstr != null)
 		objects = objectstr.split(" "); 
-	  
-		
-	    System.setProperty("servname", service);
-	    System.out.println("user dir " + System.getProperty("user.dir"));
 	    File dir = new File(System.getProperty("user.dir")
 		    + "/src/xtremweb/serv/" + service + "/");
 	    if (!dir.exists())
 		dir.mkdir();
 	    else {
-		logger.error("You already define that service ");
+		log.fatal("You already define that service ");
 		return;
 	    }
-	    System.out.println("current " + dir.getAbsolutePath());
 	    File nucleus = new File(dir.getAbsolutePath() + "/Callback"
 		    + service + ".java");
 
@@ -78,16 +61,17 @@ public class GenService {
 	    bw.write("}\n");
 	    bw.flush();
 	    bw.close();
-	    logger.info("class xtremweb.serv." + service + ".Callback"
+	    log.info("class xtremweb.serv." + service + ".Callback"
 		    + service + " succesfully Generated");
 	    File idl = new File(dir.getAbsolutePath() + "/" + service + ".idl");
+	    
 	    bw = new BufferedWriter(new FileWriter(idl));
 	    bw.write("<Module name=\"" + service + "\">\n");
 	 
 	    bw.write("</Module>");
 	    bw.flush();
 	    bw.close();
-	    logger.info("File " + service
+	    log.info("File " + service
 		    + ".idl succesfully generated in xtremweb.serv." + service);
 	    File jdo = new File(dir.getAbsolutePath() + "/package.jdo");
 	    bw = new BufferedWriter(new FileWriter(jdo));
@@ -102,27 +86,13 @@ public class GenService {
 	            bw.write("<column name=\"UID\"/>\n");
 	          bw.write("</field>");
 	    bw.write("</class>");
-	    }
-	    
+	    }    
 	    bw.write("</package>\n");
 	    bw.write("</jdo>\n");
 	    bw.flush();
 	    bw.close();
-	    
-	    
-	    
-	    logger
-		    .info("File package.jdo succesfully generated in xtremweb.serv."
-			    + service);
-	} catch (IOException e) {
-	    System.out.println("The following error has occurred : ");
-	    e.printStackTrace();
-	}
-
+	    log.info("File package.jdo succesfully generated in xtremweb.serv."+ service);
     }
-    
-    
-    
 
     public static void usage() {
 	System.out
