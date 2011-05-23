@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Properties;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -74,6 +75,11 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 	 * Known Hosts path
 	 */
 	private String KNOWN_HOSTS;
+	
+	/**
+	 * Password
+	 */
+	private String password;
 
 	/**
 	 * Scp transfer contructor
@@ -93,6 +99,7 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 	 */
 	public ScpTransfer(Data d,Transfer t,Locator l1, Locator l2, Protocol p1, Protocol p2)
     {	super(d,t,l1,l2,p1,p2);
+    	
     	this.user = remote_protocol.getlogin();
     	this.host = remote_protocol.getserver();
     	this.lfile = local_locator.getref();
@@ -100,8 +107,11 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
     	this.rfile = remote_locator.getref();
     	System.out.println("rfile is " + rfile);
     	PRIVATE_KEY = remote_protocol.getprivatekeypath();
+    	log.debug("private key is " + PRIVATE_KEY);
     	KNOWN_HOSTS = remote_protocol.getknownhosts();
+    	log.debug("known hosts is " + KNOWN_HOSTS);
     	PASSPHRASE = remote_protocol.getpassphrase();
+    	password = remote_protocol.getpassword();
 	/*scpm = new ScpManager(remote_protocol.getlogin(),remote_protocol.getserver(),local_locator.getref(),remote_locator.getref(),
 		remote_protocol.getprivatekeypath(),remote_protocol.getknownhosts(),remote_protocol.getpassphrase());*/
     }
@@ -120,6 +130,7 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 	 */
 	public void blockingSendSenderSide() throws OOBException {
 		FileInputStream fis = null;
+		log.debug("ENTER IN SCP BLOCK SEND SENDER ");
 		try {
 			log.debug("enter send scpmanager session is " + session);
 			// exec 'scp -t rfile' remotely
@@ -178,6 +189,7 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 			} catch (Exception ee) {
 			}
 		}
+		log.debug("OUT OF SEND SENDER BLOCK SCP");
 		log.debug("out send scpmanager");
 	}
 
@@ -191,6 +203,7 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 	 * Securely connect
 	 */
 	public void blockingReceiveReceiverSide() throws OOBException {
+		
 		File f = null;
 		FileOutputStream fos = null;
 		try {
@@ -297,10 +310,19 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 		log.debug("enter to connect ");
 		JSch jsch = new JSch();
 		try {
-			jsch.addIdentity(PRIVATE_KEY, PASSPHRASE);
+			
+			if(PRIVATE_KEY != null && !PRIVATE_KEY.equals(""))
+				jsch.addIdentity(PRIVATE_KEY, PASSPHRASE);
+			else
+				throw new OOBException("Private key cannot be null ");
+			if(KNOWN_HOSTS == null || KNOWN_HOSTS.equals(""))
+				throw new OOBException("Known Host file cannot be null ");
 			jsch.setKnownHosts(KNOWN_HOSTS);
 			log.debug("user " + user + "host : " + host);
 			session = jsch.getSession(user, host, 22);
+			Properties p = new Properties();
+	    	p.put("StrictHostKeyChecking", "no");
+			session.setConfig(p);
 			session.connect();
 		} catch (JSchException e) {
 			e.printStackTrace();
