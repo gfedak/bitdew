@@ -617,7 +617,7 @@ public class CommandLineTool {
 					.get("prkeypath"));
 			String pukeypath = CommandLineToolHelper.nullOrObject(repo
 					.get("pukeypath"));
-			System.out.println("passphrase is " + repo.get("passphrase"));
+			
 			String passphrase = CommandLineToolHelper.nullOrObject(repo
 					.get("passphrase"));
 
