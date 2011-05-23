@@ -329,7 +329,7 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
      * <li>Send the file using</li>
      * @code
      *   
-     *   java -jar bitdew-stand-alone-XXX.jar:ScpTransfer.class put bitdew.mf scp 
+     *   java -cp bitdew-stand-alone-XXX.jar:ScpTransfer.class xtremweb.role.cmdline.CommandLineTool put bitdew.mf scp 
      * @endcode
      * 
      * <li> If you did things well, you should obtain the following output : </li>
