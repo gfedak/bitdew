@@ -60,7 +60,7 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
 		    protocol.setname(protoName);
 		    if (protoName.equals("ftp")) {
 			log.debug("Setting FTP potocol from the configuration file " + mainprop.getProperty("xtremweb.serv.dr.ftp.name") );
-			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.ftp.server","localhost"));
+			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.ftp.server",InetAddress.getLocalHost().getHostName()));
 			protocol.setport((Integer.valueOf(mainprop.getProperty("xtremweb.serv.dr.ftp.port", "21"))).intValue());
 			protocol.setlogin(mainprop.getProperty("xtremweb.serv.dr.ftp.login","anonymous"));
 			protocol.setpassword(mainprop.getProperty("xtremweb.serv.dr.ftp.passwd","bush@whitehouse.gov"));
@@ -92,11 +92,11 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
 		    }
 		    if (protoName.equals("scp")){			
 			log.debug("Setting scp protocol from the configuration file");
-			protocol.setpassphrase(mainprop.getProperty("xtremweb.serv.dr.scp.passphrase",null));
+			protocol.setpassphrase(mainprop.getProperty("xtremweb.serv.dr.scp.passphrase",""));
 			protocol.setprivatekeypath(mainprop.getProperty("xtremweb.serv.dr.scp.prkeypath",null));
 			protocol.setknownhosts(mainprop.getProperty("xtremweb.serv.dr.scp.knownhosts",null));
 			protocol.setlogin(mainprop.getProperty("xtremweb.serv.dr.scp.login",null));
-			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.scp.server",null));
+			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.scp.server",InetAddress.getLocalHost().getHostName()));
 			protocol.setpassword(mainprop.getProperty("xtremweb.serv.dr.scp.key",null));
 			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.scp.path",null));
 			protocol.setport(Integer.parseInt(mainprop.getProperty("xtremweb.serv.dr.scp.port","22")));
@@ -112,6 +112,8 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
 		}	    
 	    } catch (RemoteException re){
 		log.warn("unable to record standard protocol");	    
+	    }catch (java.net.UnknownHostException uhe){
+	    	log.fatal("There was a problem initializing dr ");
 	    }
 	}		
 	log.info("Registred Protocols : ");
