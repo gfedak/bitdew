@@ -64,7 +64,7 @@ public class JsonProperties implements PropertiesSource {
 		String tot = "";
 		Properties p = new Properties();
 		BufferedReader br = null;
-		try {
+		try {	if(System.getProperty("PROPERTIES_FILE") == null){
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(PATH)));		
 			String s = br.readLine();
 			s = s.trim();
@@ -73,6 +73,19 @@ public class JsonProperties implements PropertiesSource {
 				s = br.readLine();
 				if (s != null)
 					s = s.trim();
+			}
+			}
+			else{
+			    String pfile = System.getProperty("PROPERTIES_FILE");
+			    br = new BufferedReader(new InputStreamReader(new FileInputStream(pfile)));		
+				String s = br.readLine();
+				s = s.trim();
+				while (s != null) {
+					tot += s;
+					s = br.readLine();
+					if (s != null)
+						s = s.trim();
+				} 
 			}
 		} catch (FileNotFoundException e) {
 			try {
