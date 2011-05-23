@@ -3,7 +3,7 @@
       Ant build file
   </description>
 
-  <property name="version" value="0.2.5" />
+  <property name="version" value="0.2.6" />
   <property environment="env" />
   <!-- set global properties for this build -->
   <property name="src" location="src"/>
@@ -227,16 +227,16 @@ public class Version {
 		    excludes="**/bench/*, **/blast/*, **/mw/*, **/examples/*, **/reservoir/*, **/serv/obj/*, **/serv/test/*, **/core/obj/**, **/core/iface/**, **/core/com/com/**, **/core/com/handler/**"
 		    prefix="bitdew-${version}/src/" />
 	<zipfileset dir="src/xtremweb/role/examples"
-		    includes="HelloWorld.java, PutGet.java, PingPong.java, FTPServer.java"
+		    includes="HelloWorld.java, PutGet.java, PingPong.java, FTPServer.java, ScpTransfer.java,  Callbackdn.java"
 		    prefix="bitdew-${version}/src/xtremweb/role/examples/" />
 	<zipfileset dir="conf" 
-		    includes="java.policy, jpox.properties, dbcp.properties, log4j.properties, log4jcmdlinetool.properties, xtremweb.properties*" 
+		    includes="java.policy, jpox.properties, dbcp.properties, log4j.properties, log4jcmdlinetool.properties, xtremweb.properties*, properties.json" 
 		    prefix="bitdew-${version}/conf" />
 	<zipfileset dir="lib"
 		    prefix="bitdew-${version}/lib/" />
 	<zipfileset dir="build"
 		    prefix="bitdew-${version}/build/" />
-
+ 	<zipfileset dir="sdk" includes="build.xml" prefix="bitdew-${version}/sdk"/>
       </zip>
     </target>
 

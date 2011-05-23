@@ -17,6 +17,13 @@
 	
 ** HISTORY **
 
+May 23 2011
+	version 0.2.6
+	-scp and dnaming tutorial completed
+	-properties changed to json format
+	-scheduler loop totally corrected
+	-SDK development because it didnt work
+
 March 22 2011 
 	version 0.2.5
 	-scp transfer (jose)
