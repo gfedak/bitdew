@@ -24,7 +24,6 @@ public class CommandLineToolHelper {
      */
     public static String jsonize(String str) {
 	str = str.replace('\'', '"');
-	System.out.println("current json " + str);
 	StringBuffer total = new StringBuffer(str);
 	// pattern ','|'{'<word>':'
 	Pattern betweenBraces = Pattern.compile("[,{].*?:");
