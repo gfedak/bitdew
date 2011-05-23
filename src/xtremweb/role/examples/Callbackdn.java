@@ -29,14 +29,14 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
      *    <li> Java VM 1.6 or later </li>
      *    </ol>
      * </li>
-     * <li> The following example develop a simple domain naming service such that, for a given service name dX, the service
-     * answer the ip number of the stable node containing that service. The service uses a database table (SERVICE) to store the mappings <dX name, ip> </li>
+     * <li> The following example explains how to build a simple domain naming service such that, for a given service name dX, it
+     * answers the ip address of the node containing that service. The service uses a database table (SERVICE) to store this information </li>
      * <li> Download bitdew-sdk-XXX.zip</li>
      * 
      * <li> Unzip, cd into de directory and type, 
      * 
      * @code
-     *    java -jar bitdew-stand-alone-XXX.jar gen -s dnaming -o Service
+     *    java -jar lib/bitdew-stand-alone-X.X.X.jar gen dnaming Service
      * @endcode
      * 
      * <li> Last command generate needed files to program a service called dnaming that will use the <a href=\"http://www.oracle.com/technetwork/java/index-jsp-135919.html\">jdo</a> 
@@ -154,50 +154,7 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
      * 
      * <li> Last code insert a service (registerService) and search for one (getServiceAddress) using jpox jdo implementation </li>
      * 
-     * <li> Generate your service jar with </li>
-     * 
-     * @code
-     * 	ant -lib lib/mtxslt-1.5.jar jar-sdk
-     * @endcode
-     * 
-     * <li> Now You are ready to test your brand-new created service, execute
-     * 
-     * @code
-     * java -cp lib/bitdew-stand-alone-0.2.5.jar:dist/myservice.jar xtremweb.role.cmdline.CommandLineTool serv dc dr dnaming
-     * @endcode
-     * 
-     * <li> You should obtain something similar to </li>
-     * 
-     * @code
-     *  java -cp lib/bitdew-stand-alone-0.2.5.jar:dist/myservice.jar xtremweb.role.cmdline.CommandLineTool serv dc dr dnaming
-     *	Started DHT service for distributed data catalog
-     *	ModuleLoader has registred callback: [dc]
-     *	Using performance monitor on service call : true
-     *	ModuleLoader has registred handler: [dc,RMI]
-     *	ServiceLoader : module dc loaded
-     *	Registred Protocols : 
-     *  Protocol [6b37c850-66b0-31e0-8ede-df754235fb22]   [dummy://null@null:0]
-     *  Protocol [6b3cd160-66b0-31e0-8ede-df754235fb22]   [http://null@10.211.55.3:8080]
-     *  Protocol [6b3d94b0-66b0-31e0-8ede-df754235fb22]   [ftp://anonymous@ftp.lip6.fr:21]
-     *  ModuleLoader has registred callback: [dr]
-     *  ModuleLoader has registred handler: [dr,RMI]
-     *  ServiceLoader : module dr loaded
-     *  ModuleLoader has registred callback: [dnaming]
-     *  ModuleLoader has registred handler: [dnaming,RMI]
-     *  ServiceLoader : module dnaming loaded
-     *  2011-04-14 18:01:12.146::INFO:  Logging to STDERR via org.mortbay.log.StdErrLog
-     *  2011-04-14 18:01:12.286::INFO:  jetty-6.1.x
-     *  2011-04-14 18:01:12.364::INFO:  Started SocketConnector @ 0.0.0.0:8080
-     *  Http Server started serving files on . with http://localhost:8080//data and uploading files with the servlet http://localhost:8080//fileupload
-     * @endcode
-     * 
-     * <li> You can see that in lines </li>
-     * @code
-     * ModuleLoader has registred callback: [dnaming]
-     * ModuleLoader has registred handler: [dnaming,RMI]
-       @endcode
-     * 
-     * <li> Bitdew has successfully recognized your service, in order to run a test of this service you can copy-paste the following class in a file called <em>CallbackTest.java</em> under the xtremweb.serv.dnaming directory : </li>
+     * <li> In order to run a test of this service you can copy-paste the following class in a file called <em>CallbackTest.java</em> under the xtremweb.serv.dnaming directory : </li>
      * @code
      * package xtremweb.serv.dnaming;
      * import java.rmi.RemoteException;
@@ -243,13 +200,59 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
      * }
      * @endcode
      * <li> This test creates three mappings <ip,service_name> on the naming service, then , we request the ip when a given service
-     * is runing.
+     * is runing.</li>
      * 
-     * <li>In other console run again </li> 
+     * 
+     * 
+     * 
+     * 
+     * <li> Generate your service jar with </li>
+     * 
      * @code
-     *     ant -lib lib/mtxslt-1.5.jar jar-sdk
+     * 	ant -lib lib/mtxslt-1.5.jar jar-sdk
      * @endcode
-     * <li> Restart the server launched in the first console, then execute the previously copied class :
+     * 
+     * <li> Now You are ready to test your brand-new created service, execute
+     * 
+     * @code
+     * java -cp lib/bitdew-stand-alone-0.2.5.jar:dist/myservice.jar xtremweb.role.cmdline.CommandLineTool serv dc dr dnaming
+     * @endcode
+     * 
+     * <li> You should obtain something similar to </li>
+     * 
+     * @code
+     *  java -cp lib/bitdew-stand-alone-0.2.5.jar:dist/myservice.jar xtremweb.role.cmdline.CommandLineTool serv dc dr dnaming
+     *	Started DHT service for distributed data catalog
+     *	ModuleLoader has registred callback: [dc]
+     *	Using performance monitor on service call : true
+     *	ModuleLoader has registred handler: [dc,RMI]
+     *	ServiceLoader : module dc loaded
+     *	Registred Protocols : 
+     *  Protocol [6b37c850-66b0-31e0-8ede-df754235fb22]   [dummy://null@null:0]
+     *  Protocol [6b3cd160-66b0-31e0-8ede-df754235fb22]   [http://null@10.211.55.3:8080]
+     *  Protocol [6b3d94b0-66b0-31e0-8ede-df754235fb22]   [ftp://anonymous@ftp.lip6.fr:21]
+     *  ModuleLoader has registred callback: [dr]
+     *  ModuleLoader has registred handler: [dr,RMI]
+     *  ServiceLoader : module dr loaded
+     *  ModuleLoader has registred callback: [dnaming]
+     *  ModuleLoader has registred handler: [dnaming,RMI]
+     *  ServiceLoader : module dnaming loaded
+     *  2011-04-14 18:01:12.146::INFO:  Logging to STDERR via org.mortbay.log.StdErrLog
+     *  2011-04-14 18:01:12.286::INFO:  jetty-6.1.x
+     *  2011-04-14 18:01:12.364::INFO:  Started SocketConnector @ 0.0.0.0:8080
+     *  Http Server started serving files on . with http://localhost:8080//data and uploading files with the servlet http://localhost:8080//fileupload
+     * @endcode
+     * 
+     * <li> You can see that in lines </li>
+     * @code
+     * ModuleLoader has registred callback: [dnaming]
+     * ModuleLoader has registred handler: [dnaming,RMI]
+       @endcode
+     * 
+     * <li> Bitdew has successfully recognized your service, 
+     * 
+    
+     * <li> Open a second tab and launch the test :
      * @code
      *     java -cp lib/bitdew-stand-alone-0.2.5.jar:dist/myservice.jar xtremweb.serv.dnaming.CallbackTest
      * @endcode
