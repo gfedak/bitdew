@@ -43,7 +43,6 @@ import xtremweb.core.util.uri.*;
 public class TransferManager {
 
     private InterfaceRMIdt dt = null;
-    private InterfaceRMIdr dr = null; //UNUSED FIXME
 
     /** time between two periodic activities (in milli seconds) */
     private int timeout = 1000; 
@@ -73,9 +72,7 @@ public class TransferManager {
      * @param ldt an <code>InterfaceRMIdt</code> value
      * @param ldr an <code>InterfaceRMIdr</code> value
      */
-    public TransferManager(InterfaceRMIdr ldr, 
-			   InterfaceRMIdt ldt) {
-	dr = ldr;
+    public TransferManager(InterfaceRMIdt ldt) {
 	dt = ldt;
 	init();
     }
@@ -97,7 +94,6 @@ public class TransferManager {
     public TransferManager(Vector comms) {
 
 	for (Object o : comms) {
-	    if (o instanceof InterfaceRMIdr) dr = (InterfaceRMIdr) o;
 	    if (o instanceof InterfaceRMIdt) dt = (InterfaceRMIdt) o;
 	}
 	init();
@@ -265,7 +261,6 @@ public class TransferManager {
 		    try {
 			oob = getOOBTransfer(trans);
 			if ( TransferType.isLocal(trans.gettype()) ) {
-			    log.debug("Registring remote" + oob);
 			    Transfer tcpy =  (Transfer) pm.detachCopy(trans);
 			    log.debug ("transfer " + tcpy + " | data " +  oob.getData() + " | remote protocol " +  oob.getRemoteProtocol() + " | remote locator " +  oob.getRemoteLocator());
 			    dt.registerTransfer( tcpy, 

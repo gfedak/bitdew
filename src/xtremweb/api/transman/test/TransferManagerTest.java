@@ -74,7 +74,7 @@ public class TransferManagerTest {
 
 	    bitdew = new BitDew( cdc, cdr, cdt, cds );
 
-	    tm = new TransferManager(cdr, cdt);
+	    tm = new TransferManager(cdt);
 
 	    data = bitdew.createData(file);
 	    log.info("created data " + data.getuid());

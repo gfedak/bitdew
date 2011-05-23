@@ -36,9 +36,9 @@ public class TransferManagerFactory {
      *
      * @return a <code>TransferManager</code> value
      */
-    public static TransferManager getTransferManager(InterfaceRMIdr dr, InterfaceRMIdt dt) {
+    public static TransferManager getTransferManager(InterfaceRMIdt dt) {
 	if (tm == null) {
-	    tm = new TransferManager(dr, dt);
+	    tm = new TransferManager(dt);
 	    tm.start();
 	}
 	return tm;
