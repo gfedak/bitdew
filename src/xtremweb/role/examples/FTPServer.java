@@ -90,7 +90,7 @@ public class FTPServer {
      * 
      * <li> This command will download the file of uid
      * 639edd60-1cbc-31e0-ab7e-c0c64755d3e6 (remotely BOOTING.TXT) to the local
-     * file LOCAL_BOOTING.TXT, you should get the following message:</li>
+     * file LOCAL_BOOTING.TXT, using ftp protocol you should get the following message:</li>
      * 
      * @code [ INFO] data has been successfully copied to LOCAL_BOOTING.TXT
      * 
