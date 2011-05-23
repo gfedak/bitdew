@@ -446,7 +446,7 @@ public class CommandLineTool {
 			Vector comms = ComWorld.getMultipleComms(host, "rmi", port,
 					"dr", "dc", "dt");
 			TransferManager transman = TransferManagerFactory
-					.getTransferManager((InterfaceRMIdr) comms.get(0),
+					.getTransferManager(
 							(InterfaceRMIdt) comms.get(2));
 			Protocol protoc = oobTransfer.getRemoteProtocol();
 			System.out.println(" login i s " + protoc.getlogin());
