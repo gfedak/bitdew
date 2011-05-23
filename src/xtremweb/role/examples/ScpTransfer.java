@@ -31,36 +31,41 @@ import xtremweb.serv.dt.OOBException;
 public class ScpTransfer extends BlockingOOBTransferImpl {
     
     /*! \example ScpTransfer.java 
-     * This example shows how to implement a transfer in BitDew.
-     * For this purpose, a scp transfer is implemented using Bitdew's multitransfer management toolbox. 
+     * Bitdew's TransferManager component provide a non Blocking interface capable of manage multiple transfers concurrently.
+     * This example shows how to implement and integrate a new transfer using this interface
+     * For this purpose, a SCP transfer is implemented using Bitdew's multitransfer management toolbox.  
      * <ol> 
-     * <li> Prerrequisites :
+     * <h2>Prerrequisites :</h2>
+     * <li> 
      * 		<ol>
-     * 		   <li>Server capable of listening to scp</li>
+     * 		   <li>Server running ssh protocol</li>
      * 		   <li>Java 1.6 or greater</li>
      * 		</ol>
      * </li>
-     * <li> We use the <a href="http://www.jcraft.com/jsch/">JSch library</a> that implements transfers in a blocking way, the class provides <em>send()</em> and <em>receive()</em> methods
-     * to safely send and receive a file.
-     * </li>
+     * <h2> Preliminar Explanation </h2> 
      * 
-     * <li>Two principal interfaces are provided by bitdew to implement a new transfer: <em>NonBlockingOOBTransfer</em> and <em>BlockingOOBTransfer</em>, moreover, an implementation by default of these classes is provided in 
+     * <br>
+     * We use the <a href="http://www.jcraft.com/jsch/">JSch library</a> that implements transfers in a blocking way, the class provides <em>send()</em> and <em>receive()</em> methods
+     * to safely send and receive a file.
+     * <br>
+     * 
+     * Two principal interfaces are provided by bitdew to implement a new transfer: <em>NonBlockingOOBTransfer</em> and <em>BlockingOOBTransfer</em>, moreover, an implementation by default of these classes is provided in 
      * <em>NonBlockingOOBTransferImpl</em> and <em>BlockingOOBTransferImpl</em> respectively. We define a Blocking transfer as those whose we know if the transfer success
      * or the transfer error code, as soon as methods <em>send</em> and <em>receive</em> of implementation finish (commonly in libraries implementing http,ftp,smtp etc). 
-     * Jsch implementation works in this way, thats why we choose BlockingOOBTransferImpl interface to build our SCP transfer</li>
+     * Jsch implementation works in this way, thats why we choose BlockingOOBTransferImpl interface to build our SCP transfer
      * @code
      * public class ScpTransfer extends BlockingOOBTransferImpl {	
      * @endcode
      * <br>
      * 
      * 
-     * On the other hand, we define a Non Blocking transfer as the contrary, that is, those whose we do not know anything about the transfer once the method send or receive finishes. 
+     * On the other hand, we define a Non Blocking transfer as the opposite, that is, those whose we do not know anything about the transfer once the method send or receive finishes. 
      * This is the case of Bittorrent transfers, where once we decide seeding, we don't know if the file arrived to the sender/receiver. Please note that the Blocking/Non-Blocking transfer nature is an implementation
-     * detail rather than an intrinsic property of the protocol, that means we could implement a http transfer in a NonBlocking way by using Threads.
+     * detail rather than an intrinsic property of the protocol, that means we could implement a http transfer in a NonBlocking way by using an internal library implementation with threads.
+     * <br>
      * 
-     * 
-     * <li>In constructor we initialize  the SCP transfer state and we invoke the parent constructor (BlockingOOBTransferImpl) with the required fields.
-     * Common properties of a scp transfer are hosting server, user login, private ssh key path, passphrase and local/remote files routes.</li>
+     * In constructor we initialize  the SCP transfer state and we invoke the parent constructor (BlockingOOBTransferImpl) with the required fields.
+     * Common properties of a scp transfer are hosting server, user login, private ssh key path, passphrase and local/remote files routes.
      * @code
      * 
      * public ScpTransfer(Data d,Transfer t,Locator l1, Locator l2, Protocol p1, Protocol p2)
@@ -75,24 +80,9 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
      * }
      * 
      * @endcode
-     * 
-     * 
-     * <li> Next, five methods needs to be implemented </li>
-     * 
-     * @code
-     * 
-     *  public void connect() throws OOBException {}
-     *  
-     * 	public void blockingSendSenderSide() throws OOBException {}
-     * 
-     * 	public void blockingReceiveSenderSide() throws OOBException {}
-     * 
-     * 	public void blockingReceiveReceiverSide() throws OOBException {}
-     * 
-     * 	public void blockingSendReceiverSide() throws OOBException {}
-     * 
-     * @endcode 
-     * <li> Method connect is used to initialize connection parameters if neccessary, key setup for example can be done here </li>
+     * <br>
+     * Method connect is used to initialize connection parameters if neccessary, key setup for example can be done here 
+     * <br>
      * @code
      * public void connect() throws OOBException {
 		   JSch jsch = new JSch();
@@ -106,16 +96,33 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 		   }
 	   }
      * @endcode
+     * <br>
+     *  Next, five methods needs to be implemented 
+     * <br>
+     * @code
      * 
-     * <li> Depending on our transfer type, we will choose the methods to implement. In the case of SCP transfer using JSch library, 
+     *  public void connect() throws OOBException {}
+     *  
+     * 	public void blockingSendSenderSide() throws OOBException {}
+     * 
+     * 	public void blockingReceiveSenderSide() throws OOBException {}
+     * 
+     * 	public void blockingReceiveReceiverSide() throws OOBException {}
+     * 
+     * 	public void blockingSendReceiverSide() throws OOBException {}
+     * 
+     * @endcode 
+     * 
+     * 
+     * <br> Depending on our transfer type, we will choose the methods to implement. In the case of SCP transfer using JSch library, 
      * the sender is able to know if the receiver successfully receive the file or not, only by using the sender method (as it is a synchronous transfer, it will return exceptions if anything
-     * fails), in the same way, if we want to receive a file using Jsch, we will be able to know the result of our invokation only by regarding
-     * the receive return. For this reason, we only need to implement <em>blockingSendSenderSide</em> and 
+     * fails), in the same way, if we want to receive a file using Jsch, we will be able to know the result of our invokation by looking
+     * at receiver's return. For this reason, we only need to implement <em>blockingSendSenderSide</em> and 
      * <em>blockingReceiveReceiverSide</em> methods. This is not the case of all transfers. For example, in a bittorrent transfer (normally implemented 
      * as non-blocking transfer), the sender can not know the download result directly from the send return. In this case implementing sendReceiver side
      * could fix the problem.
-     * The following code shows how we can integrate JSch way of sending/receiving a file using Bitdew.  
-     * </li>
+     * The following code shows how we can integrate JSch send/receive methods using Bitdew.  
+     * 
      * @code 
      *   public void blockingSendSenderSide() throws OOBException {
      *	     FileInputStream fis = null;
@@ -280,8 +287,9 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 	}
      * @endcode 
      * 
-     *  <li>Because of scp relies on tcp, we are sure that as soon as the <em>blockingSendSenderSide</em>, <em>blockingReceiveReceiverSide</em> methods end, we know
-     * the transfer status, BlockingOOBTranfer provide <em>isTransferring</em> method that will return false wen the transfer ends. This method is called next</li> 
+     *  <br>Because of scp relies on tcp, we are sure that as soon as the <em>blockingSendSenderSide</em>, <em>blockingReceiveReceiverSide</em> methods end, we know
+     * the transfer status, BlockingOOBTranfer provides <em>isTransferring</em> method that will return false wen the transfer thread ends (remeber BitDew uses a nonblocking interface). 
+     * This method is called next 
      * @code
      * 
      * public boolean poolTransfer()
@@ -289,8 +297,9 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
      *     return !isTransfering();
      * }
      * @endcode 
-     * 
-     * <li> Create a new file called ScpTransfer.java, copy-pasting the code you will find beneath, locate this file
+     * <h2> Let's do it ! </h2>
+     * <li> 
+     * Create a new file called ScpTransfer.java, copy-pasting the code you will find beneath, locate this file
      * at the same hierarchy that your bitdew-stand-alone-XXX.jar file.</li>
      * 
      * <li> Perform a <em>cd</em> to the directory containing <em>ScpTransfer.java</em> and compile using</em>
