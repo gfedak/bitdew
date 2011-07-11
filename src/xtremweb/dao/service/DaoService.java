@@ -8,14 +8,17 @@ import xtremweb.dao.DaoJDOImpl;
 
 /**
  * This class interface with service table thorugh jdo
+ * 
  * @author jsaray
- *
+ * 
  */
 public class DaoService extends DaoJDOImpl {
-    
+
     /**
      * get the service having a specific name
-     * @param name the name
+     * 
+     * @param name
+     *            the name
      */
     public Service getServiceByName(String name) {
 	String str;
