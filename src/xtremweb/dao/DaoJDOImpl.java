@@ -1,7 +1,8 @@
 package xtremweb.dao;
 
-import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Properties;
 import javax.jdo.Extent;
 import javax.jdo.JDOHelper;
@@ -10,7 +11,6 @@ import javax.jdo.Query;
 import javax.jdo.Transaction;
 import xtremweb.core.conf.ConfigurationException;
 import xtremweb.core.conf.ConfigurationProperties;
-import xtremweb.core.db.DBInterfaceFactory;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 
@@ -34,9 +34,10 @@ public class DaoJDOImpl implements InterfaceDao {
     protected static PersistenceManager pm;
 
     /**
-     * This will initialize the Persistence manager just once
+     * This will initialize the Persistence manager, one DAO instance is
+     * equivalent to one persistence manager and thus one transaction
      */
-    static {
+    public DaoJDOImpl() {
 	Properties mainprop;
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
@@ -62,7 +63,7 @@ public class DaoJDOImpl implements InterfaceDao {
 	properties.setProperty("org.jpox.autoCreateSchema", "true");
 	properties.setProperty("org.jpox.validateTables", "false");
 	properties.setProperty("org.jpox.validateConstraints", "false");
-	properties.setProperty("javax.jdo.option.DetachAllOnCommit", "true");
+	properties.setProperty("javax.jdo.option.DetachAllOnCommit", "false");
 	if (mainprop.getProperty("xtremweb.core.db.connectionPooling") != null) {
 	    properties.setProperty("org.jpox.connectionPoolingType",
 		    mainprop.getProperty("xtremweb.core.db.connectionPooling"));
@@ -78,25 +79,35 @@ public class DaoJDOImpl implements InterfaceDao {
 		.getPersistenceManager();
     }
 
+    /**
+     * Ask the persistence manager to begin a transaction
+     */
     public void beginTransaction() {
 	pm.currentTransaction().begin();
     }
 
+    /**
+     * Ask the persistence manager to commit a transaction
+     */
     public void commitTransaction() {
 	pm.currentTransaction().commit();
-	// TODO is it worthy to do this ?
-	/*
-	 * finally { if (tx.isActive()) tx.rollback(); pm.close(); }
-	 */
     }
 
     /**
-     * make persistent using jdo
+     * Make persistent using jdo
      * 
      * @param obj
+     *            the object to make persistent
+     * @param autonomous
+     *            true if you want the storing to be made in a transaction
+     *            launched by this method, false if you want to manage the
+     *            transaction begin and commit
      */
     public void makePersistent(Object obj, boolean autonomous) {
-	Transaction tx = pm.currentTransaction();
+
+	Transaction tx = null;
+	if (autonomous)
+	    tx = pm.currentTransaction();
 	boolean persisted = false;
 
 	try {
@@ -117,48 +128,86 @@ public class DaoJDOImpl implements InterfaceDao {
 		ie.printStackTrace();
 	    }
 	} finally {
-	    if (tx.isActive()) {
-		tx.rollback();
+	    if (autonomous) {
+		if (tx.isActive()) {
+		    tx.rollback();
+		}
 	    }
-	    pm.close();
 	}
     }
 
     /**
-     * detach a copy using jdo
+     * detach a copy using the persistence manager
+     * 
+     * @param obj
+     *            the copy we want to be detached
+     * @return the detached copy
      */
     public Object detachCopy(Object obj) {
 	return pm.detachCopy(obj);
     }
 
     /**
-     * getAll using jdo
+     * getAll using jdo persistence manager
+     * 
+     * @param clazz
+     *            the class which objects we want to retrieve
+     * @return a collection of all the objects of a given class stored in jdo
      */
     public Collection getAll(Class clazz) {
-	Collection res = null;
+	Collection res = new ArrayList();
+	Extent ex = null;
 	try {
-	    Extent e = pm.getExtent(clazz, true);
-	    res = (Collection) e;
+	    ex = pm.getExtent(clazz, true);
+	    for (Iterator iterator = ex.iterator(); iterator.hasNext();) {
+		Object object = (Object) iterator.next();
+		res.add(object);
+	    }
 	} catch (Exception e) {
 	    System.out.println("DBI: " + e);
-	} finally {
-	    pm.close();
 	}
 	return res;
     }
 
     /**
-     * get by uid using jdo
+     * get by uid using jdo persistence manager
+     * 
+     * @param clazz
+     *            , the class we want to search
+     * @param uid
+     *            the uid we are searching for
+     * @return the object whose uid is equals to parameter uid
      */
     public Object getByUid(Class clazz, String uid) {
 	Extent e = pm.getExtent(clazz, true);
-	Query q = pm.newQuery(e, "uid == \"" + uid + "\"");
+	Query q = pm.newQuery(e, "uid == \'" + uid + "\'");
 	q.setUnique(true);
 	return q.execute();
     }
 
     /**
-     * get by name using jdo
+     * Delete one object from the persistence manager
+     * 
+     * @param o
+     *            the object we want to delete
+     */
+    public void deleteOne(Object o) {
+	pm.deletePersistent(o);
+    }
+
+    /**
+     * Delete all objects belonging to a collection
+     * 
+     * @param col
+     *            the objects we want to delete
+     */
+    public void deleteAll(Collection col) {
+
+	pm.deletePersistentAll(col);
+    }
+
+    /**
+     * get by name using jdo, Warning !!! is actually searching by lowercase
      * 
      * @param clazz
      *            the class to get the name
@@ -168,9 +217,6 @@ public class DaoJDOImpl implements InterfaceDao {
      */
     public Object getByName(Class clazz, String name) {
 	Object ret = null;
-	PersistenceManager pm = DBInterfaceFactory
-		.getPersistenceManagerFactory().getPersistenceManager();
-
 	try {
 	    Extent e = pm.getExtent(clazz, true);
 	    Query q = pm.newQuery(e, "name == \"" + name.toLowerCase() + "\"");
@@ -180,8 +226,31 @@ public class DaoJDOImpl implements InterfaceDao {
 		return null;
 	    ret = pm.detachCopy(protoStored);
 	} finally {
-	    pm.close();
+
 	}
 	return ret;
+    }
+
+    /**
+     * Tells if a transaction is active
+     * 
+     * @return true if the current transaction is active, else false
+     */
+    public boolean transactionIsActive() {
+	return pm.currentTransaction().isActive();
+    }
+
+    /**
+     * Perform a rollback on the transaction
+     */
+    public void transactionRollback() {
+	pm.currentTransaction().rollback();
+    }
+
+    /**
+     * Close the persistence manager
+     */
+    public void close() {
+	pm.close();
     }
 }
