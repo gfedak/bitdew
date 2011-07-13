@@ -14,29 +14,43 @@ import xtremweb.core.com.idl.*;
 import xtremweb.core.iface.*;
 import xtremweb.core.db.*;
 import xtremweb.core.obj.dc.*;
-import xtremweb.core.uid.*;
 import xtremweb.core.log.*;
-import xtremweb.core.obj.ds.*;
-
-import xtremweb.serv.dc.ddc.jdht.*;
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.data.DaoData;
+import xtremweb.dao.datachunck.DaoDataChunck;
+import xtremweb.dao.datacollection.DaoDataCollection;
+import xtremweb.dao.locator.DaoLocator;
 import xtremweb.serv.dc.ddc.*;
 
-import java.util.*;
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import javax.jdo.PersistenceManager;
-import javax.jdo.Extent;
-import javax.jdo.Query;
 import javax.jdo.Transaction;
 import java.util.Vector;
 
-public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
-   
-    protected Logger log = LoggerFactory.getLogger("DC Service");
-    protected DistributedDataCatalog ddc = null;
-    private     DBInterface dbi = DBInterfaceFactory.getDBInterface();
+/**
+ * This class implements the InterfaceRMIdc, is the catalog used to handle
+ * MetaData in BitDew.
+ * 
+ * @author josefrancisco
+ * 
+ */
+public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 
+    /**
+     * Logging factory
+     */
+    protected Logger log = LoggerFactory.getLogger("DC Service");
+
+    /**
+     * Distributed data catalog to handle replica management
+     */
+    protected DistributedDataCatalog ddc = null;
+
+    /**
+     * Callbackdc constructor
+     */
     public Callbackdc() {
 	try {
 	    ddc = DistributedDataCatalogFactory.getDistributedDataCatalog();
@@ -47,361 +61,366 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc{
 	}
 	log.info("Started DHT service for distributed data catalog");
     } // Callbackobj constructor
-    
-    public Data createData( String name, String checksum, long size, int type)  throws RemoteException {	
+
+    /**
+     * Create and put a new Data in BitDew and return it, data encapsulates file
+     * metainformation in a java class, and is the usual class manipulated in
+     * BitDew.
+     * 
+     * @param name
+     *            file name
+     * @param checksum
+     *            file checksum (if available)
+     * @param size
+     *            file size
+     * @param type
+     *            file type (binary, text)
+     * @return the Data representing that file on BitDew.
+     * @throws RemoteException
+     */
+    public Data createData(String name, String checksum, long size, int type)
+	    throws RemoteException {
 	Data data = new Data();
 
-	data.setname( name );
-	data.setchecksum( checksum );
-	data.setsize( size );
-	data.settype( type );
+	data.setname(name);
+	data.setchecksum(checksum);
+	data.setsize(size);
+	data.settype(type);
 
 	putData(data);
 
 	return data;
     }
 
-    public Data createData()  throws RemoteException {
-	
+    /**
+     * Create and put an empty Data in bitdew.
+     * 
+     * @return The newly-empty data
+     * @throws RemoteException
+     *             if the RMI service throws an exception
+     */
+    public Data createData() throws RemoteException {
+
 	Data data = new Data();
 	putData(data);
 
 	return data;
     }
 
-
-    public void putData(Data data)  throws RemoteException {
-	dbi.makePersistent(data);
+    public void putData(Data data) throws RemoteException {
+	DaoData dao = (DaoData) DaoFactory.getInstance("DaoData");
+	dao.makePersistent(data, true);
     }
 
-    public String getDDCEntryPoint()  throws RemoteException {
-	if (ddc==null) return "null";
+    public String getDDCEntryPoint() throws RemoteException {
+	if (ddc == null)
+	    return "null";
 	else {
 	    try {
 		return ddc.entryPoint();
 	    } catch (DDCException ddce) {
-		log.debug("" +ddce);
+		log.debug("" + ddce);
 	    }
 	}
-	return  "null";
+	return "null";
     }
 
-    public Data getData(String uid)  throws RemoteException {
+    public Data getData(String uid) throws RemoteException {
 	Data data = null;
-
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-
-	Transaction tx=pm.currentTransaction();
+	DaoData dao = (DaoData) DaoFactory.getInstance("DaoData");
 	try {
-	    tx.begin();
+	    dao.beginTransaction();
 
-            Extent e=pm.getExtent(Data.class,true);
-            Query q=pm.newQuery(e, "uid == \"" + uid + "\"");
-	    q.setUnique(true);
+	    Data dataStored = (Data) dao.getByUid(Data.class, uid);
+	    if (dataStored != null)
+		data = (Data) dao.detachCopy(dataStored);
+	    dao.commitTransaction();
+	} finally {
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	    dao.close();
+	}
 
-	    Data dataStored =(Data) q.execute();
-	    if (dataStored != null) 
-		data = (Data) pm.detachCopy(dataStored);
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
-	
 	return data;
     }
 
-    public void deleteData(Data data)  throws RemoteException {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+    public void deleteData(Data data) throws RemoteException {
+	PersistenceManager pm = DBInterfaceFactory
+		.getPersistenceManagerFactory().getPersistenceManager();
 
-	Transaction tx=pm.currentTransaction();
+	Transaction tx = pm.currentTransaction();
 	try {
 	    tx.begin();
-	    //	    Object id = pm.getObjectId(data);
-	    //Data obj = pm.getObjectById(id);
+	    // Object id = pm.getObjectId(data);
+	    // Data obj = pm.getObjectById(id);
 	    pm.makePersistent(data);
 	    pm.deletePersistent(data);
 
-	    //	    Data todelete = pm.getObjectById(uid);  // Retrieves the object to delete
-	    //	    pm.deletePersistent(todelete);
+	    // Data todelete = pm.getObjectById(uid); // Retrieves the object to
+	    // delete
+	    // pm.deletePersistent(todelete);
 	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
+	} finally {
+	    if (tx.isActive())
+		tx.rollback();
+	    pm.close();
+	}
     }
 
-    public void deleteData(String uid)  throws RemoteException{
-	//	deleteData(data.getuid());
+    public void deleteData(String uid) throws RemoteException {
+	// deleteData(data.getuid());
     }
 
     public void browse() {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
+	DaoData dao = (DaoData) DaoFactory.getInstance("DaoData");
 	try {
-	    tx.begin();
-            Extent e=pm.getExtent(Data.class,true);
-            Iterator iter=e.iterator();
-            while (iter.hasNext())
-            {
-                Data data = (Data) iter.next();
-                System.out.println( DataUtil.toString(data) );
-            }
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
+	    dao.beginTransaction();
+	    Collection e = dao.getAll(Data.class);
+	    Iterator iter = e.iterator();
+	    while (iter.hasNext()) {
+		Data data = (Data) iter.next();
+		System.out.println(DataUtil.toString(data));
+	    }
+	    dao.commitTransaction();
+	} finally {
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	    dao.close();
+	}
     }
 
-    public void putLocator(Locator locator)  throws RemoteException {
-	    dbi.makePersistent(locator);
+    public void putLocator(Locator locator) throws RemoteException {
+	DaoLocator dao = (DaoLocator) DaoFactory.getInstance("DaoLocator");
+	dao.makePersistent(locator, true);
     }
 
-
-    //FIXME TO IMPLEMENT
-    public  void setDataStatus( String uid, int status ) throws RemoteException {
+    // FIXME TO IMPLEMENT
+    public void setDataStatus(String uid, int status) throws RemoteException {
     }
 
-
-    //FIXME THAT'S UGLY !!!!!
-    public Locator getLocatorByDataUID(String uid)  throws RemoteException {
+    // FIXME THAT'S UGLY !!!!!
+    public Locator getLocatorByDataUID(String uid) throws RemoteException {
 	Locator locator = null;
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
+	DaoLocator dao = (DaoLocator) DaoFactory.getInstance("DaoLocator");
 	try {
-	    tx.begin();
+	    dao.beginTransaction();
 
-            Extent e=pm.getExtent(Locator.class,true);
-	    //            Query q=pm.newQuery(e, "datauid == " + uid);
-           Iterator iter=e.iterator();
-            while (iter.hasNext())
-            {
-                Locator ret = (Locator) iter.next();		
+	    Collection e = dao.getAll(Locator.class);
+	    // Query q=pm.newQuery(e, "datauid == " + uid);
+	    Iterator iter = e.iterator();
+	    while (iter.hasNext()) {
+		Locator ret = (Locator) iter.next();
 		if (ret.getdatauid().equals(uid)) {
-		    log.debug("getLocatorByDataUID found one locator : " + ret.getuid() + ":" + ret.getpublish());
+		    log.debug("getLocatorByDataUID found one locator : "
+			    + ret.getuid() + ":" + ret.getpublish());
 		    if (ret.getpublish())
-			locator = (Locator) pm.detachCopy(ret);
+			locator = (Locator) dao.detachCopy(ret);
 		}
-            }
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
+	    }
+	    dao.commitTransaction();
+	} finally {
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	    dao.close();
+	}
 
 	return locator;
 
     }
 
-    //////////////////////////////////////////////////
-    public  void putDataCollection(DataCollection datacollection) throws RemoteException {
-	    dbi.makePersistent(datacollection);
+    // ////////////////////////////////////////////////
+    public void putDataCollection(DataCollection datacollection)
+	    throws RemoteException {
+	DaoDataCollection dao = (DaoDataCollection) DaoFactory
+		.getInstance("DaoLocator");
+	dao.makePersistent(datacollection, true);
     }
 
-    //BING FIXME
-    public  Vector getDataInCollection( String datacollectionuid, int indexbegin, int indexend ) throws RemoteException  {
+    // BING FIXME
+    public Vector getDataInCollection(String datacollectionuid, int indexbegin,
+	    int indexend) throws RemoteException {
 	return new Vector();
     }
-    //BING FIXME
-    public DataCollection getDataCollectionByName(String name) throws RemoteException {
+
+    // BING FIXME
+    public DataCollection getDataCollectionByName(String name)
+	    throws RemoteException {
 	return new DataCollection();
     }
 
     public DataCollection getDataCollection(String uid) throws RemoteException {
-	
+
 	DataCollection datacollection = null;
 
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-
-	Transaction tx=pm.currentTransaction();
+	DaoDataCollection dao = (DaoDataCollection) DaoFactory.getInstance(uid);
 	try {
-	    tx.begin();
+	    dao.beginTransaction();
 
-            Extent e=pm.getExtent(DataCollection.class,true);
-            Query q=pm.newQuery(e, "uid == \"" + uid + "\"");
-	    q.setUnique(true);
+	    DataCollection dataStored = (DataCollection) dao.getByUid(
+		    DataCollection.class, uid);
+	    datacollection = (DataCollection) dao.detachCopy(dataStored);
 
-	    DataCollection dataStored =(DataCollection) q.execute();
-	    datacollection = (DataCollection) pm.detachCopy(dataStored);
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
-	
+	    dao.commitTransaction();
+	} finally {
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	    dao.close();
+	}
+
 	return datacollection;
     }
 
-    public  void deleteDataCollection(DataCollection datacollection) throws RemoteException {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+    public void deleteDataCollection(DataCollection datacollection)
+	    throws RemoteException {
+	PersistenceManager pm = DBInterfaceFactory
+		.getPersistenceManagerFactory().getPersistenceManager();
 
-	Transaction tx=pm.currentTransaction();
+	Transaction tx = pm.currentTransaction();
 	try {
 	    tx.begin();
-	    
+
 	    pm.makePersistent(datacollection);
 	    pm.deletePersistent(datacollection);
 
 	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	    
+	} finally {
+	    if (tx.isActive())
+		tx.rollback();
+	    pm.close();
+	}
     }
 
-    public  void putDataChunk(DataChunk datachunk) throws RemoteException {
-	    dbi.makePersistent(datachunk);
+    public void putDataChunk(DataChunk datachunk) throws RemoteException {
+	DaoDataChunck dao = (DaoDataChunck) DaoFactory
+		.getInstance("DaoLocator");
+	dao.makePersistent(datachunk, true);
     }
 
     public DataChunk getDataChunk(String uid) throws RemoteException {
 	DataChunk datachunk = null;
-
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-
-	Transaction tx=pm.currentTransaction();
+	DaoDataChunck dao = (DaoDataChunck) DaoFactory
+		.getInstance("DaoDataChunck");
 	try {
-	    tx.begin();
+	    dao.beginTransaction();
+	    DataChunk dataStored = (DataChunk) dao.getByUid(DataChunk.class,
+		    uid);
+	    datachunk = (DataChunk) dao.detachCopy(dataStored);
+	    dao.commitTransaction();
+	} finally {
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	    dao.close();
+	}
 
-            Extent e=pm.getExtent(DataChunk.class,true);
-            Query q=pm.newQuery(e, "uid == \"" + uid + "\"");
-	    q.setUnique(true);
-
-	    DataChunk dataStored =(DataChunk) q.execute();
-	    datachunk = (DataChunk) pm.detachCopy(dataStored);
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
-	
 	return datachunk;
     }
 
-    public  void deleteDataChunk(DataChunk datachunk) throws RemoteException {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+    public void deleteDataChunk(DataChunk datachunk) throws RemoteException {
+	PersistenceManager pm = DBInterfaceFactory
+		.getPersistenceManagerFactory().getPersistenceManager();
 
-	Transaction tx=pm.currentTransaction();
+	Transaction tx = pm.currentTransaction();
 	try {
 	    tx.begin();
-	    
+
 	    pm.makePersistent(datachunk);
 	    pm.deletePersistent(datachunk);
 
 	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	        
+	} finally {
+	    if (tx.isActive())
+		tx.rollback();
+	    pm.close();
+	}
     }
 
-    public Vector getAllDataInCollection(String datacollectionuid) throws RemoteException{
+    public Vector getAllDataInCollection(String datacollectionuid)
+	    throws RemoteException {
 	Vector v = new Vector();
-
-	Data data=null;
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-
-	Transaction tx=pm.currentTransaction();
+	Data data = null;
+	DaoDataChunck dao = (DaoDataChunck) DaoFactory
+		.getInstance("DaoDataChunk");
 	try {
-	    tx.begin();
+	    dao.beginTransaction();
 
-            Extent e=pm.getExtent(DataChunk.class,true);
-            Iterator iter=e.iterator();
-	    
-            while (iter.hasNext()) {
+	    Collection e = dao.getAll(DataChunk.class);
+	    Iterator iter = e.iterator();
+
+	    while (iter.hasNext()) {
 		DataChunk datachunk = (DataChunk) iter.next();
-		if (datachunk.getcollectionuid().equals(datacollectionuid)){
-		   Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class,  "uid == \"" + datachunk.getdatauid() + "\"");
-		    query.setUnique(true);
-		    Data dataStored = (Data) query.execute();
-		    data = (Data) pm.detachCopy(dataStored);
+		if (datachunk.getcollectionuid().equals(datacollectionuid)) {
+		    Data dataStored = (Data) dao.getByUid(Data.class,
+			    datachunk.getdatauid());
+		    data = (Data) dao.detachCopy(dataStored);
 		    v.addElement(data);
 		}
 	    }
-           
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
+	    dao.commitTransaction();
+	} finally {
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	    dao.close();
+	}
 
 	return v;
 
     }
 
-    
-    public String getDataUidByName(String name){
-	
+    public String getDataUidByName(String name) {
+
 	String uid = "";
-
 	Data data = null;
+	DaoData dao = (DaoData) DaoFactory.getInstance("DaoData");
 
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-
-	Transaction tx=pm.currentTransaction();
 	try {
-	    tx.begin();
-
-            Extent e=pm.getExtent(Data.class,true);
-            Query q=pm.newQuery(e, "name == \"" + name + "\"");
-	    q.setUnique(true);
-
-	    Data dataStored =(Data) q.execute();
-	    data = (Data) pm.detachCopy(dataStored);
+	    dao.beginTransaction();
+	    Data dataStored = (Data) dao.getByName(Data.class, name);
+	    data = (Data) dao.detachCopy(dataStored);
 	    uid = data.getuid();
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
-	
+	    dao.commitTransaction();
+	} finally {
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	    dao.close();
+	}
+
 	return uid;
     }
 
-    
-    ////////////////////////////////////////////////////////////////
-    
+    // //////////////////////////////////////////////////////////////
 
-    public static void main(String [] args) {
+    public static void main(String[] args) {
 	try {
 	    Callbackdc dc = new Callbackdc();
 	    Data data;
-	    String uid=null;
-	    
+	    String uid = null;
+
 	    // data creation
 	    File file = new File("Makefile");
-	    uid = (dc.createData(file.getName(), "CHCKSUM", file.length(),0)).getuid();	
+	    uid = (dc.createData(file.getName(), "CHCKSUM", file.length(), 0))
+		    .getuid();
 	    System.out.println("Data created : " + uid);
-	    
-	    //data creation from a file
+
+	    // data creation from a file
 	    data = DataUtil.fileToData(file);
 	    System.out.println("Data created : " + DataUtil.toString(data));
 	    dc.putData(data);
-	    
-	    //browse data
+
+	    // browse data
 	    dc.browse();
-	    
+
 	    // getting data
 	    Data data_read = dc.getData(data.getuid());
-	    System.out.println("readind data UID=" + data.getuid() +" || " +  DataUtil.toString(data_read));
-	    
-	    //deleting data
+	    System.out.println("readind data UID=" + data.getuid() + " || "
+		    + DataUtil.toString(data_read));
+
+	    // deleting data
 	    Data data_delete = data;
 	    System.out.println("deleting data UID=" + data_delete.getuid());
 	    dc.deleteData(data);
 	    dc.browse();
 
-	}catch (RemoteException re){
+	} catch (RemoteException re) {
 	    ;
 	}
     }
