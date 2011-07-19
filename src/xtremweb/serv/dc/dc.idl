@@ -51,7 +51,7 @@
 
 <Method name="putData">
 <Param name="data" type="Data" desc="Data to put" />
-<Return type="void"/>
+<Return type="String"/>
 </Method>
 
 <Method name="getData">
@@ -84,11 +84,14 @@
 <Return type="String"/>
 </Method>
 
+<Method name="browse">
+<Return type="void"/>
+</Method>
 
 
 <Method name="putDataCollection">
 <Param name="datacollection" type="DataCollection" desc="DataCollection to put" />
-<Return type="void"/>
+<Return type="String"/>
 </Method>
 
 <Method name="getDataCollection">
@@ -124,7 +127,7 @@
 
 <Method name="putDataChunk">
 <Param name="datachunk" type="DataChunk" desc="DataChunk to put" />
-<Return type="void"/>
+<Return type="String"/>
 </Method>
 
 <Method name="getDataChunk">
