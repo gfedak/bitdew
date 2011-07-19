@@ -31,10 +31,9 @@ import java.util.Vector;
 
 /**
  * This class implements the InterfaceRMIdc, is the catalog used to handle
- * MetaData in BitDew.
- * 
- * @author josefrancisco
- * 
+ * MetaData in BitDew, this class store objects of type Data, Locator, 
+ * DataChunk and DataCollection
+ * @author Gilles Fedak
  */
 public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 
@@ -81,14 +80,11 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
     public Data createData(String name, String checksum, long size, int type)
 	    throws RemoteException {
 	Data data = new Data();
-
 	data.setname(name);
 	data.setchecksum(checksum);
 	data.setsize(size);
 	data.settype(type);
-
 	putData(data);
-
 	return data;
     }
 
@@ -100,18 +96,29 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
      *             if the RMI service throws an exception
      */
     public Data createData() throws RemoteException {
-
 	Data data = new Data();
 	putData(data);
-
 	return data;
     }
 
-    public void putData(Data data) throws RemoteException {
-	DaoData dao = (DaoData) DaoFactory.getInstance("DaoData");
+    /**
+     * Put a data in the DBMS
+     * 
+     * @data the data to put
+     * @return data uid
+     */
+    public String putData(Data data) throws RemoteException {
+	DaoData dao = (DaoData) DaoFactory
+		.getInstance("xtremweb.dao.data.DaoData");
 	dao.makePersistent(data, true);
+	return data.getuid();
     }
 
+    /**
+     * Get distributed data catalog entry point
+     * 
+     * @return distributed hash table entry point
+     */
     public String getDDCEntryPoint() throws RemoteException {
 	if (ddc == null)
 	    return "null";
@@ -125,13 +132,21 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 	return "null";
     }
 
+    /**
+     * Get a data from its uid
+     * 
+     * @uid data uid
+     * @return the data whose uid is the parameter
+     */
     public Data getData(String uid) throws RemoteException {
 	Data data = null;
-	DaoData dao = (DaoData) DaoFactory.getInstance("DaoData");
+	DaoData dao = (DaoData) DaoFactory
+		.getInstance("xtremweb.dao.data.DaoData");
 	try {
 	    dao.beginTransaction();
-
+	    System.out.println("uid is " + uid);
 	    Data dataStored = (Data) dao.getByUid(Data.class, uid);
+	    System.out.println("data stored is " + dataStored + "this is it ");
 	    if (dataStored != null)
 		data = (Data) dao.detachCopy(dataStored);
 	    dao.commitTransaction();
@@ -144,6 +159,10 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 	return data;
     }
 
+    /**
+     * This method is not being used in the API and according to my research is
+     * not actually being performed as all is being marked as TO_DELETE
+     */
     public void deleteData(Data data) throws RemoteException {
 	PersistenceManager pm = DBInterfaceFactory
 		.getPersistenceManagerFactory().getPersistenceManager();
@@ -167,12 +186,22 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 	}
     }
 
+    /**
+     * Deletes do not seem to be performed
+     * 
+     * @param uid
+     * @throws RemoteException
+     */
     public void deleteData(String uid) throws RemoteException {
 	// deleteData(data.getuid());
     }
 
+    /**
+     * Useful method to explore the data that has been introduced
+     */
     public void browse() {
-	DaoData dao = (DaoData) DaoFactory.getInstance("DaoData");
+	DaoData dao = (DaoData) DaoFactory
+		.getInstance("xtremweb.dao.data.DaoData");
 	try {
 	    dao.beginTransaction();
 	    Collection e = dao.getAll(Data.class);
@@ -189,19 +218,35 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 	}
     }
 
+    /**
+     * Put a locator on the DBMS
+     * 
+     * @param locator
+     *            the locator to put
+     */
     public void putLocator(Locator locator) throws RemoteException {
-	DaoLocator dao = (DaoLocator) DaoFactory.getInstance("DaoLocator");
+	DaoLocator dao = (DaoLocator) DaoFactory
+		.getInstance("xtremweb.dao.locator.DaoLocator");
 	dao.makePersistent(locator, true);
     }
 
-    // FIXME TO IMPLEMENT
+    /**
+     * Not yet implemented (maybe to delete ?)
+     */
     public void setDataStatus(String uid, int status) throws RemoteException {
     }
 
-    // FIXME THAT'S UGLY !!!!!
+    /**
+     * Gets the locator associated with a data
+     * 
+     * @param uid
+     *            , the data uid
+     * @return the locator whose id is the parameter
+     */
     public Locator getLocatorByDataUID(String uid) throws RemoteException {
 	Locator locator = null;
-	DaoLocator dao = (DaoLocator) DaoFactory.getInstance("DaoLocator");
+	DaoLocator dao = (DaoLocator) DaoFactory
+		.getInstance("xtremweb.dao.locator.DaoLocator");
 	try {
 	    dao.beginTransaction();
 
@@ -228,34 +273,45 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 
     }
 
-    // ////////////////////////////////////////////////
-    public void putDataCollection(DataCollection datacollection)
+    /**
+     * Put a data collection in the DBMS
+     * 
+     * @param datacollection
+     *            the collection to insert
+     * @return the id generated for the newly created data collection
+     */
+    public String putDataCollection(DataCollection datacollection)
 	    throws RemoteException {
 	DaoDataCollection dao = (DaoDataCollection) DaoFactory
-		.getInstance("DaoLocator");
+		.getInstance("xtremweb.dao.datacollection.DaoDataCollection");
 	dao.makePersistent(datacollection, true);
+	return datacollection.getuid();
     }
 
-    // BING FIXME
+    /**
+     * This method seems to be useless
+     */
     public Vector getDataInCollection(String datacollectionuid, int indexbegin,
 	    int indexend) throws RemoteException {
 	return new Vector();
     }
 
-    // BING FIXME
+    /**
+     * This method seems to be useless
+     */
     public DataCollection getDataCollectionByName(String name)
 	    throws RemoteException {
 	return new DataCollection();
     }
 
+    /**
+     * This method is not being called from the API, maybe we have to erase it
+     */
     public DataCollection getDataCollection(String uid) throws RemoteException {
-
 	DataCollection datacollection = null;
-
 	DaoDataCollection dao = (DaoDataCollection) DaoFactory.getInstance(uid);
 	try {
 	    dao.beginTransaction();
-
 	    DataCollection dataStored = (DataCollection) dao.getByUid(
 		    DataCollection.class, uid);
 	    datacollection = (DataCollection) dao.detachCopy(dataStored);
@@ -266,10 +322,12 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 		dao.transactionRollback();
 	    dao.close();
 	}
-
 	return datacollection;
     }
 
+    /**
+     * Idem. the method have not been called from the API
+     */
     public void deleteDataCollection(DataCollection datacollection)
 	    throws RemoteException {
 	PersistenceManager pm = DBInterfaceFactory
@@ -290,20 +348,36 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 	}
     }
 
-    public void putDataChunk(DataChunk datachunk) throws RemoteException {
+    /**
+     * Put a DataChunk on the DBMS
+     * 
+     * @param datachunk
+     *            the datachunk to insert
+     * @return the id of the newly created datachunk
+     */
+    public String putDataChunk(DataChunk datachunk) throws RemoteException {
 	DaoDataChunck dao = (DaoDataChunck) DaoFactory
-		.getInstance("DaoLocator");
+		.getInstance("xtremweb.dao.datachunck.DaoDataChunck");
 	dao.makePersistent(datachunk, true);
+	return datachunk.getuid();
     }
 
+    /**
+     * get a data chunk according to uid
+     * 
+     * @param the
+     *            datachunk uid
+     */
     public DataChunk getDataChunk(String uid) throws RemoteException {
+	System.out.println("the uid is " + uid);
 	DataChunk datachunk = null;
 	DaoDataChunck dao = (DaoDataChunck) DaoFactory
-		.getInstance("DaoDataChunck");
+		.getInstance("xtremweb.dao.datachunck.DaoDataChunck");
 	try {
 	    dao.beginTransaction();
-	    DataChunk dataStored = (DataChunk) dao.getByUid(DataChunk.class,
-		    uid);
+	    DataChunk dataStored = (DataChunk) dao.getByUid(
+		    xtremweb.core.obj.dc.DataChunk.class, uid);
+	    System.out.println("dataStored is " + dataStored);
 	    datachunk = (DataChunk) dao.detachCopy(dataStored);
 	    dao.commitTransaction();
 	} finally {
@@ -315,6 +389,9 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 	return datachunk;
     }
 
+    /**
+     * It seems we are not deleting things in BD
+     */
     public void deleteDataChunk(DataChunk datachunk) throws RemoteException {
 	PersistenceManager pm = DBInterfaceFactory
 		.getPersistenceManagerFactory().getPersistenceManager();
@@ -334,12 +411,19 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 	}
     }
 
+    /**
+     * Get all data related to a collection uid
+     * 
+     * @param datacollectionuid
+     *            the data collection uid
+     * @return a vector containing all the collection data
+     */
     public Vector getAllDataInCollection(String datacollectionuid)
 	    throws RemoteException {
 	Vector v = new Vector();
 	Data data = null;
 	DaoDataChunck dao = (DaoDataChunck) DaoFactory
-		.getInstance("DaoDataChunk");
+		.getInstance("xtremweb.dao.datachunck.DaoDataChunck");
 	try {
 	    dao.beginTransaction();
 
@@ -366,12 +450,14 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 
     }
 
+    /**
+     * This method is never called from the API layer
+     * 
+     */
     public String getDataUidByName(String name) {
-
 	String uid = "";
 	Data data = null;
 	DaoData dao = (DaoData) DaoFactory.getInstance("DaoData");
-
 	try {
 	    dao.beginTransaction();
 	    Data dataStored = (Data) dao.getByName(Data.class, name);
@@ -383,7 +469,6 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 		dao.transactionRollback();
 	    dao.close();
 	}
-
 	return uid;
     }
 
