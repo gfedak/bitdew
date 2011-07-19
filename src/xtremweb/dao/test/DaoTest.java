@@ -79,7 +79,7 @@ public class DaoTest extends TestCase{
 	Collection col = dao.getAll(Data.class);
 	for (Iterator iterator = col.iterator(); iterator.hasNext();) {
 	    Data type = (Data) iterator.next();
-	    System.out.println("name matafoca " + type.getname());
+	    System.out.println("name " + type.getname());
 	    uids.add(type.getuid());
 	
 	}
@@ -156,10 +156,8 @@ public class DaoTest extends TestCase{
     public void tearDown()
     {	System.out.println("teardown");
     	dao.beginTransaction();
-	Collection col = dao.getAll(Data.class);
-	System.out.println("tam joder tio " + col.size());
+	Collection col = dao.getAll(Data.class);	
 	col = dao.getAll(Data.class);
-	System.out.println("tam joder tio " + col.size());
 	dao.deleteAll(col);
 	dao.commitTransaction();
 	
