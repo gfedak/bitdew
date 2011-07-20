@@ -21,6 +21,8 @@ import xtremweb.core.uid.*;
 import xtremweb.core.conf.*;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.protocol.DaoProtocol;
 
 import java.util.*;
 import java.io.File;
@@ -33,10 +35,26 @@ import javax.jdo.Query;
 import javax.jdo.Transaction;
 import java.util.Properties;
 
-public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
-   
+/**
+ * This class represents a data repository, this is an abstraction to represent
+ * the physical storage, where data resides and the protocols available to
+ * access these data. This is performed by implementing a RMI service.
+ * 
+ * @author josefrancisco
+ * 
+ */
+public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
+
+    /**
+     * Class logger
+     */
     protected static Logger log = LoggerFactory.getLogger(Callbackdr.class);
 
+    /**
+     * Class constructor, it tries to load a set of protocols and repositories
+     * from a json file indicated in System parameters if it is not possible it
+     * takes a default json file.
+     */
     public Callbackdr() {
 	Properties mainprop;
 	try {
@@ -45,207 +63,283 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
 	    log.warn("Not able to find configuration protocols : " + ce);
 	    mainprop = new Properties();
 	}
-	String temp = mainprop.getProperty("xtremweb.serv.dr.protocols","dummy http");
-	if (temp==null) temp="dummy http";
-	log.debug("list of protocols to load :" + temp);
+	String temp = mainprop.getProperty("xtremweb.serv.dr.protocols", null);
+	if (temp == null) {
+	    System.out.println(" temp is nulll !!!!! " + temp);
+	    temp = "dummy http";
+	}
+	System.out.println("List of protocols to load :" + temp);
 
 	String[] protocols = temp.split(" ");
-	for (int i=0; i<protocols.length; i++) {
+	for (int i = 0; i < protocols.length; i++) {
 	    String protoName = protocols[i].toLowerCase();
-	    
+
 	    try {
 		Protocol protocol = getProtocolByName(protoName);
 		if (protocol == null) {
 		    protocol = new Protocol();
 		    protocol.setname(protoName);
 		    if (protoName.equals("ftp")) {
-			log.debug("Setting FTP potocol from the configuration file " + mainprop.getProperty("xtremweb.serv.dr.ftp.name") );
-			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.ftp.server",InetAddress.getLocalHost().getHostName()));
-			protocol.setport((Integer.valueOf(mainprop.getProperty("xtremweb.serv.dr.ftp.port", "21"))).intValue());
-			protocol.setlogin(mainprop.getProperty("xtremweb.serv.dr.ftp.login","anonymous"));
-			protocol.setpassword(mainprop.getProperty("xtremweb.serv.dr.ftp.passwd","bush@whitehouse.gov"));
-			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.ftp.path","pub/incoming"));
+			log.debug("Setting FTP potocol from the configuration file "
+				+ mainprop
+					.getProperty("xtremweb.serv.dr.ftp.name"));
+			protocol.setserver(mainprop.getProperty(
+				"xtremweb.serv.dr.ftp.server", InetAddress
+					.getLocalHost().getHostName()));
+			protocol.setport((Integer.valueOf(mainprop.getProperty(
+				"xtremweb.serv.dr.ftp.port", "21"))).intValue());
+			protocol.setlogin(mainprop.getProperty(
+				"xtremweb.serv.dr.ftp.login", "anonymous"));
+			protocol.setpassword(mainprop.getProperty(
+				"xtremweb.serv.dr.ftp.passwd",
+				"bush@whitehouse.gov"));
+			protocol.setpath(mainprop.getProperty(
+				"xtremweb.serv.dr.ftp.path", "pub/incoming"));
 			registerProtocol(protocol);
-		    }		    
-		    
+		    }
+
 		    if (protoName.equals("http")) {
 			log.debug("Setting HTTP protocol from the configuration file");
-			//TODO: we should get this from the embedded web server if it runs
+			// TODO: we should get this from the embedded web server
+			// if it runs
 			String defaultHost = "localhost";
 			try {
-			    InetAddress thisIp =InetAddress.getLocalHost();
+			    InetAddress thisIp = InetAddress.getLocalHost();
 			    defaultHost = thisIp.getHostAddress();
-			}
-			catch(Exception e) {
+			} catch (Exception e) {
 			    log.debug("cannot determine localhost ip address");
 			}
-			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.http.server",defaultHost));
-			protocol.setport((Integer.valueOf(mainprop.getProperty("xtremweb.serv.dr.http.port", "8080"))).intValue());
-			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.http.path","."));
+			protocol.setserver(mainprop.getProperty(
+				"xtremweb.serv.dr.http.server", defaultHost));
+			protocol.setport((Integer.valueOf(mainprop.getProperty(
+				"xtremweb.serv.dr.http.port", "8080")))
+				.intValue());
+			protocol.setpath(mainprop.getProperty(
+				"xtremweb.serv.dr.http.path", "."));
 			registerProtocol(protocol);
 		    }
-		    
+
 		    if (protoName.equals("dummy")) {
 			log.debug("Setting Dummy protocol from the configuration file");
-			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.dummy.path","."));
+			protocol.setpath(mainprop.getProperty(
+				"xtremweb.serv.dr.dummy.path", "."));
 			registerProtocol(protocol);
 		    }
-		    if (protoName.equals("scp")){			
+		    if (protoName.equals("scp")) {
 			log.debug("Setting scp protocol from the configuration file");
-			protocol.setpassphrase(mainprop.getProperty("xtremweb.serv.dr.scp.passphrase",""));
-			protocol.setprivatekeypath(mainprop.getProperty("xtremweb.serv.dr.scp.prkeypath",null));
-			protocol.setknownhosts(mainprop.getProperty("xtremweb.serv.dr.scp.knownhosts",null));
-			protocol.setlogin(mainprop.getProperty("xtremweb.serv.dr.scp.login",null));
-			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.scp.server",InetAddress.getLocalHost().getHostName()));
-			protocol.setpassword(mainprop.getProperty("xtremweb.serv.dr.scp.key",null));
-			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.scp.path",null));
-			protocol.setport(Integer.parseInt(mainprop.getProperty("xtremweb.serv.dr.scp.port","22")));
+			protocol.setpassphrase(mainprop.getProperty(
+				"xtremweb.serv.dr.scp.passphrase", ""));
+			protocol.setprivatekeypath(mainprop.getProperty(
+				"xtremweb.serv.dr.scp.prkeypath", null));
+			protocol.setknownhosts(mainprop.getProperty(
+				"xtremweb.serv.dr.scp.knownhosts", null));
+			protocol.setlogin(mainprop.getProperty(
+				"xtremweb.serv.dr.scp.login", null));
+			protocol.setserver(mainprop.getProperty(
+				"xtremweb.serv.dr.scp.server", InetAddress
+					.getLocalHost().getHostName()));
+			protocol.setpassword(mainprop.getProperty(
+				"xtremweb.serv.dr.scp.key", null));
+			protocol.setpath(mainprop.getProperty(
+				"xtremweb.serv.dr.scp.path", null));
+			protocol.setport(Integer.parseInt(mainprop.getProperty(
+				"xtremweb.serv.dr.scp.port", "22")));
 			registerProtocol(protocol);
 		    }
 		    if (protoName.equals("bittorrent")) {
 			log.debug("Setting Bittorrent protocol from the configuration file");
-			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.bittorrent.path","torrent"));
-			//FIXME FIXME FIXME!!!!
-			//		    default_http_protocol.setport(Integer.getInteger(mainprop.getProperty("xtremweb.serv.dr.bittorrent.port"),6969).intValue());
+			protocol.setpath(mainprop.getProperty(
+				"xtremweb.serv.dr.bittorrent.path", "torrent"));
+			// FIXME FIXME FIXME!!!!
+			// default_http_protocol.setport(Integer.getInteger(mainprop.getProperty("xtremweb.serv.dr.bittorrent.port"),6969).intValue());
 			registerProtocol(protocol);
 		    }
-		}	    
-	    } catch (RemoteException re){
-		log.warn("unable to record standard protocol");	    
-	    }catch (java.net.UnknownHostException uhe){
-	    	log.fatal("There was a problem initializing dr ");
+		}
+	    } catch (RemoteException re) {
+		log.warn("unable to record standard protocol");
+	    } catch (java.net.UnknownHostException uhe) {
+		log.fatal("There was a problem initializing dr ");
 	    }
-	}		
+	}
 	log.info("Registred Protocols : ");
-	log.info( browse() );
-	
+	log.info(browse());
+
     } // Callbackobj constructor
-    
-    public void sendData( long datauid, long protocol) throws RemoteException {
-	
-    }    
-    //THAT'S UGLY TO
-    public String  getRef(String datauid) throws RemoteException {
+
+    /**
+     * This method is doing nothing and is a good idea to erase it
+     * 
+     * @param datauid
+     * @param protocol
+     * @throws RemoteException
+     */
+    public void sendData(long datauid, long protocol) throws RemoteException {
+
+    }
+
+    /**
+     * This method is doing nothing and is a good idea to erase it
+     */
+    public String getRef(String datauid) throws RemoteException {
 	return datauid;
     }
 
-    public void registerProtocol(Protocol proto) {
-	DBInterface dbi = DBInterfaceFactory.getDBInterface();
-	dbi.makePersistent(proto);
+    /**
+     * This method register a protocol in a DBMS and returns the protocol uid
+     * 
+     * @param proto
+     *            the protocol to insert
+     * @return the protocol uid in DBMS
+     */
+    public String registerProtocol(Protocol proto) {
+	DaoProtocol dao = (DaoProtocol) DaoFactory
+		.getInstance("xtremweb.dao.protocol.DaoProtocol");
+	dao.makePersistent(proto, true);
+	return proto.getuid();
     }
-    
-    //FIXME THAT'S UGLY !!!!!
-    public Protocol getProtocolByName(String name)  throws RemoteException{
 
+    /**
+     * Retrieves a protocol according to its name
+     * 
+     * @param name
+     *            protocol name
+     * @return the protocol whose name is the parameter
+     */
+    public Protocol getProtocolByName(String name) throws RemoteException {
 	Protocol ret = null;
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
+	Protocol protoStored = null;
+	DaoProtocol dao = (DaoProtocol) DaoFactory
+		.getInstance("xtremweb.dao.protocol.DaoProtocol");
 	try {
-	    tx.begin();
-            Extent e=pm.getExtent(Protocol.class,true);
-            Query q=pm.newQuery(e, "name == \"" + name.toLowerCase() + "\"");
-	    q.setUnique(true);
-
-	    Protocol protoStored =(Protocol) q.execute();
-	    if (protoStored==null) 
+	    dao.beginTransaction();
+	    protoStored = (Protocol) dao.getByName(Protocol.class,
+		    name.toLowerCase());
+	    if (protoStored == null)
 		return null;
-	    ret = (Protocol) pm.detachCopy(protoStored);
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
-	return ret;
+	    dao.commitTransaction();
+	} finally {
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	    dao.close();
+	}
+	return protoStored;
     }
 
-
-    public Protocol getProtocolByUID(String uid)  throws RemoteException{
+    /**
+     * Retrieves a protocol according to its uid
+     * 
+     * @param uid
+     *            the protocol uid
+     * @return the protocol whose uid is the input parameter
+     */
+    public Protocol getProtocolByUID(String uid) throws RemoteException {
 	Protocol ret = null;
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
+	DaoProtocol dao = (DaoProtocol) DaoFactory
+		.getInstance("xtremweb.dao.protocol.DaoProtocol");
 	try {
-	    tx.begin();
-	    Query query = pm.newQuery(xtremweb.core.obj.dr.Protocol.class, 
-				      "uid == \"" + uid + "\"");
-	    query.setUnique(true);
-	    Protocol t = (Protocol) query.execute();
-	    if (t==null) {
-		log.debug (" proto fetched is null ");
+	    dao.beginTransaction();
+	    Protocol t = (Protocol) dao.getByUid(Protocol.class, uid);
+	    if (t == null) {
+		log.debug(" proto fetched is null ");
 	    } else {
-		ret = (Protocol) pm.detachCopy(t);
-		log.debug (" proto fetched " + t.getuid());
+		ret = (Protocol) dao.detachCopy(t);
+		log.debug(" proto fetched " + t.getuid());
 	    }
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
+	    dao.commitTransaction();
+	} finally {
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	    dao.close();
 	}
 	return ret;
     }
 
-        
-    public void deleteProtocol(Protocol proto)  throws RemoteException{
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
+    /**
+     * This method is not called from the API and It should be erased
+     * 
+     * @param proto
+     * @throws RemoteException
+     */
+    public void deleteProtocol(Protocol proto) throws RemoteException {
+	PersistenceManager pm = DBInterfaceFactory
+		.getPersistenceManagerFactory().getPersistenceManager();
 
-	Transaction tx=pm.currentTransaction();
+	Transaction tx = pm.currentTransaction();
 	try {
 	    tx.begin();
-	    //	    Object id = pm.getObjectId(proto);
-	    //Protocol obj = pm.getObjectById(id);
+	    // Object id = pm.getObjectId(proto);
+	    // Protocol obj = pm.getObjectById(id);
 	    pm.makePersistent(proto);
 	    pm.deletePersistent(proto);
 
-	    //	    Protocol todelete = pm.getObjectById(uid);  // Retrieves the object to delete
-	    //	    pm.deletePersistent(todelete);
+	    // Protocol todelete = pm.getObjectById(uid); // Retrieves the
+	    // object to delete
+	    // pm.deletePersistent(todelete);
 	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
-    }
-    
-    public void deleteProtocol(long uid)  throws RemoteException {
-	//	deleteProtocol(proto.getuid());
+	} finally {
+	    if (tx.isActive())
+		tx.rollback();
+	    pm.close();
+	}
     }
 
+    /**
+     * This method is never called from API and it should be erased
+     * 
+     * @param uid
+     * @throws RemoteException
+     */
+    public void deleteProtocol(long uid) throws RemoteException {
+	// deleteProtocol(proto.getuid());
+    }
+
+    /**
+     * Helpful method to output protocol information
+     * 
+     * @param remote_protocol
+     *            the protocol from which we want information
+     * @return
+     */
     private String protoToString(Protocol remote_protocol) {
-	return remote_protocol.getname() + "://" + remote_protocol.getlogin() + "@" + remote_protocol.getserver() + ":" +  remote_protocol.getport();
+	return remote_protocol.getname() + "://" + remote_protocol.getlogin()
+		+ "@" + remote_protocol.getserver() + ":"
+		+ remote_protocol.getport();
     }
 
+    /**
+     * Browse all the protocols stored on data repository
+     * 
+     * @return a string with all protocol information
+     */
     public String browse() {
 	String ret = "";
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
+	DaoProtocol dao = (DaoProtocol) DaoFactory
+		.getInstance("xtremweb.dao.protocol.DaoProtocol");
 	try {
-	    tx.begin();
-            Extent e=pm.getExtent(Protocol.class,true);
-            Iterator iter=e.iterator();
-            while (iter.hasNext())
-            {
-                Protocol proto = (Protocol) iter.next();
-		ret+=( "Protocol [" + pm.getObjectId(proto) + "]   [" + protoToString(proto) +"]\n" );
-            }
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
+	    dao.beginTransaction();
+
+	    Iterator iter = dao.getAll(Protocol.class).iterator();
+	    while (iter.hasNext()) {
+		Protocol proto = (Protocol) iter.next();
+		ret += ("Protocol entro !!! [" + dao.getObjectId(proto)
+			+ "]   [" + protoToString(proto) + "]\n");
+	    }
+	    dao.commitTransaction();
+	} finally {
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	    dao.close();
+	}
 	return ret;
     }
-    
 
-
-    public static void main(String [] args) {
+    public static void main(String[] args) {
 	Callbackdc dc = new Callbackdc();
 	Callbackdr dr = new Callbackdr();
 	Data data;
 	Protocol proto = new Protocol();
-	long uid=0;
-	
+	long uid = 0;
+
 	try {
 	    // data creation
 	    File file = new File("Makefile");
@@ -253,21 +347,20 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr{
 
 	    System.out.println("Data created : " + DataUtil.toString(data));
 	    dc.putData(data);
-	    
+
 	    proto = dr.getProtocolByName("FTP");
-	    if (proto==null) {
-		//		proto.setuid(new UID().getLong());
+	    if (proto == null) {
+		// proto.setuid(new UID().getLong());
 		proto.setname("FTP");
 		proto.setport(22);
 		dr.registerProtocol(proto);
 	    } else {
-		Callbackdr.log.debug("Protocol Registred : " + proto.getname() + " " + proto.getport());
+		Callbackdr.log.debug("Protocol Registred : " + proto.getname()
+			+ " " + proto.getport());
 	    }
-	    
-	    
 
-	} catch(Exception e) {
-	    Callbackdr.log.warn("Ooups" +e);
+	} catch (Exception e) {
+	    Callbackdr.log.warn("Ooups" + e);
 	}
     }
 
