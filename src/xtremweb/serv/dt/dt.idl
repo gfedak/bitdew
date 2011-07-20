@@ -49,7 +49,7 @@
 
 <Method name="putTransfer">
 <Param name="transfer" type="Transfer" desc="The transfer we want to prepare on the remote site"/>
-<Return type="void"/>
+<Return type="String"/>
 </Method>
 
 
