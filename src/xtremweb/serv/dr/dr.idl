@@ -17,7 +17,7 @@
 
 <Method name="registerProtocol">
 <Param  name="proto" type="Protocol" desc="Protocol"/>
-<Return type="void"/>
+<Return type="String"/>
 </Method>
 
 <Method name="getProtocolByName">
