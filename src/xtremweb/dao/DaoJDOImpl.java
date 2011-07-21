@@ -31,7 +31,7 @@ public class DaoJDOImpl implements InterfaceDao {
     /**
      * JDO Persistence manager
      */
-    protected static PersistenceManager pm;
+    protected PersistenceManager pm;
 
     /**
      * This will initialize the Persistence manager, one DAO instance is
@@ -77,6 +77,7 @@ public class DaoJDOImpl implements InterfaceDao {
 
 	pm = JDOHelper.getPersistenceManagerFactory(properties)
 		.getPersistenceManager();
+	
     }
 
     /**
@@ -252,5 +253,11 @@ public class DaoJDOImpl implements InterfaceDao {
      */
     public void close() {
 	pm.close();
+    }
+
+ 
+    public Object getObjectId(Object arg0) {
+	// TODO Auto-generated method stub
+	return pm.getObjectId(arg0);
     }
 }
