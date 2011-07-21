@@ -3,154 +3,224 @@ package xtremweb.serv.ds;
 import java.rmi.*;
 import xtremweb.core.com.idl.*;
 import xtremweb.core.iface.*;
-import xtremweb.core.db.*;
 import xtremweb.core.obj.dc.*;
 import xtremweb.core.obj.ds.*;
-import xtremweb.core.uid.*;
 import xtremweb.core.log.*;
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.attribute.DaoAttribute;
+
 import java.util.*;
-import java.io.File;
-import javax.jdo.PersistenceManager;
-import javax.jdo.Extent;
-import javax.jdo.Query;
-import javax.jdo.Transaction;
 
 /**
- * Describe class Callbackds here.
- *
- *
- * Created: Wed Aug 16 16:33:12 2006
- *
+ * This class implements a data scheduler, it schedule data according to
+ * affinity rules Created: Wed Aug 16 16:33:12 2006
+ * 
  * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
  */
 public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
 
+    /**
+     * Class logger
+     */
     protected Logger log = LoggerFactory.getLogger("DS Service");
 
+    /**
+     * Data scheduler object
+     */
     protected DataScheduler ds;
+
     /**
      * Creates a new <code>Callbackds</code> instance.
-     *
+     * 
      */
     public Callbackds() {
 	ds = new DataScheduler();
-	//FIXME 
-	//	ds.start();
-    }
-    
-    public Attribute registerAttribute(Attribute attr) throws RemoteException {
-	DBInterface dbi = DBInterfaceFactory.getDBInterface();
-	dbi.makePersistent(attr);
-	ds.updateAttribute(attr);
-	return attr;
+	// FIXME
+	// ds.start();
     }
 
+    /**
+     * Register an attribute in a DBMS and retrieve a reference in memory
+     * 
+     * @param attr
+     *            the attribute to insert
+     * @return a reference to the newly create attribute
+     * @exception RemoteException
+     *                if anything goes wrong
+     */
+    public Attribute registerAttribute(Attribute attr) throws RemoteException {
+	DaoAttribute dao = (DaoAttribute) DaoFactory
+		.getInstance("xtremweb.dao.attribute.DaoAttribute");
+	// dao.beginTransaction();
+	dao.makePersistent(attr, true);
+	dao.beginTransaction();
+	Attribute newattr = (Attribute) dao.detachCopy(attr);
+	dao.commitTransaction();
+	ds.updateAttribute(newattr);
+	return newattr;
+    }
+
+    /**
+     * Retrieve an attribute given an uid
+     * 
+     * @param uid
+     *            the attribute uid
+     * @return the attribute whose id is uid
+     */
     public Attribute getAttributeByUid(String uid) {
 	Attribute attr = null;
 
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-
-	Transaction tx=pm.currentTransaction();
+	DaoAttribute dao = (DaoAttribute) DaoFactory
+		.getInstance("xtremweb.dao.attribute.DaoAttribute");
 	try {
-	    tx.begin();
-
-            Extent e=pm.getExtent(Attribute.class,true);
-            Query q=pm.newQuery(e, "uid == \"" + uid + "\"");
-	    q.setUnique(true);
-
-	    Attribute tmp =(Attribute) q.execute();
+	    dao.beginTransaction();
+	    Attribute tmp = (Attribute) dao.getByUid(Attribute.class, uid);
 	    if (tmp != null)
-		attr = (Attribute) pm.detachCopy(tmp);
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
-	
+		attr = (Attribute) dao.detachCopy(tmp);
+	    dao.commitTransaction();
+	} finally {
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	    dao.close();
+	}
+
 	return attr;
     }
 
-    public Attribute getAttributeByName(String name){
-	Attribute attr = null;
-
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-
-	Transaction tx=pm.currentTransaction();
-
+    /**
+     * Retrieve an attribute by its name
+     * 
+     * @param name
+     *            the name to retrieve
+     * @return the attribute whose name is name
+     */
+    public Attribute getAttributeByName(String name) {
+	DaoAttribute dao = (DaoAttribute) DaoFactory
+		.getInstance("xtremweb.dao.attribute.DaoAttribute");
+	Attribute dataStored = null;
 	try {
-	    tx.begin();
+	    dao.beginTransaction();
+	    dataStored = (Attribute) dao.getByName(Attribute.class, name);
+	    dao.commitTransaction();
+	} finally {
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	    dao.close();
+	}
 
-            Extent e=pm.getExtent(Attribute.class,true);
-            Query q=pm.newQuery(e, "name == \"" + name + "\"");
-	    q.setUnique(true);
-	    
-	    Attribute dataStored =(Attribute) q.execute();
-	    attr = (Attribute) pm.detachCopy(dataStored);
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
-	
-	return attr;
+	return dataStored;
 
     }
 
-    public void associateDataAttribute(Data data, Attribute attr) throws RemoteException {
-	if (attr.getuid() == null) 
+    /**
+     * Associate a data with one attribute
+     * 
+     * @param data
+     *            the data
+     * @param attr
+     *            the attr
+     * @exception RemoteException
+     *                if anything goes wrong
+     */
+    public void associateDataAttribute(Data data, Attribute attr)
+	    throws RemoteException {
+	if (attr.getuid() == null)
 	    attr = registerAttribute(attr);
 	ds.associateDataAttribute(data, attr);
     }
 
+    /**
+     * Associates a data to a particular host (the host will own the data)
+     * 
+     * @param data
+     *            data to give the host to own
+     * @param host
+     *            the host that will own the data
+     * @exception RemoteException
+     *                if anything goes wrong (rmi exception)
+     */
     public void associateDataHost(Data data, Host host) throws RemoteException {
 	ds.associateDataHost(data, host);
     }
 
-    public void associateDataAttributeHost(Data data, Attribute attr, Host host) throws RemoteException {
-	if (attr.getuid() == null) 
+    /**
+     * Associates a data with an attribute an a host
+     * 
+     * @param data
+     *            the data to associate
+     * @param attr
+     *            the attr to associate
+     * @param host
+     *            the host to associate
+     */
+    public void associateDataAttributeHost(Data data, Attribute attr, Host host)
+	    throws RemoteException {
+	if (attr.getuid() == null)
 	    attr = registerAttribute(attr);
 	ds.associateDataAttributeHost(data, attr, host);
     }
 
+    /**
+     * Removes a data from the Data Scheduler
+     * 
+     * @param data
+     *            the data to remove
+     * @exception RemoteException
+     *                if anything goes wrong
+     */
     public void removeData(Data data) throws RemoteException {
 	ds.removeData(data);
     }
 
-    //FIXME IT'S BAD
-    public void associateAttribute(String datauid, String attruid) throws RemoteException {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
-
+    /**
+     * This method dont seem to be used
+     * 
+     * @param datauid
+     * @param attruid
+     * @throws RemoteException
+     */
+    public void associateAttribute(String datauid, String attruid)
+	    throws RemoteException {
+	Attribute attr = null;
+	DaoAttribute dao = (DaoAttribute) DaoFactory
+		.getInstance("xtremweb.dao.attribute.DaoAttribute");
 	try {
-	    tx.begin();
-	    Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class, 
-				      "uid == \"" + datauid + "\"");
-	    query.setUnique(true);
-	    Data d = (Data) query.execute();
-	    if (d==null) {
-		log.debug (" d " + datauid + " is null ");
-	    } else {		
+	    dao.beginTransaction();
+	    Data d = (Data) dao.getByUid(Data.class, datauid);
+	    if (d == null) {
+		log.debug(" d " + datauid + " is null ");
+	    } else {
 		d.setattruid(attruid);
-		pm.makePersistent(d);	
+		dao.makePersistent(d, true);
 	    }
-	    tx.commit();
-        } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
+	    dao.commitTransaction();
+	} finally {
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	    dao.close();
 	}
     }
 
+    /**
+     * Most important method, according to the data contained in a vector V
+     * introduced by parameter, it answers with a new list B such that the
+     * caller can safely delete the obsolete data and store the newly created
+     * data
+     * 
+     * @param host
+     *            the host that is sending the request
+     * @param dataList
+     *            the data sent to the RMI service
+     * @return a new vector containing the data authorized to be kept by the
+     *         host
+     */
     public Vector sync(Host host, Vector dataList) {
 	String sync = "sync [" + host.getuid() + "] ";
-	for (int i=0; i< dataList.size(); i++)
-	    sync = sync+ (String) dataList.elementAt(i) + " ";
-	log.debug( sync );
+	for (int i = 0; i < dataList.size(); i++)
+	    sync = sync + (String) dataList.elementAt(i) + " ";
+	log.debug(sync);
 	return ds.getData(host, dataList);
     }
-
 
 }
