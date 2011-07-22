@@ -1,6 +1,7 @@
 package xtremweb.dao;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * This interface describe the basic operations tha bitdew expects from a data
@@ -46,4 +47,16 @@ public interface InterfaceDao {
      *            the object to become persistent
      */
     public void makePersistent(Object obj, boolean autonomous);
+    
+    public void beginTransaction();
+    
+    public void transactionRollback();
+    
+    public void close();
+    
+    public void commitTransaction();
+    
+    public boolean transactionIsActive();
+    
+    public Object getObjectId(Object arg0);
 }
