@@ -41,7 +41,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      * Local transfer manager, this will change in the future as it is violating
      * the previously fixed design rules
      */
-    protected TransferManager tm;
+     protected TransferManager tm;
 
     /**
      * Creates a new <code>Callbackdt</code> instance.
@@ -131,7 +131,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 	    OOBTransfer oobt = OOBTransferFactory.createOOBTransfer(data, t,
 		    rl, local_locator, rp, local_proto);
 	    DaoTransfer dao = (DaoTransfer) DaoFactory
-		    .getInstance("xtremweb.serv.dao.transfer.DaoTransfer");
+		    .getInstance("xtremweb.dao.transfer.DaoTransfer");
 	    dao.makePersistent(oobt, true);
 	    log.debug("Succesfully created transfer [" + t.getuid()
 		    + "] data [" + data.getuid() + "] with remote storage ["
@@ -140,7 +140,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 		    + rl.getdrname() + ":" + rp.getport() + "/" + rp.getpath()
 		    + "/" + rl.getref() + "\n" + oobt);
 
-	    tm.registerTransfer(oobt);
+	   tm.registerTransfer(oobt);
 	} catch (OOBException e) {
 	    log.debug("Exception when registring oob transfer " + e);
 	    throw new RemoteException();
