@@ -52,13 +52,8 @@ public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
     public Attribute registerAttribute(Attribute attr) throws RemoteException {
 	DaoAttribute dao = (DaoAttribute) DaoFactory
 		.getInstance("xtremweb.dao.attribute.DaoAttribute");
-	// dao.beginTransaction();
 	dao.makePersistent(attr, true);
-	dao.beginTransaction();
-	Attribute newattr = (Attribute) dao.detachCopy(attr);
-	dao.commitTransaction();
-	ds.updateAttribute(newattr);
-	return newattr;
+	return attr;
     }
 
     /**
