@@ -7,6 +7,10 @@ import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.Locator;
 import xtremweb.serv.dc.DataUtil;
 import xtremweb.core.db.*;
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.DaoJDOImpl;
+import xtremweb.dao.transfer.DaoTransfer;
+
 import javax.jdo.PersistenceManager;
 import javax.jdo.Extent;
 import javax.jdo.Query;
@@ -77,19 +81,16 @@ public abstract class OOBTransferImpl implements OOBTransfer {
      */
     public OOBTransferImpl(String tuid) {
 	log.debug(tuid);
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
+	DaoTransfer dao = (DaoTransfer)DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	try {
-	    tx.begin();
-	    Query query = pm.newQuery(xtremweb.core.obj.dt.Transfer.class, "uid == \"" + tuid + "\"");
-	    query.setUnique(true);
-	    transfer = (Transfer) pm.detachCopy(query.execute());
+	    dao.beginTransaction();
+	    transfer = (Transfer) dao.detachCopy(dao.getByUid(xtremweb.core.obj.dt.Transfer.class, tuid));
 	    log.debug( "transfer " + transfer.getuid() + ":" + transfer.getoob() + ":" + transfer.gettype());
-	    tx.commit();
+	    dao.commitTransaction();
         } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
+            if (dao.transactionIsActive())
+                dao.transactionRollback();
+            dao.close();
 	}
     } // OOBTransferImpl constructor
 
@@ -117,15 +118,17 @@ public abstract class OOBTransferImpl implements OOBTransfer {
      *  <code>persist</code> the OOBTransfer to the local database
      */
     public void persist() {
-	DBInterface dbi = DBInterfaceFactory.getDBInterface();
+	DaoJDOImpl dao = (DaoJDOImpl)DaoFactory.getInstance("xtremweb.dao.DaoJDOImpl");
 
 	String tuid = transfer.getuid();
 	if ((transfer!=null)&&(transfer.getuid()!=null)) 
 	    log.debug("Transfer already persisted : " + transfer.getuid());
 	log.debug(" data snapshot just before persisting uid" + data.getuid() + "md5 " + data.getchecksum() + " size " + data.getsize());
-	dbi.makePersistent(data);
-	dbi.makePersistent(remote_protocol);
-	dbi.makePersistent(local_protocol);
+	
+	
+	dao.makePersistent(data,true);
+	dao.makePersistent(remote_protocol,true);
+	dao.makePersistent(local_protocol,true);
 	
 	remote_locator.setdatauid(data.getuid());
 	local_locator.setdatauid(data.getuid());
@@ -133,13 +136,13 @@ public abstract class OOBTransferImpl implements OOBTransfer {
 	remote_locator.setprotocoluid(remote_protocol.getuid());
 	local_locator.setprotocoluid(local_protocol.getuid());
 	
-	dbi.makePersistent(remote_locator);
-	dbi.makePersistent(local_locator);
+	dao.makePersistent(remote_locator,true);
+	dao.makePersistent(local_locator,true);
 	
 	transfer.setlocatorremote(remote_locator.getuid());
 	transfer.setlocatorlocal(local_locator.getuid());
 	transfer.setdatauid(data.getuid());
-	dbi.makePersistent(transfer);
+	dao.makePersistent(transfer,true);
 
 	
 	//FIXME: should have an assert here

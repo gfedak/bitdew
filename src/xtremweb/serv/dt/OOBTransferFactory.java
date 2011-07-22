@@ -11,6 +11,8 @@ import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dc.Locator;
 import xtremweb.core.obj.dt.Transfer;
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.DaoJDOImpl;
 //FIXME
 import xtremweb.api.transman.TransferType;
 
@@ -60,45 +62,29 @@ public class OOBTransferFactory {
 	Protocol lp = null;
 	Protocol rp = null;
 	
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
+	DaoJDOImpl dao  =  (DaoJDOImpl)DaoFactory.getInstance("xtremweb.dao.DaoJDOImpl");
 	try {
-	    tx.begin();
+	    dao.beginTransaction();
 
-	    Query query = pm.newQuery(xtremweb.core.obj.dc.Locator.class, 
-				      "uid == \"" + t.getlocatorlocal() + "\"");
-	    query.setUnique(true);
-	    ll = (Locator) pm.detachCopy(query.execute());
+	    ll = (Locator) dao.detachCopy(dao.getByUid(xtremweb.core.obj.dc.Locator.class, t.getlocatorlocal()));
 
-	    query = pm.newQuery(xtremweb.core.obj.dc.Locator.class, 
-				"uid == \"" + t.getlocatorremote() + "\"");
-	    query.setUnique(true);
-	    rl = (Locator) pm.detachCopy(query.execute());
+	    rl = (Locator) dao.detachCopy(dao.getByUid(xtremweb.core.obj.dc.Locator.class, t.getlocatorremote()));
 
-	    query = pm.newQuery(xtremweb.core.obj.dr.Protocol.class, 
-				"uid == \"" + rl.getprotocoluid() + "\"");
-	    query.setUnique(true);
-	    rp = (Protocol) pm.detachCopy(query.execute());
+	    rp = (Protocol) dao.detachCopy(dao.getByUid(xtremweb.core.obj.dr.Protocol.class, rl.getprotocoluid()));
 
-	    query = pm.newQuery(xtremweb.core.obj.dr.Protocol.class, 
-				"uid == \"" + ll.getprotocoluid() + "\"");
-	    query.setUnique(true);
-	    lp = (Protocol) pm.detachCopy(query.execute());
+	    lp = (Protocol) dao.detachCopy(dao.getByUid(xtremweb.core.obj.dr.Protocol.class, ll.getprotocoluid()));
 	    //FIXME to use transfet.getdatauid() instead	    
 	    if (! ll.getdatauid().equals(rl.getdatauid()) )
 		throw new OOBException("O-O-B Transfers refers to two different data ");
-	    
-	    query = pm.newQuery(xtremweb.core.obj.dc.Data.class, 
-				"uid == \"" + ll.getdatauid() + "\"");
-	    query.setUnique(true);
-	    d = (Data) pm.detachCopy(query.execute());
+
+	    d = (Data) dao.detachCopy(dao.getByUid(xtremweb.core.obj.dc.Data.class, ll.getdatauid()));
 	    log.debug( "OOBTransferFactory create " + t.getuid() + ":" + t.getoob() + ":" + TransferType.toString(t.gettype()));
-	    tx.commit();
+	    dao.commitTransaction();
 	    return createOOBTransfer(d,t,rl,ll,rp,lp);
         } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
+            if (dao.transactionIsActive())
+                dao.transactionRollback();
+            dao.close();
 	}
     }
 
