@@ -29,6 +29,12 @@ import java.util.Vector;
 
 import xtremweb.core.util.filesplit.*;
 import xtremweb.core.util.uri.*;
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.InterfaceDao;
+import xtremweb.dao.data.DaoData;
+import xtremweb.dao.datachunck.DaoDataChunck;
+import xtremweb.dao.datacollection.DaoDataCollection;
+import xtremweb.dao.locator.DaoLocator;
 
 /**
  *  <code>BitDew</code> programming interface.
@@ -39,7 +45,9 @@ import xtremweb.core.util.uri.*;
 public class BitDew {
 
     private static Logger log = LoggerFactory.getLogger(BitDew.class);
-
+    
+    //FIXME THIS IS TEMPORAL !!!!
+    private int port;
     private InterfaceRMIdc idc;
     private InterfaceRMIdr idr;
     private InterfaceRMIdt idt;
@@ -84,8 +92,7 @@ public class BitDew {
      * @param cds
      *            an <code>InterfaceRMIds</code> value
      */
-    public BitDew(InterfaceRMIdc cdc, InterfaceRMIdr cdr, InterfaceRMIdt cdt,
-	    InterfaceRMIds cds) {
+    public BitDew(InterfaceRMIdc cdc, InterfaceRMIdr cdr, InterfaceRMIdt cdt,InterfaceRMIds cds) {
 	idc = cdc;
 	idr = cdr;
 	idt = cdt;
@@ -93,22 +100,26 @@ public class BitDew {
 
 	init();
     } // BitDew constructor
-
+    public void setPort(int theport)
+    {
+    	port = theport;
+    }
+    
     private void init() {
 
-	try {
+	/*try {
 	    ddc = DistributedDataCatalogFactory.getDistributedDataCatalog();
 	    String entryPoint = idc.getDDCEntryPoint();
+	    System.out.println(" entry point is " + entryPoint);
 	    if (entryPoint != null) {
-		ddc.join(entryPoint);
-		log
-			.info("Started DHT service for distributed data catalog [entryPoint:"
+		ddc.join(entryPoint,port);
+		System.out.println("Started DHT service for distributed data catalog [entryPoint:"
 				+ entryPoint + "]");
 	    }
 	} catch (Exception ddce) {
 	    log.warn("unable to start a Distributed Data Catalog service");
 	    ddc = null;
-	}
+	}*/
 	// TransferManagerFactory.init(idr, idt);
 
     }
@@ -184,32 +195,34 @@ public class BitDew {
 	    Data data = new Data();
 	    data.setstatus(DataStatus.ON_LOCAL_CACHE);
 	    data.setname(name);
-	    DBInterfaceFactory.getDBInterface().makePersistent(data);
+	    DaoData daod = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+	    daod.makePersistent(data,true);
+	    //System.out.println("data is " + data.getname());
+	    //DBInterfaceFactory.getDBInterface().makePersistent(data);
 	    idc.putData(data);
 	    return data;
 
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
-	}
+	} 
 	throw new BitDewException();
     }
     
     public Data createData(String name,String protocol,long size, String checksum)throws BitDewException
-    {
-	try {
+    {	try {
 	    Data data = new Data();
 	    data.setstatus(DataStatus.ON_LOCAL_CACHE);
 	    data.setname(name);
 	    data.setoob(protocol);
 	    data.setsize(size);
 	    data.setchecksum(checksum);
-	    DBInterfaceFactory.getDBInterface().makePersistent(data);
+	    DaoData daod = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+	    daod.makePersistent(data,true);
 	    idc.putData(data);  
 	    return data;
-
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
-	}
+	} 
 	throw new BitDewException();
     }
 
@@ -234,13 +247,14 @@ public class BitDew {
 	    data.setname(name);
 	    data.setoob(protocol);
 	    data.setsize(size);
-	    DBInterfaceFactory.getDBInterface().makePersistent(data);
+	    DaoData daod = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+	    daod.makePersistent(data,true);
 	    idc.putData(data);
 	    return data;
 
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
-	}
+	} 
 	throw new BitDewException();
     }
 
@@ -257,7 +271,8 @@ public class BitDew {
 	Data data = DataUtil.fileToData(file);
 	data.setstatus(DataStatus.ON_LOCAL_CACHE);
 	try {
-	    DBInterfaceFactory.getDBInterface().makePersistent(data);
+	    DaoData daod = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+	    daod.makePersistent(data,true);
 	    idc.putData(data);
 	    log.debug("uid = " + DataUtil.toString(data));
 	    return data;
@@ -277,18 +292,22 @@ public class BitDew {
      * @param lo the locator
      * @return OOBTransfer the transfer to get this data
      * @throws BitDewException if a problem occurs
+     * @throws ClassNotFoundException 
+     * @throws IllegalAccessException 
+     * @throws InstantiationException 
      */
     public OOBTransfer associateDataLocator(Data d,Locator lo) throws BitDewException
     {
-	DBInterfaceFactory.getDBInterface().makePersistent(d);
+	 
 	try {
-
+	    DaoData daod = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+		  daod.makePersistent(d,true);
 	    idc.putData(d);
 	    return put(d,lo);
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
 	    throw new BitDewException();
-	}
+	} 
     }
     /**
      *  <code>updateData</code> updates the data fields (name, size, checksum) 
@@ -304,7 +323,8 @@ public class BitDew {
 	data.setchecksum(tmp.getchecksum());
 	data.setsize(tmp.getsize());
 	data.setname(tmp.getname());
-	DBInterfaceFactory.getDBInterface().makePersistent(data);
+	DaoData daod = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");	
+	daod.makePersistent(data,true);
 	putData(data);
     }
     
@@ -314,13 +334,15 @@ public class BitDew {
      * @throws BitDewException if a problem occurs
      */
     public void putData(Data data) throws BitDewException {
-	DBInterfaceFactory.getDBInterface().makePersistent(data);
+	
 	try {
+	    DaoData daod = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+		 daod.makePersistent(data,true);
 	    idc.putData(data);  
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
 	    throw new BitDewException();
-	}
+	} 
     }
 
     /**
@@ -332,7 +354,9 @@ public class BitDew {
     public void deleteData(Data data) throws BitDewException {
 	//set the new status to TODELETE value
 	data.setstatus(DataStatus.TODELETE);
-	DBInterfaceFactory.getDBInterface().makePersistent(data);
+	InterfaceDao daod;	
+	daod = DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+	daod.makePersistent(data,true);
 	putData(data);
     }
 
@@ -348,8 +372,8 @@ public class BitDew {
 	try {
 	    Locator locator = new Locator();
 	    locator.setref(ref);
- 	    DBInterfaceFactory.getDBInterface().makePersistent(locator);
-	    putLocator(locator);
+	    DaoLocator daol = (DaoLocator)DaoFactory.getInstance("DaoLocator");
+	    daol.makePersistent(locator,true);
 	    putLocator(locator);
 	    return locator;
 	} catch (Exception re) {
@@ -434,6 +458,7 @@ public class BitDew {
 	Protocol remote_proto;
 	File file = new File(data.getname());
 	Locator local_locator = new Locator();
+	
 	Protocol local_proto = new Protocol();
 	local_proto.setname("local");
 	try {
@@ -453,15 +478,16 @@ public class BitDew {
 	log.debug("Local Locator : " + file.getAbsolutePath());
 	    
 	    
-	    if (remote_locator.getuid() == null)
-		DBInterfaceFactory.getDBInterface().makePersistent(
-			remote_locator);
+	    if (remote_locator.getuid() == null){
+		DaoLocator daod = (DaoLocator)DaoFactory.getInstance("xtremweb.dao.locator.DaoLocator");
+		daod.makePersistent(remote_locator,true);
+	    }
 	    remote_proto = idr.getProtocolByName(data.getoob());
 	    log.debug("Remote_proto fetched : " + remote_proto.getuid() + " : " +remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() );
 	} catch (RemoteException re) {
 	    log.debug("Cannot find a oob protocol " + data.getoob() + " " + re);
-	    throw new BitDewException();
-	}
+	    throw new BitDewException(re.getMessage());
+	} 
 	remote_locator.setdatauid(data.getuid());
 	remote_locator.setdrname(((CommRMITemplate) idr).getHostName());
 	remote_locator.setprotocoluid(remote_proto.getuid());	
@@ -864,8 +890,8 @@ public class BitDew {
 	datacollection.setchunks(FileNum);
 
 	try {
-
-	    DBInterfaceFactory.getDBInterface().makePersistent(datacollection);
+	    DaoDataCollection daod = (DaoDataCollection)DaoFactory.getInstance("xtremweb.dao.datacollection.DaoDataCollection");
+	    daod.makePersistent(datacollection,true);
 	    idc.putDataCollection(datacollection);
 	    log.debug("datacollection uid = " + datacollection.getuid());
 
@@ -878,7 +904,8 @@ public class BitDew {
 		data.setsize(Long.parseLong(rfl.separatedFilesAndSize[i][1]));
 		data.settype(0);
 
-		DBInterfaceFactory.getDBInterface().makePersistent(data);
+		DaoData daodata = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+		daodata.makePersistent(data,true);
 		idc.putData(data);
 		log.debug("uid = " + DataUtil.toString(data));
 		log.debug("data uid = " + DataUtil.toString(data));
@@ -888,8 +915,8 @@ public class BitDew {
 		datachunk.setcollectionuid(datacollection.getuid());
 		datachunk.setindex(i);
 		datachunk.setoffset(i);
-
-		DBInterfaceFactory.getDBInterface().makePersistent(datachunk);
+		DaoDataChunck daodatachunk = (DaoDataChunck)DaoFactory.getInstance("xtremweb.dao.datachunck.DaoDataChunck");
+		daodatachunk.makePersistent(datachunk,true);
 		idc.putDataChunk(datachunk);
 		log.debug("datachunk uid = " + datachunk.getuid());
 	    }
@@ -957,8 +984,9 @@ public class BitDew {
 	datacollection.setchunks(FileNum);
 
 	try {
-
-	    DBInterfaceFactory.getDBInterface().makePersistent(datacollection);
+	    DaoDataCollection daodatacol = (DaoDataCollection)DaoFactory.getInstance("xtremweb.dao.datacollection.DaoDataCollection");
+	    daodatacol.makePersistent(datacollection,true);
+	   
 	    idc.putDataCollection(datacollection);
 	    log.debug("datacollection uid = " + datacollection.getuid());
 
@@ -970,8 +998,8 @@ public class BitDew {
 			+ rfl.separatedFiles[i])));
 		data.setsize(Long.parseLong(rfl.separatedFilesAndSize[i][1]));
 		data.settype(0);
-
-		DBInterfaceFactory.getDBInterface().makePersistent(data);
+		DaoData daod = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+		daod.makePersistent(data,true);
 		idc.putData(data);
 		log.debug("uid = " + DataUtil.toString(data));
 		log.debug("data uid = " + DataUtil.toString(data));
@@ -982,7 +1010,8 @@ public class BitDew {
 		datachunk.setindex(i);
 		datachunk.setoffset(i);
 
-		DBInterfaceFactory.getDBInterface().makePersistent(datachunk);
+		DaoDataChunck daodatachu = (DaoDataChunck)DaoFactory.getInstance("xtremweb.dao.datachunck.DaoDataChunck");
+		daodatachu.makePersistent(datachunk,true);
 		idc.putDataChunk(datachunk);
 		log.debug("datachunk uid = " + datachunk.getuid());
 	    }

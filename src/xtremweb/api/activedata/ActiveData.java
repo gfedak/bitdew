@@ -21,6 +21,9 @@ import xtremweb.core.com.idl.*;
 import xtremweb.core.obj.dc.*;
 import xtremweb.core.obj.ds.Attribute;
 import xtremweb.core.obj.ds.Host;
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.attribute.DaoAttribute;
+import xtremweb.dao.data.DaoData;
 
 import java.rmi.RemoteException;
 import javax.jdo.PersistenceManager;
@@ -50,8 +53,6 @@ public class ActiveData {
     private Timer timer;
 
     private boolean isActive=false;
-
-    DBInterface dbi = DBInterfaceFactory.getDBInterface();
 
     protected Logger log = LoggerFactory.getLogger("Active Data");
 
@@ -129,13 +130,12 @@ public class ActiveData {
     protected void checkData() {
 
 	Vector datasync = new Vector();
-	PersistenceManagerFactory pmf = DBInterfaceFactory.getPersistenceManagerFactory();
-	PersistenceManager pm = pmf.getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
-
+	DaoData dao = null;
+		
 	try {
-	    tx.begin();
-            Extent e=pm.getExtent(Data.class,true);
+	    dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+	    dao.beginTransaction();
+            Collection e = dao.getAll(Data.class);
             Iterator iter=e.iterator();
 
             while (iter.hasNext()) {
@@ -150,17 +150,9 @@ public class ActiveData {
 			if (data.getstatus() != DataStatus.TODELETE)
 			    datasync.add(data.getuid());
 		    }
-	    }
-
+	    }           
 	    Vector newdatauid = cds.sync(host, datasync);
-	    String datauids = "";
-
-	    //check for data to delete
-	    for (int i=0; i<newdatauid.size(); i++)
-		datauids += "uid != \"" + ((String) newdatauid.elementAt(i)) + "\" && "; 
-
-	    Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class, datauids + "  status != " + DataStatus.TODELETE );		
-	    Collection result = (Collection) query.execute();	       
+	    Collection result = (Collection)  dao.getDataToDelete(newdatauid);  
 	    iter=result.iterator();
 	    String toDelete = "";
 	    //erase anything different in cache from what the scheduler returns.
@@ -205,15 +197,14 @@ public class ActiveData {
 	    //for each data that the scheduler returns; check if it is new or is already present
 	    for (int i=0; i<newdatauid.size(); i++) {
 		String uid =  ((String) newdatauid.elementAt(i));
-		query = pm.newQuery(xtremweb.core.obj.dc.Data.class,  "uid == \"" + uid + "\" && status != " + DataStatus.TODELETE  );
-		query.setUnique(true);
-		Data d = (Data) query.execute();
+		Data d = dao.getByUidNotToDelete(uid);
+		
 		if (d==null) {
 		    log.debug ("getting a new data  " + uid);
 		    //contact dc to get complete information
 		    d = cdc.getData(uid);
 
-		    pm.makePersistent(d);
+		    dao.makePersistent(d, false);
 		    //add attribute to attruid
 		    Attribute attr = attributes.get(d.getattruid());
 		    if (attr == null) {
@@ -228,14 +219,14 @@ public class ActiveData {
 		    log.debug (" d " + d.getuid() + " is present ");
 		}
 	    }
-	    tx.commit();
+	    dao.commitTransaction();
 	} catch (Exception e) {
 	    log.debug("exception occured when running active data " + e);
 	    e.printStackTrace();
 	} finally {
-	    if (tx.isActive())
-		tx.rollback();
-	    pm.close();
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	    dao.close();
 	}
     }
     
@@ -263,14 +254,14 @@ public class ActiveData {
 
     public void schedule( Data data, Attribute attr)  throws ActiveDataException {
 	try {
-	    fixoob(data, attr);
-	    
-	    data.setattruid(attr.getuid());
-	    
+	    fixoob(data, attr);	    
+	    data.setattruid(attr.getuid());	    
 	    cdc.putData(data);
 	    cds.associateDataAttribute(data, attr);
 	    data.setstatus(DataStatus.ON_SCHEDULER);
-	    DBInterfaceFactory.getDBInterface().makePersistent(data);
+	    //DBInterfaceFactory.getDBInterface().makePersistent(data);
+	    DaoData daod = (DaoData) DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+	    daod.makePersistent(data,true); 
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
 	    throw new ActiveDataException();
@@ -280,12 +271,12 @@ public class ActiveData {
     public void scheduleAndPin(Data data,  Attribute attr, Host host)  throws ActiveDataException {
 	try {
 	    fixoob(data, attr);
-	    data.setattruid(attr.getuid());
-	    
+	    data.setattruid(attr.getuid());	    
 	    cdc.putData(data);
 	    cds.associateDataAttributeHost(data, attr, host);
 	    data.setstatus(DataStatus.ON_SCHEDULER);
-	    DBInterfaceFactory.getDBInterface().makePersistent(data);
+	    DaoData daod = (DaoData) DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+	    daod.makePersistent(data,true);
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
 	    throw new ActiveDataException();
@@ -325,7 +316,12 @@ public class ActiveData {
 
     public Attribute createAttribute(String def)   throws ActiveDataException {
 	Attribute attr = AttributeUtil.parseAttribute(def);
-	DBInterfaceFactory.getDBInterface().makePersistent(attr);
+	
+	DaoAttribute dao;
+	
+	dao = (DaoAttribute)DaoFactory.getInstance("xtremweb.dao.attribute.DaoAttribute");
+	
+	dao.makePersistent(attr,true);
 	return registerAttribute(attr);
     }
 
@@ -347,36 +343,31 @@ public class ActiveData {
     public void schedule( DataCollection datacollection, Attribute attr, String oob)  throws ActiveDataException {
 	try {
 	    Data data=null;
-	    PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-
-	    Transaction tx=pm.currentTransaction();
+	    DaoData daod = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+	    daod.beginTransaction();
 	    try {
-		tx.begin();
+		
 
-		Extent e=pm.getExtent(DataChunk.class,true);
+		Collection e= daod.getAll(DataChunk.class);
 		Iterator iter=e.iterator();
 	    
 		while (iter.hasNext()) {
 		    DataChunk datachunk = (DataChunk) iter.next();
 		    if (datachunk.getcollectionuid().equals(datacollection.getuid())){
-			Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class,  "uid == \"" + datachunk.getdatauid() + "\"");
-			query.setUnique(true);
-			Data dataStored = (Data) query.execute();
-			data = (Data) pm.detachCopy(dataStored);
+			Data dataStored = (Data) daod.getByUid(Data.class,datachunk.getdatauid());
+			data = (Data) daod.detachCopy(dataStored);
 			data.setoob(oob);
-
 			schedule(data, attr);
 			log.debug("Oh ha, Schedule!! data uid="+data.getuid());
 		        log.debug("Oh ha, Schedule!! attr uid="+attr.getuid()+" distrib="+attr.getdistrib());
 			
 		    }
-		}
-           
-		tx.commit();
+		}         
+		daod.commitTransaction();
 	    } finally {
-		if (tx.isActive())
-		    tx.rollback();
-		pm.close();
+		if (daod.transactionIsActive())
+		    daod.transactionRollback();
+		daod.close();
 	    }	
 	    
 	} catch (Exception re) {

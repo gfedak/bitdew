@@ -34,6 +34,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import xtremweb.core.util.uri.*;
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.InterfaceDao;
+import xtremweb.dao.transfer.DaoTransfer;
 /**
  * <code>TransferManager</code>.
  *
@@ -117,14 +120,10 @@ public class TransferManager {
     
     public int getTransferStatus(String tid)
     {
-	PersistenceManagerFactory pmf = DBInterfaceFactory.getPersistenceManagerFactory();
-	PersistenceManager pm = pmf.getPersistenceManager();
-	Transaction tx=pm.currentTransaction();	
 	try {
-	    tx.begin();	    
-	    Query query = pm.newQuery(Transfer.class, "uid == '" + tid+"'"  ); 
-	    query.setUnique(true);
-	    Transfer t = (Transfer)query.execute();
+	    InterfaceDao dao = DaoFactory.getInstance("DaoTransfer");
+	    dao.beginTransaction();
+	    Transfer t = (Transfer)dao.getByUid(Transfer.class,tid);
 	    return t.getstatus();
 	}catch(Exception e )
 	{   log.info("an error occurred while interacting with bd ");
@@ -135,8 +134,10 @@ public class TransferManager {
 
     public Transfer createTransfer() throws TransferManagerException {
 	try {
+	    InterfaceDao dao = DaoFactory.getInstance("DaoTransfer");
 	    Transfer trans = new Transfer();
-	    DBInterfaceFactory.getDBInterface().makePersistent(trans);
+	    
+	    dao.makePersistent(trans,true);
 	    dt.putTransfer(trans);  
 	    return trans;
 
@@ -202,6 +203,7 @@ public class TransferManager {
 	if (idx != -1)
 	    oob = (OOBTransfer) oobTransfers.elementAt(idx);
 	else {
+	    System.out.println("the transfer is " + trans);
 	    oob = OOBTransferFactory.createOOBTransfer(trans);
 	    oobTransfers.addElement(oob);
 	    log.debug("TransferManager new transfer " + trans.getuid() + " : " + oob.toString());
@@ -228,17 +230,12 @@ public class TransferManager {
      */
     private void checkTransfer() {
 	long start=System.currentTimeMillis();
-	
-	PersistenceManagerFactory pmf = DBInterfaceFactory.getPersistenceManagerFactory();
-	PersistenceManager pm = pmf.getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
-	
+	DaoTransfer dao= null;
 	try {
-	    tx.begin();
-	    /* begin nouveau */
-	    Query query = pm.newQuery(Transfer.class, 
-				      "status != " + TransferStatus.TODELETE  ); 	    
-	    Collection results = (Collection)query.execute();
+	    dao = (DaoTransfer)DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
+	    dao.beginTransaction();
+	    /* begin nouveau */	    
+	    Collection results = (Collection) dao.getTransfersDifferentStatus(TransferStatus.TODELETE);
 	    if (results==null) {
 		log.debug("nothing to check");
 		return;
@@ -261,7 +258,7 @@ public class TransferManager {
 		    try {
 			oob = getOOBTransfer(trans);
 			if ( TransferType.isLocal(trans.gettype()) ) {
-			    Transfer tcpy =  (Transfer) pm.detachCopy(trans);
+			    Transfer tcpy =  (Transfer) dao.detachCopy(trans);
 			    log.debug ("transfer " + tcpy + " | data " +  oob.getData() + " | remote protocol " +  oob.getRemoteProtocol() + " | remote locator " +  oob.getRemoteLocator());
 			    dt.registerTransfer( tcpy, 
                                                  oob.getData(), 
@@ -417,46 +414,38 @@ public class TransferManager {
 		}
 		//pm.makePersistent(trans);
 	    }
-            
-            
-	    tx.commit();
-	} finally {
-	    if (tx.isActive())
-		tx.rollback();
-	    pm.close();
-	}
+            dao.commitTransaction();
+	}  finally {
+	    
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();	
+	    }
+		dao.close();
 	long end=System.currentTimeMillis();	
 	perf.addSample(end - start);
     }
 
     public long ongoingTransfers() {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();	
+	DaoTransfer dao = (DaoTransfer)DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
+	dao.beginTransaction();
 	long result=-1;
 	try {
-	    tx.begin();
-	    Query query = pm.newQuery(xtremweb.core.obj.dt.Transfer.class, "status == " + TransferStatus.TRANSFERING );
-	    query.setResult("count(uid)");
-	    result = ((Long) query.execute()).longValue();
-	    tx.commit();
+	    result = new Long((Long)dao.getTransfersByStatus(TransferStatus.TRANSFERING ,true,"uid")).longValue();
+	    dao.commitTransaction();
 	} finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+		dao.close();
+	    }
 	return result;
     }
 
     //FIXME c pas top; mettre une limite au premier resultat retourne
     public boolean downloadComplete() {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();	
+	DaoTransfer dao = (DaoTransfer)DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	try {
-	    tx.begin();
-	    Query query = pm.newQuery(xtremweb.core.obj.dt.Transfer.class); 
-	    //				      "status != " + TransferStatus.TODELETE );
-	    //	    query.setUnique(true);
-	    Collection results = (Collection)query.execute();
+	    
+	    Collection results = dao.getAll(xtremweb.core.obj.dt.Transfer.class);
 	    if (results==null) {
 		return true;
 	    } else {
@@ -468,12 +457,12 @@ public class TransferManager {
 			return false;
 		}
 	    }
-	    tx.commit();
+	    dao.commitTransaction();
 	} finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}
+		if (dao.transactionIsActive())
+		    dao.transactionRollback();
+		dao.close();
+	    }
 	/*
 	for ( Object o:  oobTransfers.values()) {
 	    OOBTransfer trans = (OOBTransfer) o;
@@ -512,22 +501,17 @@ public class TransferManager {
      * @return a <code>boolean</code> value
      */
     public boolean isTransferComplete(Data data) {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();	
+	DaoTransfer dao = (DaoTransfer)DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	boolean isComplete = true;	
 	try {
-	    tx.begin();
-	    Query query = pm.newQuery(xtremweb.core.obj.dt.Transfer.class, 
-				      "datauid == \"" + data.getuid() +"\"" ); 
-	    //				      "status != " + TransferStatus.TODELETE );
-	    //	    query.setUnique(true);
-	    Collection results = (Collection)query.execute();
+	    
+	    dao.beginTransaction();
+	    Collection results = (Collection)dao.getTransfersByDataUid(data.getuid()); ;
 	    if (results==null) {
 		log.debug("pas de resultat");
 		return true;
 	    } else {
 		Iterator iter = results.iterator();
-		//	    isComplete = (query.execute() == null);
 		while (iter.hasNext()) {
 		    Transfer trans = (Transfer) iter.next();
 		    log.debug("scanning transfer " + trans.getuid() + " " + trans.getdatauid() + trans.getstatus());
@@ -535,12 +519,12 @@ public class TransferManager {
 			return false;
 		}
 	    }
-	    tx.commit();
+	    dao.commitTransaction();
 	} finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}
+		if (dao.transactionIsActive())
+		    dao.transactionRollback();
+		dao.close();
+	    }
 
 	return isComplete;
     }
@@ -562,12 +546,11 @@ public class TransferManager {
     }
 
     public void retriveData() {
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
+	InterfaceDao dao = DaoFactory.getInstance("DaoData");
 	try {
-	    tx.begin();
-	    Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class);
-	    Collection results = (Collection)query.execute();
+	    
+	    dao.beginTransaction();
+	    Collection results = (Collection)dao.getAll(xtremweb.core.obj.dc.Data.class);
 	    if (results==null) {
 		log.debug("pas de resultat");
 		return;
@@ -578,41 +561,38 @@ public class TransferManager {
 		    System.out.println("scanning Data: uid= " + d.getuid() );
 		}
 	    }
-	    tx.commit();
+	    dao.commitTransaction();
 	} finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
-	}	
+		if (dao.transactionIsActive())
+		    dao.transactionRollback();
+		dao.close();
+	    }	
     }
 
 
     public void waitFor(Vector<String> uidList) throws TransferManagerException {
 	log.debug("begin waitFor!");
-	try {
-	    
+	InterfaceDao dao = null;
+	try {	    
+	    dao = DaoFactory.getInstance("DaoData");
 	    Data data=null;
-	    int N = uidList.size();
-	    PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	    Transaction tx=pm.currentTransaction();
+	    int N = uidList.size();	   
 	    try {
-		tx.begin();
 		
+		dao.beginTransaction();
 		for(int i=0; i<N; i++) {
 		    String  uid = uidList.elementAt(i);
-		    Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class,  "uid == \"" + uid+ "\"");
-		    query.setUnique(true);
-		    Data dataStored = (Data) query.execute();
-		    data = (Data) pm.detachCopy(dataStored);
+		    Data dataStored = (Data) dao.getByUid(xtremweb.core.obj.dc.Data.class,uid);
+		    data = (Data) dao.detachCopy(dataStored);
 		    waitFor(data);
 		    log.debug("Oh ha Transfer waitfor data uid="+data.getuid());
 		}
 		
-		tx.commit();
+		dao.commitTransaction();
 	    } finally {
-		if (tx.isActive())
-		    tx.rollback();
-		pm.close();
+		if (dao.transactionIsActive())
+		    dao.transactionRollback();
+		dao.close();
 	    }	
 	    
 	} catch (Exception e) {
@@ -624,27 +604,24 @@ public class TransferManager {
     
     public void waitFor(BitDewURI uri) throws TransferManagerException {
 	log.debug("begin waitFor!");
+	InterfaceDao dao = DaoFactory.getInstance("xtremweb.dao.data.DaoData");
 	try {
 	    
 	    Data data=null;
-	    PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	    Transaction tx=pm.currentTransaction();
+	   
 	    try {
-		tx.begin();
 		
+		dao.beginTransaction();	
 		String  uid = uri.getUid();
-		Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class,  "uid == \"" + uid+ "\"");
-		query.setUnique(true);
-		Data dataStored = (Data) query.execute();
-		data = (Data) pm.detachCopy(dataStored);
+		Data dataStored = (Data) dao.getByUid(xtremweb.core.obj.dc.Data.class,uid);
+		data = (Data) dao.detachCopy(dataStored);
 		waitFor(data);
-		log.debug("Oh ha Transfer waitfor data uid="+data.getuid());
-		
-		tx.commit();
+		log.debug("Oh ha Transfer waitfor data uid="+data.getuid());		
+		dao.commitTransaction();
 	    } finally {
-		if (tx.isActive())
-		    tx.rollback();
-		pm.close();
+		if (dao.transactionIsActive())
+		    dao.transactionRollback();
+		dao.close();
 	    }	
 	    
 	} catch (Exception e) {
