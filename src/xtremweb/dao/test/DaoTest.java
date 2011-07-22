@@ -65,7 +65,7 @@ public class DaoTest extends TestCase{
 	collection.add(data5);
 	
 	dao = new DaoJDOImpl(); 
-	
+	dao.changeDetachAllOnCommit(false);
 	dao.makePersistent(data1,true);
 	
 	dao.makePersistent(data2,true);
