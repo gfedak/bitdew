@@ -14,7 +14,7 @@ import xtremweb.core.serv.ServiceLoader;
 public class DnTest extends TestCase {
 
     public void setUp() {
-	String[] str = { "dn", "dt", "ds", "dc", "dr" };
+	String[] str = { "dn" };
 	ServiceLoader s = new ServiceLoader("RMI", 4325, str);
     }
 
