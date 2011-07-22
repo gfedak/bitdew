@@ -80,6 +80,12 @@ public class DaoJDOImpl implements InterfaceDao {
 	
     }
     
+    /**
+     * FIXME detachAllOnCommit property is causing problems when deleting objects in  jd
+     * Useful method to change JDO detachOnAllCommit property, this is causing problems 
+     * when deleting items.
+     * @param newstate
+     */
     public void changeDetachAllOnCommit(boolean newstate)
     {
 	pm.setDetachAllOnCommit(newstate);
@@ -260,9 +266,10 @@ public class DaoJDOImpl implements InterfaceDao {
 	pm.close();
     }
 
- 
+    /**
+     * Get the object represented by arg0
+     */
     public Object getObjectId(Object arg0) {
-	// TODO Auto-generated method stub
 	return pm.getObjectId(arg0);
     }
 }
