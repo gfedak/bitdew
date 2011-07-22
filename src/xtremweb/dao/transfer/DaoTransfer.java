@@ -44,7 +44,7 @@ public class DaoTransfer extends DaoJDOImpl {
      * @param datauid the given datauid
      * @return all the transfers associated to the data having datauid 
      */
-    public Collection getTransferByDataUid(String datauid)
+    public Collection getTransfersByDataUid(String datauid)
     {
 	Query query = pm.newQuery(xtremweb.core.obj.dt.Transfer.class, 
 		      "datauid == \"" + datauid +"\"" ); 

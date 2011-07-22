@@ -26,9 +26,7 @@ public class DaoData extends DaoJDOImpl {
      * @return
      */
     public Collection getDataToDelete(Vector newdatauid) throws Exception {
-	if ((newdatauid == null) || (newdatauid.size() == 0))
-	    throw new Exception("Invalid newdatauid, either nil or 0");
-	String datauids = null;
+	String datauids = "";
 
 	for (int i = 0; i < newdatauid.size(); i++)
 	    datauids += "uid != \"" + ((String) newdatauid.elementAt(i))
@@ -39,7 +37,13 @@ public class DaoData extends DaoJDOImpl {
 	Collection result = (Collection) query.execute();
 	return result;
     }
-
+    /**
+     * 
+     * TODO WITH DSSSS
+     * THIS METHOD HAS NOT BEEEE UNITARY TESTEDDDDDDDDD !!!!!!!!!, TEST IT WITH DSSSS
+     * @param uid
+     * @return
+     */
     public Data getByUidNotToDelete(String uid) {
 	Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class, "uid == \""
 		+ uid + "\" && status != " + DataStatus.TODELETE);
