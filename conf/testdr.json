@@ -1,0 +1,18 @@
+{	xtremweb.role : {ui: "true"},
+	xtremweb.core.db : {driver: "org.hsqldb.jdbcDriver", url: "jdbc:hsqldb:mem:test",user:"sa",password: "", connectionPooling: "DBCP"},
+	xtremweb.serv.dr.ftp : {name:"ftp",server:"ftp.lip6.fr",port:21,login:"anonymous", passwd:"anonymous",path:"/pub/linux/distributions/slackware/slackware-current"},
+	xtremweb.core.com.rmi: {port: 4325},
+	xtremweb.serv.dr : {protocols: "ftp scp http"},
+	
+	xtremweb.core.http: {port: 8080,path:"/data",documentRoot:".",uploadServlet:"/fileupload"},
+	xtremweb.serv.dr.http: {name:"http",port:8080,path:"data"},
+	xtremweb.serv.dr.dummy: {name: "dummy"},
+	xtremweb.serv.dr.bittorrent: {name:"bittorrent",path:"torrents",port:6969},
+	xtremweb.serv.dt: {protocols: "dummy http"},
+	xtremweb.serv.dt.bittorrent: {makeTorrentExe:"/Users/fedak/shared/projects/bitdew/python/btmakemetafile.py",azureusjar:"/Users/fedak/shared/projects/bitdew/lib/azureus.jar",
+								  trackerExec:"/Users/fedak/shared/projects/bitdew/python/bttrack.py",
+								  trackerOption:"--dfile dstate"},	
+	xtremweb.serv.dr.ftp: {name:"ftp",port:23,path:"ftp/path",server: "ftp.server.com"},
+	xtremweb.serv.dr.scp: {name:"scp",login: "test",  prkeypath: "/home/user/privete/key/path" , port:8080,path:"scp/path"},
+	xtremweb.core.handler: {perf: "true"}							  
+}
