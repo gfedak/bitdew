@@ -1,7 +1,6 @@
 package xtremweb.dao;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * This interface describe the basic operations tha bitdew expects from a data
@@ -47,16 +46,41 @@ public interface InterfaceDao {
      *            the object to become persistent
      */
     public void makePersistent(Object obj, boolean autonomous);
-    
+
+    /**
+     * This method begins a transaction in case you are using a transactional
+     * data model such a DBMS
+     */
     public void beginTransaction();
-    
+
+    /**
+     * This method perform a rollback on the transaction
+     */
     public void transactionRollback();
-    
+
+    /**
+     * This method close all resources allocated to the persistence manager
+     */
     public void close();
-    
+
+    /**
+     * This method commits a transaction
+     */
     public void commitTransaction();
-    
+
+    /**
+     * This method signals if a transaction is currently active
+     * 
+     * @return true if the transaction is active, false otherwise
+     */
     public boolean transactionIsActive();
-    
+
+    /**
+     * Gets the object represented by the parameter
+     * 
+     * @param arg0
+     *            the object to retrieve
+     * @return the object asked
+     */
     public Object getObjectId(Object arg0);
 }
