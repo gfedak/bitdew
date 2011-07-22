@@ -63,7 +63,7 @@ public class DaoJDOImpl implements InterfaceDao {
 	properties.setProperty("org.jpox.autoCreateSchema", "true");
 	properties.setProperty("org.jpox.validateTables", "false");
 	properties.setProperty("org.jpox.validateConstraints", "false");
-	properties.setProperty("javax.jdo.option.DetachAllOnCommit", "false");
+	properties.setProperty("javax.jdo.option.DetachAllOnCommit", "true");
 	if (mainprop.getProperty("xtremweb.core.db.connectionPooling") != null) {
 	    properties.setProperty("org.jpox.connectionPoolingType",
 		    mainprop.getProperty("xtremweb.core.db.connectionPooling"));
@@ -78,6 +78,11 @@ public class DaoJDOImpl implements InterfaceDao {
 	pm = JDOHelper.getPersistenceManagerFactory(properties)
 		.getPersistenceManager();
 	
+    }
+    
+    public void changeDetachAllOnCommit(boolean newstate)
+    {
+	pm.setDetachAllOnCommit(newstate);
     }
 
     /**

@@ -7,11 +7,13 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
 
+import xtremweb.dao.DaoJDOImpl;
+
 /**
  * This class interface with protocol table thorugh jdo
  * @author jsaray
  *
  */
-public class DaoProtocol {
+public class DaoProtocol extends DaoJDOImpl{
 
 }
