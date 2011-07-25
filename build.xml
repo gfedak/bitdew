@@ -400,6 +400,7 @@ public class Version {
         <include name="**/*Test*.java" />
       	<exclude name="**/FTPServerTest.java"/>
       	<exclude name="**/CommandLineToolTest.java"/>
+      	<exclude name="**/CallbackdtTest.java"/>
       </fileset>
     </batchtest>
     
