@@ -444,7 +444,7 @@ public class TransferManager {
     public boolean downloadComplete() {
 	DaoTransfer dao = (DaoTransfer)DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	try {
-	    
+	    dao.beginTransaction();
 	    Collection results = dao.getAll(xtremweb.core.obj.dt.Transfer.class);
 	    if (results==null) {
 		return true;
