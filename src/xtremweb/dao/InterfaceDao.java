@@ -11,13 +11,7 @@ import java.util.Collection;
  */
 public interface InterfaceDao {
 
-    /**
-     * Get the object and erase it from the bd
-     * 
-     * @param obj
-     * @return the object
-     */
-    public Object detachCopy(Object obj);
+    
 
     /**
      * Get all objects of a given class

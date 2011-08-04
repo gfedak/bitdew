@@ -23,6 +23,8 @@ import xtremweb.core.log.LoggerFactory;
  */
 public class DaoJDOImpl implements InterfaceDao {
 
+    private Properties properties;
+
     /**
      * Log
      */
@@ -47,7 +49,7 @@ public class DaoJDOImpl implements InterfaceDao {
 	    mainprop = new Properties();
 	}
 
-	Properties properties = new Properties();
+	properties = new Properties();
 	properties.setProperty("javax.jdo.PersistenceManagerFactoryClass",
 		"org.jpox.PersistenceManagerFactoryImpl");
 	properties.setProperty("javax.jdo.option.ConnectionDriverName",
@@ -74,21 +76,9 @@ public class DaoJDOImpl implements InterfaceDao {
 			"org.jpox.connectionPoolingConfigurationFile",
 			dbcpPropertiesFile);
 	}
-
 	pm = JDOHelper.getPersistenceManagerFactory(properties)
 		.getPersistenceManager();
-	
-    }
-    
-    /**
-     * FIXME detachAllOnCommit property is causing problems when deleting objects in  jd
-     * Useful method to change JDO detachOnAllCommit property, this is causing problems 
-     * when deleting items.
-     * @param newstate
-     */
-    public void changeDetachAllOnCommit(boolean newstate)
-    {
-	pm.setDetachAllOnCommit(newstate);
+	pm.setMultithreaded(true);
     }
 
     /**
@@ -116,7 +106,7 @@ public class DaoJDOImpl implements InterfaceDao {
      *            transaction begin and commit
      */
     public void makePersistent(Object obj, boolean autonomous) {
-
+	log.debug("Persisting object " + obj.getClass().toString());
 	Transaction tx = null;
 	if (autonomous)
 	    tx = pm.currentTransaction();
@@ -132,6 +122,8 @@ public class DaoJDOImpl implements InterfaceDao {
 		persisted = true;
 	    }
 	} catch (Exception sqle) {
+	    log.debug("exception thrown !!!! " + sqle.getMessage());
+	    sqle.printStackTrace();
 	    log.warn("Error when persisting object : " + sqle
 		    + "\ntrying again in 500ms ");
 	    try {
@@ -149,17 +141,6 @@ public class DaoJDOImpl implements InterfaceDao {
     }
 
     /**
-     * detach a copy using the persistence manager
-     * 
-     * @param obj
-     *            the copy we want to be detached
-     * @return the detached copy
-     */
-    public Object detachCopy(Object obj) {
-	return pm.detachCopy(obj);
-    }
-
-    /**
      * getAll using jdo persistence manager
      * 
      * @param clazz
@@ -168,6 +149,7 @@ public class DaoJDOImpl implements InterfaceDao {
      */
     public Collection getAll(Class clazz) {
 	Collection res = new ArrayList();
+	Collection resd = new ArrayList();
 	Extent ex = null;
 	try {
 	    ex = pm.getExtent(clazz, true);
@@ -175,10 +157,11 @@ public class DaoJDOImpl implements InterfaceDao {
 		Object object = (Object) iterator.next();
 		res.add(object);
 	    }
+	    resd = pm.detachCopyAll(res);
 	} catch (Exception e) {
-	    System.out.println("DBI: " + e);
+	    log.debug("DBI: " + e);
 	}
-	return res;
+	return resd;
     }
 
     /**
@@ -193,8 +176,12 @@ public class DaoJDOImpl implements InterfaceDao {
     public Object getByUid(Class clazz, String uid) {
 	Extent e = pm.getExtent(clazz, true);
 	Query q = pm.newQuery(e, "uid == \'" + uid + "\'");
+	Object o = null;
 	q.setUnique(true);
-	return q.execute();
+	Object ret = q.execute();
+	if (ret != null)
+	    o = pm.detachCopy(ret);
+	return o;
     }
 
     /**

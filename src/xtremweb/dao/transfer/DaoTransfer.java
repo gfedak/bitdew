@@ -26,7 +26,9 @@ public class DaoTransfer extends DaoJDOImpl {
     public Collection getTransfersDifferentStatus(int st)//,boolean countflag,String ...tocount)
     {
         Query q = pm.newQuery(Transfer.class, "status != " + st  );
-        return (Collection)q.execute();
+        Collection col = (Collection)q.execute();
+        Collection cold = pm.detachCopyAll(col);
+        return cold;
     }
 
     public Object getTransfersByStatus(int st,boolean countflag,String countfield)
@@ -36,7 +38,9 @@ public class DaoTransfer extends DaoJDOImpl {
             q.setResult("count(" + countfield +")");
             return q.execute();
         }
-        return (Collection)q.execute();
+        Collection col = (Collection)q.execute();
+        Collection cold = pm.detachCopyAll(col);
+        return cold;
     }
 
     /**
@@ -49,7 +53,8 @@ public class DaoTransfer extends DaoJDOImpl {
         Query query = pm.newQuery(xtremweb.core.obj.dt.Transfer.class,
                       "datauid == \"" + datauid +"\"" );
         Collection results = (Collection)query.execute();
-        return results;
+        Collection resultsd = pm.detachCopyAll(results);
+        return resultsd;
     }
 
 }
