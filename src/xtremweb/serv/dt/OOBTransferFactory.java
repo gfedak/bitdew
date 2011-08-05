@@ -5,7 +5,6 @@ import xtremweb.serv.dt.http.*;
 import xtremweb.serv.dt.scp.ScpTransfer;
 import xtremweb.serv.dt.dummy.*;
 import xtremweb.core.log.*;
-import xtremweb.core.db.*;
 
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dr.Protocol;
@@ -66,25 +65,24 @@ public class OOBTransferFactory {
 	try {
 	    dao.beginTransaction();
 
-	    ll = (Locator) dao.detachCopy(dao.getByUid(xtremweb.core.obj.dc.Locator.class, t.getlocatorlocal()));
+	    ll = (Locator) dao.getByUid(xtremweb.core.obj.dc.Locator.class, t.getlocatorlocal());
 
-	    rl = (Locator) dao.detachCopy(dao.getByUid(xtremweb.core.obj.dc.Locator.class, t.getlocatorremote()));
+	    rl = (Locator) dao.getByUid(xtremweb.core.obj.dc.Locator.class, t.getlocatorremote());
 
-	    rp = (Protocol) dao.detachCopy(dao.getByUid(xtremweb.core.obj.dr.Protocol.class, rl.getprotocoluid()));
+	    rp = (Protocol) dao.getByUid(xtremweb.core.obj.dr.Protocol.class, rl.getprotocoluid());
 
-	    lp = (Protocol) dao.detachCopy(dao.getByUid(xtremweb.core.obj.dr.Protocol.class, ll.getprotocoluid()));
+	    lp = (Protocol) dao.getByUid(xtremweb.core.obj.dr.Protocol.class, ll.getprotocoluid());
 	    //FIXME to use transfet.getdatauid() instead	    
 	    if (! ll.getdatauid().equals(rl.getdatauid()) )
 		throw new OOBException("O-O-B Transfers refers to two different data ");
 
-	    d = (Data) dao.detachCopy(dao.getByUid(xtremweb.core.obj.dc.Data.class, ll.getdatauid()));
+	    d = (Data) dao.getByUid(xtremweb.core.obj.dc.Data.class, ll.getdatauid());
 	    log.debug( "OOBTransferFactory create " + t.getuid() + ":" + t.getoob() + ":" + TransferType.toString(t.gettype()));
 	    dao.commitTransaction();
 	    return createOOBTransfer(d,t,rl,ll,rp,lp);
         } finally {
             if (dao.transactionIsActive())
                 dao.transactionRollback();
-            dao.close();
 	}
     }
 
@@ -134,15 +132,6 @@ public class OOBTransferFactory {
 		return new DummyTransfer(d,t,rl,ll,rp,lp); 
 	}
 	throw new OOBException("Unable to find the correct OOB Transfers for transfer : " + t.getuid() + "[rl:" + lp.getname() + "|" + "rp:" + lp.getname() + "]"  );
-    }
-    
-    /**
-     * <code>persistOOBTransfer</code> persists an OOBTransfer to the database
-     *
-     * @param t a <code>Transfer</code> value
-     */
-    public static void persistOOBTransfer(OOBTransfer t) {
-	t.persist();
     }
 
 }
