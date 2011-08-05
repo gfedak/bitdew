@@ -7,6 +7,7 @@ import java.util.Properties;
 import javax.jdo.Extent;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
+import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
 import xtremweb.core.conf.ConfigurationException;
@@ -23,7 +24,7 @@ import xtremweb.core.log.LoggerFactory;
  */
 public class DaoJDOImpl implements InterfaceDao {
 
-    private Properties properties;
+   
 
     /**
      * Log
@@ -34,51 +35,57 @@ public class DaoJDOImpl implements InterfaceDao {
      * JDO Persistence manager
      */
     protected PersistenceManager pm;
+    private static PersistenceManagerFactory pmf;
+    
+    static{
+    	log.debug("I CAN SEE THIS ONLY ONCE !!!!!!!!!!!");
+    	Properties mainprop;
+    	try {
+    	    mainprop = ConfigurationProperties.getProperties();
+    	} catch (ConfigurationException ce) {
+    	    log.debug("No Database configuratioin found for DBInterfaceFactory : "
+    		    + ce);
+    	    mainprop = new Properties();
+    	}
+
+    	Properties properties = new Properties();
+    	properties.setProperty("javax.jdo.PersistenceManagerFactoryClass",
+    		"org.jpox.PersistenceManagerFactoryImpl");
+    	properties.setProperty("javax.jdo.option.ConnectionDriverName",
+    		mainprop.getProperty("xtremweb.core.db.driver",
+    			"org.hsqldb.jdbcDriver"));
+    	properties.setProperty("javax.jdo.option.ConnectionURL", mainprop
+    		.getProperty("xtremweb.core.db.url", "jdbc:hsqldb:mem:test"));
+    	properties.setProperty("javax.jdo.option.ConnectionUserName",
+    		mainprop.getProperty("xtremweb.core.db.user", "sa"));
+    	properties.setProperty("javax.jdo.option.ConnectionPassword",
+    		mainprop.getProperty("xtremweb.core.db.password", ""));
+
+    	properties.setProperty("org.jpox.autoCreateSchema", "true");
+    	properties.setProperty("org.jpox.validateTables", "false");
+    	properties.setProperty("org.jpox.validateConstraints", "false");
+    	properties.setProperty("javax.jdo.option.DetachAllOnCommit", "true");
+    	if (mainprop.getProperty("xtremweb.core.db.connectionPooling") != null) {
+    	    properties.setProperty("org.jpox.connectionPoolingType",
+    		    mainprop.getProperty("xtremweb.core.db.connectionPooling"));
+    	    String dbcpPropertiesFile = mainprop
+    		    .getProperty("xtremweb.core.db.dbcp.propertiesFile");
+    	    if (dbcpPropertiesFile != null)
+    		properties.setProperty(
+    			"org.jpox.connectionPoolingConfigurationFile",
+    			dbcpPropertiesFile);
+    	}
+    	pmf = JDOHelper.getPersistenceManagerFactory(properties);
+
+    }
+    
 
     /**
      * This will initialize the Persistence manager, one DAO instance is
      * equivalent to one persistence manager and thus one transaction
      */
     public DaoJDOImpl() {
-	Properties mainprop;
-	try {
-	    mainprop = ConfigurationProperties.getProperties();
-	} catch (ConfigurationException ce) {
-	    log.debug("No Database configuratioin found for DBInterfaceFactory : "
-		    + ce);
-	    mainprop = new Properties();
-	}
-
-	properties = new Properties();
-	properties.setProperty("javax.jdo.PersistenceManagerFactoryClass",
-		"org.jpox.PersistenceManagerFactoryImpl");
-	properties.setProperty("javax.jdo.option.ConnectionDriverName",
-		mainprop.getProperty("xtremweb.core.db.driver",
-			"org.hsqldb.jdbcDriver"));
-	properties.setProperty("javax.jdo.option.ConnectionURL", mainprop
-		.getProperty("xtremweb.core.db.url", "jdbc:hsqldb:mem:test"));
-	properties.setProperty("javax.jdo.option.ConnectionUserName",
-		mainprop.getProperty("xtremweb.core.db.user", "sa"));
-	properties.setProperty("javax.jdo.option.ConnectionPassword",
-		mainprop.getProperty("xtremweb.core.db.password", ""));
-
-	properties.setProperty("org.jpox.autoCreateSchema", "true");
-	properties.setProperty("org.jpox.validateTables", "false");
-	properties.setProperty("org.jpox.validateConstraints", "false");
-	properties.setProperty("javax.jdo.option.DetachAllOnCommit", "true");
-	if (mainprop.getProperty("xtremweb.core.db.connectionPooling") != null) {
-	    properties.setProperty("org.jpox.connectionPoolingType",
-		    mainprop.getProperty("xtremweb.core.db.connectionPooling"));
-	    String dbcpPropertiesFile = mainprop
-		    .getProperty("xtremweb.core.db.dbcp.propertiesFile");
-	    if (dbcpPropertiesFile != null)
-		properties.setProperty(
-			"org.jpox.connectionPoolingConfigurationFile",
-			dbcpPropertiesFile);
-	}
-	pm = JDOHelper.getPersistenceManagerFactory(properties)
-		.getPersistenceManager();
-	pm.setMultithreaded(true);
+    	pm = pmf.getPersistenceManager();
     }
 
     /**
@@ -121,6 +128,7 @@ public class DaoJDOImpl implements InterfaceDao {
 		    tx.commit();
 		persisted = true;
 	    }
+	    
 	} catch (Exception sqle) {
 	    log.debug("exception thrown !!!! " + sqle.getMessage());
 	    sqle.printStackTrace();
@@ -132,6 +140,7 @@ public class DaoJDOImpl implements InterfaceDao {
 		ie.printStackTrace();
 	    }
 	} finally {
+		
 	    if (autonomous) {
 		if (tx.isActive()) {
 		    tx.rollback();
@@ -259,4 +268,9 @@ public class DaoJDOImpl implements InterfaceDao {
     public Object getObjectId(Object arg0) {
 	return pm.getObjectId(arg0);
     }
+
+	public void changeDetachAllOnCommit(boolean b) {
+		pm.setDetachAllOnCommit(b);
+		
+	}
 }
