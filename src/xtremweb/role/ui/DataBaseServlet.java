@@ -10,8 +10,9 @@ import java.util.*;
 
 import xtremweb.core.obj.ds.Attribute;
 import xtremweb.core.obj.dc.Data;
-import xtremweb.core.db.*;
 import xtremweb.core.log.*;
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.DaoJDOImpl;
 import xtremweb.serv.dc.DataUtil;
 import xtremweb.serv.ds.AttributeUtil;
 
@@ -65,12 +66,12 @@ public class DataBaseServlet  extends HttpServlet  {
 	String retour = "<H3>"+ className + "</H3>";
 	log.debug(retour);
 	retour += "<table>";
-	PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
+	DaoJDOImpl dao = (DaoJDOImpl)DaoFactory.getInstance("xtremweb.dao.DaoJDOImpl");
+	
 	try {
-	    tx.begin();
-            Extent e=pm.getExtent(className,true);
-            Iterator iter=e.iterator();
+	    dao.beginTransaction();
+          
+            Iterator iter= dao.getAll(className).iterator();
             while (iter.hasNext())
             {
 		retour += "<tr>";
@@ -88,11 +89,11 @@ public class DataBaseServlet  extends HttpServlet  {
 		}     
 		retour += "</tr>";
             }
-	    tx.commit();
+	    dao.commitTransaction();
         } finally {
-            if (tx.isActive())
-                tx.rollback();
-            pm.close();
+            if (dao.transactionIsActive())
+                dao.transactionRollback();
+            dao.close();
 	}	
 	retour += "</table>";
 	return retour;
