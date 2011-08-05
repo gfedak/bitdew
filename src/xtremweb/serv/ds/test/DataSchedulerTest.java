@@ -2,10 +2,11 @@ package xtremweb.serv.ds.test;
 import  xtremweb.serv.ds.*;
 
 import xtremweb.core.log.*;
-import xtremweb.core.db.*;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.ds.Attribute;
 import xtremweb.core.obj.ds.Host;
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.data.DaoData;
 import xtremweb.serv.dc.DataStatus;
 
 import org.junit.Before; 
@@ -28,9 +29,9 @@ import java.util.*;
 public class DataSchedulerTest {
 
     Logger log = LoggerFactory.getLogger("Data Scheduler Test");
-
+    DaoData dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
     DataScheduler ds = new DataScheduler();
-    DBInterface dbi = DBInterfaceFactory.getDBInterface();
+   
     Data data = new Data();
     Attribute attr = new Attribute();
 
@@ -131,14 +132,14 @@ public class DataSchedulerTest {
     }
 
     @Test public void addDataAttributeTest() {
-	dbi.makePersistent(data);
-	dbi.makePersistent(attr);
+	dao.makePersistent(data,true);
+	dao.makePersistent(attr,true);
 	ds.addDataAttribute(data,attr);
     }
 
     @Test public void searchDataAttributeTest() {
-	dbi.makePersistent(data);
-	dbi.makePersistent(attr);
+	dao.makePersistent(data,true);
+	dao.makePersistent(attr,true);
 	ds.addDataAttribute(data,attr);
 	int idx = ds.getDataCache().search(data.getuid());
 	assertFalse ( idx == -1);
@@ -147,7 +148,7 @@ public class DataSchedulerTest {
 
     @Test public void searchWronguid() {
 	Data tmp = new Data();
-	dbi.makePersistent(tmp);
+	dao.makePersistent(tmp,true);
 	int idx = ds.getDataCache().search(tmp.getuid());
 	assertEquals(idx, -1);
     }
@@ -160,13 +161,13 @@ public class DataSchedulerTest {
 
 	//creates the data cache
 	Data d1 = new Data(), d2 = new Data(), d3 = new Data(), d4 = new Data();
-	dbi.makePersistent(d1);	
-	dbi.makePersistent(d2);	
-	dbi.makePersistent(d3);	
-	dbi.makePersistent(d4);	
+	dao.makePersistent(d1,true);	
+	dao.makePersistent(d2,true);	
+	dao.makePersistent(d3,true);	
+	dao.makePersistent(d4,true);	
 
 	Attribute attr = new Attribute();
-	dbi.makePersistent(attr);	
+	dao.makePersistent(attr,true);	
 
 	CacheEntry ce1 = new CacheEntry(d1, attr);
 	CacheEntry ce2 = new CacheEntry(d2, attr);
@@ -181,8 +182,8 @@ public class DataSchedulerTest {
 	Host h1 = new Host();
 	Host h2 = new Host();
 
-	dbi.makePersistent(h1);	
-	dbi.makePersistent(h2);	
+	dao.makePersistent(h1,true);	
+	dao.makePersistent(h2,true);	
 
 	Vector uids = new Vector();
 	Vector vector;
@@ -221,8 +222,8 @@ public class DataSchedulerTest {
 	//data which are in the worker cache and which are not in the scheduler cache
 	//are removed from the worker cache
 	Data d5 = new Data(), d6 = new Data();
-	dbi.makePersistent(d5);	
-	dbi.makePersistent(d6);
+	dao.makePersistent(d5,true);	
+	dao.makePersistent(d6,true);
 	
 	uids.add(d5.getuid());
 	vector = ds.removeDataFromCache(h1, uids);
@@ -283,9 +284,9 @@ public class DataSchedulerTest {
 	Attribute attr_after      = new Attribute();
 	Attribute attr_incorrect  = new Attribute();
 
-	dbi.makePersistent(attr_before);	
-	dbi.makePersistent(attr_after);	
-	dbi.makePersistent(attr_incorrect);	
+	dao.makePersistent(attr_before,true);	
+	dao.makePersistent(attr_after,true);	
+	dao.makePersistent(attr_incorrect,true);	
 
 	AttributeType.setAttributeTypeOn( attr_before, AttributeType.LFTABS );
 	attr_before.setlftabs(timelife_before);
@@ -324,11 +325,11 @@ public class DataSchedulerTest {
 	vector.clear();
 
 	Attribute attr_reference   = new Attribute();
-	dbi.makePersistent(attr_reference);	
+	dao.makePersistent(attr_reference,true);	
 	ce1.setAttribute(attr_reference);
 
 	Attribute attr_relatif    = new Attribute();
-	dbi.makePersistent(attr_relatif);	
+	dao.makePersistent(attr_relatif,true);	
 
 	//d2 is the relative data
 	AttributeType.setAttributeTypeOn( attr_relatif, AttributeType.LFTREL );
@@ -373,13 +374,13 @@ public class DataSchedulerTest {
 
 	//creates the data cache
 	Data d1 = new Data(), d2 = new Data(), d3 = new Data(), d4 = new Data();
-	dbi.makePersistent(d1);	
-	dbi.makePersistent(d2);	
-	dbi.makePersistent(d3);	
-	dbi.makePersistent(d4);	
+	dao.makePersistent(d1,true);	
+	dao.makePersistent(d2,true);	
+	dao.makePersistent(d3,true);	
+	dao.makePersistent(d4,true);	
 
 	Attribute attr = new Attribute();
-	dbi.makePersistent(attr);	
+	dao.makePersistent(attr,true);	
 
 	CacheEntry ce1 = new CacheEntry(d1, attr);
 	CacheEntry ce2 = new CacheEntry(d2, attr);
@@ -396,10 +397,10 @@ public class DataSchedulerTest {
 	Host h3 = new Host();
 	Host h4 = new Host();
 
-	dbi.makePersistent(h1);	
-	dbi.makePersistent(h2);	
-	dbi.makePersistent(h3);	
-	dbi.makePersistent(h4);	
+	dao.makePersistent(h1,true);	
+	dao.makePersistent(h2,true);	
+	dao.makePersistent(h3,true);	
+	dao.makePersistent(h4,true);	
 
 	Vector uids = new Vector();
 	Vector vector = new Vector();
@@ -470,7 +471,7 @@ public class DataSchedulerTest {
 	Attribute attr_replicat          = new Attribute();
 	Attribute attr_replicat_full     = new Attribute();
 
-	dbi.makePersistent(attr_no_replicat);	
+	dao.makePersistent(attr_no_replicat,true);	
 	AttributeType.setAttributeTypeOn( attr_no_replicat, AttributeType.REPLICAT );
 	attr_no_replicat.setreplicat(0);
 	ce1.setAttribute(attr_no_replicat);
@@ -533,7 +534,7 @@ public class DataSchedulerTest {
 
 	//test the replication set to 2
 	int rep=2;
-	dbi.makePersistent(attr_replicat);
+	dao.makePersistent(attr_replicat,true);
 	AttributeType.setAttributeTypeOn( attr_replicat, AttributeType.REPLICAT );
 	attr_replicat.setreplicat(rep);
 	ce1.setAttribute(attr_replicat);
@@ -563,7 +564,7 @@ public class DataSchedulerTest {
 	assertVectorEquals(vector, "{}", ds);
 
 	//test the full replication, that is, when a replicat == -1, the data is present on every node
-	dbi.makePersistent(attr_replicat_full);	
+	dao.makePersistent(attr_replicat_full,true);	
 
 	AttributeType.setAttributeTypeOn( attr_replicat_full, AttributeType.REPLICAT );
 	attr_replicat_full.setreplicat(-1);
@@ -627,13 +628,13 @@ public class DataSchedulerTest {
 	Attribute attr_with_replicat = new Attribute();
 	Attribute attr_affinity = new Attribute();
 	
-	dbi.makePersistent(attr_default);
-	dbi.makePersistent(attr_with_replicat);
-	dbi.makePersistent(attr_affinity);
+	dao.makePersistent(attr_default,true);
+	dao.makePersistent(attr_with_replicat,true);
+	dao.makePersistent(attr_affinity,true);
 
 	//test affinity with data which doesn't exist
 	Data d5 = new Data();
-	dbi.makePersistent(d5);
+	dao.makePersistent(d5,true);
 	AttributeType.setAttributeTypeOn( attr_affinity, AttributeType.AFFINITY );
 	attr_affinity.setaffinity(d5.getuid());
 
@@ -1161,8 +1162,8 @@ public class DataSchedulerTest {
 	Attribute attr_aff_and_rep = new Attribute();
 	Attribute attr_normal = new Attribute();
 	
-	dbi.makePersistent(attr_aff_and_rep);
-	dbi.makePersistent(attr_normal);
+	dao.makePersistent(attr_aff_and_rep,true);
+	dao.makePersistent(attr_normal,true);
 
 	AttributeType.setAttributeTypeOn( attr_aff_and_rep, AttributeType.AFFINITY );
 	attr_aff_and_rep.setaffinity(d2.getuid());
@@ -1237,8 +1238,8 @@ public class DataSchedulerTest {
 	Attribute attr_no_ft = new Attribute();
 	Attribute attr_with_ft = new Attribute();
 	
-	dbi.makePersistent(attr_no_ft);
-	dbi.makePersistent(attr_with_ft);
+	dao.makePersistent(attr_no_ft,true);
+	dao.makePersistent(attr_with_ft,true);
 
 	AttributeType.setAttributeTypeOn( attr_with_ft, AttributeType.FT );
 	Owner.setAliveTimeout(500);
@@ -1289,13 +1290,13 @@ public class DataSchedulerTest {
 
 	//creates the data cache
 	Data d1 = new Data(), d2 = new Data(), d3 = new Data(), d4 = new Data();
-	dbi.makePersistent(d1);	
-	dbi.makePersistent(d2);	
-	dbi.makePersistent(d3);	
-	dbi.makePersistent(d4);	
+	dao.makePersistent(d1,true);	
+	dao.makePersistent(d2,true);	
+	dao.makePersistent(d3,true);	
+	dao.makePersistent(d4,true);	
 
 	Attribute attr = new Attribute();
-	dbi.makePersistent(attr);	
+	dao.makePersistent(attr,true);	
 
 	CacheEntry ce1 = new CacheEntry(d1, attr);
 	CacheEntry ce2 = new CacheEntry(d2, attr);
@@ -1312,10 +1313,10 @@ public class DataSchedulerTest {
 	Host h3 = new Host();
 	Host h4 = new Host();
 
-	dbi.makePersistent(h1);	
-	dbi.makePersistent(h2);	
-	dbi.makePersistent(h3);	
-	dbi.makePersistent(h4);	
+	dao.makePersistent(h1,true);	
+	dao.makePersistent(h2,true);	
+	dao.makePersistent(h3,true);	
+	dao.makePersistent(h4,true);	
 
 	Vector uids = new Vector();
 	Vector vector = new Vector();
@@ -1353,13 +1354,13 @@ public class DataSchedulerTest {
 	ds.setNumberOfDataToSchedule(1);
 
 	Data d1 = new Data(), d2 = new Data(), d3 = new Data(), d4 = new Data();
-	dbi.makePersistent(d1);	
-	dbi.makePersistent(d2);	
-	dbi.makePersistent(d3);	
-	dbi.makePersistent(d4);	
+	dao.makePersistent(d1,true);	
+	dao.makePersistent(d2,true);	
+	dao.makePersistent(d3,true);	
+	dao.makePersistent(d4,true);	
 
 	Attribute attr = new Attribute();
-	dbi.makePersistent(attr);	
+	dao.makePersistent(attr,true);	
 
 	CacheEntry ce1 = new CacheEntry(d1, attr);
 	CacheEntry ce2 = new CacheEntry(d2, attr);
@@ -1376,10 +1377,10 @@ public class DataSchedulerTest {
 	Host h3 = new Host();
 	Host h4 = new Host();
 
-	dbi.makePersistent(h1);	
-	dbi.makePersistent(h2);	
-	dbi.makePersistent(h3);	
-	dbi.makePersistent(h4);
+	dao.makePersistent(h1,true);	
+	dao.makePersistent(h2,true);	
+	dao.makePersistent(h3,true);	
+	dao.makePersistent(h4,true);
 
 	Vector uids = new Vector();
 	Vector vector = new Vector();
@@ -1387,8 +1388,8 @@ public class DataSchedulerTest {
 	//test distrib
 	Attribute attr_with_distrib = new Attribute();
 	Attribute attr_without_distrib = new Attribute();
-	dbi.makePersistent(attr_with_distrib);
-	dbi.makePersistent(attr_without_distrib);
+	dao.makePersistent(attr_with_distrib,true);
+	dao.makePersistent(attr_without_distrib,true);
 
 	AttributeType.setAttributeTypeOn( attr_with_distrib, AttributeType.DISTRIB );
 	attr_with_distrib.setdistrib(2);     // max=2 data on each node
@@ -1434,8 +1435,8 @@ public class DataSchedulerTest {
 	//combine affinity and distrib together
 	Attribute attr_with_affinity = new Attribute();
 	Attribute attr_without_affinity = new Attribute();
-	dbi.makePersistent(attr_with_affinity);
-	dbi.makePersistent(attr_without_affinity);
+	dao.makePersistent(attr_with_affinity,true);
+	dao.makePersistent(attr_without_affinity,true);
 
 	AttributeType.setAttributeTypeOn( attr_with_affinity, AttributeType.DISTRIB );
 	attr_with_affinity.setdistrib(2);     
@@ -1490,8 +1491,8 @@ public class DataSchedulerTest {
 
 	Attribute attr_with_replicat = new Attribute();
 	Attribute attr_without_replicat = new Attribute();
-	dbi.makePersistent(attr_with_replicat);
-	dbi.makePersistent(attr_without_replicat);
+	dao.makePersistent(attr_with_replicat,true);
+	dao.makePersistent(attr_without_replicat,true);
 
 	AttributeType.setAttributeTypeOn( attr_with_replicat, AttributeType.DISTRIB );
 	attr_with_replicat.setdistrib(1);     
@@ -1591,8 +1592,8 @@ public class DataSchedulerTest {
 
 	Attribute attr_distrib1 = new Attribute();
 	Attribute attr_distrib2 = new Attribute();
-	dbi.makePersistent(attr_distrib1);
-	dbi.makePersistent(attr_distrib2);
+	dao.makePersistent(attr_distrib1,true);
+	dao.makePersistent(attr_distrib2,true);
 
 	AttributeType.setAttributeTypeOn( attr_distrib1, AttributeType.DISTRIB );
 	attr_distrib1.setdistrib(-1);     

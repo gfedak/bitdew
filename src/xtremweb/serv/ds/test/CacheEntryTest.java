@@ -3,10 +3,11 @@ package xtremweb.serv.ds.test;
 import  xtremweb.serv.ds.*;
 
 import xtremweb.core.log.*;
-import xtremweb.core.db.*;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.ds.Attribute;
 import xtremweb.core.obj.ds.Host;
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.data.DaoData;
 import xtremweb.serv.dc.DataStatus;
 
 import org.junit.Before; 
@@ -29,19 +30,19 @@ import java.util.*;
 public class CacheEntryTest {
 
     Logger log = LoggerFactory.getLogger("Cache Entry Test");
-    DBInterface dbi = DBInterfaceFactory.getDBInterface();
+    DaoData dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
 
     @Test public void testOwners() {
 
 	//creates the data cache
 	Data d1 = new Data(), d2 = new Data(), d3 = new Data(), d4 = new Data();
-	dbi.makePersistent(d1);	
-	dbi.makePersistent(d2);	
-	dbi.makePersistent(d3);	
-	dbi.makePersistent(d4);
+	dao.makePersistent(d1,true);	
+	dao.makePersistent(d2,true);	
+	dao.makePersistent(d3,true);	
+	dao.makePersistent(d4,true);
 
 	Attribute attr = new Attribute();
-	dbi.makePersistent(attr);	
+	dao.makePersistent(attr,true);	
 
 	CacheEntry ce1 = new CacheEntry(d1, attr);
 	CacheEntry ce2 = new CacheEntry(d2, attr);
@@ -52,9 +53,9 @@ public class CacheEntryTest {
 	Host h2 = new Host();
 	Host h3 = new Host();
 
-	dbi.makePersistent(h1);	
-	dbi.makePersistent(h2);	
-	dbi.makePersistent(h3);	
+	dao.makePersistent(h1,true);	
+	dao.makePersistent(h2,true);	
+	dao.makePersistent(h3,true);	
 
 	//add signle host
 	ce1.setOwner(h1);
@@ -106,10 +107,10 @@ public class CacheEntryTest {
 
 	//creates the data cache
 	Data data = new Data();
-	dbi.makePersistent(data);	
+	dao.makePersistent(data,true);	
 
 	Attribute attr = new Attribute();
-	dbi.makePersistent(attr);	
+	dao.makePersistent(attr,true);	
 
 	CacheEntry ce = new CacheEntry(data, attr);
 
@@ -117,8 +118,8 @@ public class CacheEntryTest {
 	Host h2 = new Host();
 	Host h3 = new Host();
 
-	dbi.makePersistent(h1);	
-	dbi.makePersistent(h2);	
+	dao.makePersistent(h1,true);	
+	dao.makePersistent(h2,true);	
 	Owner.setAliveTimeout(1000);
 
 	try {

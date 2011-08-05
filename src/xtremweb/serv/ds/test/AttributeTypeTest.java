@@ -2,8 +2,10 @@ package xtremweb.serv.ds.test;
 import  xtremweb.serv.ds.*;
 
 import xtremweb.core.log.*;
-import xtremweb.core.db.*;
+
 import xtremweb.core.obj.ds.Attribute;
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.data.DaoData;
 
 
 import org.junit.Before; 
@@ -26,13 +28,13 @@ import java.util.*;
 public class AttributeTypeTest {
 
     Logger log = LoggerFactory.getLogger("Attribute Type Test");
-    DBInterface dbi = DBInterfaceFactory.getDBInterface();
+    DaoData dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
 
 
    @Test public void setAttributeTypeTestIndividualOnOff() {
        Attribute attr = new Attribute();
 
-	dbi.makePersistent(attr);
+	dao.makePersistent(attr,true);
 
 	//for a specific attribute setOn and then setOff
 	AttributeType.setAttributeTypeOn(attr, AttributeType.REPLICAT);
@@ -167,7 +169,7 @@ public class AttributeTypeTest {
    @Test public void setAttributeTypeTestAllOnAllOff() {
        Attribute attr = new Attribute();
 
-	dbi.makePersistent(attr);
+	dao.makePersistent(attr,true);
 
 	//all attributes setOn and then all attributes setOff
 	AttributeType.setAttributeTypeOn(attr, AttributeType.REPLICAT);
