@@ -8,11 +8,12 @@ import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
 import xtremweb.core.com.idl.CallbackTemplate;
-import xtremweb.core.db.DBInterfaceFactory;
 import xtremweb.core.iface.InterfaceRMIdn;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 import xtremweb.core.obj.dn.Service;
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.service.DaoService;
 
 /**
  * Domain Naming service, this service store information concerning other
@@ -256,7 +257,10 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
 	 * Log
 	 */
 	protected static Logger log = LoggerFactory.getLogger(Callbackdn.class);
-
+	private DaoService dao;
+	public Callbackdn(){
+		dao = (DaoService)DaoFactory.getInstance("xtremweb.dao.service.DaoService");
+	}
 	/**
 	 * This method returns the ip address where a given service on desktop grid
 	 * run
@@ -269,21 +273,12 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
 	public String getServiceAddress(String serviceName) throws RemoteException {
 		log.debug("enter into get service ");
 		String str = "";
-		PersistenceManagerFactory pmf = DBInterfaceFactory
-				.getPersistenceManagerFactory();
-		PersistenceManager pm = pmf.getPersistenceManager();
-		Transaction tx = pm.currentTransaction();
-		tx.begin();
-		Query query = pm.newQuery(xtremweb.core.obj.dn.Service.class,
-				"service == '" + serviceName + "'");
-		Collection result = ((Collection) query.execute());
-		Iterator iter = result.iterator();
-		while (iter.hasNext()) {
-			Service s = (Service) iter.next();
-			str = s.getbundle();
-		}
-		tx.commit();
-		return str;
+		dao.beginTransaction();
+		Service name = dao.getServiceByName(serviceName);
+		if(name==null)
+			return null;
+		dao.commitTransaction();
+		return name.getbundle();
 	}
 
 	/**
@@ -299,16 +294,12 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
 	public void registerService(String serviceName, String hostBundle)
 			throws RemoteException {
 		log.debug("enter into register service ");
-		PersistenceManagerFactory pmf = DBInterfaceFactory
-				.getPersistenceManagerFactory();
-		PersistenceManager pm = pmf.getPersistenceManager();
-		Transaction tx = pm.currentTransaction();
-		tx.begin();
+		
 		Service s = new Service();
 		s.setservice(serviceName);
 		s.setbundle(hostBundle);
-		pm.makePersistent(s);
-		tx.commit();
+		dao.makePersistent(s,true);
+		
 		log.debug("service succesfully registered");
 	}
 }
