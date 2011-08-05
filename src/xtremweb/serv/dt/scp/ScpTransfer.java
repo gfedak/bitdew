@@ -75,7 +75,7 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 	 * Known Hosts path
 	 */
 	private String KNOWN_HOSTS;
-	
+
 	/**
 	 * Password
 	 */
@@ -97,24 +97,30 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 	 * @param p2
 	 *            Remote protocol
 	 */
-	public ScpTransfer(Data d,Transfer t,Locator l1, Locator l2, Protocol p1, Protocol p2)
-    {	super(d,t,l1,l2,p1,p2);
-    	
-    	this.user = remote_protocol.getlogin();
-    	this.host = remote_protocol.getserver();
-    	this.lfile = local_locator.getref();
-    	System.out.println("lfile is " + lfile);
-    	this.rfile = remote_locator.getref();
-    	System.out.println("rfile is " + rfile);
-    	PRIVATE_KEY = remote_protocol.getprivatekeypath();
-    	log.debug("private key is " + PRIVATE_KEY);
-    	KNOWN_HOSTS = remote_protocol.getknownhosts();
-    	log.debug("known hosts is " + KNOWN_HOSTS);
-    	PASSPHRASE = remote_protocol.getpassphrase();
-    	password = remote_protocol.getpassword();
-	/*scpm = new ScpManager(remote_protocol.getlogin(),remote_protocol.getserver(),local_locator.getref(),remote_locator.getref(),
-		remote_protocol.getprivatekeypath(),remote_protocol.getknownhosts(),remote_protocol.getpassphrase());*/
-    }
+	public ScpTransfer(Data d, Transfer t, Locator l1, Locator l2, Protocol p1,
+			Protocol p2) {
+		super(d, t, l1, l2, p1, p2);
+
+		this.user = remote_protocol.getlogin();
+		this.host = remote_protocol.getserver();
+		this.lfile = local_locator.getref();
+		System.out.println("lfile is " + lfile);
+		this.rfile = remote_locator.getref();
+		System.out.println("rfile is " + rfile);
+		PRIVATE_KEY = remote_protocol.getprivatekeypath();
+		log.debug("private key is " + PRIVATE_KEY);
+		KNOWN_HOSTS = remote_protocol.getknownhosts();
+		log.debug("known hosts is " + KNOWN_HOSTS);
+		PASSPHRASE = remote_protocol.getpassphrase();
+		password = remote_protocol.getpassword();
+		/*
+		 * scpm = new
+		 * ScpManager(remote_protocol.getlogin(),remote_protocol.getserver
+		 * (),local_locator.getref(),remote_locator.getref(),
+		 * remote_protocol.getprivatekeypath
+		 * (),remote_protocol.getknownhosts(),remote_protocol.getpassphrase());
+		 */
+	}
 
 	/**
 	 * String representation
@@ -182,6 +188,7 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 			out.close();
 			channel.disconnect();
 		} catch (Exception e) {
+			error = true;
 			e.printStackTrace();
 			try {
 				if (fis != null)
@@ -203,7 +210,7 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 	 * Securely connect
 	 */
 	public void blockingReceiveReceiverSide() throws OOBException {
-		
+
 		File f = null;
 		FileOutputStream fos = null;
 		try {
@@ -310,18 +317,18 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 		log.debug("enter to connect ");
 		JSch jsch = new JSch();
 		try {
-			
-			if(PRIVATE_KEY != null && !PRIVATE_KEY.equals(""))
+
+			if (PRIVATE_KEY != null && !PRIVATE_KEY.equals(""))
 				jsch.addIdentity(PRIVATE_KEY, PASSPHRASE);
 			else
 				throw new OOBException("Private key cannot be null ");
-			if(KNOWN_HOSTS == null || KNOWN_HOSTS.equals(""))
+			if (KNOWN_HOSTS == null || KNOWN_HOSTS.equals(""))
 				throw new OOBException("Known Host file cannot be null ");
 			jsch.setKnownHosts(KNOWN_HOSTS);
 			log.debug("user " + user + "host : " + host);
 			session = jsch.getSession(user, host, 22);
 			Properties p = new Properties();
-	    	p.put("StrictHostKeyChecking", "no");
+			p.put("StrictHostKeyChecking", "no");
 			session.setConfig(p);
 			session.connect();
 		} catch (JSchException e) {
@@ -333,7 +340,8 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
 	 * Securely disconnect from the host
 	 */
 	public void disconnect() throws OOBException {
-		session.disconnect();
+		if (session != null)
+			session.disconnect();
 	}
 
 	/**
