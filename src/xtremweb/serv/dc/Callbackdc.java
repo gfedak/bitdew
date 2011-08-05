@@ -12,7 +12,6 @@ package xtremweb.serv.dc;
 import java.rmi.*;
 import xtremweb.core.com.idl.*;
 import xtremweb.core.iface.*;
-import xtremweb.core.db.*;
 import xtremweb.core.obj.dc.*;
 import xtremweb.core.log.*;
 import xtremweb.dao.DaoFactory;
@@ -46,12 +45,13 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
      * Distributed data catalog to handle replica management
      */
     protected DistributedDataCatalog ddc = null;
-
+    private DaoData dao;
     /**
      * Callbackdc constructor
      */
     public Callbackdc() {
 	try {
+		dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
 	    ddc = DistributedDataCatalogFactory.getDistributedDataCatalog();
 	    ddc.start();
 	} catch (DDCException ddce) {
@@ -139,24 +139,21 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
      * @return the data whose uid is the parameter
      */
     public Data getData(String uid) throws RemoteException {
-	Data data = null;
-	DaoData dao = (DaoData) DaoFactory
-		.getInstance("xtremweb.dao.data.DaoData");
+
+    	Data dataStored ;
 	try {
 	    dao.beginTransaction();
 	    System.out.println("uid is " + uid);
-	    Data dataStored = (Data) dao.getByUid(Data.class, uid);
+	    dataStored = (Data) dao.getByUid(Data.class, uid);
 	    System.out.println("data stored is " + dataStored + "this is it ");
-	    if (dataStored != null)
-		data = (Data) dao.detachCopy(dataStored);
+		
 	    dao.commitTransaction();
 	} finally {
 	    if (dao.transactionIsActive())
 		dao.transactionRollback();
-	    dao.close();
 	}
 
-	return data;
+	return dataStored;
     }
 
     /**
@@ -164,7 +161,7 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
      * not actually being performed as all is being marked as TO_DELETE
      */
     public void deleteData(Data data) throws RemoteException {
-	PersistenceManager pm = DBInterfaceFactory
+	/*PersistenceManager pm = DBInterfaceFactory
 		.getPersistenceManagerFactory().getPersistenceManager();
 
 	Transaction tx = pm.currentTransaction();
@@ -183,7 +180,7 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 	    if (tx.isActive())
 		tx.rollback();
 	    pm.close();
-	}
+	}*/
     }
 
     /**
@@ -200,8 +197,6 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
      * Useful method to explore the data that has been introduced
      */
     public void browse() {
-	DaoData dao = (DaoData) DaoFactory
-		.getInstance("xtremweb.dao.data.DaoData");
 	try {
 	    dao.beginTransaction();
 	    Collection e = dao.getAll(Data.class);
@@ -214,7 +209,7 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 	} finally {
 	    if (dao.transactionIsActive())
 		dao.transactionRollback();
-	    dao.close();
+	
 	}
     }
 
@@ -244,9 +239,7 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
      * @return the locator whose id is the parameter
      */
     public Locator getLocatorByDataUID(String uid) throws RemoteException {
-	Locator locator = null;
-	DaoLocator dao = (DaoLocator) DaoFactory
-		.getInstance("xtremweb.dao.locator.DaoLocator");
+	Locator ret = null;
 	try {
 	    dao.beginTransaction();
 
@@ -254,22 +247,21 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 	    // Query q=pm.newQuery(e, "datauid == " + uid);
 	    Iterator iter = e.iterator();
 	    while (iter.hasNext()) {
-		Locator ret = (Locator) iter.next();
+		ret = (Locator) iter.next();
 		if (ret.getdatauid().equals(uid)) {
 		    log.debug("getLocatorByDataUID found one locator : "
 			    + ret.getuid() + ":" + ret.getpublish());
 		    if (ret.getpublish())
-			locator = (Locator) dao.detachCopy(ret);
+		    	return ret;
 		}
 	    }
 	    dao.commitTransaction();
 	} finally {
 	    if (dao.transactionIsActive())
 		dao.transactionRollback();
-	    dao.close();
 	}
 
-	return locator;
+	return null;
 
     }
 
@@ -308,21 +300,19 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
      * This method is not being called from the API, maybe we have to erase it
      */
     public DataCollection getDataCollection(String uid) throws RemoteException {
-	DataCollection datacollection = null;
-	DaoDataCollection dao = (DaoDataCollection) DaoFactory.getInstance(uid);
+	DataCollection dataStored = null;
+	
 	try {
 	    dao.beginTransaction();
-	    DataCollection dataStored = (DataCollection) dao.getByUid(
+	   dataStored = (DataCollection) dao.getByUid(
 		    DataCollection.class, uid);
-	    datacollection = (DataCollection) dao.detachCopy(dataStored);
-
 	    dao.commitTransaction();
 	} finally {
 	    if (dao.transactionIsActive())
 		dao.transactionRollback();
-	    dao.close();
+	  
 	}
-	return datacollection;
+	return dataStored;
     }
 
     /**
@@ -330,7 +320,7 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
      */
     public void deleteDataCollection(DataCollection datacollection)
 	    throws RemoteException {
-	PersistenceManager pm = DBInterfaceFactory
+	/*PersistenceManager pm = DBInterfaceFactory
 		.getPersistenceManagerFactory().getPersistenceManager();
 
 	Transaction tx = pm.currentTransaction();
@@ -345,7 +335,7 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 	    if (tx.isActive())
 		tx.rollback();
 	    pm.close();
-	}
+	}*/
     }
 
     /**
@@ -370,30 +360,27 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
      */
     public DataChunk getDataChunk(String uid) throws RemoteException {
 	System.out.println("the uid is " + uid);
-	DataChunk datachunk = null;
-	DaoDataChunck dao = (DaoDataChunck) DaoFactory
-		.getInstance("xtremweb.dao.datachunck.DaoDataChunck");
+	DataChunk dataStored = null;
+	
 	try {
 	    dao.beginTransaction();
-	    DataChunk dataStored = (DataChunk) dao.getByUid(
+	    dataStored = (DataChunk) dao.getByUid(
 		    xtremweb.core.obj.dc.DataChunk.class, uid);
 	    System.out.println("dataStored is " + dataStored);
-	    datachunk = (DataChunk) dao.detachCopy(dataStored);
 	    dao.commitTransaction();
 	} finally {
 	    if (dao.transactionIsActive())
 		dao.transactionRollback();
-	    dao.close();
 	}
 
-	return datachunk;
+	return dataStored;
     }
 
     /**
      * It seems we are not deleting things in BD
      */
     public void deleteDataChunk(DataChunk datachunk) throws RemoteException {
-	PersistenceManager pm = DBInterfaceFactory
+	/*PersistenceManager pm = DBInterfaceFactory
 		.getPersistenceManagerFactory().getPersistenceManager();
 
 	Transaction tx = pm.currentTransaction();
@@ -408,7 +395,7 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 	    if (tx.isActive())
 		tx.rollback();
 	    pm.close();
-	}
+	}*/
     }
 
     /**
@@ -420,13 +407,9 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
      */
     public Vector getAllDataInCollection(String datacollectionuid)
 	    throws RemoteException {
-	Vector v = new Vector();
-	Data data = null;
-	DaoDataChunck dao = (DaoDataChunck) DaoFactory
-		.getInstance("xtremweb.dao.datachunck.DaoDataChunck");
+	Vector v = new Vector();	
 	try {
 	    dao.beginTransaction();
-
 	    Collection e = dao.getAll(DataChunk.class);
 	    Iterator iter = e.iterator();
 
@@ -435,19 +418,16 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 		if (datachunk.getcollectionuid().equals(datacollectionuid)) {
 		    Data dataStored = (Data) dao.getByUid(Data.class,
 			    datachunk.getdatauid());
-		    data = (Data) dao.detachCopy(dataStored);
-		    v.addElement(data);
+		    
+		    v.addElement(dataStored);
 		}
 	    }
 	    dao.commitTransaction();
 	} finally {
 	    if (dao.transactionIsActive())
-		dao.transactionRollback();
-	    dao.close();
+		dao.transactionRollback();	  
 	}
-
 	return v;
-
     }
 
     /**
@@ -456,18 +436,15 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
      */
     public String getDataUidByName(String name) {
 	String uid = "";
-	Data data = null;
-	DaoData dao = (DaoData) DaoFactory.getInstance("DaoData");
+	Data dataStored = null;
 	try {
 	    dao.beginTransaction();
-	    Data dataStored = (Data) dao.getByName(Data.class, name);
-	    data = (Data) dao.detachCopy(dataStored);
-	    uid = data.getuid();
+	    dataStored = (Data) dao.getByName(Data.class, name);
+	    uid = dataStored.getuid();
 	    dao.commitTransaction();
 	} finally {
 	    if (dao.transactionIsActive())
 		dao.transactionRollback();
-	    dao.close();
 	}
 	return uid;
     }
