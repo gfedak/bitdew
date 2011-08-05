@@ -6,7 +6,6 @@ import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.Locator;
 import xtremweb.serv.dc.DataUtil;
-import xtremweb.core.db.*;
 import xtremweb.dao.DaoFactory;
 import xtremweb.dao.DaoJDOImpl;
 import xtremweb.dao.transfer.DaoTransfer;
@@ -33,7 +32,7 @@ import java.io.File;
 public abstract class OOBTransferImpl implements OOBTransfer {
 
     protected static Logger log = LoggerFactory.getLogger(OOBTransferImpl.class);
-
+    private DaoTransfer dao;
     /**
      * Data <code>data</code> is the reference to the data transfered
      *
@@ -81,16 +80,16 @@ public abstract class OOBTransferImpl implements OOBTransfer {
      */
     public OOBTransferImpl(String tuid) {
 	log.debug(tuid);
-	DaoTransfer dao = (DaoTransfer)DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
+	dao = (DaoTransfer)DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	try {
 	    dao.beginTransaction();
-	    transfer = (Transfer) dao.detachCopy(dao.getByUid(xtremweb.core.obj.dt.Transfer.class, tuid));
+	    transfer = (Transfer) dao.getByUid(xtremweb.core.obj.dt.Transfer.class, tuid);
 	    log.debug( "transfer " + transfer.getuid() + ":" + transfer.getoob() + ":" + transfer.gettype());
 	    dao.commitTransaction();
         } finally {
             if (dao.transactionIsActive())
                 dao.transactionRollback();
-            dao.close();
+           
 	}
     } // OOBTransferImpl constructor
 
@@ -118,7 +117,7 @@ public abstract class OOBTransferImpl implements OOBTransfer {
      *  <code>persist</code> the OOBTransfer to the local database
      */
     public void persist() {
-	DaoJDOImpl dao = (DaoJDOImpl)DaoFactory.getInstance("xtremweb.dao.DaoJDOImpl");
+	
 
 	String tuid = transfer.getuid();
 	if ((transfer!=null)&&(transfer.getuid()!=null)) 
