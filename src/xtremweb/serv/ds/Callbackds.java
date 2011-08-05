@@ -19,7 +19,7 @@ import java.util.*;
  * @version 1.0
  */
 public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
-
+	private DaoAttribute dao;
     /**
      * Class logger
      */
@@ -35,6 +35,7 @@ public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
      * 
      */
     public Callbackds() {
+    	dao = (DaoAttribute) DaoFactory.getInstance("xtremweb.dao.attribute.DaoAttribute");
 	ds = new DataScheduler();
 	// FIXME
 	// ds.start();
@@ -50,8 +51,7 @@ public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
      *                if anything goes wrong
      */
     public Attribute registerAttribute(Attribute attr) throws RemoteException {
-	DaoAttribute dao = (DaoAttribute) DaoFactory
-		.getInstance("xtremweb.dao.attribute.DaoAttribute");
+	
 	dao.makePersistent(attr, true);
 	return attr;
     }
@@ -64,23 +64,20 @@ public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
      * @return the attribute whose id is uid
      */
     public Attribute getAttributeByUid(String uid) {
-	Attribute attr = null;
+	Attribute tmp = null;
 
-	DaoAttribute dao = (DaoAttribute) DaoFactory
-		.getInstance("xtremweb.dao.attribute.DaoAttribute");
+	
 	try {
 	    dao.beginTransaction();
-	    Attribute tmp = (Attribute) dao.getByUid(Attribute.class, uid);
-	    if (tmp != null)
-		attr = (Attribute) dao.detachCopy(tmp);
+	    tmp = (Attribute) dao.getByUid(Attribute.class, uid);
 	    dao.commitTransaction();
 	} finally {
 	    if (dao.transactionIsActive())
 		dao.transactionRollback();
-	    dao.close();
+
 	}
 
-	return attr;
+	return tmp;
     }
 
     /**
@@ -101,7 +98,6 @@ public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
 	} finally {
 	    if (dao.transactionIsActive())
 		dao.transactionRollback();
-	    dao.close();
 	}
 
 	return dataStored;
@@ -193,7 +189,6 @@ public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
 	} finally {
 	    if (dao.transactionIsActive())
 		dao.transactionRollback();
-	    dao.close();
 	}
     }
 
