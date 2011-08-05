@@ -3,7 +3,6 @@ package xtremweb.serv.bench;
 import java.rmi.*;
 import xtremweb.core.com.idl.*;
 import xtremweb.core.iface.*;
-import xtremweb.core.db.*;
 import xtremweb.core.obj.dc.*;
 import xtremweb.core.uid.*;
 import xtremweb.core.log.*;

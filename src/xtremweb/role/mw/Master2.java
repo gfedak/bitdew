@@ -18,7 +18,6 @@ import java.util.Vector;
 import jargs.gnu.CmdLineParser;
 
 import xtremweb.core.log.*;
-import xtremweb.core.db.*;
 import xtremweb.core.serv.*;
 import xtremweb.core.conf.*;
 import xtremweb.serv.ds.*;
