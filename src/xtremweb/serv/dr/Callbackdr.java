@@ -13,7 +13,6 @@ import java.rmi.*;
 import java.net.InetAddress;
 import xtremweb.core.com.idl.*;
 import xtremweb.core.iface.*;
-import xtremweb.core.db.*;
 import xtremweb.core.obj.dc.*;
 import xtremweb.core.obj.dr.*;
 import xtremweb.serv.dc.*;
@@ -49,13 +48,14 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
      * Class logger
      */
     protected static Logger log = LoggerFactory.getLogger(Callbackdr.class);
-
+    private DaoProtocol dao;
     /**
      * Class constructor, it tries to load a set of protocols and repositories
      * from a json file indicated in System parameters if it is not possible it
      * takes a default json file.
      */
     public Callbackdr() {
+    	dao = (DaoProtocol)DaoFactory.getInstance("xtremweb.dao.protocol.DaoProtocol");
 	Properties mainprop;
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
@@ -192,8 +192,7 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
      * @return the protocol uid in DBMS
      */
     public String registerProtocol(Protocol proto) {
-	DaoProtocol dao = (DaoProtocol) DaoFactory
-		.getInstance("xtremweb.dao.protocol.DaoProtocol");
+
 	dao.makePersistent(proto, true);
 	return proto.getuid();
     }
@@ -208,8 +207,6 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
     public Protocol getProtocolByName(String name) throws RemoteException {
 	Protocol ret = null;
 	Protocol protoStored = null;
-	DaoProtocol dao = (DaoProtocol) DaoFactory
-		.getInstance("xtremweb.dao.protocol.DaoProtocol");
 	try {
 	    dao.beginTransaction();
 	    protoStored = (Protocol) dao.getByName(Protocol.class,
@@ -220,7 +217,6 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 	} finally {
 	    if (dao.transactionIsActive())
 		dao.transactionRollback();
-	    dao.close();
 	}
 	return protoStored;
     }
@@ -233,25 +229,24 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
      * @return the protocol whose uid is the input parameter
      */
     public Protocol getProtocolByUID(String uid) throws RemoteException {
-	Protocol ret = null;
-	DaoProtocol dao = (DaoProtocol) DaoFactory
-		.getInstance("xtremweb.dao.protocol.DaoProtocol");
+	Protocol t = null;
+	
 	try {
 	    dao.beginTransaction();
-	    Protocol t = (Protocol) dao.getByUid(Protocol.class, uid);
+	    t = (Protocol) dao.getByUid(Protocol.class, uid);
 	    if (t == null) {
 		log.debug(" proto fetched is null ");
 	    } else {
-		ret = (Protocol) dao.detachCopy(t);
+		
 		log.debug(" proto fetched " + t.getuid());
 	    }
 	    dao.commitTransaction();
 	} finally {
 	    if (dao.transactionIsActive())
 		dao.transactionRollback();
-	    dao.close();
+	    
 	}
-	return ret;
+	return t;
     }
 
     /**
@@ -261,26 +256,23 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
      * @throws RemoteException
      */
     public void deleteProtocol(Protocol proto) throws RemoteException {
-	PersistenceManager pm = DBInterfaceFactory
+	/*PersistenceManager pm = DBInterfaceFactory
 		.getPersistenceManagerFactory().getPersistenceManager();
 
 	Transaction tx = pm.currentTransaction();
 	try {
 	    tx.begin();
-	    // Object id = pm.getObjectId(proto);
-	    // Protocol obj = pm.getObjectById(id);
+	   
 	    pm.makePersistent(proto);
 	    pm.deletePersistent(proto);
 
-	    // Protocol todelete = pm.getObjectById(uid); // Retrieves the
-	    // object to delete
-	    // pm.deletePersistent(todelete);
+	 
 	    tx.commit();
 	} finally {
 	    if (tx.isActive())
 		tx.rollback();
 	    pm.close();
-	}
+	}*/
     }
 
     /**
@@ -313,8 +305,7 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
      */
     public String browse() {
 	String ret = "";
-	DaoProtocol dao = (DaoProtocol) DaoFactory
-		.getInstance("xtremweb.dao.protocol.DaoProtocol");
+	
 	try {
 	    dao.beginTransaction();
 
@@ -328,7 +319,7 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 	} finally {
 	    if (dao.transactionIsActive())
 		dao.transactionRollback();
-	    dao.close();
+
 	}
 	return ret;
     }
