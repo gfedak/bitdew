@@ -10,8 +10,6 @@ package xtremweb.core.poxwo;
  * @version 1.0
  */
 
-import xtremweb.core.db.*;
-
 import java.util.Collection;
 import java.util.Iterator;
 import javax.jdo.PersistenceManager;
@@ -19,29 +17,27 @@ import javax.jdo.Extent;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
 
-public class PoxwoManager {
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.data.DaoData;
 
+public class PoxwoManager {
+	private static DaoData dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
     /**
      * Creates a new <code>PoxwoManager</code> instance.
      *
      */
     public PoxwoManager() {
     }
-
+    
     public static void localPersist(Poxwo obj) {
-		PersistenceManager pm = DBInterfaceFactory.getPersistenceManagerFactory().getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
-	try {
-	    tx.begin();
-	    pm.makePersistent(obj);
+		
+	
+	   
+	    dao.makePersistent(obj,true);
 	    System.out.println("local object id : " + obj.getuid() );
-	    tx.commit();
-	} finally {
-	    if (tx.isActive())
-		tx.rollback();
-	    pm.close();
-	}
-    }
+	   
+	} 
+  
     
     /*
     public static void remotePersist(Poxwo obj, InterfaceRMIobj iro) {

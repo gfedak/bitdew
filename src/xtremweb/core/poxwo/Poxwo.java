@@ -10,7 +10,6 @@ package xtremweb.core.poxwo;
  * @version 1.0
  */
 
-import xtremweb.core.db.*;
 
 public abstract class Poxwo {
 

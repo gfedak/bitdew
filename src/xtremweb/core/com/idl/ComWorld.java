@@ -3,7 +3,9 @@ package xtremweb.core.com.idl;
 import xtremweb.core.log.*;
 import xtremweb.core.conf.*;
 import xtremweb.core.obj.ds.Host;
-import xtremweb.core.db.*;
+import xtremweb.dao.DaoFactory;
+import xtremweb.dao.DaoJDOImpl;
+
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -82,7 +84,8 @@ public class ComWorld {
     public static Host getHost() {
 	if (host == null) {
 	    host = new Host();
-	    DBInterfaceFactory.getDBInterface().makePersistent(host);
+	    DaoJDOImpl dao = (DaoJDOImpl)DaoFactory.getInstance("xtremweb.dao.DaoJDOImpl");
+	    dao.makePersistent(host,true);
 	}
 	return host;
     }
