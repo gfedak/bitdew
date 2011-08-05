@@ -4,6 +4,7 @@
 	xtremweb.core.com.rmi: {port: 4325},
 	xtremweb.serv.dr : {protocols: "dummy http"},	
 	xtremweb.core.http: {port: 8080,path:"/data",documentRoot:".",uploadServlet:"/fileupload"},
+	xtremweb.serv.dr.http:{name: "http", port: "8080",path:"data"},
 	xtremweb.serv.dr.dummy: {name: "dummy"},
 	xtremweb.serv.dr.bittorrent: {name:"bittorrent",path:"torrents",port:6969},
 	xtremweb.serv.dt: {protocols: "dummy http"},
