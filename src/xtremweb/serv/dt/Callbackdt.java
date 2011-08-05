@@ -36,7 +36,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      * Callbackdt logger
      */
     protected Logger log = LoggerFactory.getLogger("DT Service");
-
+    private DaoTransfer dao;
     /**
      * Local transfer manager, this will change in the future as it is violating
      * the previously fixed design rules
@@ -48,7 +48,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      * 
      */
     public Callbackdt() {
-
+    	dao = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	tm = TransferManagerFactory.getTransferManager();
 	tm.start();
 
@@ -130,9 +130,36 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 	try {
 	    OOBTransfer oobt = OOBTransferFactory.createOOBTransfer(data, t,
 		    rl, local_locator, rp, local_proto);
-	    DaoTransfer dao = (DaoTransfer) DaoFactory
-		    .getInstance("xtremweb.dao.transfer.DaoTransfer");
-	    dao.makePersistent(oobt, true);
+	    
+	    String tuid = oobt.getTransfer().getuid();
+		if ((oobt.getTransfer()!=null)&&(oobt.getTransfer().getuid()!=null)) 
+		    log.debug("Transfer already persisted : " + oobt.getTransfer().getuid());
+		log.debug(" data snapshot just before persisting uid" + oobt.getData().getuid() + "md5 " + oobt.getData().getchecksum() + " size " + oobt.getData().getsize());
+		
+		
+		dao.makePersistent(oobt.getData(),true);
+		dao.makePersistent(oobt.getRemoteProtocol(),true);
+		dao.makePersistent(oobt.getLocalProtocol(),true);
+		
+		oobt.getRemoteLocator().setdatauid(oobt.getData().getuid());
+		oobt.getLocalLocator().setdatauid(oobt.getData().getuid());
+		
+		oobt.getRemoteLocator().setprotocoluid(oobt.getRemoteProtocol().getuid());
+		oobt.getLocalLocator().setprotocoluid(oobt.getLocalProtocol().getuid());
+		
+		dao.makePersistent(oobt.getRemoteLocator(),true);
+		dao.makePersistent(oobt.getLocalLocator(),true);
+		
+		oobt.getTransfer().setlocatorremote(oobt.getRemoteLocator().getuid());
+		oobt.getTransfer().setlocatorlocal(oobt.getLocalLocator().getuid());
+		oobt.getTransfer().setdatauid(oobt.getData().getuid());
+		dao.makePersistent(oobt.getTransfer(),true);
+
+		
+		//FIXME: should have an assert here
+		if ( (tuid!=null) && (!tuid.equals( oobt.getTransfer().getuid()))) 
+		    log.debug(" Transfer has been incorrectly persisted    " + tuid + "  !="  + oobt.getTransfer().getuid());
+	    
 	    log.debug("Succesfully created transfer [" + t.getuid()
 		    + "] data [" + data.getuid() + "] with remote storage ["
 		    + rl.getref() + "] " + rp.getname() + "://["
@@ -165,9 +192,8 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      */
     public boolean poolTransfer(String transferID) throws RemoteException {
 	log.debug("pooling transfer : " + transferID);
-
-	DaoTransfer daot = (DaoTransfer) DaoFactory
-		.getInstance("xtremweb.dao.transfer.DaoTransfer");
+	DaoTransfer daot = (DaoTransfer)DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
+	
 	daot.beginTransaction();
 
 	boolean isComplete = false;
@@ -175,7 +201,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 	try {
 	    Transfer t = (Transfer) daot.getByUid(
 		    xtremweb.core.obj.dt.Transfer.class, transferID);
-	    log.debug("value of t is " + t + " type of t is " + t.gettype());
+	    log.debug("value of t is " + t + " type of t is " + t.gettype() + " status of t is " + t.getstatus());
 
 	    if (t == null) {
 		log.debug(" t " + transferID + " is null ");
@@ -188,7 +214,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 	} finally {
 	    if (daot.transactionIsActive())
 		daot.transactionRollback();
-	    daot.close();
+	   daot.close();
 	}
 	return isComplete;
     }
@@ -219,8 +245,6 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      *             if anything fails
      */
     public String putTransfer(Transfer trans) throws RemoteException {
-	DaoTransfer dao = (DaoTransfer) DaoFactory
-		.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	dao.makePersistent(trans, true);
 	return trans.getuid();
     }
@@ -237,24 +261,23 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      */
     public void setTransferStatus(String tuid, int status)
 	    throws RemoteException {
-	DaoTransfer daot = (DaoTransfer) DaoFactory
-		.getInstance("xtremweb.dao.transfer.DaoTransfer");
-	daot.beginTransaction();
+	
+	dao.beginTransaction();
 	try {
-	    Transfer t = (Transfer) daot.getByUid(
+	    Transfer t = (Transfer) dao.getByUid(
 		    xtremweb.core.obj.dt.Transfer.class, tuid);
 	    
 	    if (t == null) {
 		log.debug(" t " + tuid + " is null ");
 	    } else {
 		t.setstatus(status);
-		daot.makePersistent(t, false);
+		dao.makePersistent(t, false);
 	    }
-	    daot.commitTransaction();
+	    dao.commitTransaction();
 	} finally {
-	    if (daot.transactionIsActive())
-		daot.transactionRollback();
-	    daot.close();
+	    if (dao.transactionIsActive())
+		dao.transactionRollback();
+	
 	}
     }
 
