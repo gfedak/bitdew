@@ -4,7 +4,6 @@ import xtremweb.role.cmdline.CommandLineToolHelper;
 import xtremweb.serv.dc.*;
 import xtremweb.core.iface.*;
 import xtremweb.core.log.*;
-import xtremweb.core.com.com.*;
 import xtremweb.core.com.idl.*;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.DataChunk;
@@ -15,25 +14,14 @@ import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.ds.Attribute;
 import xtremweb.core.util.filesplit.*;
 import xtremweb.serv.dt.*;
-import xtremweb.serv.dt.ftp.*;
 import xtremweb.serv.dc.ddc.*;
-import xtremweb.serv.dc.*;
-import xtremweb.serv.ds.*;
-
 import xtremweb.api.transman.*;
-
 import java.io.*;
 import java.rmi.RemoteException;
 import java.util.Vector;
-
-import xtremweb.core.util.filesplit.*;
 import xtremweb.core.util.uri.*;
 import xtremweb.dao.DaoFactory;
-import xtremweb.dao.InterfaceDao;
 import xtremweb.dao.data.DaoData;
-import xtremweb.dao.datachunck.DaoDataChunck;
-import xtremweb.dao.datacollection.DaoDataCollection;
-import xtremweb.dao.locator.DaoLocator;
 
 /**
  *  <code>BitDew</code> programming interface.
@@ -42,14 +30,13 @@ import xtremweb.dao.locator.DaoLocator;
  * @version 1.0
  */
 public class BitDew {
-
+	
     private static Logger log = LoggerFactory.getLogger(BitDew.class);
     
     //FIXME THIS IS TEMPORAL !!!!
     private int port;
     private InterfaceRMIdc idc;
     private InterfaceRMIdr idr;
-    private InterfaceRMIdt idt;
     private InterfaceRMIds ids;
     private DaoData dao;
     private DistributedDataCatalog ddc = null;
@@ -71,9 +58,7 @@ public class BitDew {
 	    if (o instanceof InterfaceRMIdc)
 		idc = (InterfaceRMIdc) o;
 	    if (o instanceof InterfaceRMIdr)
-		idr = (InterfaceRMIdr) o;
-	    if (o instanceof InterfaceRMIdt)
-		idt = (InterfaceRMIdt) o;
+		idr = (InterfaceRMIdr) o;	
 	    if (o instanceof InterfaceRMIds)
 		ids = (InterfaceRMIds) o;
 	}
@@ -96,7 +81,6 @@ public class BitDew {
     	dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
 	idc = cdc;
 	idr = cdr;
-	idt = cdt;
 	ids = cds;
 
 	init();
