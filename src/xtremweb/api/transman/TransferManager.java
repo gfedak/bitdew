@@ -415,11 +415,10 @@ public class TransferManager {
 									oob.getRemoteProtocol(),
 									oob.getRemoteLocator());
 							log.debug("Transfer registred");
-							dt.setTransferStatus(trans.getuid(),
-									TransferStatus.READY);
 						}
 
 					} catch (Exception re) {
+						log.info("An error has occurred " + re.getMessage());
 						log.debug("cannot register transfer " + re);
 						re.printStackTrace();
 						trans.setstatus(TransferStatus.INVALID);
@@ -434,8 +433,7 @@ public class TransferManager {
 						try {
 							log.debug("start tranfer : " + trans.getuid());
 							// correct transfer creation
-							if (TransferType.isLocal(trans.gettype()))
-								dt.startTransfer(trans.getuid());
+							
 							// going to start the transfer
 							oob = getOOBTransfer(trans);
 							if (TransferType.isLocal(trans.gettype())) {
@@ -458,15 +456,9 @@ public class TransferManager {
 								log.debug("oob receiveSenderSide");
 								oob.receiveSenderSide();
 							}
-							if (TransferType.isLocal(trans.gettype())) {
-								dt.setTransferStatus(trans.getuid(),
-										TransferStatus.TRANSFERING);
-							}
-						} catch (RemoteException re) {
-							trans.setstatus(TransferStatus.INVALID);
-							re.printStackTrace();
-							break;
+							
 						} catch (OOBException oobe) {
+							log.info("An error has occurred " + oobe.getMessage());
 							log.info("The transfer could not succesfully finish "
 									+ oobe.getMessage()
 									+ " it will be erased from cache");
@@ -486,6 +478,7 @@ public class TransferManager {
 							dt.setTransferStatus(trans.getuid(),
 									TransferStatus.INVALID);
 					} catch (RemoteException re) {
+						log.info("An error has occurred " + re.getMessage());
 						re.printStackTrace();
 						trans.setstatus(TransferStatus.INVALID);
 						break;
@@ -511,6 +504,8 @@ public class TransferManager {
 							complete = oob.poolTransfer();
 						if (trans.gettype() == TransferType.UNICAST_RECEIVE_RECEIVER_SIDE)
 							complete = oob.poolTransfer();
+						if (trans.gettype() == TransferType.UNICAST_RECEIVE_SENDER_SIDE)
+							complete = oob.poolTransfer();
 						
 						
 						log.debug("Complete is !!!" + complete);
@@ -523,11 +518,14 @@ public class TransferManager {
 							trans.setstatus(TransferStatus.INVALID);
 						}
 					} catch (RemoteException re) {
-						// bof rien a faire
+						log.info("An error has occurred " + re.getMessage());
+						trans.setstatus(TransferStatus.INVALID);
 						re.printStackTrace();
 						break;
 					} catch (OOBException oobe) {
 						// go in the state INVALID (should be ABORT ?)
+						log.info("An error has occurred " + oobe.getMessage());
+						trans.setstatus(TransferStatus.INVALID);
 						oobe.printStackTrace();
 						break;
 					}
@@ -543,14 +541,13 @@ public class TransferManager {
 					try {
 						oob = getOOBTransfer(trans);
 						oob.disconnect();
-						if (TransferType.isLocal(trans.gettype())) {
-							dt.endTransfer(trans.getuid());
-							trans.setstatus(TransferStatus.TODELETE);
-							dt.setTransferStatus(trans.getuid(),
-									TransferStatus.TODELETE);
-						}
+						trans.setstatus(TransferStatus.TODELETE);
+							
+						
 					} catch (Exception re) {
+						log.info("An error has occurred " + re.getMessage());
 						re.printStackTrace();
+						trans.setstatus(TransferStatus.INVALID);
 						break;
 					}
 					break;
@@ -565,6 +562,8 @@ public class TransferManager {
 						// TODO DELETE TRANSFER FROM THE DATABASE
 						removeOOBTransfer(trans);
 					} catch (OOBException oobe) {
+						log.info("An error has occurred " + oobe.getMessage());
+						trans.setstatus(TransferStatus.INVALID);
 						oobe.printStackTrace();
 						break;
 					}
@@ -581,7 +580,7 @@ public class TransferManager {
 			daocheck.commitTransaction();
 
 		} finally {
-
+			
 			if (daocheck.transactionIsActive())
 				daocheck.transactionRollback();
 			

@@ -206,7 +206,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 	    if (t == null) {
 		log.debug(" t " + transferID + " is null ");
 	    } else {
-		isComplete = (t.getstatus() == TransferStatus.COMPLETE);
+		isComplete = (t.getstatus() == TransferStatus.COMPLETE || t.getstatus() == TransferStatus.TODELETE);
 		log.debug(" t " + t.getuid() + " is status : "
 			+ TransferStatus.toString(t.getstatus()));
 	    }
