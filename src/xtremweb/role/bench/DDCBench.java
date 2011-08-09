@@ -71,7 +71,7 @@ public class DDCBench {
 		for (int r=0; r< 10; r++) {
 		     start=System.currentTimeMillis();
 		    for (int i=0; i< values.length; i++) {
-			if (values[i]!=null) log.debug(ddc.search(values[i]));
+			if (values[i]!=null) log.debug(ddc.search(values[i]).toString());
 		    }
 		    end=System.currentTimeMillis();
 		    fw.write("ddcbenchmaster " + hostName + " " + values.length + " "+ r + " " + (end-start) + "\n");
