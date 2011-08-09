@@ -1,5 +1,5 @@
 package xtremweb.serv.dc.ddc.dummy;
-
+import java.util.List;
 import xtremweb.serv.dc.*;
 import xtremweb.serv.dc.ddc.*;
 
@@ -36,7 +36,7 @@ public class DummyDistributedDataCatalog extends DistributedDataCatalogImpl impl
     public void publish(String key, String value) throws DDCException {
     }
 
-    public String search(String key) throws DDCException {
+    public List search(String key) throws DDCException {
 	return null;
     }
 
