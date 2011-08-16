@@ -18,6 +18,7 @@ import xtremweb.serv.dc.ddc.*;
 import xtremweb.api.transman.*;
 import java.io.*;
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.Vector;
 import xtremweb.core.util.uri.*;
 import xtremweb.dao.DaoFactory;
@@ -786,7 +787,7 @@ public class BitDew {
      * @exception BitDewException
      *                if an error occurs
      */
-    public String ddcSearch(Data data) throws BitDewException {
+    public List ddcSearch(Data data) throws BitDewException {
 	try {
 	    if (ddc != null)
 		return ddc.search(data.getuid());
