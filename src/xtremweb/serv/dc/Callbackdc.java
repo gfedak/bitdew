@@ -143,9 +143,9 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
     	Data dataStored ;
 	try {
 	    dao.beginTransaction();
-	    System.out.println("uid is " + uid);
+	  
 	    dataStored = (Data) dao.getByUid(Data.class, uid);
-	    System.out.println("data stored is " + dataStored + "this is it ");
+	 
 		
 	    dao.commitTransaction();
 	} finally {
