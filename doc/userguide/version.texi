@@ -1,5 +1,5 @@
 
-@set UPDATED July 25 2011
+@set UPDATED August 16 2011
 @set EDITION 1
-@set VERSION 0.2.6
+@set VERSION 0.2.7
       
