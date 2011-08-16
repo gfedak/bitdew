@@ -3,7 +3,7 @@
       Ant build file
   </description>
 
-  <property name="version" value="0.2.6" />
+  <property name="version" value="0.2.7" />
   <property environment="env" />
   <!-- set global properties for this build -->
   <property name="src" location="src"/>
@@ -232,7 +232,7 @@ public class Version {
 		    includes="HelloWorld.java, PutGet.java, PingPong.java, FTPServer.java, ScpTransfer.java,  Callbackdn.java"
 		    prefix="bitdew-${version}/src/xtremweb/role/examples/" />
 	<zipfileset dir="conf" 
-		    includes="java.policy, jpox.properties, dbcp.properties, log4j.properties, log4jcmdlinetool.properties, xtremweb.properties*, properties.json" 
+		    includes="java.policy, jpox.properties, dbcp.properties, log4j.properties, log4jcmdlinetool.properties, xtremweb.properties*, properties.json, testdr.json" 
 		    prefix="bitdew-${version}/conf" />
 	<zipfileset dir="lib"
 		    prefix="bitdew-${version}/lib/" />
