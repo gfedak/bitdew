@@ -15,10 +15,10 @@ public class DistributedDataCatalogFactory  {
 
     protected static Logger logger = LoggerFactory.getLogger("DDC Factory");
 
-    //public static final String DEFAULT_DDC_DHT = "xtremweb.serv.dc.ddc.dummy.DummyDistributedDataCatalog";
+    public static final String DEFAULT_DDC_DHT = "xtremweb.serv.dc.ddc.dummy.DummyDistributedDataCatalog";
     
    //TODO put in properties file the constant DEFAULT_DDC_DHT
-   public static final String DEFAULT_DDC_DHT = "xtremweb.serv.dc.ddc.dplt.DPLTDistributedDataCatalog";
+   //public static final String DEFAULT_DDC_DHT = "xtremweb.serv.dc.ddc.dplt.DPLTDistributedDataCatalog";
     protected static DistributedDataCatalog ddc = null;
 
     public static DistributedDataCatalog getDistributedDataCatalog() {
