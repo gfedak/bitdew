@@ -13,7 +13,8 @@
 	- modification of the scheduler to allow Data to be sent following a specific order (for instance Biggest Data First)
 	- new FileServer example
 	
-	version 0.2.6
+	version 0.2.7
+	Dao integration
 	
 ** HISTORY **
 
