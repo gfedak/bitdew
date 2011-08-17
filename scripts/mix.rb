@@ -64,7 +64,7 @@ puts output
 %x(taktuk -d-1 -f nodelist broadcast exec { 'mkdir filesmix' })
 puts "Sending http,scp and ftp files"
 # send different repositories to different hosts
-tthttp = %x(taktuk -d-1 -f nodelist broadcast put { bitdew-stand-alone-0.2.6-http.jar } { /home/jsaray/bitdew-stand-alone-0.2.6-http.jar })
+tthttp = %x(taktuk -d-1 -f nodelist broadcast put { bitdew-stand-alone-0.2.6.jar } { /home/jsaray/bitdew-stand-alone-0.2.6.jar })
 ttftp = %x(taktuk -d-1 -f nodelist broadcast put { bitdew-stand-alone-0.2.6-ftp.jar } { /home/jsaray/bitdew-stand-alone-0.2.6-ftp.jar })
 ttscp = %x(taktuk -d-1 -f nodelist broadcast put { bitdew-stand-alone-0.2.6-scp.jar } { /home/jsaray/bitdew-stand-alone-0.2.6-scp.jar })
 
@@ -86,7 +86,7 @@ alln = IO.readlines("/home/jsaray/nodelist")
 	puts "Starting http repository in "+line
         line = line.slice(/[^\n]*/)
 	Net::SSH.start(line,"jsaray")do |ssh| 	      
-	ssh.exec "nohup java -jar bitdew-stand-alone-0.2.6-http.jar serv dr > /home/jsaray/filesmix/repoiniout"+line+" 2> /home/jsaray/filesmix/repoinierr"+line+" &"
+	ssh.exec "nohup java -jar bitdew-stand-alone-0.2.6.jar serv dr > /home/jsaray/filesmix/repoiniout"+line+" 2> /home/jsaray/filesmix/repoinierr"+line+" &"
     	end
 	}
 puts "Waiting for dr to start"
@@ -123,10 +123,10 @@ sleep(15)
 # run the Test contained on class datatransfer.TestaDataTransfer from testtm.jar 
 Net::SSH.start(centralnode,"jsaray") do |ssh|
      ssh.exec "mkdir results"
-     ssh.exec "nohup java -cp bitdew-stand-alone-0.2.6.jar:testtm.jar datatransfer.TestDataTransfer nodelist " + NUM_HTTP.to_s + " " + NUM_FTP.to_s + " " + (nlines).to_s  + " " + BATCH.to_s + " http,ftp,scp  > /home/jsaray/filesmix/autotestout"+centralnode+" 2> /home/jsaray/filesmix/autotesterr"+centralnode + " &"     
+     ssh.exec "nohup java -cp bitdew-stand-alone-0.2.6.jar:testtm.jar datatransfer.TestDataTransfer nodelist " + NUM_HTTP.to_s + " " + NUM_FTP.to_s + " " + (nlines).to_s  + " " + BATCH.to_s + "  > /home/jsaray/filesmix/autotestout"+centralnode+" 2> /home/jsaray/filesmix/autotesterr"+centralnode + " &"     
 end
 
-sleep(200)
+sleep(60)
 
 puts "Checking that all files are there "
 # Check that the file was sent to all the hosts
