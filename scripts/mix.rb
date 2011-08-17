@@ -141,7 +141,12 @@ arr = IO.readlines("/home/jsaray/nodelist")
            end
          end
      }
-
+Net::SSH.start(centralnode,"jsaray") do |ssh|
+    res = ssh.exec! "ls -al results | wc -l"
+    filesnet = res.to_i - 3
+    expected = (NUM_HTTP*BATCH) + (NUM_FTP*BATCH) + (NUM_SCP*BATCH) 
+    puts "The expected amount of files on " + centralnode + " is "+ expected.to_s + " and there were found " + filesnet.to_s
+end
 
 
 puts "Getting all outputs and errors here ... Come Here ! "
