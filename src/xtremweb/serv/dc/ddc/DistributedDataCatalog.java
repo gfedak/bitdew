@@ -1,4 +1,5 @@
 package xtremweb.serv.dc.ddc;
+import java.io.Serializable;
 import java.util.List;
 /**
  * Describe interface DistributedDataCatalog here.
@@ -14,7 +15,7 @@ public interface DistributedDataCatalog {
     public void start() throws DDCException;
     public String entryPoint() throws DDCException;
     public void join(String url) throws DDCException;
-    public void publish(String key, String value) throws DDCException;
+    public void publish(String key, Serializable value) throws DDCException;
     public List search(String key) throws DDCException;
 
 }
