@@ -1,6 +1,7 @@
 package xtremweb.dao.data;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Vector;
 
 import javax.jdo.Extent;
@@ -50,6 +51,22 @@ public class DaoData extends DaoJDOImpl {
 	query.setUnique(true);
 	Data d = (Data) query.execute();
 	return d;
+    }
+    
+    /**
+     * Gets a data given its md5 signature
+     * @param md5 the requested hash
+     * @return the data whose hash is equals to md5 parameter
+     */
+    public Data getDataFromMd5(String md5)
+    {
+    	Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class, "checksum == \"" + md5+"\"");
+    	query.setUnique(true);
+    	
+    	
+    	Data d = (Data)query.execute();
+    
+    	return d;
     }
 
 }
