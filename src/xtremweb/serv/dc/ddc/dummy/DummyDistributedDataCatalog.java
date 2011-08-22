@@ -1,4 +1,5 @@
 package xtremweb.serv.dc.ddc.dummy;
+import java.io.Serializable;
 import java.util.List;
 import xtremweb.serv.dc.*;
 import xtremweb.serv.dc.ddc.*;
@@ -33,7 +34,7 @@ public class DummyDistributedDataCatalog extends DistributedDataCatalogImpl impl
     public void join(String url) throws DDCException {
     }
 
-    public void publish(String key, String value) throws DDCException {
+    public void publish(String key, Serializable value) throws DDCException {
     }
 
     public List search(String key) throws DDCException {
