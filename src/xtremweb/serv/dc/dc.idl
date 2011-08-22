@@ -59,6 +59,12 @@
 <Return type="Data" desc="Data Returned"/>
 </Method>
 
+<Method name="getDataFromMd5">
+<Param name="md5" type="String" desc="md5 signature" />
+<Return type="Data" desc="Data Returned"/>
+</Method>
+
+
 <Method name="setDataStatus">
 <Param name="uid" type="String" desc="Data UID" />
 <Param name="status" type="int" desc="Data status" />
