@@ -58,7 +58,7 @@ public class P2PSongs {
 		System.out.println("files size is " + files.length);
 		for(int j = 0 ; j < files.length ; j++)
 		{	//toks : tokens making part of files[j] name
-			String[] toks = files[j].getName().split("[\\s\\._]");
+			String[] toks = files[j].getName().split("[\\s\\._-]");
 			File file = files[j];
 			Data d = bitdew.createData(file);
 			for( int i =0 ; i < toks.length; i++ )
@@ -99,6 +99,8 @@ public class P2PSongs {
 	{
 		P2PSongs p2p = new P2PSongs(args[0]);
 		p2p.put(args[1]);
+		
+		
 	}
 
 }
