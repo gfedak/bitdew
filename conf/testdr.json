@@ -14,5 +14,5 @@
 								  trackerOption:"--dfile dstate"},	
 	xtremweb.serv.dr.ftp: {name:"ftp",port:23,path:"ftp/path",server: "ftp.server.com"},
 	xtremweb.serv.dr.scp: {name:"scp",login: "test",  prkeypath: "/home/user/privete/key/path" , port:8080,path:"scp/path"},
-	xtremweb.core.handler: {perf: "true"}							  
+	xtremweb.core.handler: {perf: "false"}							  
 }
