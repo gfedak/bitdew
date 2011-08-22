@@ -100,6 +100,24 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 	putData(data);
 	return data;
     }
+    
+    /**
+     * Given a md5 hashing, find the locally stored data having this md5
+     * @param md5
+     * @return a data whose hash is md5
+     * @throws RemoteException if a problem occurs in the method invocation
+     */
+    public Data getDataFromMd5(String md5)throws RemoteException
+    {	try{
+    		dao.beginTransaction();
+    		Data d = dao.getDataFromMd5(md5);
+    		dao.commitTransaction();
+    		return d;
+    	}finally{
+    		if(dao.transactionIsActive())
+    			dao.transactionRollback();	
+    	} 	
+    }
 
     /**
      * Put a data in the DBMS
