@@ -1,5 +1,6 @@
 package xtremweb.api.bitdew;
 
+import java.util.List;
 import xtremweb.role.cmdline.CommandLineToolHelper;
 import xtremweb.serv.dc.*;
 import xtremweb.core.iface.*;
@@ -18,7 +19,6 @@ import xtremweb.serv.dc.ddc.*;
 import xtremweb.api.transman.*;
 import java.io.*;
 import java.rmi.RemoteException;
-import java.util.List;
 import java.util.Vector;
 import xtremweb.core.util.uri.*;
 import xtremweb.dao.DaoFactory;
@@ -78,34 +78,31 @@ public class BitDew {
      * @param cds
      *            an <code>InterfaceRMIds</code> value
      */
-    public BitDew(InterfaceRMIdc cdc, InterfaceRMIdr cdr, InterfaceRMIdt cdt,InterfaceRMIds cds) {
+    public BitDew(InterfaceRMIdc cdc, InterfaceRMIdr cdr, InterfaceRMIdt cdt ,InterfaceRMIds cds) {
     	dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
 	idc = cdc;
 	idr = cdr;
 	ids = cds;
-
 	init();
     } // BitDew constructor
     public void setPort(int theport)
     {
     	port = theport;
     }
-    
+   
     private void init() {
 
-	/*try {
+	try {
 	    ddc = DistributedDataCatalogFactory.getDistributedDataCatalog();
 	    String entryPoint = idc.getDDCEntryPoint();
-	    System.out.println(" entry point is " + entryPoint);
 	    if (entryPoint != null) {
-		ddc.join(entryPoint,port);
-		System.out.println("Started DHT service for distributed data catalog [entryPoint:"
-				+ entryPoint + "]");
+		ddc.join(entryPoint);
+		System.out.println("Started DHT service for distributed data catalog [entryPoint:"+ entryPoint + "]");
 	    }
 	} catch (Exception ddce) {
 	    log.warn("unable to start a Distributed Data Catalog service");
 	    ddc = null;
-	}*/
+	}
 	// TransferManagerFactory.init(idr, idt);
 
     }
@@ -151,7 +148,7 @@ public class BitDew {
 	}
     }
     
-    public void registerNonSecuredProtocol(String name, String server, int port,
+    public String registerNonSecuredProtocol(String name, String server, int port,
 	    String path, String login, String passwd) {
 	try {
 	    Protocol proto = new Protocol();
@@ -161,11 +158,13 @@ public class BitDew {
 	    proto.setport(port);
 	    proto.setpassword(passwd);
 	    proto.setpath(path);
-	    idr.registerProtocol(proto);
+	    String result = idr.registerProtocol(proto);
+	    return result;
 	} catch (RemoteException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
+	return null;
     }
 
     /**
@@ -364,6 +363,23 @@ public class BitDew {
 	    log.debug("Cannot createLocator " + re);
 	}
 	throw new BitDewException();
+    }
+    
+    /**
+     * Given a md5 file signature, this method retrieves the data having that signature
+     * @param md5
+     * @return the data having the md5 signature
+     * @throws BitDewException
+     */
+    public Data getDataFromMd5(String md5)throws BitDewException{
+    	try{
+    		return idc.getDataFromMd5(md5);
+    	}catch(RemoteException re){
+    		log.info("Cannot find service " + re);
+    		throw new BitDewException();
+    	}
+    	
+    	
     }
     
     /**
@@ -787,10 +803,10 @@ public class BitDew {
      * @exception BitDewException
      *                if an error occurs
      */
-    public List ddcSearch(Data data) throws BitDewException {
+    public List ddcSearch(String data) throws BitDewException {
 	try {
 	    if (ddc != null)
-		return ddc.search(data.getuid());
+		return ddc.search(data);
 	} catch (DDCException ddce) {
 	    log.debug("cannot ddc find data : " + data + "\n" + ddce);
 	}
@@ -831,7 +847,7 @@ public class BitDew {
      * @exception BitDewException
      *                if an error occurs
      */
-    public void ddcPublish(String key, String value) throws BitDewException {
+    public void ddcPublish(String key, Serializable value) throws BitDewException {
 	try {
 	    if (ddc != null)
 		ddc.publish(key, value);
