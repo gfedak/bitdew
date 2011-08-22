@@ -4,6 +4,7 @@ import xtremweb.serv.dc.*;
 import xtremweb.serv.dc.ddc.*;
 import org.kth.dks.JDHT;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +61,7 @@ public class JDHTDistributedDataCatalog extends DistributedDataCatalogImpl
 		}
 	}
 
-	public void publish(String key, String value) throws DDCException {
+	public void publish(String key, Serializable value) throws DDCException {
 		try {
 			jDHT.put(key, value);
 		} catch (Exception e) {
