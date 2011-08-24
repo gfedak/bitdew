@@ -72,11 +72,11 @@ public class PerfMonitor {
      * @param maxSamples an <code>int</code> value
      * @return an <code>int</code> value
      */
-    public void addSerie(String serieTitle, int maxSamples) throws PerfException {
+    public void addSerie(Comparable serieTitle, int maxSamples) throws PerfException {
 	TimeSeries ts = new TimeSeries(serieTitle, Millisecond.class);
 	ts.setMaximumItemCount(maxSamples);
 	_dataset.addSeries(ts);
-	_series.put(serieTitle,ts);
+	_series.put((String)serieTitle,ts);
 	_nbseries++;
     }
 
