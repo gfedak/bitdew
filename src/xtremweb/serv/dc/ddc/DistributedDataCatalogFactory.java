@@ -18,7 +18,8 @@ public class DistributedDataCatalogFactory  {
     public static final String DEFAULT_DDC_DHT = "xtremweb.serv.dc.ddc.dummy.DummyDistributedDataCatalog";
     
    //TODO put in properties file the constant DEFAULT_DDC_DHT
-   //public static final String DEFAULT_DDC_DHT = "xtremweb.serv.dc.ddc.dplt.DPLTDistributedDataCatalog";
+   public static final String DEFAULT_DDC_DHT = "xtremweb.serv.dc.ddc.dlpt.DLPTDistributedDataCatalog";
+
     protected static DistributedDataCatalog ddc = null;
 
     public static DistributedDataCatalog getDistributedDataCatalog() {
