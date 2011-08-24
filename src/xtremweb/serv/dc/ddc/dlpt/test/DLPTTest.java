@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import junit.framework.TestCase;
 import xtremweb.serv.dc.ddc.DDCException;
-import xtremweb.serv.dc.ddc.dlpt.DPLTDistributedDataCatalog;
+import xtremweb.serv.dc.ddc.dlpt.DLPTDistributedDataCatalog;
 
 
 public class DLPTTest extends TestCase {
@@ -17,7 +17,7 @@ public class DLPTTest extends TestCase {
 	@Test
 	public void testJson()
 	{
-		DPLTDistributedDataCatalog dplt = new DPLTDistributedDataCatalog();
+		DLPTDistributedDataCatalog dplt = new DLPTDistributedDataCatalog();
 		String json;
 		try {
 			dplt.start();
