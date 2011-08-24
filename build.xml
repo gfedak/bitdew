@@ -35,8 +35,10 @@
     <path id="id.project.classpath">
     <pathelement location="${build}" />
     <pathelement location="${conf}" />
+    
     <fileset dir="${lib}">
       <include name="**/*.jar"/>
+      <exclude name="jfreechart-1.0.5.jar"/>
     </fileset>
   </path>
   <path id="cobertura.classpath">
@@ -261,6 +263,7 @@ public class Version {
 	<fileset dir="lib">
 	  <include name="**/*.jar"/>
 	  <exclude name="azureus.jar"/>
+	  <exclude name="jfreechart-1.0.5.jar"/>	
 	</fileset>
       </unzip>
     </target>
