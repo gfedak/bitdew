@@ -63,8 +63,8 @@ public class TransferManager {
 	private long maxDownloads = 10;
 	private static Vector ongoingUid = new Vector();
 
-	/*private final static PerfMonitor perf = PerfMonitorFactory
-			.createPerfMonitor("TransferManager", "hits per second", 3000);*/
+	private final static PerfMonitor perf = PerfMonitorFactory
+			.createPerfMonitor("TransferManager", "hits per second", 3000);
 
 	/*
 	 * <code>oobTransfers</code> is a Hashtable associating an OOBTransfer to
@@ -586,7 +586,7 @@ public class TransferManager {
 			
 		}
 		long end = System.currentTimeMillis();
-		//perf.addSample(end - start);
+		perf.addSample(end - start);
 	}
 
 	public long ongoingTransfers() {
