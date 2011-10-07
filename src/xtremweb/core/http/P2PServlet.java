@@ -87,7 +87,7 @@ public class P2PServlet extends HttpServlet {
 	 * @response The response the servlet will produce
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-	{	
+	{	String HOST_NAME = InetAddress.getLocalHost().getHostName();
 		String param = request.getParameter("term");
 		log.debug("parameter term : " + param);
 		response.setContentType("xml");		
@@ -100,7 +100,7 @@ public class P2PServlet extends HttpServlet {
 			{
 				responsexml+="<tr>" +
 						        "<td><a href=http://localhost:8080/download?songname="+((SongBitdew)l.get(i)).getFilename()+"&md5="+((SongBitdew)l.get(i)).getMd5()+">"+((SongBitdew)l.get(i)).getFilename()+"</td>"+
-						        "<td>"+((SongBitdew)l.get(i)).getMd5()+"</td>"+
+						        "<td><a href=http://localhost:8080/getips?md5="+((SongBitdew)l.get(i)).getMd5()+">"+((SongBitdew)l.get(i)).getMd5()+"</td>"+
 						     "</tr>";
 			}
 			responsexml+="</table></center></body></html>";
