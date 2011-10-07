@@ -26,7 +26,7 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements
     protected GetMethod getMethod;
     protected PostMethod postMethod;
     protected static Logger log = LoggerFactory.getLogger(HttpTransfer.class);
-
+    private boolean b = false;
     public static void init() {
 	Properties mainprop;
 	try {
@@ -63,6 +63,7 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements
 	httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(
 		5000);
 	log.debug("connecting " + this.toString());
+	b = true;
     }
 
     public void blockingSendSenderSide() throws OOBException {
@@ -131,6 +132,13 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements
     }
 
     public void blockingReceiveReceiverSide() throws OOBException {
+    	if(!b){
+    		httpClient = new HttpClient();
+    		httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(
+    			5000);
+    		log.debug("connecting " + this.toString());
+    		b = true;
+    	}
 	// faut pas cherhcer
 	// http://localhost:8080//data/25966a30-db9b-31db-9f4a-492d005f0c4a
 	String url = "http://" + remote_protocol.getserver() + ":"
