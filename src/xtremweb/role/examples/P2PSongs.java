@@ -22,13 +22,14 @@ import xtremweb.serv.dc.DataUtil;
 
 public class P2PSongs {
 
-    /*
-     * ! \example P2PSongs.java This example shows how to configure a P2P file
+    /*! \example P2PSongs.java This example shows how to configure a P2P file
      * sharing system using BitDew. For this experience you will need several
-     * computers connected through internet. Next image shows how this will work
-     * : \image html archp2p.jpg Our P2P infrastructure consist on two types of
+     * computers connected through internet. Next image shows how this will work: 
+     * \image html archp2p.jpg 
+     * Our P2P infrastructure consist on two types of
      * nodes : <ul> <li> Bootstrap node , the initial connection to our P2P
-     * network, it uses a Distributed Hash Table implementation to handle a
+     * network, it uses a Distributed Hash Table implementation called 
+     * <a href="http://graal.ens-lyon.fr/~fchuffart/dokuwiki/doku.php?id=offtheshelfdlpt">DLPT</a> to handle a
      * distributed song index. </li> <li> Peer node: each peer creates two
      * Bitdew API's that differs on the data catalog they use. One API uses a
      * local catalog to index the locally hosted songs the peer wants to
@@ -56,7 +57,7 @@ public class P2PSongs {
      * <directory>
      * 
      * @endcode 
-     * The following command will: <ul> <li>Start locally dX
+     * The following command will: <ul> <li>Start locally the differnt dX's
      * services</li> <li>Create two Bitdew API's (first one referencing the
      * locally created dc and dt, second one referencing the distributed hash
      * table on the \<bootstrap node\> <li>Register the songs contained in the
@@ -66,14 +67,14 @@ public class P2PSongs {
      * 
      * <li> Now, we can request for files on the P2P network: from any host in
      * your network open your webbrowser and type http://<bootstrap-node>:8080/findterm.html
-     * You should see a window similar to the next one :
-     * \image html findterm.html
+     * You should see a window similar to the next one (in order that this can work, port 8080 must be open in that machine) :
+     * \image html findterm.png
      * 
-     * <li> Write the keyword you want to looking for and click on Search </li>
+     * <li> Write the keyword you want to look for and click on Send</li>
      * 
-     * <li> A list like the following should appear : </li>
+     * <li> A list similar to this one should appear : </li>
      * 
-     * \image html results.html
+     * \image html results.png
      * 
      * <li> Download will begin as soon as you click on any link </li>	
      * </ol>
