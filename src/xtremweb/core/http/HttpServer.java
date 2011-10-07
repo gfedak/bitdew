@@ -59,6 +59,8 @@ public class HttpServer {
      *
      */
     public static String DEFAULT_UPLOAD_SERVLET = "/fileupload";
+    
+    public static String DEFAULT_P2P_SERVLET = "/p2pquery";
 
     protected static Logger log = LoggerFactory.getLogger(HttpServer.class);
 
@@ -69,6 +71,8 @@ public class HttpServer {
     private static String _documentPath; //path as seen by remote when getting data
 
     private static String _uploadServlet; //remote reference used to store data
+    
+    private static String _p2pServlet;
 
     private static Context uiContext;
 
@@ -93,6 +97,7 @@ public class HttpServer {
 	_documentPath = mainprop.getProperty("xtremweb.core.http.path", DEFAULT_DOCUMENT_PATH);
 	_documentRoot = mainprop.getProperty("xtremweb.core.http.documentRoot", DEFAULT_DOCUMENT_ROOT);
 	_uploadServlet = mainprop.getProperty("xtremweb.core.http.uploadServlet", DEFAULT_UPLOAD_SERVLET);
+	_p2pServlet =  mainprop.getProperty("xtremweb.core.http.uploadServlet", DEFAULT_P2P_SERVLET);
 	init();
     }
 
@@ -112,7 +117,7 @@ public class HttpServer {
 	_documentRoot = documentRoot;
 	_documentPath = documentPath;
 	_uploadServlet = uploadServlet;
-
+	
 	init();
     }
 
@@ -132,6 +137,16 @@ public class HttpServer {
 	//We first start the Server configured with a special port
     	
 	server = new Server();
+	
+	//HandlerContext context = server.addContext("/");
+    //context.setResourceBase("./docroot/");
+    //context.setServingResources(true);
+	//
+	ResourceHandler resource = new ResourceHandler();
+	String userdir = System.getProperty("user.dir");
+	resource.setResourceBase(userdir + "/html");
+	
+	//
 	Connector connector=new SocketConnector();
 	connector.setPort(_port);
 	server.setConnectors(new Connector[]{connector});
@@ -141,13 +156,20 @@ public class HttpServer {
 	log.debug("documentRoot:"+_documentRoot);
 	log.debug("documentPath:"+_documentPath);
 	log.debug("uploadServlet:"+_uploadServlet);
-
+	log.debug("Searching for resources in " + userdir +"/html");
 	
 	//the servlet is accessed with the /fileupload reference
 	Context fileuploadContext = new Context(Context.SESSIONS);
 	fileuploadContext.setContextPath(_uploadServlet);
 	fileuploadContext.addServlet(new ServletHolder(new UploadServlet(_documentRoot)), "/*");
 	
+	Context p2pContext = new Context(Context.SESSIONS);
+	p2pContext.setContextPath("/p2pquery");
+	p2pContext.addServlet(new ServletHolder(new P2PServlet()),"/*");
+	
+	Context downloadcontext = new Context(Context.SESSIONS);
+	downloadcontext.setContextPath("/download");
+	downloadcontext.addServlet(new ServletHolder(new DownloadSongServlet()),"/*");
  
 	/*
 	//	server.setHandler(servletHandler);
@@ -171,7 +193,7 @@ public class HttpServer {
 	filedownloadContext.setHandler(resource_handler);
 
 	ContextHandlerCollection contexts = new ContextHandlerCollection();
-	contexts.setHandlers(new Handler[]{fileuploadContext,filedownloadContext});
+	contexts.setHandlers(new Handler[]{fileuploadContext,filedownloadContext,p2pContext,downloadcontext});
         
 	uiContext = new Context(contexts, "/ui", Context.SESSIONS);
 	//	other.addServlet("xtremweb.core.http.UploadServlet", "/");
@@ -179,7 +201,7 @@ public class HttpServer {
 	//uiContext.addServlet("xtremweb.core.http.GraphServlet", "/ts.png");
 
         HandlerCollection handlers = new HandlerCollection();
-        handlers.setHandlers(new Handler[]{contexts,new DefaultHandler()});
+        handlers.setHandlers(new Handler[]{resource,contexts,new DefaultHandler()});
 
 	//we associate the contexts with the server and start the server
 	server.setHandler(handlers);
