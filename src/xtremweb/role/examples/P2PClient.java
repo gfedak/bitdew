@@ -21,6 +21,7 @@ import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.role.examples.obj.SongBitdew;
+import xtremweb.serv.dc.DataUtil;
 import xtremweb.serv.dt.OOBTransfer;
 
 /**
@@ -68,6 +69,8 @@ public class P2PClient {
 
     private Logger log = LoggerFactory.getLogger("P2PClient");
 
+    private String BOOTSTRAP;
+
     /**
      * Class constructor, initialize services and API
      * 
@@ -76,6 +79,7 @@ public class P2PClient {
     public P2PClient(String bootstrap) {
 
 	try {
+	    BOOTSTRAP = bootstrap;
 	    LOCAL_ADDRESS = InetAddress.getLocalHost().getHostAddress();
 	    // starting bitdew services
 	    dc = (InterfaceRMIdc) ComWorld
@@ -198,6 +202,34 @@ public class P2PClient {
 	} catch (TransferManagerException e) {
 	    e.printStackTrace();
 	} catch (ModuleLoaderException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+    }
+
+    public void republish(String song,String md5) {
+	try {
+	    dc = (InterfaceRMIdc) ComWorld
+		    .getComm(BOOTSTRAP, "rmi", 4325, "dc");
+
+	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,
+		    "dt");
+	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,
+		    "ds");
+	    dr = (InterfaceRMIdr) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,
+		    "dr");
+	    bitdew = new BitDew(dc, dr, dt, ds);
+	    String[] toks = song.split("[\\s\\._-]");
+
+	    for (int i = 0; i < toks.length; i++) {
+		SongBitdew sb = new SongBitdew(song,md5);
+		bitdew.ddcPublish(toks[i], sb);
+		bitdew.ddcPublish(md5, LOCAL_ADDRESS);
+	    }
+	} catch (ModuleLoaderException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (BitDewException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
