@@ -49,8 +49,9 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      */
     public Callbackdt() {
     	dao = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
-	tm = TransferManagerFactory.getTransferManager();
-	tm.start();
+	//tm = TransferManagerFactory.getTransferManager();
+	log.debug("tm that callback is using " + tm);
+	//tm.start();
 
 	Properties mainprop;
 	try {
@@ -104,6 +105,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      */
     public int registerTransfer(Transfer t, Data data, Protocol rp, Locator rl)
 	    throws RemoteException {
+    	log.debug("register transfer was called in !!!" + tm);
 	Protocol local_proto = new Protocol();
 	Locator local_locator = new Locator();
 
@@ -167,7 +169,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 		    + rl.getdrname() + ":" + rp.getport() + "/" + rp.getpath()
 		    + "/" + rl.getref() + "\n" + oobt);
 
-	   tm.registerTransfer(oobt);
+	  // tm.registerTransfer(oobt);
 	} catch (OOBException e) {
 	    log.debug("Exception when registring oob transfer " + e);
 	    throw new RemoteException();
