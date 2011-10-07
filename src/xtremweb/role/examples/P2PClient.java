@@ -7,9 +7,6 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-import java.util.ServiceLoader;
-import java.util.Vector;
-
 import xtremweb.api.bitdew.BitDew;
 import xtremweb.api.bitdew.BitDewException;
 import xtremweb.api.transman.TransferManager;
@@ -20,130 +17,189 @@ import xtremweb.core.iface.InterfaceRMIdc;
 import xtremweb.core.iface.InterfaceRMIdr;
 import xtremweb.core.iface.InterfaceRMIds;
 import xtremweb.core.iface.InterfaceRMIdt;
+import xtremweb.core.log.Logger;
+import xtremweb.core.log.LoggerFactory;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.role.examples.obj.SongBitdew;
 import xtremweb.serv.dt.OOBTransfer;
 
+/**
+ * This class launchs a request over the P2P network of a specific term.
+ * 
+ * @author josefrancisco
+ * 
+ */
 public class P2PClient {
 
-	/**
-	 * 
-	 */
-	private BitDew bitdew;
-	private BitDew bitdewlocal;
-	private InterfaceRMIdc dc ;
-	private InterfaceRMIdt dt ;
-	private InterfaceRMIdr dr ;
-	private InterfaceRMIds ds ;
-	/**
-	 * 
-	 */
-	private TransferManager tm;
-	
-	/**
-	 * 
-	 * @param bootstrap
-	 */
-	public P2PClient(String bootstrap) {
-		
-		
-		try {
-			dc = (InterfaceRMIdc) ComWorld.getComm(bootstrap, "rmi", 4325, "dc");
-			dt = (InterfaceRMIdt) ComWorld.getComm(InetAddress.getLocalHost().getHostAddress(), "rmi", 4325, "dt");
-			ds = (InterfaceRMIds) ComWorld.getComm(InetAddress.getLocalHost().getHostAddress(), "rmi", 4325, "ds");
-			
-		
-		tm = new TransferManager(dt);
-		bitdew = new BitDew(dc,dr,dt,ds);
-		tm.start();
-		} catch (ModuleLoaderException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	/** args[0]  bootstrapnode
-	 * args[1] term to search (if get)
-	 */
-	public static void main(String[] args) {
-		P2PClient p2p = new P2PClient(args[0]);
-		p2p.get(args[1]);
-	}
-	
-	/**
-	 * 
-	 * @param term
-	 */
-	public void get(String term) {	
-		try {
-			System.out.println("Search for songs artist or title : ");
-			BufferedReader stdIn = null;
-			
-			System.out.println("entro al get jijuepuerca vida ");
-			List results;
-			results = bitdew.ddcSearch(term);
-			System.out.println("the value of results is " + results + " and the size is " + results.size());
-			for (int i = 1; i <= results.size(); i++) {
-				SongBitdew sbd = (SongBitdew) results.get(i-1);
-				System.out.println(" Results for your query : " + i+ ". " +sbd.getFilename() + " ");
-			}
-			
-			System.out.println("Please write the song number you wish to download : ");		
-			stdIn = new BufferedReader(new InputStreamReader(System.in));
-			String number = stdIn.readLine();		
-			int nu = Integer.parseInt(number);
-			
-			String md5 = ((SongBitdew)results.get(nu-1)).getMd5();
-			List ips = bitdew.ddcSearch(md5);
-			
-			for(int i = 0 ; i < ips.size() ; i++ )
-			{
-				System.out.println("IP  "  + i + " is" + ips.get(i));
-			}
-			
-			if (ips != null && ips.size()!=0){
-				dr = (InterfaceRMIdr) ComWorld.getComm((String)ips.get(0), "rmi", 4325, "dr");
-				dc = (InterfaceRMIdc) ComWorld.getComm((String)ips.get(0), "rmi", 4325, "dc");
-			}
-			else
-				throw new BitDewException("There is not ip for that md5 ! ");
-			bitdew = new BitDew(dc,dr,dt,ds);
-			download(results,nu);
-		} catch (BitDewException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ModuleLoaderException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    /**
+     * BitDew API
+     */
+    private BitDew bitdew;
 
+    /**
+     * Transfer Manager API
+     */
+    private TransferManager tm;
+
+    /**
+     * Catalog service
+     */
+    private InterfaceRMIdc dc;
+
+    /**
+     * Transfer service
+     */
+    private InterfaceRMIdt dt;
+
+    /**
+     * Repository service
+     */
+    private InterfaceRMIdr dr;
+
+    /**
+     * Scheduler service
+     */
+    private InterfaceRMIds ds;
+
+    /**
+     * Machine local address constant
+     */
+    private String LOCAL_ADDRESS;
+
+    private Logger log = LoggerFactory.getLogger("P2PClient");
+
+    /**
+     * Class constructor, initialize services and API
+     * 
+     * @param bootstrap
+     */
+    public P2PClient(String bootstrap) {
+
+	try {
+	    LOCAL_ADDRESS = InetAddress.getLocalHost().getHostAddress();
+	    // starting bitdew services
+	    dc = (InterfaceRMIdc) ComWorld
+		    .getComm(bootstrap, "rmi", 4325, "dc");
+	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,
+		    "dt");
+	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,
+		    "ds");
+	    // starting bitdew API
+	    tm = new TransferManager(dt);
+	    bitdew = new BitDew(dc, dr, dt, ds);
+	    tm.start();
+	} catch (ModuleLoaderException e) {
+	    e.printStackTrace();
+	} catch (UnknownHostException e) {
+	    e.printStackTrace();
 	}
-	
-	/**
-	 * 
-	 * @param songname
-	 * @param num
-	 */
-	public void download(List songname,int num) {
-		try {
-		SongBitdew sbd = (SongBitdew)songname.get(num-1);
-		File file = new File(sbd.getFilename());
-		String md5 = sbd.getMd5();
-		System.out.println("md5 ids " + md5);
-		Data d = bitdew.getDataFromMd5(md5);	
-		d.setoob("http");
-		OOBTransfer oob;		
-		oob = bitdew.get(d,file);
-		tm.registerTransfer(oob);
-		tm.waitFor(d);
-		System.out.println("File : " + sbd.getFilename() +" was successfully downloaded ");
-		} catch (BitDewException e) {
-			e.printStackTrace();
-		} catch (TransferManagerException e) {
-			e.printStackTrace();
-		}
+    }
+
+    /**
+     * Main method ,
+     * 
+     * @param args
+     *            program arguments : args[0] bootstrapnode , args[1] term to
+     *            search (if get)
+     */
+    public static void main(String[] args) {
+	P2PClient p2p = new P2PClient(args[0]);
+	p2p.get(args[1]);
+    }
+
+    /**
+     * After a song list is shown in console client, this method receive the
+     * song number the user has entered
+     * 
+     * @return the number the user has entered
+     */
+    public int readInput() {
+	BufferedReader stdIn = new BufferedReader(new InputStreamReader(
+		System.in));
+	String number;
+	try {
+	    number = stdIn.readLine();
+	    int nu = Integer.parseInt(number);
+	    return nu;
+	} catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
+	return -1;
+
+    }
+
+    /**
+     * Search for a specific term on the P2P network
+     * 
+     * @param term
+     *            the term to look for
+     */
+    public void get(String term) {
+	try {
+	    log.info("Search for songs artist or title : ");
+	    BufferedReader stdIn = null;
+	    List results;
+	    results = bitdew.ddcSearch(term);
+	    log.info("the value of results is " + results + " and the size is "
+		    + results.size());
+	    // iterate and print the results
+	    for (int i = 1; i <= results.size(); i++) {
+		SongBitdew sbd = (SongBitdew) results.get(i - 1);
+		log.info(" Results for your query : " + i + ". "
+			+ sbd.getFilename() + " md5 is " + sbd.getMd5());
+	    }
+	    log.info("Please write the song number you wish to download : ");
+	    int nu = readInput();
+	    String md5 = ((SongBitdew) results.get(nu - 1)).getMd5();
+
+	    download(((SongBitdew) results.get(nu - 1)).getFilename(), md5);
+	} catch (BitDewException e) {
+	    e.printStackTrace();
+	}
+
+    }
+
+    /**
+     * Download a song from the P2P network
+     * 
+     * @param songname
+     *            the song name
+     * @param md5
+     *            the song signature signature
+     */
+    public void download(String songname, String md5) {
+	try {
+	    // first get the ip list of the machines having this song
+	    List ips = bitdew.ddcSearch(md5);
+	    for (int i = 0; i < ips.size(); i++) {
+		log.info("IP  " + i + " is" + ips.get(i));
+	    }
+	    // create references to dr and dc on one machine having the song
+	    if (ips != null && ips.size() != 0) {
+		dr = (InterfaceRMIdr) ComWorld.getComm((String) ips.get(0),
+			"rmi", 4325, "dr");
+		dc = (InterfaceRMIdc) ComWorld.getComm((String) ips.get(0),
+			"rmi", 4325, "dc");
+	    } else
+		throw new BitDewException("There is not ip for that md5 ! ");
+	    // Create a bitdew API and begin download.
+	    bitdew = new BitDew(dc, dr, dt, ds);
+	    File file = new File(songname);
+	    Data d = bitdew.getDataFromMd5(md5);
+	    d.setoob("http");
+	    OOBTransfer oob;
+	    oob = bitdew.get(d, file);
+	    tm.registerTransfer(oob);
+	    tm.waitFor(d);
+	    log.info("File : " + songname + " was successfully downloaded ");
+	} catch (BitDewException e) {
+	    e.printStackTrace();
+	} catch (TransferManagerException e) {
+	    e.printStackTrace();
+	} catch (ModuleLoaderException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+    }
 }
