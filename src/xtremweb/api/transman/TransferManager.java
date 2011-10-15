@@ -15,6 +15,7 @@ import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.dc.*;
 import xtremweb.serv.dt.*;
+import xtremweb.serv.dt.amazonS3.AmazonS3Transfer;
 import xtremweb.serv.dt.dummy.DummyTransfer;
 import xtremweb.serv.dt.ftp.FtpTransfer;
 import xtremweb.serv.dt.http.HttpTransfer;
@@ -325,6 +326,8 @@ public class TransferManager {
 		return new DummyTransfer(d, t, rl, ll, rp, lp);
 	    if (rp.getname().toLowerCase().equals("scp"))
 		return new ScpTransfer(d, t, rl, ll, rp, lp);
+	    if (rp.getname().toLowerCase().equals("s3"))
+		return new AmazonS3Transfer(d, t, rl, ll, rp, lp);
 	} else if (rp.getname().toLowerCase().equals("local")) {
 	    if (lp.getname().toLowerCase().equals("ftp"))
 		return new FtpTransfer(d, t, rl, ll, rp, lp);
@@ -494,19 +497,18 @@ public class TransferManager {
 		    // check if transfer is complete
 		    try {
 			oob = getOOBTransfer(trans);
-			// FIXME gros bordel dans le sens du transfer
-			// TODO changer le if(!) en if()
 			log.debug("transfer type "
 				+ TransferType.toString(trans.gettype()));
 			if (trans.gettype() == TransferType.UNICAST_SEND_SENDER_SIDE)
 			    complete = dt.poolTransfer(trans.getuid());
-
 			if (trans.gettype() == TransferType.UNICAST_SEND_RECEIVER_SIDE)
 			    complete = oob.poolTransfer();
 			if (trans.gettype() == TransferType.UNICAST_RECEIVE_RECEIVER_SIDE)
 			    complete = oob.poolTransfer();
+			
 			if (trans.gettype() == TransferType.UNICAST_RECEIVE_SENDER_SIDE)
 			    complete = oob.poolTransfer();
+			
 
 			log.debug("Complete is !!!" + complete);
 			// Transfer is finished
