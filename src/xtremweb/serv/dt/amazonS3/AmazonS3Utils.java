@@ -20,11 +20,11 @@ package xtremweb.serv.dt.amazonS3;
 
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
-
-import org.jets3t.service.model.S3Bucket;
-import org.jets3t.service.security.AWSCredentials;
+import xtremweb.core.conf.ConfigurationException;
+import xtremweb.core.conf.ConfigurationProperties;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
 
 /**
  * Utilities used by all Sample code, collected in one place for convenience.
@@ -33,72 +33,74 @@ import org.jets3t.service.security.AWSCredentials;
  */
 public class AmazonS3Utils {
     
-    public static final String SAMPLES_PROPERTIES_NAME = "AmazonS3.properties";
-    public static final String AWS_ACCESS_KEY_PROPERTY_NAME = "awsAccessKey";
-    public static final String AWS_SECRET_KEY_PROPERTY_NAME = "awsSecretKey";
-    public static final String TEST_BUCKET_PROPERTY_NAME = "testbucketName";
+    /**
+     * Amazon S3 user key property
+     */
+    public static final String AWS_ACCESS_KEY_PROPERTY_NAME = "xtremweb.serv.dr.s3.key";
     
     /**
-     * Loads AWS Credentials from the file <tt>samples.properties</tt>
-     * ({@link #SAMPLES_PROPERTIES_NAME}) that must be available in the  
-     * classpath, and must contain settings <tt>awsAccessKey</tt> and 
-     * <tt>awsSecretKey</tt>.
-     * 
+     * Amazon S3 user secret property
+     */
+    public static final String AWS_SECRET_KEY_PROPERTY_NAME = "xtremweb.serv.dr.s3.secret";
+    
+    /**
+     * Amazon S3 bucketName property
+     */
+    public static final String BUCKET_PROPERTY_NAME = "xtremweb.serv.dr.s3.bucketName";
+    
+    /**
+     * Amazon S3 objectKey property
+     */
+    public static final String OBJECT_KEY_PROPERTY_NAME="xtremweb.serv.dr.s3.objectKey";
+    
+    /**
+     * Properties 
+     */
+    private Properties testProperties;
+    
+    /**
+     * Class constructor
+     */
+    public AmazonS3Utils () { 
+	try {
+	    testProperties = ConfigurationProperties.getProperties();
+	} catch (ConfigurationException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} 
+    }
+    
+    /**
+     * Loads AWS Credentials from the file properties.json that must be available in the  
+     * classpath, and must contain properties "xtremweb.serv.dr.s3.secret" "xtremweb.serv.dr.s3.key"
+     * "xtremweb.serv.dr.s3.bucketName" "xtremweb.serv.dr.s3.objectKey"
      * @return
      * the AWS credentials loaded from the samples properties file.
      */
-    public static AWSCredentials loadAWSCredentials() throws IOException {
-        InputStream propertiesIS = 
-            ClassLoader.getSystemResourceAsStream(SAMPLES_PROPERTIES_NAME);
-        
-        if (propertiesIS == null) {
-            throw new RuntimeException("Unable to load AmazonS3 properties file from classpath: " 
-                + SAMPLES_PROPERTIES_NAME);
-        }
-        
-        Properties testProperties = new Properties();        
-        testProperties.load(propertiesIS);
-        
-        if (!testProperties.containsKey(AWS_ACCESS_KEY_PROPERTY_NAME)) {
-            throw new RuntimeException(
-                "Properties file 'AmazonS3.properties' does not contain required property: " + AWS_ACCESS_KEY_PROPERTY_NAME); 
-        }        
-        if (!testProperties.containsKey(AWS_SECRET_KEY_PROPERTY_NAME)) {
-            throw new RuntimeException(
-                "Properties file 'AmazonS3.properties' does not contain required property: " + AWS_SECRET_KEY_PROPERTY_NAME); 
-        }
-        
-        AWSCredentials awsCredentials = new AWSCredentials(
+    public AWSCredentials loadAWSCredentials() throws IOException {
+        BasicAWSCredentials awsCredentials = new BasicAWSCredentials(
             testProperties.getProperty(AWS_ACCESS_KEY_PROPERTY_NAME),
-            testProperties.getProperty(AWS_SECRET_KEY_PROPERTY_NAME));
-        
+            testProperties.getProperty(AWS_SECRET_KEY_PROPERTY_NAME));  
         return awsCredentials;        
     }
     
-    public static S3Bucket loadS3Bucket()  throws IOException {
-        InputStream propertiesIS = 
-            ClassLoader.getSystemResourceAsStream(SAMPLES_PROPERTIES_NAME);
-        
-        if (propertiesIS == null) {
-            throw new RuntimeException("Unable to load AmazonS3 properties file from classpath: " 
-                + SAMPLES_PROPERTIES_NAME);
-        }
-        
-        Properties testProperties = new Properties();        
-        testProperties.load(propertiesIS);
-        
-        if (!testProperties.containsKey(AWS_ACCESS_KEY_PROPERTY_NAME)) {
-            throw new RuntimeException(
-                "Properties file 'AmazonS3.properties' does not contain required property: " + AWS_ACCESS_KEY_PROPERTY_NAME); 
-        }        
-        if (!testProperties.containsKey(AWS_SECRET_KEY_PROPERTY_NAME)) {
-            throw new RuntimeException(
-                "Properties file 'AmazonS3.properties' does not contain required property: " + AWS_SECRET_KEY_PROPERTY_NAME); 
-        }
-        
-        S3Bucket testbucket = new S3Bucket(testProperties.getProperty(TEST_BUCKET_PROPERTY_NAME));
-        
-        return testbucket;        
+    /**
+     * get Bucket name
+     * @return the bucket name
+     * @throws IOException
+     */
+    public String loadS3Bucket()  throws IOException {
+       String testbucket = testProperties.getProperty(BUCKET_PROPERTY_NAME);
+       return testbucket;        
+    }
+    
+    /**
+     * Get object key
+     * @return the object key
+     */
+    public String loadObjectKey() {
+	String objectkey = testProperties.getProperty(OBJECT_KEY_PROPERTY_NAME);
+	return objectkey;
     }
 
 }
