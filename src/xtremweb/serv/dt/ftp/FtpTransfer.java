@@ -89,7 +89,7 @@ public class FtpTransfer extends BlockingOOBTransferImpl implements
 					local_locator.getref()));
 			ftp.setFileType(FTP.BINARY_FILE_TYPE);
 			if (!ftp.storeFile(remote_locator.getref(), is)) {
-				log.debug("Upload Error");
+				log.debug("Upload Error " + ftp.getReplyString());
 			} else {
 				log.debug("Upload Success");
 			} // end of else
