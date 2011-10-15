@@ -11,6 +11,8 @@ package xtremweb.serv.dc;
  */
 import java.rmi.*;
 import xtremweb.core.com.idl.*;
+import xtremweb.core.conf.ConfigurationException;
+import xtremweb.core.conf.ConfigurationProperties;
 import xtremweb.core.iface.*;
 import xtremweb.core.obj.dc.*;
 import xtremweb.core.log.*;
@@ -24,8 +26,7 @@ import xtremweb.serv.dc.ddc.*;
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
-import javax.jdo.PersistenceManager;
-import javax.jdo.Transaction;
+import java.util.Properties;
 import java.util.Vector;
 
 /**
@@ -51,12 +52,18 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
      */
     public Callbackdc() {
 	try {
-		dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
-	    ddc = DistributedDataCatalogFactory.getDistributedDataCatalog();
-	    ddc.start();
+	    dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+	    Properties props = ConfigurationProperties.getProperties();
+	    boolean onddc = Boolean.parseBoolean(props.getProperty("xtremweb.serv.dc.ddc"));
+	    if(onddc)
+	    {	ddc = DistributedDataCatalogFactory.getDistributedDataCatalog();
+	    	ddc.start();
+	    }
 	} catch (DDCException ddce) {
 	    log.warn("unable to start a Distributed Data Catalog service");
 	    ddc = null;
+	} catch (ConfigurationException e) {
+	    e.printStackTrace();
 	}
 	log.info("Started DHT service for distributed data catalog");
     } // Callbackobj constructor
