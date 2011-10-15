@@ -16,22 +16,13 @@ import xtremweb.core.iface.*;
 import xtremweb.core.obj.dc.*;
 import xtremweb.core.obj.dr.*;
 import xtremweb.serv.dc.*;
-import xtremweb.core.uid.*;
 import xtremweb.core.conf.*;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 import xtremweb.dao.DaoFactory;
 import xtremweb.dao.protocol.DaoProtocol;
-
-import java.util.*;
 import java.io.File;
-
-import java.util.Collection;
 import java.util.Iterator;
-import javax.jdo.PersistenceManager;
-import javax.jdo.Extent;
-import javax.jdo.Query;
-import javax.jdo.Transaction;
 import java.util.Properties;
 
 /**
@@ -97,7 +88,6 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 				"xtremweb.serv.dr.ftp.path", "pub/incoming"));
 			registerProtocol(protocol);
 		    }
-
 		    if (protoName.equals("http")) {
 			log.debug("Setting HTTP protocol from the configuration file");
 			// TODO: we should get this from the embedded web server
@@ -123,6 +113,12 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 			log.debug("Setting Dummy protocol from the configuration file");
 			protocol.setpath(mainprop.getProperty(
 				"xtremweb.serv.dr.dummy.path", "."));
+			registerProtocol(protocol);
+		    }
+		    if (protoName.equals("s3")){
+			protocol.setlogin(mainprop.getProperty("xtremweb.serv.dr.s3.key"));
+			protocol.setpassword(mainprop.getProperty("xtremweb.serv.dr.s3.key"));
+			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.s3.bucketName"));
 			registerProtocol(protocol);
 		    }
 		    if (protoName.equals("scp")) {
