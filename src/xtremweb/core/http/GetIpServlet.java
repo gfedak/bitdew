@@ -3,7 +3,10 @@ package xtremweb.core.http;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -52,7 +55,10 @@ public class GetIpServlet extends HttpServlet {
      * Logger
      */
     protected Logger log = LoggerFactory.getLogger("P2PServlet");
-
+    
+    /**
+     * Class constructor
+     */
     public GetIpServlet() {
 	try {
 
@@ -73,32 +79,40 @@ public class GetIpServlet extends HttpServlet {
 	    e.printStackTrace();
 	}
     }
-
+    
+    /**
+     * Retrieves a http response with the IP's having a given md5 signature
+     */
     public void doGet(HttpServletRequest request, HttpServletResponse response)
 	    throws ServletException, IOException {
 	String md5 = request.getParameter("md5");
 	List ips;
 	try {
 	    ips = bd.ddcSearch(md5);
-
+	    HashSet s= new HashSet();
+	    s.addAll(ips);
 	    String responsexml = "<html><head></head><body><center><h3>Results found for : "
 		    + md5 + "</h3><table border=\"1\"><tr><td>Ip</td></tr>";
-	    for (int i = 0; i < ips.size(); i++) {
-		responsexml += "<tr><td>" + ips.get(i) + "</td></tr>";
+	   
+	    for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+		String object = (String) iterator.next();
+		responsexml += "<tr><td>" +object + "</td></tr>";
 	    }
+	 
 	    responsexml += "</table></center></body></html>";
 	    response.getWriter().println(responsexml);
 	    response.setContentType("text/html");
 	    response.setStatus(HttpServletResponse.SC_OK);
 	} catch (BitDewException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
     }
-
+    
+    /**
+     * For the moment this method do nothing
+     */
     public void doPost(HttpServletRequest request, HttpServletResponse response)
 	    throws ServletException, IOException {
-
     }
 
 }
