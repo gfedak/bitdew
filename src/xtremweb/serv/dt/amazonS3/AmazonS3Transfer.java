@@ -10,196 +10,150 @@ import xtremweb.core.obj.dc.Locator;
 import xtremweb.api.transman.*;
 
 import java.io.*;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 
-
-import org.jets3t.service.Constants;
-import org.jets3t.service.S3Service;
-import org.jets3t.service.S3ServiceException;
-import org.jets3t.service.acl.AccessControlList;
-import org.jets3t.service.acl.CanonicalGrantee;
-import org.jets3t.service.acl.EmailAddressGrantee;
-import org.jets3t.service.acl.GroupGrantee;
-import org.jets3t.service.acl.Permission;
-import org.jets3t.service.impl.rest.httpclient.RestS3Service;
-import org.jets3t.service.model.S3Bucket;
-import org.jets3t.service.model.S3Object;
-import org.jets3t.service.multithread.DownloadPackage;
-import org.jets3t.service.multithread.S3ServiceSimpleMulti;
-import org.jets3t.service.security.AWSCredentials;
-
+/**
+ * This class implements a file transfer using the amazon S3 protocol
+ * @author josefrancisco
+ *
+ */
 public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
-		BlockingOOBTransfer, OOBTransfer {
-	protected static Logger log = LoggerFactory.getLogger(AmazonS3Transfer.class);    
-	public S3Service s3Service;
-	public S3Bucket testBucket;
-	
-	
-	
-/*	try{	
-		testBucket = AmazonS3Utils.loadS3Bucket();
-	
-	}catch (IOException e){
-		e.printStackTrace();
-	}	*/
-	
-	
+	BlockingOOBTransfer, OOBTransfer {
 
+    protected static Logger log = LoggerFactory.getLogger(AmazonS3Transfer.class);
+    
+    /**
+     * Amazon S3 api
+     */
+    private AmazonS3 s3;
+    
+    /**
+     * Helper class to delegate some tasks
+     */
+    private AmazonS3Utils s3utils;
+    
+    /**
+     * Amazon S3 bucket name
+     */
+    private String bucketName;
+    
+    /**
+     * Amazon S3 object key
+     */
+    private String objectKey;
+    
+    /**
+     * Class constructor
+     * @param d
+     * @param t
+     * @param rl
+     * @param ll
+     * @param rp
+     * @param lp
+     */
+    public AmazonS3Transfer(Data d, Transfer t, Locator rl, Locator ll,
+	    Protocol rp, Protocol lp) {
+	super(d, t, rl, ll, rp, lp);
+	transfer.setoob(this.getClass().toString());
+    }
+    
+    /**
+     * Converts the Amazon S3 protocol to string
+     * @return
+     */
+    public String amazons3toString() {
+	return "amazons3://[" + remote_protocol.getlogin() + ":"
+		+ remote_protocol.getpassword() + "]@"
+		+ remote_protocol.getserver() + ":" + remote_protocol.getport();
+    }
+    
+    /**
+     * Connect to amazon S3 cloud
+     */
+    public void connect() throws OOBException {
+	log.info("connect " + amazons3toString());
 
-	public AmazonS3Transfer(Data d, Transfer t, Locator rl, Locator ll,
-			Protocol rp, Protocol lp) {
-		super(d, t, rl, ll, rp, lp);
-		transfer.setoob(this.getClass().toString());
+	try {
+	    s3utils = new AmazonS3Utils();
+	    s3 = new AmazonS3Client(s3utils.loadAWSCredentials());
+	    bucketName = s3utils.loadS3Bucket();
+	    objectKey = s3utils.loadObjectKey();
+	} catch (Exception e) {
+	    log.info("" + e);
+	    throw new OOBException("AmazonS3 Cannot connect"
+		    + amazons3toString());
 	}
-	
-
-	public String amazons3toString() {
-		return "amazons3://[" + remote_protocol.getlogin() + ":"
-				+ remote_protocol.getpassword() + "]@"
-				+ remote_protocol.getserver() + ":" + remote_protocol.getport();
+    }
+    
+    /**
+     * Performs a send action on the sender side
+     */
+    public void blockingSendSenderSide() throws OOBException {
+	try {
+	    log.info("blocking send sender side ");
+	    s3.createBucket(bucketName);
+	    File file = new File(local_locator.getref());
+	    log.info("Uploading a new object to S3 from a file\n");
+	    s3.putObject(new PutObjectRequest(bucketName, objectKey, file));
+	} catch (Exception e) {
+	    log.debug(" an exception has occured sendsender on amazonS3");
+	    throw new OOBException(
+		    "A problem has occured in blockingSendSenderSide of AmazonS3 transfer"
+			    + e.getMessage());
 	}
-
-	public void connect() throws OOBException {
-		log.info("connect " + amazons3toString());
-
-		try {
-			AWSCredentials awsCredentials = AmazonS3Utils.loadAWSCredentials();
-			s3Service = new RestS3Service(awsCredentials);
-			testBucket = AmazonS3Utils.loadS3Bucket();
-		} catch (Exception e) {
-			log.info("" + e);
-			throw new OOBException("AmazonS3 Cannot connect"
-					+ amazons3toString());
-		}
-	}
-
-	public void blockingSendSenderSide() throws OOBException {
-		try {
-
-			File fileData = new File(local_locator.getref());
-			S3Object fileObject = new S3Object(testBucket, fileData);
-			s3Service.putObject(testBucket, fileObject);
-
-		} catch (Exception e) {
-			log.info("Error" + e);
-			throw new OOBException("AmazonS3 errors when sending  "
-					+ amazons3toString() + "/" + remote_locator.getref());
-		} // end of try-catch
-	}
-	   public void blockingSendReceiverSide   () throws OOBException {
+    }
+    
+    /**
+     * Performs a receive action on sender side
+     */
+    public void blockingSendReceiverSide() throws OOBException {
+    }
+    
+    /**
+     * Tells is transfer has finished
+     */
+    public boolean poolTransfer() {
+	return !isTransfering();
+    }
+    
+    /**
+     * Performs a receive action on receiver side
+     */
+    public void blockingReceiveReceiverSide() throws OOBException {
+	int line;
+	S3Object object = s3.getObject(new GetObjectRequest(bucketName,
+		objectKey));
+	log.info("Content-Type: " + object.getObjectMetadata().getContentType());
+	BufferedReader reader = new BufferedReader(new InputStreamReader(
+		object.getObjectContent()));
+	try {
+	    BufferedWriter writer = new BufferedWriter(new FileWriter(new File(local_locator.getref())));
+	    while ((line = reader.read())!=-1) {
+		writer.write(line);
+		log.debug("    " + line);
 	    }
-	   public void blockingReceiveReceiverSide() throws OOBException  {
-			log.info("start receive receiver size");
-			try {
-				
-				S3Object objectComplete = s3Service.getObject(testBucket, remote_locator.getref());
-				
-				String outputfilename=local_locator.getref();
-						
-				log.info("going to get " + remote_locator.getref() + "to " + local_locator.getref() );
-		     BufferedReader reader = new BufferedReader(
-			          new InputStreamReader(objectComplete.getDataInputStream()));
-		     BufferedWriter writer = new BufferedWriter(
-			          new OutputStreamWriter(new FileOutputStream(outputfilename)));
-			    int data,count=0;	
-			    while ((data = reader.read())!=-1) {
-		        writer.write(data);
-                 count++;
-			    }
+	    writer.close();
+	} catch (IOException e) {
+	    throw new OOBException(
+		    "A problem has occured in blockingReceiveReceiverSide of AmazonS3 transfer "
+			    + e.getMessage());
+	}
+    }
+    
+    /**
+     * Performs a receive action on the sender side
+     */
+    public void blockingReceiveSenderSide() throws OOBException {
+    }
+    
+    /**
+     * Disconnect from Amazon S3 transfer.
+     */
+    public void disconnect() throws OOBException {
 
-			     reader.close();
-				 writer.close();
-				 log.info("count="+count);
-				} catch (Exception e) {
-			    log.info("Error" + e);
-			    throw new OOBException("AmazonS3 errors when receiving receive " + amazons3toString() + "/" + remote_locator.getref() );
-			} // end of try-catch
-			
-			log.info("FIN du transfer");
-		    }
-	   
-	   public void blockingReceiveSenderSide() throws OOBException  {
-	    }
-
-	   public void disconnect() throws OOBException {
-
-		
-	    }
-
-	    public static void main(String [] args) {
-	    	//IT4S BROKEN
-	    	String localfile,remotefile;
-	    	
-//	    	if (args.length<2) System.exit(0);
-	    	
-	    	remotefile="testamazon";
-	    	localfile="testamazon_copy";
-	    	
-	    	Data data = new Data();
-
-	    	//Preparer le local
-	    	Protocol local_proto = new Protocol();
-	    	local_proto.setname("local");
-
-	    	Locator local_locator = new Locator();
-	    	local_locator.setdatauid(data.getuid());
-	    	local_locator.setdrname("localhost");
-	    	local_locator.setprotocoluid(local_proto.getuid());
-	    	local_locator.setref("/tmp/testamazon");
-
-	    	// Preparer le proto pour l'acces remote
-	    	Protocol remote_proto = new Protocol();
-	    	remote_proto.setserver("localhost");
-	    	remote_proto.setname("amazons3");
-	    	remote_proto.setpath("incoming");
-	    	remote_proto.setport(6767);
-	    	remote_proto.setlogin("anonymous");
-	    	remote_proto.setpassword("fedak@lri.fr");
-
-	    	Locator remote_locator = new Locator();
-	    	remote_locator.setdatauid(data.getuid());
-	    	remote_locator.setdrname("localhost");
-	    	remote_locator.setprotocoluid(remote_proto.getuid());
-	    	remote_locator.setref("testamazon");
-	    	
-
-	    	//prepar
-	    	Transfer t = new Transfer();
-	    	t.setlocatorremote(remote_locator.getuid());
-	    	t.setlocatorlocal(local_locator.getuid());
-	    	
-	    	//	Data data = DataUtil.fileToData(file);
-	    	
-	    	AmazonS3Transfer amazons3 = new AmazonS3Transfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
-
-	    	
-	    	
-/*   	t.settype(TransferType.UNICAST_SEND_SENDER_SIDE);
-
-
-	    	try {
-	    		amazons3.connect();	    
-	    		amazons3.sendSenderSide();
-	    		amazons3.disconnect();
-	    	} catch(OOBException oobe) {
-	    	    System.out.println(oobe);
-	    	}*/
-	    	
-	    	remote_locator.setref(remotefile);
-//	    	remote_locator.setpath("/tmp");
-	    	local_locator.setref(localfile);
-
-	    	t.settype(TransferType.UNICAST_RECEIVE_RECEIVER_SIDE);
-	        amazons3= new AmazonS3Transfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
-	    	
-	    	try {
-	    		amazons3.connect();	    
-	    		amazons3.receiveReceiverSide();
-	    		amazons3.disconnect();
-	    	} catch(OOBException oobe) {
-	    	    System.out.println(oobe);
-	    	}
-
-	    	
-	        }
+    }
 }
-
