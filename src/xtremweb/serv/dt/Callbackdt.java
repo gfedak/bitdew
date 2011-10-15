@@ -169,7 +169,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 		    + rl.getdrname() + ":" + rp.getport() + "/" + rp.getpath()
 		    + "/" + rl.getref() + "\n" + oobt);
 
-	  // tm.registerTransfer(oobt);
+	  //tm.registerTransfer(oobt);
 	} catch (OOBException e) {
 	    log.debug("Exception when registring oob transfer " + e);
 	    throw new RemoteException();

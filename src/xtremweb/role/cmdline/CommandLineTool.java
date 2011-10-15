@@ -16,7 +16,6 @@ import xtremweb.serv.dc.*;
 import xtremweb.serv.ds.*;
 import xtremweb.core.iface.*;
 import xtremweb.core.log.*;
-import xtremweb.core.com.com.*;
 import xtremweb.core.com.idl.*;
 import xtremweb.core.serv.*;
 import xtremweb.role.ui.*;
@@ -25,24 +24,19 @@ import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dc.Locator;
 import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.ds.Attribute;
-import xtremweb.serv.ds.AttributeType;
 import xtremweb.serv.dt.OOBException;
 import xtremweb.serv.dt.OOBTransfer;
 import xtremweb.serv.dt.OOBTransferFactory;
-import xtremweb.core.http.*;
 import xtremweb.gen.service.GenService;
 
 import java.io.*;
 
 import jargs.gnu.CmdLineParser;
-import jargs.gnu.CmdLineParser.IllegalOptionValueException;
-import jargs.gnu.CmdLineParser.UnknownOptionException;
+
 
 import java.util.Vector;
 import java.util.ArrayList;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
@@ -737,7 +731,7 @@ public class CommandLineTool {
 			usage.section("File:");
 			usage.option("put file_name [dataId]",
 							"copy a file in the data space. If dataId is not specified, a new data will be created from the file.");
-			usage.option("get dataId [file_name]", "get the file from dataId.");
+			usage.option("get dataId bitdew_id protocol [file_name]", "get the file from dataId.");
 			usage.ln();
 			break;
 		case SHORT:
