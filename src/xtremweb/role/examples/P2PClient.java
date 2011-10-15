@@ -21,7 +21,6 @@ import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.role.examples.obj.SongBitdew;
-import xtremweb.serv.dc.DataUtil;
 import xtremweb.serv.dt.OOBTransfer;
 
 /**
@@ -81,13 +80,10 @@ public class P2PClient {
 	try {
 	    BOOTSTRAP = bootstrap;
 	    LOCAL_ADDRESS = InetAddress.getLocalHost().getHostAddress();
-	    // starting bitdew services
-	    dc = (InterfaceRMIdc) ComWorld
-		    .getComm(bootstrap, "rmi", 4325, "dc");
-	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,
-		    "dt");
-	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,
-		    "ds");
+	    // we build bitdew services dc dt and ds, dc will reference the DHT
+	    dc = (InterfaceRMIdc) ComWorld.getComm(bootstrap, "rmi", 4325, "dc");
+	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"dt");
+	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"ds");
 	    // starting bitdew API
 	    tm = new TransferManager(dt);
 	    bitdew = new BitDew(dc, dr, dt, ds);
@@ -174,12 +170,12 @@ public class P2PClient {
      */
     public void download(String songname, String md5) {
 	try {
-	    // first get the ip list of the machines having this song
+	    // first retrieve the ip list of the machines having file names
+	    //signatures md5
 	    List ips = bitdew.ddcSearch(md5);
-	    for (int i = 0; i < ips.size(); i++) {
-		log.info("IP  " + i + " is" + ips.get(i));
-	    }
-	    // create references to dr and dc on one machine having the song
+	   
+	    // Once we have an ip of a machine having that md5sum, we are able to begin the download,
+	    // but first we need to contact the machine catalog and repository
 	    if (ips != null && ips.size() != 0) {
 		dr = (InterfaceRMIdr) ComWorld.getComm((String) ips.get(0),
 			"rmi", 4325, "dr");
@@ -187,12 +183,14 @@ public class P2PClient {
 			"rmi", 4325, "dc");
 	    } else
 		throw new BitDewException("There is not ip for that md5 ! ");
-	    // Create a bitdew API and begin download.
+	    // Then we create a bitdew API
 	    bitdew = new BitDew(dc, dr, dt, ds);
 	    File file = new File(songname);
+	    //getDataFromMd5 method help us to retrieve the correct data
 	    Data d = bitdew.getDataFromMd5(md5);
 	    d.setoob("http");
 	    OOBTransfer oob;
+	    //download begins
 	    oob = bitdew.get(d, file);
 	    tm.registerTransfer(oob);
 	    tm.waitFor(d);
@@ -206,31 +204,32 @@ public class P2PClient {
 	    e.printStackTrace();
 	}
     }
-
+    
+    /**
+     * This method share the new downloaded file once a download has finished.
+     * @param song file name
+     * @param md5 the md5 cheksum
+     */
     public void republish(String song,String md5) {
 	try {
-	    dc = (InterfaceRMIdc) ComWorld
-		    .getComm(BOOTSTRAP, "rmi", 4325, "dc");
-
-	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,
-		    "dt");
-	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,
-		    "ds");
-	    dr = (InterfaceRMIdr) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,
-		    "dr");
+	    //We are going to publish the new downloaded song in the DHT, so we need to 
+	    //build a reference to the distributed data catalog on the bootstrap node.
+	    dc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP, "rmi", 4325, "dc");
+	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"dt");
+	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"ds");
+	    dr = (InterfaceRMIdr) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"dr");
 	    bitdew = new BitDew(dc, dr, dt, ds);
 	    String[] toks = song.split("[\\s\\._-]");
-
+	    //We split the file name in every term composing it, and we index the song name
+	    //according to these terms, then we index the md5 too, in order to find the IP address
 	    for (int i = 0; i < toks.length; i++) {
 		SongBitdew sb = new SongBitdew(song,md5);
 		bitdew.ddcPublish(toks[i], sb);
 		bitdew.ddcPublish(md5, LOCAL_ADDRESS);
 	    }
 	} catch (ModuleLoaderException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	} catch (BitDewException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
     }
