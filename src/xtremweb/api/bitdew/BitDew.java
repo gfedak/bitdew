@@ -1,11 +1,14 @@
 package xtremweb.api.bitdew;
 
 import java.util.List;
+import java.util.Properties;
+
 import xtremweb.role.cmdline.CommandLineToolHelper;
 import xtremweb.serv.dc.*;
 import xtremweb.core.iface.*;
 import xtremweb.core.log.*;
 import xtremweb.core.com.idl.*;
+import xtremweb.core.conf.ConfigurationProperties;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.DataChunk;
 import xtremweb.core.obj.dc.DataCollection;
@@ -93,11 +96,15 @@ public class BitDew {
     private void init() {
 
 	try {
-	    ddc = DistributedDataCatalogFactory.getDistributedDataCatalog();
-	    String entryPoint = idc.getDDCEntryPoint();
-	    if (entryPoint != null) {
-		ddc.join(entryPoint);
-		System.out.println("Started DHT service for distributed data catalog [entryPoint:"+ entryPoint + "]");
+	    Properties props = ConfigurationProperties.getProperties();
+	    boolean onddc = Boolean.parseBoolean(props.getProperty("xtremweb.serv.dc.ddc"));
+	    if(onddc){
+		ddc = DistributedDataCatalogFactory.getDistributedDataCatalog();
+		String entryPoint = idc.getDDCEntryPoint();
+		if (entryPoint != null) {
+		    ddc.join(entryPoint);
+		    System.out.println("Started DHT service for distributed data catalog [entryPoint:"+ entryPoint + "]");
+		}
 	    }
 	} catch (Exception ddce) {
 	    log.warn("unable to start a Distributed Data Catalog service");
@@ -579,7 +586,7 @@ public class BitDew {
 	remote_locator.setprotocoluid(remote_proto.getuid());
 
 	try {
-	    remote_locator.setref(idr.getRef("" + data.getuid()));
+	    remote_locator.setref(idr.getRef(data.getuid()));
 	    log.debug("Remote_reference fetched : " + remote_locator.getref());
 	} catch (RemoteException re) {
 	    log.debug("Cannot find a protocol ftp " + re);
