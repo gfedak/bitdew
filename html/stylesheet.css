@@ -1,0 +1,14 @@
+fieldset{
+		width:750px;
+		margin:auto;
+		border: 1px solid #CAE8EA;
+		color: #CAE8EA;
+		padding:3px;
+	}
+	
+legend {
+		font-weight:bold;
+		color:#000000;
+		background-color:#CAE8EA;
+		border: 1px solid #000000;
+	}
