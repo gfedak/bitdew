@@ -13,11 +13,11 @@ offset = ARGV[1].to_i
 #how many files will be send to a host
 filesperhost = ARGV[2].to_i
 
-File.open('/home/jsaray/nodelist','w') do |f|
-  allhosts[0..offset].each{|line|
-     f.write(line)
-}
-end
+#File.open('/home/jsaray/nodelist','w') do |f|
+#  allhosts[0..offset].each{|line|
+#     f.write(line)
+#}
+#end
 
 if File.exists? "/home/jsaray/nodelist" then
 else
@@ -33,16 +33,16 @@ arr = nodes[1,(nodes.length-1)]
 puts "centralnode is " + centralnode
 killjava = %x(taktuk -d-1 -f nodelist broadcast exec { killall java })
 output = %x(taktuk -d-1 -f nodelist broadcast exec { 'rm -rf *'  })
-
 mkdir = %x(taktuk -d-1 -f nodelist broadcast exec { mkdir songs })
 puts mkdir
 #the executable code is sent to different peers
-%x(taktuk -d-1 -f nodelist broadcast put { /home/jsaray/bitdewp2pn.jar } { /home/jsaray/bitdewp2pn.jar })
+#%x(taktuk -d-1 -f nodelist broadcast put { /home/jsaray/bitdewp2pn.jar } { /home/jsaray/bitdewp2pn.jar })
 %x(taktuk -d-1 -f nodelist broadcast put { /home/jsaray/bitdew-stand-alone-0.2.7.jar } { /home/jsaray/bitdew-stand-alone-0.2.7.jar })
+%x(taktuk -d-1 -f nodelist broadcast put { /home/jsaray/properties.json } { /home/jsaray/properties.json })
 centralnode = centralnode.slice(/[^\n]*/)
 #services are started on central node, special attention is dc, which contains a ddc and the DHT 
 Net::SSH.start(centralnode,"jsaray") do |ssh|
-  ssh.exec "java -cp bitdewp2pn.jar:bitdew-stand-alone-0.2.7.jar xtremweb.role.cmdline.CommandLineTool serv dc dt ds dr > /home/jsaray/servout"+centralnode+" 2> /home/jsaray/serverr"+centralnode+" &"
+  ssh.exec "java -cp bitdew-stand-alone-0.2.7.jar xtremweb.role.cmdline.CommandLineTool serv dc dt ds dr > /home/jsaray/servout"+centralnode+" 2> /home/jsaray/serverr"+centralnode+" &"
 end
 puts "Waiting for services launching"
 sleep(7)
@@ -55,10 +55,14 @@ posi = 2
 #the files on directory are sent in blocks of signaled by variable filesperhost
 arr.each{|line|   
     line = line.slice(/[^\n]*/)
-Net::SSH.start(line,"jsaray")do |ssh|
-        ssh.exec "java -cp bitdewp2pn.jar:bitdew-stand-alone-0.2.7.jar xtremweb.role.cmdline.CommandLineTool serv dt dr ds dc > /home/jsaray/repout 2> /home/jsaray/repoerr &"
-        end
+    
+
+    Net::SSH.start(line,"jsaray") do |ssh|
+        ssh.exec "nohup java -jar bitdew-stand-alone-0.2.7.jar serv dc dt dr ds > /home/jsaray/outserv" + line + " 2> /home/jsaray/errserv" + line + " &"
+    end
     sleep(3)
+
+
     allfiles[posi..posi+filesperhost-1].each{|file|        
         puts "sending file " + file +" to host " + line
 	IO.popen("scp \"" +path+"/"+ file +  "\" " + line+":songs/")do|f|
@@ -74,7 +78,7 @@ arr = nodes[1,(nodes.length-1)]
          line = line.slice(/[^\n]*/)
          puts "Put on line " + line
          Net::SSH.start(line,"jsaray")do |ssh|
-         ssh.exec "nohup java -cp bitdew-stand-alone-0.2.7.jar:bitdewp2pn.jar xtremweb.role.examples.P2PSongs " + centralnode + " /home/jsaray/songs > /home/jsaray/out"+line+" 2> /home/jsaray/err"+line+" &"
+         ssh.exec "nohup java -cp bitdew-stand-alone-0.2.7.jar xtremweb.role.examples.P2PSongs properties.json " + centralnode + " /home/jsaray/songs > /home/jsaray/out"+line+" 2> /home/jsaray/err"+line+" &"
           end
 }
 puts "Waiting for Put called in all nodes"
