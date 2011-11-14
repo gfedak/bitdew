@@ -7,12 +7,16 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Properties;
+
 import xtremweb.api.bitdew.BitDew;
 import xtremweb.api.bitdew.BitDewException;
 import xtremweb.api.transman.TransferManager;
 import xtremweb.api.transman.TransferManagerException;
 import xtremweb.core.com.idl.ComWorld;
 import xtremweb.core.com.idl.ModuleLoaderException;
+import xtremweb.core.conf.ConfigurationException;
+import xtremweb.core.conf.ConfigurationProperties;
 import xtremweb.core.iface.InterfaceRMIdc;
 import xtremweb.core.iface.InterfaceRMIdr;
 import xtremweb.core.iface.InterfaceRMIds;
@@ -20,7 +24,6 @@ import xtremweb.core.iface.InterfaceRMIdt;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 import xtremweb.core.obj.dc.Data;
-import xtremweb.role.examples.obj.SongBitdew;
 import xtremweb.serv.dt.OOBTransfer;
 
 /**
@@ -75,13 +78,15 @@ public class P2PClient {
      * 
      * @param bootstrap
      */
-    public P2PClient(String bootstrap) {
+    public P2PClient() {
 
 	try {
-	    BOOTSTRAP = bootstrap;
+	    Properties props = ConfigurationProperties.getProperties();
+	    String bootstrap = props.getProperty("xtremweb.core.http.bootstrapNode");
+	    BOOTSTRAP = bootstrap != null ? bootstrap : InetAddress.getLocalHost().getHostAddress();
 	    LOCAL_ADDRESS = InetAddress.getLocalHost().getHostAddress();
 	    // we build bitdew services dc dt and ds, dc will reference the DHT
-	    dc = (InterfaceRMIdc) ComWorld.getComm(bootstrap, "rmi", 4325, "dc");
+	    dc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP, "rmi", 4325, "dc");
 	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"dt");
 	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"ds");
 	    // starting bitdew API
@@ -89,8 +94,10 @@ public class P2PClient {
 	    bitdew = new BitDew(dc, dr, dt, ds);
 	    tm.start();
 	} catch (ModuleLoaderException e) {
-	    e.printStackTrace();
+	    log.warn("All bitdew services could not be loaded, if you want to use BitDew API make sure you launch them before " + e.getMessage());
 	} catch (UnknownHostException e) {
+	    e.printStackTrace();
+	} catch (ConfigurationException e) {
 	    e.printStackTrace();
 	}
     }
@@ -103,7 +110,7 @@ public class P2PClient {
      *            search (if get)
      */
     public static void main(String[] args) {
-	P2PClient p2p = new P2PClient(args[0]);
+	P2PClient p2p = new P2PClient();
 	p2p.get(args[1]);
     }
 
@@ -145,15 +152,15 @@ public class P2PClient {
 		    + results.size());
 	    // iterate and print the results
 	    for (int i = 1; i <= results.size(); i++) {
-		SongBitdew sbd = (SongBitdew) results.get(i - 1);
+		Data sbd = (Data) results.get(i - 1);
 		log.info(" Results for your query : " + i + ". "
-			+ sbd.getFilename() + " md5 is " + sbd.getMd5());
+			+ sbd.getname() + " md5 is " + sbd.getchecksum());
 	    }
 	    log.info("Please write the song number you wish to download : ");
 	    int nu = readInput();
-	    String md5 = ((SongBitdew) results.get(nu - 1)).getMd5();
+	    String md5 = ((Data) results.get(nu - 1)).getchecksum();
 
-	    download(((SongBitdew) results.get(nu - 1)).getFilename(), md5);
+	    download(((Data) results.get(nu - 1)).getname(), md5);
 	} catch (BitDewException e) {
 	    e.printStackTrace();
 	}
@@ -223,7 +230,9 @@ public class P2PClient {
 	    //We split the file name in every term composing it, and we index the song name
 	    //according to these terms, then we index the md5 too, in order to find the IP address
 	    for (int i = 0; i < toks.length; i++) {
-		SongBitdew sb = new SongBitdew(song,md5);
+		Data sb = new Data();
+		sb.setname(song);
+		sb.setchecksum(md5);
 		bitdew.ddcPublish(toks[i], sb);
 		bitdew.ddcPublish(md5, LOCAL_ADDRESS);
 	    }
