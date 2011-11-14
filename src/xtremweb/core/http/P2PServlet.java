@@ -23,7 +23,7 @@ import xtremweb.core.iface.InterfaceRMIds;
 import xtremweb.core.iface.InterfaceRMIdt;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
-import xtremweb.role.examples.obj.SongBitdew;
+import xtremweb.core.obj.dc.Data;
 
 /**
  * This class builds a HTTP response with the list of songs matching a specific
@@ -72,9 +72,18 @@ public class P2PServlet extends HttpServlet {
      */
     public P2PServlet() {
 	try {
+	    Properties props = ConfigurationProperties.getProperties();
+	    String ssht = (String)props.getProperty("xtremweb.core.http.sshTunneling");
+	    String bootstrapnode = (String)props.getProperty("xtremweb.core.http.bootstrapNode");
+	    
+	    BOOTSTRAP_NODE =  (bootstrapnode != null) ? bootstrapnode : InetAddress.getLocalHost().getHostAddress() ;
+	    if (ssht!=null || ssht.equals("yes")) {
+		BOOTSTRAP_NODE = "localhost";
+	    }
 
 	    String LOCAL_ADDRESS = InetAddress.getLocalHost().getHostAddress();
-	    ddc = (InterfaceRMIdc) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325,
+	    
+	    ddc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP_NODE, "RMI", 4325,
 		    "dc");
 	    dr = (InterfaceRMIdr) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325,
 		    "dr");
@@ -83,19 +92,13 @@ public class P2PServlet extends HttpServlet {
 	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325,
 		    "ds");
 	    bd = new BitDew(ddc, dr, dt, ds);
-	    Properties props = ConfigurationProperties.getProperties();
-	    String ssht = (String)props.getProperty("xtremweb.core.http.sshTunneling");
+	    
 
 	   
-	    String bootstrapnode = (String)props.getProperty("xtremweb.core.http.bootstrapNode");
-	    
-	    BOOTSTRAP_NODE =  (bootstrapnode != null) ? bootstrapnode : "localhost" ;
-	    if (ssht!=null || ssht.equals("yes")) {
-		BOOTSTRAP_NODE = "localhost";
-	    }
+	   
 		    
 	} catch (ModuleLoaderException e) {
-	    e.printStackTrace();
+	    log.warn("All bitdew services could not be loaded, if you want to use BitDew API make sure you launch them before " + e.getMessage());
 	} catch (UnknownHostException e) {
 	    e.printStackTrace();
 	} catch (ConfigurationException e) {
@@ -116,25 +119,20 @@ public class P2PServlet extends HttpServlet {
 	log.debug("parameter term : " + param);
 	log.debug("bootstrap node value is " + BOOTSTRAP_NODE);
 	response.setContentType("xml");
-	String responsexml = "<html><head></head><body><center><h3>Results found for : "
-		+ param
-		+ "</h3><table border=\"1\"><tr><td>Song Name</td><td>MD5</td></tr>";
+	String responsexml = "<table border=\"1\"><tr><td>Download</td><td>Song Name</td><td>MD5</td></tr>";
 	List l;
 	try {
 	    l = bd.ddcSearch(param);
+	    log.debug(" size of l is " + l.size());
 	    // for each result write it on a html table
 	    for (int i = 0; i < l.size(); i++) {
-		responsexml += "<tr>" + "<td><a href=http://" + BOOTSTRAP_NODE
-			+ ":8080/download?songname="
-			+ ((SongBitdew) l.get(i)).getFilename() + "&md5="
-			+ ((SongBitdew) l.get(i)).getMd5() + ">"
-			+ ((SongBitdew) l.get(i)).getFilename() + "</td>"
-			+ "<td><a href=http://" + BOOTSTRAP_NODE
-			+ ":8080/getips?md5="
-			+ ((SongBitdew) l.get(i)).getMd5() + ">"
-			+ ((SongBitdew) l.get(i)).getMd5() + "</td>" + "</tr>";
+		responsexml += "<tr>" + "<td><input type=\"checkbox\" name=\"checkbox"+ i+"\"/></td>"+ 
+					"<td>"+((Data) l.get(i)).getname() + "</td>"+ 
+					"<td>"+ ((Data) l.get(i)).getchecksum() + "</td>" + 
+					"</tr>";
 	    }
-	    responsexml += "</table></center></body></html>";
+	    responsexml += "</table>" ;
+	
 	    response.getWriter().println(responsexml);
 	    response.setContentType("text/html");
 	    response.setStatus(HttpServletResponse.SC_OK);
