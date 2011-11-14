@@ -630,45 +630,54 @@ public class CommandLineTool {
 	}
 	
 	public void data(String[] otherArgs){
-		try {
-			JsonObject jsono = new JsonParser().parse(otherArgs[1])
-					.getAsJsonObject();
-			File f;
-			String s, file = null, str = null;
-			Data data = null;
-			if (jsono.get("file") == null && jsono.get("string") == null) {
-				log.fatal("Syntax error, see usage ");
-				System.exit(0);
-			}
-			if (jsono.get("file") != null && jsono.get("string") != null) {
-				log.fatal("Syntax error, see usage ");
-				System.exit(0);
-			}
-			if (jsono.get("file") != null)
-				file = jsono.get("file").getAsString();
-			if (jsono.get("string") != null)
-				str = jsono.get("string").getAsString();
-			if (file != null) {
-				f = new File(file);
-				if (!f.exists()) {
-					log.warn(" File does not exist : " + otherArgs[1]);
-					System.exit(0);
-				}
-				data = bitdew.createData(f);
-				log.info("Data registred : " + DataUtil.toString(data));
-			}
-			if (str != null) {
-				data = bitdew.createData(str);
-				log.info("Data registred : " + DataUtil.toString(data));
-			}
-		}catch (BitDewException ade) {
-			log.warn(" Cannot registrer data : " + ade);
+	    try {
+		JsonObject jsono;
+		File f;
+		String s, file = null, str = null;
+		Data data = null;
+		
+		f = new File(otherArgs[1]);
+		if (f.exists()) {
+		    data = bitdew.createData(f);
+		    log.info("Data registred : " + DataUtil.toString(data));
+		} else {
+		    jsono = new JsonParser().parse(otherArgs[1])
+			.getAsJsonObject();
+		    
+		    if (jsono.get("file") == null && jsono.get("string") == null) {
+			log.fatal("Syntax error, see usage ");
 			System.exit(0);
-		} catch (java.lang.IllegalStateException exc) {
-			log.warn("Not a json object, probably you have spaces in your JSON object, if is the case use quotation marks");
+		    }
+		    if (jsono.get("file") != null && jsono.get("string") != null) {
+			log.fatal("Syntax error, see usage ");
+			System.exit(0);
+		    }
+		    if (jsono.get("file") != null)
+			file = jsono.get("file").getAsString();
+		    if (jsono.get("string") != null)
+			str = jsono.get("string").getAsString();
+		    if (file != null) {
+			f = new File(file);
+			if (!f.exists()) {
+			    log.warn(" File does not exist : " + otherArgs[1]);
+			    System.exit(0);
+			}
+			data = bitdew.createData(f);
+			log.info("Data registred : " + DataUtil.toString(data));
+		    }
+		    if (str != null) {
+			data = bitdew.createData(str);
+			log.info("Data registred : " + DataUtil.toString(data));
+		    }
 		}
+	    }catch (BitDewException ade) {
+		log.warn(" Cannot registrer data : " + ade);
+		System.exit(0);
+	    } catch (java.lang.IllegalStateException exc) {
+		log.warn("Not a json object, probably you have spaces in your JSON object, if is the case use quotation marks");
+	    }
 	}
-	
+    
 	public void usage(HelpFormat format) {
 		Usage usage = new Usage();
 		switch (format) {
