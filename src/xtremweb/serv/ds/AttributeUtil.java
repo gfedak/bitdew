@@ -73,7 +73,7 @@ public class AttributeUtil {
 
 
     public static Attribute parseAttribute(String  args) throws ActiveDataException,JsonSyntaxException {
-	args = CommandLineToolHelper.jsonize(args);
+
 	JsonObject jsono = new JsonParser().parse(args).getAsJsonObject();
 	Attribute attr = new Attribute();
 
