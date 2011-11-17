@@ -10,10 +10,10 @@ import xtremweb.core.obj.dc.Locator;
 import xtremweb.core.conf.*;
 import xtremweb.core.http.*;
 
-import org.apache.commons.httpclient.*;
-import org.apache.commons.httpclient.methods.*;
-import org.apache.commons.httpclient.methods.multipart.*;
-import org.apache.commons.httpclient.params.*;
+import org.apachev3.commons.httpclient.*;
+import org.apachev3.commons.httpclient.methods.*;
+import org.apachev3.commons.httpclient.methods.multipart.*;
+import org.apachev3.commons.httpclient.params.*;
 
 import java.io.*;
 import java.util.Properties;
