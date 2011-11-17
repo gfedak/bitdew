@@ -63,7 +63,7 @@ begin
     dep = IO.popen("kadeploy3 -a images/jsaray_squeeze.env -f nodelist -k")do |f|
       f.readlines
     end
-    puts "Finishi Deploying, response " + dep
+    puts "Finishi Deploying, response " + dep.to_s
     puts "Deployment response is " + response.to_s
   else
     puts "Joder tio que has hecho una cosa gorda"
