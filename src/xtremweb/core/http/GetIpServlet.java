@@ -73,9 +73,8 @@ public class GetIpServlet extends HttpServlet {
 		    "ds");
 	    bd = new BitDew(ddc, dr, dt, ds);
 	} catch (ModuleLoaderException e) {
-	    e.printStackTrace();
+	    log.warn("All bitdew services could not be loaded, if you want to use BitDew API make sure you launch them before " + e.getMessage());
 	} catch (UnknownHostException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
     }
