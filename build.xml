@@ -264,6 +264,7 @@ public class Version {
 	  <include name="**/*.jar"/>
 	  <exclude name="azureus.jar"/>
 	  <exclude name="jfreechart-1.0.5.jar"/>	
+	  <exclude name="sbam_standalone.jar"/>
 	</fileset>
       </unzip>
     </target>
@@ -272,6 +273,7 @@ public class Version {
       <jar destfile="dist/bitdew-stand-alone-${version}.jar" manifest="bitdew.mf">
 	<fileset dir="${build}"/>
 	<fileset dir="temp-jar"/>
+    <fileset dir="html"/>
 	<fileset dir="${conf}">
 	  <include name="properties.json"/>
 	  <include name="log4j.properties"/>
@@ -295,13 +297,17 @@ public class Version {
 </target>
 
 
-
 <!--
     ===================================================================
     TARGET : enhance
     ===================================================================
 -->
-<target name="enhance" description="JPOX enhancement"  depends="check_idl" unless="enhancer.notRequired">
+ 	<target name="movehtml">
+ 		<copy todir="build/xtremweb/core/http/html/">
+ 			<fileset dir="html"/>
+ 		</copy>
+ 	</target>
+<target name="enhance" description="JPOX enhancement"  depends="check_idl,movehtml" unless="enhancer.notRequired">
   <taskdef name="jpoxenhancer" classname="org.jpox.enhancer.tools.EnhancerTask" classpath="${project.classpath}"/>
   
 
