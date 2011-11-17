@@ -48,6 +48,7 @@ public class UIFactory {
 		    httpServer.addUiServlet("xtremweb.role.ui.DataBaseServlet", "/database");
 		} catch (Exception e) {
 		    log.warn("cannot start Http based ui : " + e);
+		    e.printStackTrace();
 		} 
 	    }
 	}
