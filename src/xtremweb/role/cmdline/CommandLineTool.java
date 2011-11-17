@@ -229,9 +229,7 @@ public class CommandLineTool {
 	    bitdew = new BitDew(comms);
 	    transferManager = new TransferManager(comms);
 	} catch (ModuleLoaderException e) {
-	    log.warn("Cannot find service " + e);
-	    log.warn("Make sure that your classpath is correctly set");
-	    System.exit(0);
+	    log.fatal("Cannot find service " + e + "Make sure that your classpath is correctly set");
 	}
 
 	// add a protocol via commandLine
@@ -332,13 +330,13 @@ public class CommandLineTool {
 
     }
 
-
+    //java -cp temp-jar:build:conf xtremweb.role.cmdline.CommandLineTool  attr "{name:'vm', replicat:'-1'}"
     private void attr(String[] otherArgs) {
 	if (otherArgs.length == 1)
 	    usage(HelpFormat.LONG);
 	Attribute attr = null;
 	try {
-	    attr = AttributeUtil.parseAttribute(otherArgs[1]);
+	    attr = AttributeUtil.parseAttribute(CommandLineToolHelper.jsonize(otherArgs[1]));
 	} catch (ActiveDataException ade) {
 	    log.warn(" Cannot parse attribute definition : " + ade);
 	} catch (JsonSyntaxException sex) {
@@ -349,8 +347,7 @@ public class CommandLineTool {
 	    log.info("attribute registred : "
 		     + AttributeUtil.toString(_attr));
 	} catch (ActiveDataException ade) {
-	    log.warn(" Cannot registrer attribute : " + ade);
-	    System.exit(0);
+	    log.fatal(" Cannot registrer attribute : " + ade);
 	}
 	
     }
@@ -361,26 +358,22 @@ public class CommandLineTool {
 	JsonObject jsono = new JsonParser().parse(jsonize).getAsJsonObject();
 	if (jsono.get("attr_uid") == null) {
 	    log.fatal("Attribute id is mandatory");
-	    System.exit(0);
 	}
 	String attr_uid = jsono.get("attr_uid").getAsString();
 	if (jsono.get("data_uids") == null) {
 	    log.fatal("Datas must be associated with attribute");
-	    System.exit(0);
 	}
 	JsonArray array = jsono.get("data_uids").getAsJsonArray();
 	if (array.size() == 0) {
 	    log.fatal("Data array cannot be empty");
-	    System.exit(0);
 	}
 	// verify that this attribute exists
 	Attribute attr = null;
 	try {
 	    attr = activeData.getAttributeByUid(attr_uid);
 	} catch (ActiveDataException ade) {
-	    log.info("Attribute with uid " + attr_uid
+	    log.fatal("Attribute with uid " + attr_uid
 		     + " doesn't exist in the system : " + ade);
-	    System.exit(2);
 	}
 
 	// build the list of data to schedule and check them
@@ -434,8 +427,7 @@ public class CommandLineTool {
 	
 	File file = new File(otherArgs[1]);
 	if (!file.exists()) {
-	    log.warn(" File does not exist : " + otherArgs[1]);
-	    System.exit(0);
+	    log.fatal(" File does not exist : " + otherArgs[1]);
 	}
 
 	//retrive the protocol option
@@ -450,15 +442,13 @@ public class CommandLineTool {
 	    } else {
 		data = bitdew.searchDataByUid(otherArgs[2]);
 		if (data == null) {
-		    log.info("cannot find data whose uid is : "
+		    log.fatal("cannot find data whose uid is : "
 			     + otherArgs[2]);
-		    System.exit(0);
 		}
 		bitdew.updateData(data, file);
 	    }
 	} catch (BitDewException ade) {
-	    log.warn(" Cannot registrer data : " + ade);
-	    System.exit(0);
+	    log.fatal(" Cannot registrer data : " + ade);
 	}
 	try {
 	    OOBTransfer oobTransfer = bitdew.put(file, data, myprot);
@@ -483,17 +473,13 @@ public class CommandLineTool {
 	    log.info("Transfer finished");
 	    //ATTENTION AU NIVEAU DE LOG: HOMOGENE !!!
 	} catch (TransferManagerException tme) {
-	    log.warn(" Transfer data : " + tme);
-	    System.exit(0);
+	    log.fatal("Error during data transfer : " + tme);
 	} catch (BitDewException bde) {
-	    log.warn(" Cannot transfer data : " + bde);
-	    System.exit(0);
+	    log.fatal("Error during data transfer or creation : " + bde);
 	} catch (ModuleLoaderException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    log.fatal("Error when connecting to BitDew server : " + bde);
 	} catch (OOBException e) {
-	    log.fatal(" OOBException ");
-	    e.printStackTrace();
+	    log.fatal("Error during data transfer : " +e);
 	}
 	
     }
@@ -509,13 +495,11 @@ public class CommandLineTool {
 	try {
 	    data = bitdew.searchDataByUid(dataUid);
 	    if (data == null) {
-		log.info("cannot find data whose uid is : " + dataUid);
-		System.exit(0);
+		log.fatal("cannot find data whose uid is : " + dataUid);
 	    }
 	    log.info("Get Data  : " + DataUtil.toString(data));
 	} catch (BitDewException ade) {
-	    log.warn(" Cannot find data : " + ade);
-	    System.exit(0);
+	    log.fatal(" Cannot find data : " + ade);
 	}
 
 	// set the file name
@@ -540,8 +524,7 @@ public class CommandLineTool {
 		if ((i != 121) && (i != 89))
 		    System.exit(0);
 	    } catch (IOException ioe) {
-		    log.warn("program interrupted" + ioe);
-		    System.exit(0);
+		    log.fatal("program interrupted" + ioe);
 	    }
 	}
 	// get the data
@@ -562,11 +545,9 @@ public class CommandLineTool {
 	    transferManager.stop();
 	    log.info("Transfer complete");
 	} catch (TransferManagerException ade) {
-	    log.warn(" Transfer data : " + ade);
-	    System.exit(0);
+	    log.fatal(" Transfer data : " + ade);
 	} catch (BitDewException bde) {
-	    log.warn(" Transfer data : " + bde);
-	    System.exit(0);
+	    log.fatal(" Transfer data : " + bde);
 	} catch (OOBException e) {
 	    e.printStackTrace();
 	}
@@ -666,11 +647,9 @@ public class CommandLineTool {
 		    
 		if (jsono.get("file") == null && jsono.get("string") == null) {
 		    log.fatal("Syntax error, see usage ");
-		    System.exit(0);
 		}
 		if (jsono.get("file") != null && jsono.get("string") != null) {
 		    log.fatal("Syntax error, see usage ");
-		    System.exit(0);
 		}
 		if (jsono.get("file") != null)
 		    file = jsono.get("file").getAsString();
@@ -679,8 +658,7 @@ public class CommandLineTool {
 		if (file != null) {
 		    f = new File(file);
 		    if (!f.exists()) {
-			log.warn(" File does not exist : " + otherArgs[1]);
-			System.exit(0);
+			log.fatal(" File does not exist : " + otherArgs[1]);
 		    }
 		    data = bitdew.createData(f);
 		    log.info("Data registred : " + DataUtil.toString(data));
@@ -691,8 +669,7 @@ public class CommandLineTool {
 		}
 	    }
 	}catch (BitDewException ade) {
-	    log.warn(" Cannot registrer data : " + ade);
-	    System.exit(0);
+	    log.fatal(" Cannot registrer data : " + ade);
 	} catch (java.lang.IllegalStateException exc) {
 	    log.warn("Not a json object, probably you have spaces in your JSON object, if is the case use quotation marks");
 	}
