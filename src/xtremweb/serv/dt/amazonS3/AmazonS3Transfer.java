@@ -7,11 +7,11 @@ import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.Locator;
-import xtremweb.api.transman.*;
 
 import java.io.*;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
@@ -125,6 +125,12 @@ public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
      */
     public void blockingReceiveReceiverSide() throws OOBException {
 	int line;
+	
+	log.debug("Listing buckets");
+        for (Bucket bucket : s3.listBuckets()) {
+            log.debug(" - " + bucket.getName());
+        }
+	log.debug("ATTEMPTING TO DOWNLOAD OBJECT WITH BUCKET " + bucketName + "and key " + objectKey);
 	S3Object object = s3.getObject(new GetObjectRequest(bucketName,
 		objectKey));
 	log.info("Content-Type: " + object.getObjectMetadata().getContentType());
