@@ -476,8 +476,8 @@ public class CommandLineTool {
 	    log.fatal("Error during data transfer : " + tme);
 	} catch (BitDewException bde) {
 	    log.fatal("Error during data transfer or creation : " + bde);
-	} catch (ModuleLoaderException e) {
-	    log.fatal("Error when connecting to BitDew server : " + bde);
+	} catch (ModuleLoaderException mle) {
+	    log.fatal("Error when connecting to BitDew server : " + mle);
 	} catch (OOBException e) {
 	    log.fatal("Error during data transfer : " +e);
 	}
