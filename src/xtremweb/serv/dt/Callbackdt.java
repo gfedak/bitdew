@@ -41,24 +41,30 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      * Local transfer manager, this will change in the future as it is violating
      * the previously fixed design rules
      */
-     protected TransferManager tm;
+    protected TransferManager tm;
+
+    private Properties mainprop;
 
     /**
      * Creates a new <code>Callbackdt</code> instance.
      * 
      */
     public Callbackdt() {
-    	dao = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
-	//tm = TransferManagerFactory.getTransferManager();
-	log.debug("tm that callback is using " + tm);
-	//tm.start();
-
-	Properties mainprop;
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
-	} catch (ConfigurationException ce) {
-	    log.warn("Not able to find configuration protocols : " + ce);
+	} catch (ConfigurationException e) {
+	    log.debug("problem loading properties in callbackdt");
 	    mainprop = new Properties();
+	    e.printStackTrace();
+	}
+	dao = (DaoTransfer) DaoFactory
+		.getInstance("xtremweb.dao.transfer.DaoTransfer");
+	String add = mainprop.getProperty("xtremweb.serv.dt.embeddedtm");
+	boolean b = Boolean.parseBoolean(add);
+	if (b) {
+	    tm = TransferManagerFactory.getTransferManager();
+	    log.debug("tm that callback is using " + tm);
+	    tm.start();
 	}
 
 	String temp = mainprop.getProperty("xtremweb.serv.dt.protocols");
@@ -105,7 +111,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      */
     public int registerTransfer(Transfer t, Data data, Protocol rp, Locator rl)
 	    throws RemoteException {
-    	log.debug("register transfer was called in !!!" + tm);
+	log.debug("register transfer was called in !!!" + tm);
 	Protocol local_proto = new Protocol();
 	Locator local_locator = new Locator();
 
@@ -132,36 +138,43 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 	try {
 	    OOBTransfer oobt = OOBTransferFactory.createOOBTransfer(data, t,
 		    rl, local_locator, rp, local_proto);
-	    
-	    String tuid = oobt.getTransfer().getuid();
-		if ((oobt.getTransfer()!=null)&&(oobt.getTransfer().getuid()!=null)) 
-		    log.debug("Transfer already persisted : " + oobt.getTransfer().getuid());
-		log.debug(" data snapshot just before persisting uid" + oobt.getData().getuid() + "md5 " + oobt.getData().getchecksum() + " size " + oobt.getData().getsize());
-		
-		
-		dao.makePersistent(oobt.getData(),true);
-		dao.makePersistent(oobt.getRemoteProtocol(),true);
-		dao.makePersistent(oobt.getLocalProtocol(),true);
-		
-		oobt.getRemoteLocator().setdatauid(oobt.getData().getuid());
-		oobt.getLocalLocator().setdatauid(oobt.getData().getuid());
-		
-		oobt.getRemoteLocator().setprotocoluid(oobt.getRemoteProtocol().getuid());
-		oobt.getLocalLocator().setprotocoluid(oobt.getLocalProtocol().getuid());
-		
-		dao.makePersistent(oobt.getRemoteLocator(),true);
-		dao.makePersistent(oobt.getLocalLocator(),true);
-		
-		oobt.getTransfer().setlocatorremote(oobt.getRemoteLocator().getuid());
-		oobt.getTransfer().setlocatorlocal(oobt.getLocalLocator().getuid());
-		oobt.getTransfer().setdatauid(oobt.getData().getuid());
-		dao.makePersistent(oobt.getTransfer(),true);
 
-		
-		//FIXME: should have an assert here
-		if ( (tuid!=null) && (!tuid.equals( oobt.getTransfer().getuid()))) 
-		    log.debug(" Transfer has been incorrectly persisted    " + tuid + "  !="  + oobt.getTransfer().getuid());
-	    
+	    String tuid = oobt.getTransfer().getuid();
+	    if ((oobt.getTransfer() != null)
+		    && (oobt.getTransfer().getuid() != null))
+		log.debug("Transfer already persisted : "
+			+ oobt.getTransfer().getuid());
+	    log.debug(" data snapshot just before persisting uid"
+		    + oobt.getData().getuid() + "md5 "
+		    + oobt.getData().getchecksum() + " size "
+		    + oobt.getData().getsize());
+
+	    dao.makePersistent(oobt.getData(), true);
+	    dao.makePersistent(oobt.getRemoteProtocol(), true);
+	    dao.makePersistent(oobt.getLocalProtocol(), true);
+
+	    oobt.getRemoteLocator().setdatauid(oobt.getData().getuid());
+	    oobt.getLocalLocator().setdatauid(oobt.getData().getuid());
+
+	    oobt.getRemoteLocator().setprotocoluid(
+		    oobt.getRemoteProtocol().getuid());
+	    oobt.getLocalLocator().setprotocoluid(
+		    oobt.getLocalProtocol().getuid());
+
+	    dao.makePersistent(oobt.getRemoteLocator(), true);
+	    dao.makePersistent(oobt.getLocalLocator(), true);
+
+	    oobt.getTransfer().setlocatorremote(
+		    oobt.getRemoteLocator().getuid());
+	    oobt.getTransfer().setlocatorlocal(oobt.getLocalLocator().getuid());
+	    oobt.getTransfer().setdatauid(oobt.getData().getuid());
+	    dao.makePersistent(oobt.getTransfer(), true);
+
+	    // FIXME: should have an assert here
+	    if ((tuid != null) && (!tuid.equals(oobt.getTransfer().getuid())))
+		log.debug(" Transfer has been incorrectly persisted    " + tuid
+			+ "  !=" + oobt.getTransfer().getuid());
+
 	    log.debug("Succesfully created transfer [" + t.getuid()
 		    + "] data [" + data.getuid() + "] with remote storage ["
 		    + rl.getref() + "] " + rp.getname() + "://["
@@ -169,7 +182,10 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 		    + rl.getdrname() + ":" + rp.getport() + "/" + rp.getpath()
 		    + "/" + rl.getref() + "\n" + oobt);
 
-	  //tm.registerTransfer(oobt);
+	    String add = mainprop.getProperty("xtremweb.serv.dt.embeddedtm");
+	    boolean b = Boolean.parseBoolean(add);
+	    if (b)
+		tm.registerTransfer(oobt);
 	} catch (OOBException e) {
 	    log.debug("Exception when registring oob transfer " + e);
 	    throw new RemoteException();
@@ -194,8 +210,9 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      */
     public boolean poolTransfer(String transferID) throws RemoteException {
 	log.debug("pooling transfer : " + transferID);
-	DaoTransfer daot = (DaoTransfer)DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
-	
+	DaoTransfer daot = (DaoTransfer) DaoFactory
+		.getInstance("xtremweb.dao.transfer.DaoTransfer");
+
 	daot.beginTransaction();
 
 	boolean isComplete = false;
@@ -203,12 +220,14 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 	try {
 	    Transfer t = (Transfer) daot.getByUid(
 		    xtremweb.core.obj.dt.Transfer.class, transferID);
-	    log.debug("value of t is " + t + " type of t is " + t.gettype() + " status of t is " + t.getstatus());
+	    log.debug("value of t is " + t + " type of t is " + t.gettype()
+		    + " status of t is " + t.getstatus());
 
 	    if (t == null) {
 		log.debug(" t " + transferID + " is null ");
 	    } else {
-		isComplete = (t.getstatus() == TransferStatus.COMPLETE || t.getstatus() == TransferStatus.TODELETE);
+		isComplete = (t.getstatus() == TransferStatus.COMPLETE || t
+			.getstatus() == TransferStatus.TODELETE);
 		log.debug(" t " + t.getuid() + " is status : "
 			+ TransferStatus.toString(t.getstatus()));
 	    }
@@ -216,7 +235,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 	} finally {
 	    if (daot.transactionIsActive())
 		daot.transactionRollback();
-	   daot.close();
+	    daot.close();
 	}
 	return isComplete;
     }
@@ -263,12 +282,12 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
      */
     public void setTransferStatus(String tuid, int status)
 	    throws RemoteException {
-	
+
 	dao.beginTransaction();
 	try {
 	    Transfer t = (Transfer) dao.getByUid(
 		    xtremweb.core.obj.dt.Transfer.class, tuid);
-	    
+
 	    if (t == null) {
 		log.debug(" t " + tuid + " is null ");
 	    } else {
@@ -279,7 +298,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 	} finally {
 	    if (dao.transactionIsActive())
 		dao.transactionRollback();
-	
+
 	}
     }
 
