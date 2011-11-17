@@ -133,7 +133,7 @@ public class HttpServer {
      *
      * @exception Exception if an error occurs
      */
-    public static void init() throws Exception {
+    public void init() throws Exception {
 	//We first start the Server configured with a special port
     	
 	server = new Server();
@@ -143,8 +143,12 @@ public class HttpServer {
     //context.setServingResources(true);
 	//
 	ResourceHandler resource = new ResourceHandler();
-	String userdir = System.getProperty("user.dir");
-	resource.setResourceBase(userdir + "/html");
+	
+	String bundle = getClass().getResource("/xtremweb/core/http/html").toExternalForm();
+	resource.setResourceBase(bundle);
+	//String userdir = System.getProperty("user.dir");
+	//resource.setResourceBase(userdir + "/html");
+	
 	
 	//
 	Connector connector=new SocketConnector();
@@ -156,7 +160,7 @@ public class HttpServer {
 	log.debug("documentRoot:"+_documentRoot);
 	log.debug("documentPath:"+_documentPath);
 	log.debug("uploadServlet:"+_uploadServlet);
-	log.debug("Searching for resources in " + userdir +"/html");
+	log.debug("Searching for resources in " + bundle);
 	
 	//the servlet is accessed with the /fileupload reference
 	Context fileuploadContext = new Context(Context.SESSIONS);
