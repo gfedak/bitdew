@@ -1,12 +1,13 @@
 #!/usr/bin/env ruby
 require "rubygems"
 require "json"
-puts "Usage SITE RESOURCES WALLTIME NAME "
+puts "Usage SITE RESOURCES WALLTIME NAME ENVPATH"
 time = Time.new
 mysite = ARGV[0]
 resources = ARGV[1]
 walltime = ARGV[2]
 thename = ARGV[3]
+envpath = ARGV[4]
 begin
 
   resu = "/nodes=" + resources+",walltime=" + walltime
@@ -20,6 +21,8 @@ begin
  
   
   iter = 0 
+  
+  # Submit a reservation now
   while !(codeans == nil) and  !codeans.eql? "200" and iter < 5 
     iter= iter + 1
     cmnd = "curl -H \"Accept: application/json\" -H \"Content-Type: application/json\" --data '" +jsonobj + "' https://api.grid5000.fr/2.0/grid5000/sites/" + mysite +"/jobs"
@@ -34,6 +37,7 @@ begin
     sleep(3)
   end
   
+  #The api throw nil when there are no problems, we wait until the job state is running and resources are actually allocated
   if codeans == nil
     puts "Request successful"
     jobid = object["uid"]
@@ -60,13 +64,45 @@ begin
       }
     end
     puts "Deploying ; this will take some time"
-    dep = IO.popen("kadeploy3 -a images/jsaray_squeeze.env -f nodelist -k")do |f|
+    
+    jsondeploy = {:nodes => machines,:environment => "http://public."+mysite+".grid5000.fr/~jsaray/jsaray_squeeze.env"}
+    jsondeploy = jsondeploy.to_json
+    puts "Obj json deploy is #{jsondeploy}"
+    
+    output = IO.popen("curl -H \"Accept: application/json\" -H \"Content-Type: application/json\" --data '"+ jsondeploy +"' https://api.grid5000.fr/2.0/grid5000/sites/"+mysite+"/deployments") do |f|
       f.readlines
     end
-    puts "Finishi Deploying, response " + dep.to_s
-    puts "Deployment response is " + response.to_s
+    puts "output is #{output}"
+    json = JSON.parse output.to_s
+    
+    
+    uid= json["uid"]
+    status = json["status"]
+    puts "deployment uid is #{uid}, deployment status is #{status}"
+    while !(status.eql? "terminated") do
+      status = IO.popen("curl https://api.grid5000.fr/2.0/grid5000/sites/"+mysite+"/deployments/"+uid)do |f|
+        f.readlines
+      end
+      puts "Response #{status}"
+      json = JSON.parse status.to_s
+      status = json["status"]
+      puts "in while status is #{status}" 
+      sleep(5)
+    end
+    
+    
+    
+    
+    #dep = IO.popen("kadeploy3 -a "+envpath+" -f nodelist -k")do |f|
+    #  f.readlines
+    #end
+    #puts "Finishi Deploying, response " + dep.to_s
+    
+
+    
+    
   else
-    puts "Joder tio que has hecho una cosa gorda"
+    puts "ERROR !!!!!"
   end
   
 rescue Exception => e
