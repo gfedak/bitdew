@@ -1,9 +1,6 @@
 package xtremweb.role.examples;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -26,70 +23,76 @@ import xtremweb.core.log.LoggerFactory;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.serv.dt.OOBTransfer;
 
-/**
- * This class launchs a request over the P2P network of a specific term.
- * 
- * @author josefrancisco
- * 
- */
+//
+// This class request over the P2P network a specific term.
+// 
+//@author josefrancisco
+// 
+//
 public class P2PClient {
 
-    /**
-     * BitDew API
-     */
+    //
+    // Bitdew API
+    //
     private BitDew bitdew;
 
-    /**
-     * Transfer Manager API
-     */
+    //
+    // Transfer manager API
     private TransferManager tm;
 
-    /**
-     * Catalog service
-     */
+    //
+    // Data Catalog service
+    //
     private InterfaceRMIdc dc;
 
-    /**
-     * Transfer service
-     */
+    //
+    // Data Transfer service
     private InterfaceRMIdt dt;
 
-    /**
-     * Repository service
-     */
+    //
+    // Data repository service
+    //
     private InterfaceRMIdr dr;
 
-    /**
-     * Scheduler service
-     */
+    //
+    // Data scheduler service
+    //
     private InterfaceRMIds ds;
 
-    /**
-     * Machine local address constant
-     */
+    //
+    // Local IP address constant
+    //
     private String LOCAL_ADDRESS;
-
+    
+    //
+    //	Log file
+    //
     private Logger log = LoggerFactory.getLogger("P2PClient");
-
+    
+    //
+    //	DLPT bootstrap node
+    //
     private String BOOTSTRAP;
 
-    /**
-     * Class constructor, initialize services and API
-     * 
-     * @param bootstrap
-     */
+    //
+    // Class constructor, initialize services and API 
+    //
     public P2PClient() {
 
 	try {
 	    Properties props = ConfigurationProperties.getProperties();
+	    // we read the bootstrap node value from the properties file
 	    String bootstrap = props.getProperty("xtremweb.core.http.bootstrapNode");
+	    // if there is no value on the file, we assing localhost by default
 	    BOOTSTRAP = bootstrap != null ? bootstrap : InetAddress.getLocalHost().getHostAddress();
+	    //local address is the machine IP local address
 	    LOCAL_ADDRESS = InetAddress.getLocalHost().getHostAddress();
-	    // we build bitdew services dc dt and ds, dc will reference the DHT
+	    // we build bitdew services dc dt and ds, as we need to perform requests on data contained on the DHT, 
+	    // dc will reference the DHT
 	    dc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP, "rmi", 4325, "dc");
 	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"dt");
 	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"ds");
-	    // starting bitdew API
+	    // starting bitdew, transfer manager API and starting tm.
 	    tm = new TransferManager(dt);
 	    bitdew = new BitDew(dc, dr, dt, ds);
 	    tm.start();
@@ -102,87 +105,20 @@ public class P2PClient {
 	}
     }
 
-    /**
-     * Main method ,
-     * 
-     * @param args
-     *            program arguments : args[0] bootstrapnode , args[1] term to
-     *            search (if get)
-     */
-    public static void main(String[] args) {
-	P2PClient p2p = new P2PClient();
-	p2p.get(args[1]);
-    }
+    
 
-    /**
-     * After a song list is shown in console client, this method receive the
-     * song number the user has entered
-     * 
-     * @return the number the user has entered
-     */
-    public int readInput() {
-	BufferedReader stdIn = new BufferedReader(new InputStreamReader(
-		System.in));
-	String number;
-	try {
-	    number = stdIn.readLine();
-	    int nu = Integer.parseInt(number);
-	    return nu;
-	} catch (IOException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
-	return -1;
-
-    }
-
-    /**
-     * Search for a specific term on the P2P network
-     * 
-     * @param term
-     *            the term to look for
-     */
-    public void get(String term) {
-	try {
-	    log.info("Search for songs artist or title : ");
-	    BufferedReader stdIn = null;
-	    List results;
-	    results = bitdew.ddcSearch(term);
-	    log.info("the value of results is " + results + " and the size is "
-		    + results.size());
-	    // iterate and print the results
-	    for (int i = 1; i <= results.size(); i++) {
-		Data sbd = (Data) results.get(i - 1);
-		log.info(" Results for your query : " + i + ". "
-			+ sbd.getname() + " md5 is " + sbd.getchecksum());
-	    }
-	    log.info("Please write the song number you wish to download : ");
-	    int nu = readInput();
-	    String md5 = ((Data) results.get(nu - 1)).getchecksum();
-
-	    download(((Data) results.get(nu - 1)).getname(), md5);
-	} catch (BitDewException e) {
-	    e.printStackTrace();
-	}
-
-    }
-
-    /**
-     * Download a song from the P2P network
-     * 
-     * @param songname
-     *            the song name
-     * @param md5
-     *            the song signature signature
-     */
+    //
+    // Download a song from the P2P network, it builds the neccessary build infrastructure to achieve this.
+    // @param songname the song name
+    // @param md5 the song signature 
+    //
     public void download(String songname, String md5) {
 	try {
-	    // first retrieve the ip list of the machines having file names
-	    //signatures md5
+	    // first retrieve the ip list of machines having signatures md5
 	    List ips = bitdew.ddcSearch(md5);
 	   
 	    // Once we have an ip of a machine having that md5sum, we are able to begin the download,
-	    // but first we need to contact the machine catalog and repository
+	    // but first we need to contact that  machine's catalog and repository
 	    if (ips != null && ips.size() != 0) {
 		dr = (InterfaceRMIdr) ComWorld.getComm((String) ips.get(0),
 			"rmi", 4325, "dr");
@@ -190,11 +126,12 @@ public class P2PClient {
 			"rmi", 4325, "dc");
 	    } else
 		throw new BitDewException("There is not ip for that md5 ! ");
-	    // Then we create a bitdew API
+	    // Then we create a new bitdew API from these newly created services
 	    bitdew = new BitDew(dc, dr, dt, ds);
 	    File file = new File(songname);
-	    //getDataFromMd5 method help us to retrieve the correct data
+	    //the getDataFromMd5 method help us to retrieve a bitdew data having a given MD5sum 
 	    Data d = bitdew.getDataFromMd5(md5);
+	    //we will use http protocol
 	    d.setoob("http");
 	    OOBTransfer oob;
 	    //download begins
@@ -207,16 +144,15 @@ public class P2PClient {
 	} catch (TransferManagerException e) {
 	    e.printStackTrace();
 	} catch (ModuleLoaderException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
     }
     
-    /**
-     * This method share the new downloaded file once a download has finished.
-     * @param song file name
-     * @param md5 the md5 cheksum
-     */
+    //
+    // This method includes you as the owner of a file once you have downloaded it
+    // @param song file name
+    // @param md5 the md5 cheksum
+    //
     public void republish(String song,String md5) {
 	try {
 	    //We are going to publish the new downloaded song in the DHT, so we need to 
@@ -225,10 +161,11 @@ public class P2PClient {
 	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"dt");
 	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"ds");
 	    dr = (InterfaceRMIdr) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"dr");
+	    //build a new bitdew instance from these services.
 	    bitdew = new BitDew(dc, dr, dt, ds);
 	    String[] toks = song.split("[\\s\\._-]");
-	    //We split the file name in every term composing it, and we index the song name
-	    //according to these terms, then we index the md5 too, in order to find the IP address
+	    //We split the file name to extract each word composing it, and we index the song name
+	    //with each one of this words, then we index the MD5 too together with the IP address
 	    for (int i = 0; i < toks.length; i++) {
 		Data sb = new Data();
 		sb.setname(song);

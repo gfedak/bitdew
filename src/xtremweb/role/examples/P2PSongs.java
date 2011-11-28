@@ -154,124 +154,62 @@ public class P2PSongs {
      * \image html results.png
      * 
      * <li> Download will begin as soon as you click on any link </li>	
-     * 
-     * Download and republish methods on the P2PClient.java class are in charge of this. First download method
-     * build the bitdew infrastructure to be able to download this file.
-     * @code
-     * public void download(String songname, String md5) {
-	try {
-	    // first retrieve the ip list of the machines having file names
-	    //signatures md5
-	    List ips = bitdew.ddcSearch(md5);
-	   
-	    // Once we have an ip of a machine having that md5sum, we are able to begin the download,
-	    // but first we need to contact the machine catalog and repository
-	    if (ips != null && ips.size() != 0) {
-		dr = (InterfaceRMIdr) ComWorld.getComm((String) ips.get(0),
-			"rmi", 4325, "dr");
-		dc = (InterfaceRMIdc) ComWorld.getComm((String) ips.get(0),
-			"rmi", 4325, "dc");
-	    } else
-		throw new BitDewException("There is not ip for that md5 ! ");
-	    // Then we create a bitdew API
-	    bitdew = new BitDew(dc, dr, dt, ds);
-	    File file = new File(songname);
-	    //getDataFromMd5 method help us to retrieve the correct data
-	    Data d = bitdew.getDataFromMd5(md5);
-	    d.setoob("http");
-	    OOBTransfer oob;
-	    //download begins
-	    oob = bitdew.get(d, file);
-	    tm.registerTransfer(oob);
-	    tm.waitFor(d);
-	    log.info("File : " + songname + " was successfully downloaded ");
-	} catch (BitDewException e) {
-	    e.printStackTrace();
-	} catch (TransferManagerException e) {
-	    e.printStackTrace();
-	} catch (ModuleLoaderException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
-    }
-     * @endcode
-     * Republish method register the new downloaded song in the DHT, as now this peer can share this new file.
-     * @code
-     * public void republish(String song,String md5) {
-	try {
-	    //We are going to publish the new downloaded song in the DHT, so we need to 
-	    //build a reference to the distributed data catalog on the bootstrap node.
-	    dc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP, "rmi", 4325, "dc");
-	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"dt");
-	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"ds");
-	    dr = (InterfaceRMIdr) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325,"dr");
-	    bitdew = new BitDew(dc, dr, dt, ds);
-	    String[] toks = song.split("[\\s\\._-]");
-	    //We split the file name in every term composing it, and we index the song name
-	    //according to these terms, then we index the md5 too, in order to find the IP address
-	    for (int i = 0; i < toks.length; i++) {
-		SongBitdew sb = new SongBitdew(song,md5);
-		bitdew.ddcPublish(toks[i], sb);
-		bitdew.ddcPublish(md5, LOCAL_ADDRESS);
-	    }
-	} catch (ModuleLoaderException e) {
-	    e.printStackTrace();
-	} catch (BitDewException e) {
-	    e.printStackTrace();
-	}
-    }
-     * @endcode
+     * <h2>Code source </h2>
+     * Two java classes have been implemented to build this architecture, P2PClient source code :
+     * <h3> P2PClient.java </h3>
+     * \include P2PClient.java
      * <li>P2PSongs source-code :
      */
 
-    /**
-     * Local Data catalog
-     */
+    //
+    //Local Data catalog
+    //
     private InterfaceRMIdc dc;
 
-    /**
-     * Data transfer service
-     */
+    //
+    // Data transfer service
+    //
     private InterfaceRMIdt dt;
 
-    /**
-     * Data repository service
-     */
+    //
+    // Data repository service
+    //
     private InterfaceRMIdr dr;
 
-    /**
-     * Data scheduler service
-     */
+    //
+    // Data scheduler service
+    //
     private InterfaceRMIds ds;
 
-    /**
-     * Distributed data catalog service
-     */
+    //
+    // Distributed data catalog service
+    //
     private InterfaceRMIdc ddc;
 
-    /**
-     * BitDew api to interface with dc
-     */
+    //
+    // BitDew api to interface with dc
+    //
     private BitDew bitdew;
 
-    /**
-     * BitDew api to remotely interface with ddc
-     */
+    //
+    // BitDew api to remotely interface with ddc
+    //
     private BitDew bitdewddc;
 
-    /**
-     * Logger
-     */
+    //
+    // Logger
+    //
     private static Logger log = LoggerFactory.getLogger("P2PSongs");
-
+    
+    //
+    // Machine IP address where this code runs
+    //
     private String LOCAL_ADDRESS;
 
-    /**
-     * Class constructor, load different services and API instances
-     * 
-     * @param bootstrap
-     *            the ip address of the node running initially the DHT
-     */
+    //
+    // Class constructor, load different services and API instances
+    // @param bootstrap
+    //           the ip address of the node running initially the DHT
     public P2PSongs(String bootstrap) {
 	try {
 	    //
@@ -293,7 +231,7 @@ public class P2PSongs {
 	    ddc = (InterfaceRMIdc) ComWorld.getComm(bootstrap, "rmi", 4325,
 		    "dc");
 	    //
-	    // Once we succesfully get RMI references, we build two different APIS, first one referencing the bootstrap and
+	    // Once we succesfully get RMI references, we build two different APIs, first one referencing the bootstrap and
 	    // second one referencing the local data catalog
 	    //
 	    bitdewddc = new BitDew(ddc, dr, dt, ds);
