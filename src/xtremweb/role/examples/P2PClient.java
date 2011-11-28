@@ -112,19 +112,25 @@ public class P2PClient {
     // @param songname the song name
     // @param md5 the song signature 
     //
-    public void download(String songname, String md5) {
+    public void download(String songname, String md5,String ip) {
 	try {
 	    // first retrieve the ip list of machines having signatures md5
 	    List ips = bitdew.ddcSearch(md5);
 	   
 	    // Once we have an ip of a machine having that md5sum, we are able to begin the download,
 	    // but first we need to contact that  machine's catalog and repository
-	    if (ips != null && ips.size() != 0) {
+	    if (ips != null && ips.size() != 0 && ip.equals("none")) {
 		dr = (InterfaceRMIdr) ComWorld.getComm((String) ips.get(0),
 			"rmi", 4325, "dr");
 		dc = (InterfaceRMIdc) ComWorld.getComm((String) ips.get(0),
 			"rmi", 4325, "dc");
-	    } else
+	    } else if (!ip.equals("none")){
+		dr = (InterfaceRMIdr) ComWorld.getComm((String) ip,
+			"rmi", 4325, "dr");
+		dc = (InterfaceRMIdc) ComWorld.getComm((String) ip,
+			"rmi", 4325, "dc");
+	    }
+	    else
 		throw new BitDewException("There is not ip for that md5 ! ");
 	    // Then we create a new bitdew API from these newly created services
 	    bitdew = new BitDew(dc, dr, dt, ds);
@@ -170,7 +176,6 @@ public class P2PClient {
 		Data sb = new Data();
 		sb.setname(song);
 		sb.setchecksum(md5);
-		bitdew.ddcPublish(toks[i], sb);
 		bitdew.ddcPublish(md5, LOCAL_ADDRESS);
 	    }
 	} catch (ModuleLoaderException e) {
