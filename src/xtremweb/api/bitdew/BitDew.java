@@ -272,6 +272,7 @@ public class BitDew {
 	    log.debug("Cannot find service " + re);
 	} catch (Exception e) {
 	    log.debug("Error creating data " + e);
+	    e.printStackTrace();
 	}
 	throw new BitDewException();
     }
@@ -605,7 +606,7 @@ public class BitDew {
 	   
 	} catch(OOBException oobe) {
 	   log.debug("Error when creating OOBTransfer " + oobe);
-	   throw new BitDewException("Error when transfering data to ftp server : " + remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
+	   throw new BitDewException("Error when transfering data : " + remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
 	}
 	// FIXME cannot assume that the data has been fully copied now.
 	// should put a status to the locator ????
@@ -644,7 +645,7 @@ public class BitDew {
 	// No local protocol
 	Protocol local_proto = new Protocol();
 	local_proto.setname("local");
-
+	
 	Locator local_locator = new Locator();
 	local_locator.setdatauid(data.getuid());
 	// local_locator.setdrname("localhost");
@@ -652,7 +653,7 @@ public class BitDew {
 	local_locator.setref(file.getAbsolutePath());
 
 	log.debug("Local Locator : " + file.getAbsolutePath());
-
+	
 	// get an FTP remote protocol
 	Locator remote_locator = null;
 
