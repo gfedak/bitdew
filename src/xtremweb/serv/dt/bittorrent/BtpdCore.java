@@ -17,15 +17,35 @@ import java.util.Properties;
  * @version 1.0
  */
 public class BtpdCore {
-
+    
+    /**
+     * 
+     */
     private String btpdExec;
+    
+    /**
+     * 
+     */
     private String btpdPath;
+    
+    /**
+     * 
+     */
     private String btpdOptions;
-
+    
+    /**
+     * 
+     */
     public final static String DEFAULT_BTPD_EXEC = "/usr/local/bin/btpd";
-    public final static String DEFAULT_BTPD_PATH = "btpd";
+    
+    /**
+     * 
+     */
     public final static String DEFAULT_BTPD_OPTIONS = " --max-uploads -1 --empty-start ";
-
+    
+    /**
+     * 
+     */
     protected static  Logger log = LoggerFactory.getLogger(BtpdCore.class);
 
 
@@ -34,7 +54,7 @@ public class BtpdCore {
      *
      */
     public BtpdCore() {
-	this(DEFAULT_BTPD_PATH);
+	this(DEFAULT_BTPD_EXEC);
     }
 
 
@@ -65,7 +85,7 @@ public class BtpdCore {
 	File btpdDir = new File(btpdPath);
 	btpdDir.mkdir();
 	new File(btpdDir, "data").mkdir();
-	String btpdCmdLine = btpdExec + " -d " + btpdPath + " " + btpdOptions;
+	String btpdCmdLine = btpdExec + " " + btpdOptions;
 	log.debug("Sarting Btpd : " + btpdCmdLine );
 	try {
 	    Executor e = new Executor( btpdCmdLine );	    
