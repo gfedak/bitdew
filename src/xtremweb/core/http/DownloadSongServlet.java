@@ -1,24 +1,15 @@
 package xtremweb.core.http;
 
-import java.io.BufferedReader;
+
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-
-
-import javax.jdo.listener.DirtyLifecycleListener;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 import xtremweb.role.examples.P2PClient;
@@ -61,12 +52,13 @@ public class DownloadSongServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
 	    throws ServletException, IOException {
 	String directory = request.getParameter("directory");
+	String ip = request.getParameter("ip");
 	if(request.getParameter("md5") != null && request.getParameter("songname") != null)
 	{
 	    String md5 = request.getParameter("md5");
 	    log.debug("md5 is " + md5);
 	    String songname = request.getParameter("songname");
-	    client.download(songname, md5);
+	    client.download(songname, md5,ip);
 	    client.republish(songname,md5);
 	}
 	String answer = "<table><tr><td>File name</td><td>MD5</td></tr>";
