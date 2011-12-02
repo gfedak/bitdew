@@ -15,6 +15,7 @@ def torrentDeploy (filename,torrentname,protocol,totalstr,outputfilename)
         iter=0
         allhosts = iout.readlines
         allclients = allhosts[2 .. allhosts.length]
+        allclients << allhosts[0]
         _firstclient = allhosts[1].slice(/[^\n]*/)
         _trackernode = allhosts[0].slice(/[^\n]*/)
         
