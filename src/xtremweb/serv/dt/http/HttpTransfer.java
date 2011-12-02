@@ -102,7 +102,8 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements
 	    // prepare the file upload as a multipart POST request
 	    postMethod.setRequestEntity(new MultipartRequestEntity(parts,
 		    postMethod.getParams()));
-
+	    postMethod.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
+		new DefaultHttpMethodRetryHandler(3, false));
 	    // execute the transfer and get the result as a status
 	    int status = httpClient.executeMethod(postMethod);
 
