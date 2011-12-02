@@ -27,7 +27,7 @@ public class HandlerRMITemplate extends UnicastRemoteObject {
     protected static Logger log = LoggerFactory.getLogger("HandlerRMI");
 
     //    private final static PerfMonitor perf = PerfMonitorFactory.createPerfMonitor("ServiceCalls", "hits per second", 3000);
-    private final static PerfMonitor perf = PerfMonitorFactory.createPerfMonitor("ServiceCalls");
+    //private final static PerfMonitor perf = PerfMonitorFactory.createPerfMonitor("ServiceCalls");
 
     protected CallbackTemplate callback;
 
@@ -63,13 +63,13 @@ public class HandlerRMITemplate extends UnicastRemoteObject {
     }
 
     public void setupPerfMonitor(String module) {
-	moduleName = module;
+	/*moduleName = module;
 	try {
 	    perf.addSerie(moduleName, samplesnb);
 	    perfSet.put(moduleName,0);
 	} catch (PerfException pe) {
 	    log.warn("cannot add the performance monitor for service : " + moduleName);
-	}		
+	}*/		
     }
     
     public void registerCallback( CallbackTemplate cb) {
@@ -78,12 +78,12 @@ public class HandlerRMITemplate extends UnicastRemoteObject {
 
     public static void addSamples() {
 	//	log.debug("adding samples : " + count++);
-	if (modulePerf) {
+	/*if (modulePerf) {
 	    for (String m : perfSet.keySet()) {
 		perf.addSample(m, perfSet.get(m));
 		perfSet.put(m,0);
 	    }
-	}
+	}*/
     }
 
     public void perf(String m) {
