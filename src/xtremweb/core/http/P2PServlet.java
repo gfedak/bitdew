@@ -3,6 +3,8 @@ package xtremweb.core.http;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -119,16 +121,18 @@ public class P2PServlet extends HttpServlet {
 	log.debug("parameter term : " + param);
 	log.debug("bootstrap node value is " + BOOTSTRAP_NODE);
 	response.setContentType("xml");
-	String responsexml = "<table border=\"1\"><tr><td>Download</td><td>Song Name</td><td>MD5</td></tr>";
+	String responsexml = "<table border=\"1\"><tr><td>Download</td><td>Song Name</td><td>MD5</td><td>Owner(s)</td></tr>";
 	List l;
 	try {
 	    l = bd.ddcSearch(param);
 	    log.debug(" size of l is " + l.size());
 	    // for each result write it on a html table
 	    for (int i = 0; i < l.size(); i++) {
+		String md5 = ((Data) l.get(i)).getchecksum();
 		responsexml += "<tr>" + "<td><input type=\"checkbox\" name=\"checkbox"+ i+"\"/></td>"+ 
 					"<td>"+((Data) l.get(i)).getname() + "</td>"+ 
-					"<td>"+ ((Data) l.get(i)).getchecksum() + "</td>" + 
+					"<td>"+ md5 + "</td>" + 
+					"<td>"+getIps(md5)+"</td>"+
 					"</tr>";
 	    }
 	    responsexml += "</table>" ;
@@ -140,7 +144,26 @@ public class P2PServlet extends HttpServlet {
 	    e.printStackTrace();
 	}
     }
-
+    
+    private String getIps(String md5){
+	String responsexml="";
+	List ips;
+	try {
+	    ips = bd.ddcSearch(md5);
+	    HashSet s= new HashSet();
+	    s.addAll(ips);
+	   
+	    for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+		String object = (String) iterator.next();
+		responsexml += object + ", ";
+	    }
+	 
+	    return responsexml;
+	} catch (BitDewException e) {
+	    e.printStackTrace();
+	}
+	return null;
+    }
     /**
      * Http POST method is not used for the moment
      */
