@@ -4,6 +4,7 @@ import xtremweb.serv.dt.ftp.*;
 import xtremweb.serv.dt.http.*;
 import xtremweb.serv.dt.scp.ScpTransfer;
 import xtremweb.serv.dt.amazonS3.AmazonS3Transfer;
+import xtremweb.serv.dt.bittorrent.BittorrentTransfer;
 import xtremweb.serv.dt.dummy.*;
 import xtremweb.core.log.*;
 
@@ -15,11 +16,6 @@ import xtremweb.dao.DaoFactory;
 import xtremweb.dao.DaoJDOImpl;
 //FIXME
 import xtremweb.api.transman.TransferType;
-
-import javax.jdo.PersistenceManager;
-import javax.jdo.Extent;
-import javax.jdo.Query;
-import javax.jdo.Transaction;
 
 /**
  * Class <code>OOBTransferFactory</code> creates the corresponding OOBTransfer
@@ -126,6 +122,8 @@ public class OOBTransferFactory {
 		return new ScpTransfer(d,t,rl,ll,rp,lp);
 	    if (rp.getname().toLowerCase().equals("s3"))
 		return new AmazonS3Transfer(d,t,rl,ll,rp,lp);
+	    if (rp.getname().toLowerCase().equals("bittorrent"))
+		return new BittorrentTransfer(d,t,rl,ll,rp,lp);
 		
 	} else  if (rp.getname().toLowerCase().equals("local")) {
 	    if (lp.getname().toLowerCase().equals("ftp")) 
