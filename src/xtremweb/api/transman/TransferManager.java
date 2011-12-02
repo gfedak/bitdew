@@ -16,6 +16,7 @@ import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.dc.*;
 import xtremweb.serv.dt.*;
 import xtremweb.serv.dt.amazonS3.AmazonS3Transfer;
+import xtremweb.serv.dt.bittorrent.BittorrentTransfer;
 import xtremweb.serv.dt.dummy.DummyTransfer;
 import xtremweb.serv.dt.ftp.FtpTransfer;
 import xtremweb.serv.dt.http.HttpTransfer;
@@ -64,8 +65,8 @@ public class TransferManager {
     private long maxDownloads = 10;
     private static Vector ongoingUid = new Vector();
 
-    private final static PerfMonitor perf = PerfMonitorFactory
-	    .createPerfMonitor("TransferManager", "hits per second", 3000);
+   // private final static PerfMonitor perf = PerfMonitorFactory
+   //	    .createPerfMonitor("TransferManager", "hits per second", 3000);
 
     /*
      * <code>oobTransfers</code> is a Hashtable associating an OOBTransfer to
@@ -328,6 +329,8 @@ public class TransferManager {
 		return new ScpTransfer(d, t, rl, ll, rp, lp);
 	    if (rp.getname().toLowerCase().equals("s3"))
 		return new AmazonS3Transfer(d, t, rl, ll, rp, lp);
+	    if (rp.getname().toLowerCase().equals("bittorrent"))
+		return new BittorrentTransfer(d, t, rl, ll, rp, lp);
 	} else if (rp.getname().toLowerCase().equals("local")) {
 	    if (lp.getname().toLowerCase().equals("ftp"))
 		return new FtpTransfer(d, t, rl, ll, rp, lp);
@@ -505,11 +508,8 @@ public class TransferManager {
 			    complete = oob.poolTransfer();
 			if (trans.gettype() == TransferType.UNICAST_RECEIVE_RECEIVER_SIDE)
 			    complete = oob.poolTransfer();
-			
 			if (trans.gettype() == TransferType.UNICAST_RECEIVE_SENDER_SIDE)
 			    complete = oob.poolTransfer();
-			
-
 			log.debug("Complete is !!!" + complete);
 			// Transfer is finished
 			if (complete) {
@@ -588,7 +588,7 @@ public class TransferManager {
 
 	}
 	long end = System.currentTimeMillis();
-	perf.addSample(end - start);
+	//perf.addSample(end - start);
     }
 
     public long ongoingTransfers() {
