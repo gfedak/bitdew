@@ -11,7 +11,6 @@ package xtremweb.serv.dt.bittorrent;
  */
 
 import xtremweb.core.log.*;
-import xtremweb.core.uid.*;
 import xtremweb.core.conf.*;
 import xtremweb.serv.dt.*;
 import xtremweb.core.obj.dr.Protocol;
@@ -19,325 +18,225 @@ import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.Locator;
 import xtremweb.serv.dc.*;
-
-import org.apache.commons.httpclient.*;
-import org.apache.commons.httpclient.methods.*;
-import org.apache.commons.httpclient.methods.multipart.*;
-import org.apache.commons.httpclient.params.*;
+import org.apachev3.commons.httpclient.*;
+import org.apachev3.commons.httpclient.methods.*;
+import org.apachev3.commons.httpclient.methods.multipart.*;
+import org.apachev3.commons.httpclient.params.*;
 
 import java.io.*;
 import java.util.Properties;
-import java.net.*;
 
-public class BittorrentTransfer 
-    extends NonBlockingOOBTransferImpl 
-    implements NonBlockingOOBTransfer, OOBTransfer {
+public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
+	NonBlockingOOBTransfer, OOBTransfer {
 
-    private static boolean azureusFlag=false;
-    private static boolean btpdFlag=true;
-
-    protected static AzureusConnector bittorrent;
+    /**
+     * Btpd daemon encapsulating class
+     */
     protected static BtpdCore btpd;
 
+    /**
+     * Binary path to daemon directory
+     */
     private static String daemonDirName;
+    private Properties mainprop;
     private static String dataDirName;
     private static String torrentDirName;
+    private static String CLIDIR;
+    // private static String fileName;
 
-  //  private static String fileName;
-    
     private static boolean dirIntialised = false;
 
-    protected static  Logger log = LoggerFactory.getLogger(BittorrentTransfer.class);
+    protected static Logger log = LoggerFactory
+	    .getLogger(BittorrentTransfer.class);
 
-    public BittorrentTransfer(Data d, Transfer t, Locator rl, Locator ll, Protocol rp,  Protocol lp ) {
-	super(d,t,rl,ll,rp,lp);
-	transfer.setoob(this.getClass().toString());
+    public BittorrentTransfer(Data d, Transfer t, Locator rl, Locator ll,
+	    Protocol rp, Protocol lp) {	
+	super(d, t, rl, ll, rp, lp);
+	setParams();
     } // Ftpsender constructor
-
-
-    private static void prepareDirectories() {
-
-	if (dirIntialised) return;
-	//getting bittorrent configuration properties
-	Properties mainprop;		
+    
+    
+    public void setParams(){
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
-	} catch (ConfigurationException ce) {
-	    log.warn("No Bittorrent Protocol Information found : " + ce);
-	    mainprop = new Properties();
-	}
-
-	//directory initialization
-	if  ((daemonDirName = 
-	      mainprop.getProperty("xtremweb.serv.dr.bittorrent.daemonpath") 
-	      ) == null ) {
-	    if (azureusFlag) daemonDirName = "Azureus";
-	    else
-		if (btpdFlag) daemonDirName = "btpd";
-		else 
-		    daemonDirName = "bittorrent";
-	    log.debug(" daemon dir  " + daemonDirName);
-	}
-	dataDirName = "data";
-	torrentDirName = "torrents";
-
-	File daemonDir = new File( daemonDirName );
-	if (!daemonDir.isDirectory())
-	    daemonDir.mkdir();
-	
-	File dataDir = new File(daemonDir, dataDirName);
-	if (!dataDir.isDirectory())
-	    dataDir.mkdir();
-	
-	File torrentDir = new File(daemonDir, torrentDirName);
-	if (!torrentDir.isDirectory())
-	    torrentDir.mkdir();
-
-	daemonDirName = daemonDir.getAbsolutePath();
-	dataDirName = dataDir.getAbsolutePath();
-	torrentDirName = torrentDir.getAbsolutePath();
-
-	dirIntialised = true;
-    }
-
-    public static void init() throws OOBException {
-	
-	prepareDirectories();
-
-	//intialization of the bittorrent tools
-	BittorrentTools.init();
-
-	//start the tracker
-	BittorrentTools.startBittorrentTracker();
-	
-	//start azureus connector
-	if (azureusFlag) {
-	    //start the Azureus core
-	    //start a default bittorrent core
-	    try {
-		if (bittorrent == null) {
-		    bittorrent = new AzureusConnector();
-		}
-	    } catch (BittorrentException be) {
-		log.debug("Was not able to launch an Azureus Connector  : "  + be);
-		throw new OOBException("Bittorrent Transfer : cannot connect to Azureus Core ");
-	    }
-	    
-	    int attempts = 3;
-	    while (true) {
-		try {
-		    Socket sck = new Socket("127.0.0.1", 6880);
-		    sck.close();
-		    break;
-		} catch (Exception e) {
-		    try {
-			Thread.sleep(3000);
-		    } catch (Exception ee) {
-		    }
-		    log.debug("Cannot open a connection to Azureus Core " + attempts + " " +  e);
-		    if (attempts-- == 0) 
-			throw new OOBException("Bittorrent Transfer : cannot connect to Azureus Core ");
-		}
-	    }
-	}
-	
-	//start btpd
-/*	if (btpdFlag) {
-	    try {
-		if (btpd == null) {
-		    btpd = new BtpdCore(daemonDirName);
-		    btpd.startCore();
-		}
-		
-	    } catch (BittorrentException be) {
-		log.debug("Was not able to launch an Btpd core  : "  + be);
-		throw new OOBException("Bittorrent Transfer : cannot connect to  Core ");
-	    }	    
-	}*/
-	
-		//first create .torrent files
-	FilenameFilter filter = new FilenameFilter() {
-		public boolean accept(File dir, String name) {
-		    return !name.endsWith(".torrent");
-		}
-	    };
-	
-	File dataDir = new File(dataDirName);
-	String[] children = dataDir.list(filter);
-	    
-	if (children != null) {
-	    for (int i=0; i<children.length; i++) {
-		 String fileName = children[i];
-		//create the .torrent files
-		String trackerURL = "";
-		try {
-			trackerURL = "http://" + InetAddress.getLocalHost().getHostAddress()  + ":6969/announce";
-		    } catch (UnknownHostException uhe) {
-			log.debug("" + uhe);   
-		    }
-		log.debug("creating  " + fileName + ".torrent with tracker " + trackerURL );
-		BittorrentTools.makeTorrent(trackerURL, dataDirName + "/" + fileName, torrentDirName + "/" + fileName + ".torrent");
-	// BittorrentTools.makeTorrent(trackerURL, dataDirName + "/" + fileName, torrentDirName + "/" + rl.getref() + ".torrent");	    
-		log.debug("going to add " + torrentDirName + fileName + ".torrent" );
-       // log.debug("going to add " + torrentDirName + rl.getref() + ".torrent" );	
- 	 String torrentURL = torrentDirName +  "/" + fileName + ".torrent";
-         //  String torrentURL = torrentDirName +  "/" + rl.getref() + ".torrent";	
-	String urls[] = { torrentURL };
-		try {
-		    if (azureusFlag)
-			bittorrent.sendMsg( urls );
-		    if (btpdFlag)
-			new BtpdConnector().addTorrent(daemonDirName,  dataDirName, torrentURL);
-		} catch (BittorrentException be) {
-		    log.debug("Error when adding new torrents to the Azureus Core : " + be);
-		    throw new OOBException("Cannot perform Bittorrent nonBlockingReceive");
-		}
-	    }
+	    CLIDIR = mainprop.getProperty("xtremweb.serv.dt.bittorrent.btpd.clidirectory");
+	    daemonDirName = mainprop.getProperty("xtremweb.serv.dr.bittorrent.daemonpath");
+	    dataDirName = mainprop.getProperty("xtremweb.serv.dr.bittorrent.dirname");
+	  
+	} catch (ConfigurationException e) {
+	  	e.printStackTrace();
 	}
     }
     
+    public static void init() throws OOBException {
 
-    public void connect ()  throws OOBException {
-	//start a default bittorrent core
-	if (!dirIntialised) prepareDirectories();
 
-	if (btpdFlag) {
-	    try {
-		if (btpd == null) {
-		    btpd = new BtpdCore(daemonDirName);
-		    btpd.startCore();
-		}
-		
-	    } catch (BittorrentException be) {
-		log.debug("Was not able to launch an Btpd core  : "  + be);
-		throw new OOBException("Bittorrent Transfer : cannot connect to  Core ");
-	    }	    
+	// intialization of the bittorrent tools
+	BittorrentTools.init();
+
+	// start the tracker
+	BittorrentTools.startBittorrentTracker();
+
+    }
+
+    public void connect() throws OOBException {
+	// start a default bittorrent core
+	try {
+	    if (btpd == null) {
+		btpd = new BtpdCore("");
+		btpd.startCore();
+	    }
+
+	} catch (BittorrentException be) {
+	    log.debug("Was not able to launch an Btpd core  : " + be);
+	    throw new OOBException(
+		    "Bittorrent Transfer : cannot connect to  Core ");
 	}
-	
-	if (azureusFlag) {
-	    try {
-		if (bittorrent == null) {
-		    bittorrent = new AzureusConnector();
-		}
-	    } catch (BittorrentException be) {
-		log.debug("Was not able to launch an Azureus Connector  : "  + be);
-		throw new OOBException("Bittorrent Transfer : cannot connect to Azureus Core ");
-	    }
-	    
-	    int attempts = 3;
-	    while (true) {
-		try {
-		    Socket sck = new Socket("127.0.0.1", 6880);
-		    sck.close();
-		    break;
-		} catch (Exception e) {
-		    log.debug("Cannot open a connection to Azureus Core " + attempts + " " +  e);
-		    if (attempts-- == 0) 
-			throw new OOBException("Bittorrent Transfer : cannot connect to Azureus Core ");
-		    try {
-			Thread.sleep(3000);
-		    } catch (Exception ee) {
-		    }
-		}
-	    }
+
+    }
+
+    public void nonBlockingSendSenderSide() throws OOBException {
+	File copy = new File(remote_locator.getref());
+	File source = new File(local_locator.getref());
+	source.renameTo(copy);
+	BittorrentTools.makeTorrent(remote_locator.getref(),
+		remote_locator.getref() + ".torrent");
+	BtpdConnector btcli = new BtpdConnector();
+	HttpClient httpcli = new HttpClient();
+	try {
+	    Properties mainprop = ConfigurationProperties.getProperties();
+
+	    log.debug("attempting to add torrent");
+	    log.debug(" wait for seeding");
+	    btcli.addTorrent(CLIDIR, remote_locator.getref() + ".torrent");
+	    Thread.sleep(10000);
+	    log.debug("Seeding completed");
+	    log.debug("torrent added");
+	    String tfName = local_locator.getref();
+	    log.debug("tfName:" + tfName);
+
+	    String uploadServlet = mainprop.getProperty(
+		    "xtremweb.serv.dt.http.uploadServlet", "/fileupload");
+	    String torrentURL = "http://" + remote_protocol.getserver() + ":8080" + uploadServlet + "/";
+	    PostMethod postMethod = new PostMethod(torrentURL);
+
+	    log.debug("seindinf file to " + torrentURL);
+	    File file = new File(remote_locator.getref() + ".torrent");
+	    log.debug("sending " + file.getName() + " to " + torrentURL);
+
+	    // Part[] parts = {new FilePart(file.getName(), file)};
+	    Part[] parts = { new FilePart(remote_locator.getref() + ".torrent",
+		    remote_locator.getref() + ".torrent", file) };
+
+	    // prepare the file upload as a multipart POST request
+	    postMethod.setRequestEntity(new MultipartRequestEntity(parts,
+		    postMethod.getParams()));
+
+	    // execute the transfer and get the result as a status
+	    int status = httpcli.executeMethod(postMethod);
+	    log.debug("file sent");
+	} catch (HttpException e) {
+	    e.printStackTrace();
+	} catch (IOException e) {
+	    e.printStackTrace();
+	} catch (ConfigurationException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (InterruptedException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
+
     }
 
-    public void nonBlockingSendSenderSide   () throws OOBException {
+    public void nonBlockingSendReceiverSide() throws OOBException {
 
-	if (bittorrent != null) {
-	    String torrentURL = "http://";
-	    
-	    String urls[] = { torrentURL };
-	    try {
-		bittorrent.sendMsg( urls );
-	    } catch (BittorrentException be) {
-		log.debug("Error when adding new torrents to the Azureus Core : " + be);
-		throw new OOBException("Cannot perform Bittorrent nonBlockingReceive");
+	log.debug("Esto solo debe salir en un lado");
+	try {
+	    new BtpdCore().startCore();
+	    setParams();
+	    File f = new File(local_locator.getref() + ".torrent");
+	    log.debug("construyendo fil e " + local_locator.getref()
+		    + ".torrent");
+	    // long timeout =
+	    // props.getProperty("xtremweb.serv.btpd.btcli.timeout");
+	    while (!f.exists()) {
 	    }
-	}	
-	
+	    log.debug("el file ya existe, attempting to download");
+
+	    log.debug(" adding torrent " + local_locator.getref() + ".torrent");
+	    BtpdConnector.addTorrent(CLIDIR, local_locator.getref()+ ".torrent");
+	} catch (BittorrentException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} 
     }
 
-    public void nonBlockingSendReceiverSide   () throws OOBException {
+    public void nonBlockingReceiveSenderSide() throws OOBException {
     }
 
-    public void nonBlockingReceiveSenderSide() throws OOBException  {
-    }
-
-    public void nonBlockingReceiveReceiverSide() throws OOBException  {
+    public void nonBlockingReceiveReceiverSide() throws OOBException {
 	HttpClient httpClient = new HttpClient();
-//   set port tempor
-         remote_protocol.setport(8080);
-	 String tfName=local_locator.getref(); 
-	 tfName=tfName.substring(15);//this tfName string is too ugly, modify it later 
-	 log.debug("tfName:"+ tfName);
-//	String torrentURL = "http://" + remote_locator.getdrname() + ":" + remote_protocol.getport() + "/" + remote_protocol.getpath() + "/" + remote_locator.getref() + ".torrent";
-       String torrentURL = "http://" + remote_locator.getdrname() + ":" + remote_protocol.getport() + "/" + remote_protocol.getpath() + "/" + tfName + ".torrent";
+
+	remote_protocol.setport(8080);
+	String tfName = getData().getuid();
+	
+	log.debug("tfName:" + tfName);
+
+	String torrentURL = "http://" + remote_protocol.getserver() + ":"
+		+ remote_protocol.getport() + "/data/" + tfName + ".torrent";
 	String url = torrentURL;
 
-//	String localTorrent = torrentDirName + "/" + remote_locator.getref() + ".torrent";
-	String localTorrent = torrentDirName + "/" + tfName + ".torrent";
+	String localTorrent = dataDirName + "/" + tfName + ".torrent";
 
 	log.debug("getting " + url);
-	GetMethod getMethod = new GetMethod(url);	
+	GetMethod getMethod = new GetMethod(url);
 
 	// Provide custom retry handler is necessary
-	getMethod.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, 
-					   new DefaultHttpMethodRetryHandler(3, false));
+	getMethod.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
+		new DefaultHttpMethodRetryHandler(3, false));
 
 	try {
 	    // Execute the method.
 	    int statusCode = httpClient.executeMethod(getMethod);
-	    
+
 	    if (statusCode != HttpStatus.SC_OK) {
-		log.debug("HttpClient getMethod failed: " + getMethod.getStatusLine());
-		throw new OOBException("Http errors when setting retreive from " + url );
+		log.debug("HttpClient getMethod failed: "
+			+ getMethod.getStatusLine());
+		throw new OOBException(
+			"Http errors when setting retreive from " + url);
 	    }
-	    
+
 	    InputStream in = getMethod.getResponseBodyAsStream();
 	    byte[] buff = new byte[1024];
 	    int len;
-	    FileOutputStream out = new FileOutputStream( new File(localTorrent));
-	    
+	    FileOutputStream out = new FileOutputStream(new File(localTorrent));
+
 	    while ((len = in.read(buff)) != -1) {
-		//write byte to file
+		// write byte to file
 		out.write(buff, 0, len);
 	    }
-	    
+
 	} catch (HttpException e) {
 	    log.debug("Fatal protocol violation: " + e);
-	    throw new OOBException("Http errors when receiving receive " + "/" + remote_locator.getref() );
+	    throw new OOBException("Http errors when receiving receive " + "/"
+		    + remote_locator.getref());
 	} catch (IOException e) {
 	    System.err.println("Fatal transport error: " + e);
-	    throw new OOBException("Http errors when receiving receive " + "/" + remote_locator.getref() );
-	    
+	    throw new OOBException("Http errors when receiving receive " + "/"
+		    + remote_locator.getref());
+
 	} finally {
 	    log.debug("FIN du transfer");
 	    getMethod.releaseConnection();
 	}
 
-	if (btpdFlag) {
-	    try {		
-		new BtpdConnector().addTorrent(daemonDirName,  dataDirName, localTorrent);
-	    } catch (BittorrentException be) {
-		log.debug("Error when adding new torrents to the Azureus Core : " + be);
-		throw new OOBException("Cannot perform Bittorrent nonBlockingReceive");
-	    }
-	    
-	}
-
-	if (azureusFlag) {
-	    if (bittorrent != null) {		
-		log.debug("going to fetch : " + torrentURL);
-		String urls[] = { torrentURL };
-		try {
-		    bittorrent.sendMsg( urls );
-		} catch (BittorrentException be) {
-		    log.debug("Error when adding new torrents to the Azureus Core : " + be);
-		    throw new OOBException("Cannot perform Bittorrent nonBlockingReceive");
-		}
-	    }	
+	try {
+	    new BtpdConnector().addTorrent(dataDirName, localTorrent);
+	} catch (OOBException be) {
+	    log.debug("Error when adding new torrents to btpd Core : " + be);
+	    throw new OOBException(
+		    "Cannot perform Bittorrent nonBlockingReceive");
 	}
     }
 
@@ -345,16 +244,15 @@ public class BittorrentTransfer
 	log.debug("disconnect");
     }
 
+    public static void main(String[] args) {
 
-    public static void main(String [] args) {
-
-	//	Data data = new Data();
+	// Data data = new Data();
 	File file = new File(args[1]);
 	Data data = DataUtil.fileToData(file);
-	//Preparer le local
+	// Preparer le local
 	Protocol local_proto = new Protocol();
 	local_proto.setname("local");
-	
+
 	local_proto.setpath(args[2]);
 
 	Locator local_locator = new Locator();
@@ -375,38 +273,35 @@ public class BittorrentTransfer
 	remote_locator.setprotocoluid(remote_proto.getuid());
 	remote_locator.setref("test-bittorrent");
 
-	//prepare
+	// prepare
 	Transfer t = new Transfer();
 
 	t.setlocatorremote(remote_locator.getuid());
 	t.setlocatorlocal(local_locator.getuid());
-	//	Data data = DataUtil.fileToData(file);
-	
-	BittorrentTransfer bt = new BittorrentTransfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
+	// Data data = DataUtil.fileToData(file);
+
+	BittorrentTransfer bt = new BittorrentTransfer(data, t, remote_locator,
+		local_locator, remote_proto, local_proto);
 	log.debug(bt.toString());
 	try {
 	    bt.connect();
 	    bt.receiveReceiverSide();
 	    bt.waitFor();
 	    bt.disconnect();
-	} catch(OOBException oobe) {
+	} catch (OOBException oobe) {
 	    System.out.println(oobe);
 	}
 	/*
-	remote_locator.setref("copy_test-http");
-	remote_proto.setpath("fileupload");
-
-	http = new HttpTransfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
-
-	try {
-	    http.connect();	    
-	    http.send();
-	    http.disconnect();
-	} catch(OOBException oobe) {
-	    System.out.println(oobe);
-	}
-	System.out.println("upload completed");
-	*/	
+	 * remote_locator.setref("copy_test-http");
+	 * remote_proto.setpath("fileupload");
+	 * 
+	 * http = new HttpTransfer(data, t, remote_locator, local_locator,
+	 * remote_proto, local_proto);
+	 * 
+	 * try { http.connect(); http.send(); http.disconnect(); }
+	 * catch(OOBException oobe) { System.out.println(oobe); }
+	 * System.out.println("upload completed");
+	 */
 
     }
 
