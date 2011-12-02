@@ -71,9 +71,11 @@ public class P2PSongs {
      * Next figure shows how the different node types work together : 
      * \image html bitdewp2pArch.png
      * 
-     * <h2> Procedure </h2>
+     * <h1> Procedure </h1>
      * 
-     * For this experience, we will need three computers connected through a TCP/IP network, we call them pc-1, pc-2 and pc-3.
+     * For this experience, we will need three computers connected through a TCP/IP network, we call them pc-1, pc-2 and pc-3, we will divide
+     * the experience in three steps: song publication, song searching and song downloading.
+     * <h2> Song publication </h2>
      * <ol> 
      *  <li> Choose one among your three machines and run there the bootstrap node, in our case we  will use pc-1. Download the latest version of bitdew-stand-alone-X.X.X.jar there, choose a folder (we will call it BITDEW_HOME), and
      *  move the jar there</li>
@@ -140,20 +142,28 @@ public class P2PSongs {
      * 
      * <b>(Commented and detailed code is shown below, if you want exact details of how this things are actually performed).</b> 
      * <li> You can repeat steps 2,3 in pc-3, and in as many computers as you desire, each computer will be a peer of our application </li>
-     * 
+     * <h2>Song searching </h2>
      * <li> Now, we can request for files on the P2P network: from any host in
      * your network open your webbrowser and type http://localhost:8080/findterm.html
      * You should see a window similar to the next one :
      * \image html findterm.png
-     * 
+     * In this window you need to fill three fields : 
+     * <ul>
+     * 	<li>Target directory : you write here in which directory you want to download the file </li>
+     * <li> Enter term : you write here the file name you want to find</li>
+     * <li> Enter owner ip : this is an optional field, once you launch a search, you will see in the last column the IP list of people having the file, 
+     * if you have any preference you can choose the ip to download the file 
+     * </ul>
      * <li> Write the keyword you want to look for and click on Send</li>
-     * 
+     * <h2>Song download </h2>
      * <li> If there are files whose name has your word as a term, a list similar to this one should appear, if not 
      * an empty table should appear : </li>
      * 
      * \image html results.png
      * 
-     * <li> Download will begin as soon as you click on any link </li>	
+     * <li> To download a file, choose the checkbox at the leftmost side and make click on "Download this song"</li>	
+     * <li> A message of success should appear, then you can see at the bottom list the file you just have download, you can check
+     * that the md5sum is equal to the original file.
      * <h2>Code source </h2>
      * Two java classes have been implemented to build this architecture, P2PClient source code :
      * <h3> P2PClient.java </h3>
