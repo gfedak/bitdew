@@ -16,7 +16,6 @@
   <property name="dist" location="dist"/>
   <property name="obj" location="${src}/xtremweb/core/obj"/>
   <property name="xsl" location="${src}/xtremweb/core/idl/xsl/"/>
-  <property name="cobertura.dir" value="${env.COB_HOME}" />
   <property name="reports" location="reports"/>
   <property name="reports.tests" location="${reports}/tests"/>
   <property name="reports.html" location="${reports}/html"/>
@@ -42,9 +41,12 @@
     </fileset>
   </path>
   <path id="cobertura.classpath">
-    <fileset dir="${cobertura.dir}">
+    <fileset dir="${lib}">
         <include name="cobertura.jar" />
-        <include name="lib/**/*.jar" />
+        <include name="asm-3.0.jar" />
+    	<include name="asm-tree-3.0.jar" />
+    	<include name="jakarta-oro-2.0.8.jar" />
+        <include name="log4j-1.2.9.jar" />
     </fileset>
   </path>
   <property name="project.classpath" refid="id.project.classpath"/>

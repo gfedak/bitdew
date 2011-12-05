@@ -38,7 +38,6 @@ public class DaoJDOImpl implements InterfaceDao {
     private static PersistenceManagerFactory pmf;
     
     static{
-    	log.debug("I CAN SEE THIS ONLY ONCE !!!!!!!!!!!");
     	Properties mainprop;
     	try {
     	    mainprop = ConfigurationProperties.getProperties();
