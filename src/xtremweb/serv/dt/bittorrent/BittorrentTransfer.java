@@ -17,7 +17,6 @@ import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.Locator;
-import xtremweb.serv.dc.*;
 import org.apachev3.commons.httpclient.*;
 import org.apachev3.commons.httpclient.methods.*;
 import org.apachev3.commons.httpclient.methods.multipart.*;
@@ -26,6 +25,11 @@ import org.apachev3.commons.httpclient.params.*;
 import java.io.*;
 import java.util.Properties;
 
+/**
+ * This class implements a Bittorrent transfer, it uses btpd library.
+ * @author jsaray
+ *
+ */
 public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	NonBlockingOOBTransfer, OOBTransfer {
 
@@ -38,24 +42,46 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
      * Binary path to daemon directory
      */
     private static String daemonDirName;
+    
+    /**
+     * Bittorrent transfer properties (trackerurl, daemon path etc)
+     */
     private Properties mainprop;
+    
+    /**
+     * 
+     */
     private static String dataDirName;
-    private static String torrentDirName;
+    
+    /**
+     * Directory where a desired .torrent file exists
+     */
     private static String CLIDIR;
-    // private static String fileName;
-
-    private static boolean dirIntialised = false;
-
+    
+    /**
+     * Log
+     */
     protected static Logger log = LoggerFactory
 	    .getLogger(BittorrentTransfer.class);
-
+    
+    /**
+     * Bittorrent transfer constructor
+     * @param d the data to transfer
+     * @param t transfer object
+     * @param rl remote locator (data destiny location)
+     * @param ll local locator(current data location)
+     * @param rp remote protocol
+     * @param lp local locator
+     */
     public BittorrentTransfer(Data d, Transfer t, Locator rl, Locator ll,
 	    Protocol rp, Protocol lp) {	
 	super(d, t, rl, ll, rp, lp);
 	setParams();
-    } // Ftpsender constructor
+    }
     
-    
+    /**
+     * 
+     */
     public void setParams(){
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
@@ -68,6 +94,10 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	}
     }
     
+    /**
+     * 
+     * @throws OOBException
+     */
     public static void init() throws OOBException {
 
 
@@ -78,7 +108,10 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	BittorrentTools.startBittorrentTracker();
 
     }
-
+    
+    /**
+     * Connect the bittorrent transfer
+     */
     public void connect() throws OOBException {
 	// start a default bittorrent core
 	try {
@@ -94,7 +127,12 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	}
 
     }
-
+    
+    /**
+     * This method perform a point to point torrent transfer. To achieve it,
+     * a .torrent file is produced having the bitdew uid, then the .torrent file is sent to a Http repository.
+     * and finally the nonBlockingSendReceiverSide is called.
+     */
     public void nonBlockingSendSenderSide() throws OOBException {
 	File copy = new File(remote_locator.getref());
 	File source = new File(local_locator.getref());
@@ -105,15 +143,28 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	HttpClient httpcli = new HttpClient();
 	try {
 	    Properties mainprop = ConfigurationProperties.getProperties();
-
-	    log.debug("attempting to add torrent");
-	    log.debug(" wait for seeding");
+	    log.debug("attempting to add torrent");	   
 	    btcli.addTorrent(CLIDIR, remote_locator.getref() + ".torrent");
-	    Thread.sleep(10000);
+	    boolean seeding = btcli.isSeedingComplete(remote_locator.getref() + ".torrent");
+	    log.debug(" wait for seeding");
+	    log.debug("Seeding ? " + seeding);
+	    long TIMEOUT = 120000;
+	    long d = System.currentTimeMillis();
+	    long now,elapsed=0;
+	    while( !seeding && elapsed < TIMEOUT )
+	    {
+		seeding = btcli.isSeedingComplete(remote_locator.getref() + ".torrent");
+		now = System.currentTimeMillis();
+		elapsed = now - d;
+		log.debug("Performing seeding...");
+	    }
+	    if (!seeding)
+		throw new OOBException(" Seeding could not be performed, time out reached ");
+	    
 	    log.debug("Seeding completed");
 	    log.debug("torrent added");
 	    String tfName = local_locator.getref();
-	    log.debug("tfName:" + tfName);
+	    log.debug("Torrent file name :" + tfName);
 
 	    String uploadServlet = mainprop.getProperty(
 		    "xtremweb.serv.dt.http.uploadServlet", "/fileupload");
@@ -136,45 +187,49 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	    int status = httpcli.executeMethod(postMethod);
 	    log.debug("file sent");
 	} catch (HttpException e) {
-	    e.printStackTrace();
+	    throw new OOBException("There was a problem when trying to transfer the .torrent file to repository : " + e.getMessage());
 	} catch (IOException e) {
-	    e.printStackTrace();
+	    throw new OOBException("There was a problem when trying to transfer the .torrent file to repository : " + e.getMessage());
 	} catch (ConfigurationException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	} catch (InterruptedException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+ 	    throw new OOBException("There was a problem when reading the properties file : " + e.getMessage());
+	} catch (BittorrentException e) {
+	    throw new OOBException("There was a problem when adding the torrent for first seeding : " + e.getMessage());
 	}
 
     }
-
+    
+    /**
+     * This method is executed on http repository side, once it successfully receives the .torrent file with
+     * the file to download metadata,  it calls a bittorrent daemon to begin the download.
+     */
     public void nonBlockingSendReceiverSide() throws OOBException {
 
-	log.debug("Esto solo debe salir en un lado");
 	try {
 	    new BtpdCore().startCore();
 	    setParams();
 	    File f = new File(local_locator.getref() + ".torrent");
-	    log.debug("construyendo fil e " + local_locator.getref()
+	    log.debug("building file " + local_locator.getref()
 		    + ".torrent");
-	    // long timeout =
-	    // props.getProperty("xtremweb.serv.btpd.btcli.timeout");
 	    while (!f.exists()) {
 	    }
-	    log.debug("el file ya existe, attempting to download");
+	    log.debug("File exists ! , attempting to download");
 
 	    log.debug(" adding torrent " + local_locator.getref() + ".torrent");
 	    BtpdConnector.addTorrent(CLIDIR, local_locator.getref()+ ".torrent");
 	} catch (BittorrentException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	} 
     }
-
+    
+    /**
+     * For this case, this method is empty
+     */
     public void nonBlockingReceiveSenderSide() throws OOBException {
     }
-
+    
+    /**
+     * This method downloads a file from its .torrent description
+     */
     public void nonBlockingReceiveReceiverSide() throws OOBException {
 	HttpClient httpClient = new HttpClient();
 
@@ -233,76 +288,17 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 
 	try {
 	    new BtpdConnector().addTorrent(dataDirName, localTorrent);
-	} catch (OOBException be) {
+	} catch (BittorrentException be) {
 	    log.debug("Error when adding new torrents to btpd Core : " + be);
 	    throw new OOBException(
 		    "Cannot perform Bittorrent nonBlockingReceive");
 	}
     }
-
+    
+    /**
+     * Disconnect the transfer
+     */
     public void disconnect() throws OOBException {
 	log.debug("disconnect");
     }
-
-    public static void main(String[] args) {
-
-	// Data data = new Data();
-	File file = new File(args[1]);
-	Data data = DataUtil.fileToData(file);
-	// Preparer le local
-	Protocol local_proto = new Protocol();
-	local_proto.setname("local");
-
-	local_proto.setpath(args[2]);
-
-	Locator local_locator = new Locator();
-	local_locator.setdatauid(data.getuid());
-	local_locator.setdrname("localhost");
-	local_locator.setprotocoluid(local_proto.getuid());
-	local_locator.setref("");
-
-	// Preparer le proto pour l'acces remote
-	Protocol remote_proto = new Protocol();
-	remote_proto.setname("bittorrent");
-	remote_proto.setpath("torrents");
-	remote_proto.setport(8080);
-
-	Locator remote_locator = new Locator();
-	remote_locator.setdatauid(data.getuid());
-	remote_locator.setdrname(args[0]);
-	remote_locator.setprotocoluid(remote_proto.getuid());
-	remote_locator.setref("test-bittorrent");
-
-	// prepare
-	Transfer t = new Transfer();
-
-	t.setlocatorremote(remote_locator.getuid());
-	t.setlocatorlocal(local_locator.getuid());
-	// Data data = DataUtil.fileToData(file);
-
-	BittorrentTransfer bt = new BittorrentTransfer(data, t, remote_locator,
-		local_locator, remote_proto, local_proto);
-	log.debug(bt.toString());
-	try {
-	    bt.connect();
-	    bt.receiveReceiverSide();
-	    bt.waitFor();
-	    bt.disconnect();
-	} catch (OOBException oobe) {
-	    System.out.println(oobe);
-	}
-	/*
-	 * remote_locator.setref("copy_test-http");
-	 * remote_proto.setpath("fileupload");
-	 * 
-	 * http = new HttpTransfer(data, t, remote_locator, local_locator,
-	 * remote_proto, local_proto);
-	 * 
-	 * try { http.connect(); http.send(); http.disconnect(); }
-	 * catch(OOBException oobe) { System.out.println(oobe); }
-	 * System.out.println("upload completed");
-	 */
-
-    }
-
 } // BittorrentTransfer

@@ -9,6 +9,8 @@ import java.io.*;
 import java.util.Properties;
 
 /**
+ * This class allows to add a torrent and probe for successfully seeding using btcli 
+ * implementation
  * <code>BtpdConnector</code>
  * 
  * @author <a href="mailto:fedak@xtremciel.gillus.net">Gilles Fedak</a>
@@ -20,9 +22,15 @@ public class BtpdConnector {
      * Path to btpdcli binary file
      */
     public static String btpdCliExec;
-
+    
+    /**
+     * Logger
+     */
     protected static Logger log = LoggerFactory.getLogger(BtpdConnector.class);
-
+    
+    /**
+     * Static block to initialize btpd client binary path
+     */
     static{
 	Properties mainprop;
 	try {
@@ -39,19 +47,14 @@ public class BtpdConnector {
 
     /**
      * Add a .torrent file to begin download.
-     * 
-     * @param daemonDir
-     *            dir to btcli binary file
-     * @param dataDir
-     *            dir to btcli
-     * @param torrentURL
-     *            url where we can find the torrent
-     * @throws BittorrentException
+     * @param folder the folder where .torrent file is
+     * @param torrentFile the .torrent file
+     * @throws BittorrentException if a problem launching btcli add command happens
      */
-    public static void addTorrent(String folder, String dataDir)
-	    throws OOBException {
+    public static void addTorrent(String folder, String torrentFile)
+	    throws BittorrentException {
 
-	String cmdLine = btpdCliExec + " add -d " + folder + " " + dataDir;
+	String cmdLine = btpdCliExec + " add -d " + folder + " " + torrentFile;
 	log.debug("Going to add torrent " + cmdLine);
 	try {
 	    Executor e = new Executor(cmdLine);
@@ -59,34 +62,39 @@ public class BtpdConnector {
 	    log.info("Download finished");
 	} catch (ExecutorLaunchException ele) {
 	    log.debug("Error when launching " + btpdCliExec + " " + ele);
-	    throw new OOBException("Error when launching btpd core");
+	    throw new BittorrentException("Error when launching btpd core " + ele.getMessage());
 	} // end of try-catch
 
     }
-
-    public boolean isSeedingComplete(String string) throws OOBException {
-	String cmd = "btcli list " + string;
-	Executor exe = new Executor(cmd);
+    
+    /**
+     * Checks if the first seeding is complete
+     * @param torrentFile the torrent file we previously add
+     * @return true if the file to download was first-time seeded, else false.
+     * @throws OOBException
+     */
+    public boolean isSeedingComplete(String torrentFile) throws BittorrentException {
+	log.debug("enter in seeding complete");
+	String cmd = "btcli list " + torrentFile;
+	
 	try {
-	    exe.startAndWait();
-	    InputStream is = exe.getStdin();
-	    BufferedReader br = new BufferedReader(new InputStreamReader(is));
-	    br.readLine();
+	    Process  p = Runtime.getRuntime().exec(cmd);
+	    BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+	    log.debug("after startwait");
+	    String firs = br.readLine();
+	    log.debug("after startwait " + firs);
 	    String s = br.readLine();
 	    log.debug("output of btcli list " + s);
 	    if (s == null)
-		throw new OOBException("That torrent do not exist");
+		throw new BittorrentException("That torrent do not exist");
 	    String[] toks = s.split("\\s");
 	    for (String elem : toks) {
 		if (elem.contains("100"))
 		    return true;
 	    }
-	} catch (ExecutorLaunchException e) {    
-	    e.printStackTrace();
 	} catch (IOException e) {
 	    e.printStackTrace();
 	}
 	return false;
-
     }
 }
