@@ -43,11 +43,6 @@ public class JsonPropertiesTest extends TestCase {
 	    
 	    assertEquals(value1,value2);
 	    
-	    value1 = propjson.getProperty("xtremweb.serv.dt.bittorrent.azureusjar");
-	    value2 = confprop.getProperty("xtremweb.serv.dt.bittorrent.azureusjar");
-	    
-	    assertEquals(value1,value2);
-	    
 	    value1 = propjson.getProperty("xtremweb.core.handler.perf");
 	    value2 = confprop.getProperty("xtremweb.core.handler.perf"); 
 	    
