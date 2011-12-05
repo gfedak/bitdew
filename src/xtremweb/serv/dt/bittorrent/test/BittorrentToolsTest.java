@@ -2,8 +2,11 @@ package xtremweb.serv.dt.bittorrent.test;
 
 import java.io.File;
 
+import org.jfree.util.Log;
 import org.junit.Test;
 
+import xtremweb.serv.dt.OOBException;
+import xtremweb.serv.dt.bittorrent.BittorrentException;
 import xtremweb.serv.dt.bittorrent.BittorrentTools;
 import junit.framework.TestCase;
 
@@ -33,14 +36,24 @@ public class BittorrentToolsTest extends TestCase {
      */
     @Test
     public static void testDownloadTorrent() {
+	try {
 	String FILE_PATH = System.getProperty("user.dir") + File.separator
 		+ "bitdew.mf";
 	String TARGET_PATH = System.getProperty("user.dir") + File.separator
 		+ "bitdew.mf.torrent";
+	
+	    BittorrentTools.init();
+	
 	BittorrentTools.makeTorrent(FILE_PATH, TARGET_PATH);
 
 	assertTrue(new File(TARGET_PATH).exists());
-
+	} catch (OOBException e) {
+	    fail();
+	    e.printStackTrace();
+	} catch (BittorrentException e) {
+	    Log.warn(" There was a problem when making the torrent file, maybe you dont have installed the binery file ");
+	   
+	}
     }
     
     /**

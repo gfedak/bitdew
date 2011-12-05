@@ -58,7 +58,10 @@ public class BtpdConnector {
 	log.debug("Going to add torrent " + cmdLine);
 	try {
 	    Executor e = new Executor(cmdLine);
-	    e.startAndWait();
+	    int returnCode = e.startAndWait();
+	    log.debug("Error code is " + returnCode);
+	    if (returnCode != 0)
+		throw new BittorrentException("There was a problem when executing btcli, to find more information add -v option : ");
 	    log.info("Download finished");
 	} catch (ExecutorLaunchException ele) {
 	    log.debug("Error when launching " + btpdCliExec + " " + ele);

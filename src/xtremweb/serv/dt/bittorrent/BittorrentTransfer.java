@@ -51,7 +51,7 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
     /**
      * 
      */
-    private static String dataDirName;
+    private static String torrentDir;
     
     /**
      * Directory where a desired .torrent file exists
@@ -85,9 +85,9 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
     public void setParams(){
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
-	    CLIDIR = mainprop.getProperty("xtremweb.serv.dt.bittorrent.btpd.clidirectory");
-	    daemonDirName = mainprop.getProperty("xtremweb.serv.dr.bittorrent.daemonpath");
-	    dataDirName = mainprop.getProperty("xtremweb.serv.dr.bittorrent.dirname");
+	    CLIDIR = mainprop.getProperty("xtremweb.serv.dr.bittorrent.btpd.torrentDirReceiver");
+	    daemonDirName = mainprop.getProperty("xtremweb.serv.dr.bittorrent.btpd.exec");
+	    torrentDir = mainprop.getProperty("xtremweb.serv.dr.bittorrent.btpd.torrentDirSender");
 	  
 	} catch (ConfigurationException e) {
 	  	e.printStackTrace();
@@ -137,11 +137,12 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	File copy = new File(remote_locator.getref());
 	File source = new File(local_locator.getref());
 	source.renameTo(copy);
+	try {
 	BittorrentTools.makeTorrent(remote_locator.getref(),
 		remote_locator.getref() + ".torrent");
 	BtpdConnector btcli = new BtpdConnector();
 	HttpClient httpcli = new HttpClient();
-	try {
+	
 	    Properties mainprop = ConfigurationProperties.getProperties();
 	    log.debug("attempting to add torrent");	   
 	    btcli.addTorrent(CLIDIR, remote_locator.getref() + ".torrent");
@@ -242,7 +243,7 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 		+ remote_protocol.getport() + "/data/" + tfName + ".torrent";
 	String url = torrentURL;
 
-	String localTorrent = dataDirName + "/" + tfName + ".torrent";
+	String localTorrent = tfName + ".torrent";
 
 	log.debug("getting " + url);
 	GetMethod getMethod = new GetMethod(url);
@@ -287,7 +288,7 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	}
 
 	try {
-	    new BtpdConnector().addTorrent(dataDirName, localTorrent);
+	    new BtpdConnector().addTorrent(torrentDir, localTorrent);
 	} catch (BittorrentException be) {
 	    log.debug("Error when adding new torrents to btpd Core : " + be);
 	    throw new OOBException(

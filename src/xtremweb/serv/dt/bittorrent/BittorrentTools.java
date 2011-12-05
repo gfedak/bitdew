@@ -6,6 +6,7 @@ import xtremweb.core.log.*;
 import xtremweb.core.conf.*;
 import xtremweb.serv.dt.OOBException;
 
+import java.io.File;
 import java.util.Properties;
 
 /**
@@ -74,22 +75,20 @@ public class BittorrentTools {
 	    log.warn("No Bittorrent Protocol Information found : " + ce);
 	    mainprop = new Properties();
 	}
-	if (mainprop.getProperty("xtremweb.serv.dt.bittorrent.trackerExec")== null)
+	if (mainprop.getProperty("xtremweb.serv.dr.bittorrent.trackerExec")== null)
 	    throw new OOBException ("You need to specify the tracker binary path in properties.json");
-	if(mainprop.getProperty("xtremweb.serv.dt.bittorrent.makeTorrentExec")== null)
+	if(mainprop.getProperty("xtremweb.serv.dr.bittorrent.makeTorrentExec")== null)
 	    throw new OOBException("You need to specify the bin path to the program that makes bittorrent");
 	if(mainprop.getProperty("xtremweb.serv.dr.bittorrent.port") ==null)
 	    throw new OOBException("You need to specify the port");
 	
 	 
 	//initializing the BittorrentTools
-	setTrackerExec(mainprop.getProperty("xtremweb.serv.dt.bittorrent.trackerExec"));
-	
-	setMakeTorrentExec(mainprop.getProperty("xtremweb.serv.dt.bittorrent.makeTorrentExec"));
-	//System.out.println("number is joder ito " + new Integer(mainprop.getProperty("xtremweb.serv.dr.bittorrent.port")) );
+	setTrackerExec(mainprop.getProperty("xtremweb.serv.dr.bittorrent.btpd.trackerExec"));	
+	setMakeTorrentExec(mainprop.getProperty("xtremweb.serv.dr.bittorrent.makeTorrentExec"));
 	setTrackerPort( new Integer(mainprop.getProperty("xtremweb.serv.dr.bittorrent.port")).intValue());
-	setTrackerUrl(mainprop.getProperty("xtremweb.serv.dt.bittorrent.trackerurl"));
-	setOptions(mainprop.getProperty("xtremweb.serv.dt.bittorrent.trackerOption"));
+	setTrackerUrl(mainprop.getProperty("xtremweb.serv.dr.bittorrent.trackerurl"));
+	setOptions(mainprop.getProperty("xtremweb.serv.dr.bittorrent.trackerOption"));
     }
     
     /**
@@ -130,7 +129,7 @@ public class BittorrentTools {
      * @param fileName the file name from which the torrent will be created
      * @param torrentName the torrent name
      */
-    public static void makeTorrent( String fileName, String torrentName) {
+    public static void makeTorrent( String fileName, String torrentName)throws BittorrentException {
 	//todo different make tools have different syntaxis, factory pattrrn
 	String execString =  makeTorrentExec + " " +  fileName  + " "+ trackerurl+ " --target "  + torrentName  ;
 	System.out.println("execcommand "+ execString);
@@ -140,7 +139,11 @@ public class BittorrentTools {
 	    e.startAndWait();
 	    e.flushPipe();
 	} catch (ExecutorLaunchException ele) {
-	    System.out.println("Error when launching " + execString + " " + ele);
+	    File bin = new File(makeTorrentExec);
+	    if (!bin.exists())
+		throw new BittorrentException("The binary file to make a torrent " + makeTorrentExec + "do not exist");
+	    else
+		throw new BittorrentException("There was a problem making the .torrent file " + ele.getMessage());
 	}
     }
     

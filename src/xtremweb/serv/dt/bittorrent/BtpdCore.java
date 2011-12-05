@@ -72,8 +72,8 @@ public class BtpdCore {
 	    log.warn("No Bittorrent Protocol Information found : " + ce);
 	    mainprop = new Properties();
 	}		
-	btpdExec = mainprop.getProperty("xtremweb.serv.dt.bittorrent.btpd.exec",DEFAULT_BTPD_EXEC);
-	btpdOptions = mainprop.getProperty("xtremweb.serv.dt.bittorrent.btpd.options",DEFAULT_BTPD_OPTIONS);
+	btpdExec = mainprop.getProperty("xtremweb.serv.dr.bittorrent.btpd.exec",DEFAULT_BTPD_EXEC);
+	btpdOptions = mainprop.getProperty("xtremweb.serv.dr.bittorrent.btpd.options",DEFAULT_BTPD_OPTIONS);
     }
 
 

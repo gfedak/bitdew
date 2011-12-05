@@ -650,7 +650,12 @@ public class BitDew {
 	local_locator.setdatauid(data.getuid());
 	// local_locator.setdrname("localhost");
 	// local_locator.setprotocoluid(local_proto.getuid());
-	local_locator.setref(file.getAbsolutePath());
+	String pro = data.getoob();
+	log.debug(" Protocol is " + pro);
+	if(data.getoob().equals("bittorrent"))
+	    local_locator.setref(data.getuid());
+	else
+	    local_locator.setref(file.getAbsolutePath());
 
 	log.debug("Local Locator : " + file.getAbsolutePath());
 	
