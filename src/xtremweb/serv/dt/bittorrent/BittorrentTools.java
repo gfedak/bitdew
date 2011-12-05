@@ -51,7 +51,7 @@ public class BittorrentTools {
     protected static  Logger log = LoggerFactory.getLogger(BittorrentTools.class);
     
     /**
-     * 
+     * Static block to initialize class
      */
     static {
 	try {
