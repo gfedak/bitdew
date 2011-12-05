@@ -309,7 +309,7 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 	    Iterator iter = dao.getAll(Protocol.class).iterator();
 	    while (iter.hasNext()) {
 		Protocol proto = (Protocol) iter.next();
-		ret += ("Protocol entro !!! [" + dao.getObjectId(proto)
+		ret += ("Protocol [" + dao.getObjectId(proto)
 			+ "]   [" + protoToString(proto) + "]\n");
 	    }
 	    dao.commitTransaction();

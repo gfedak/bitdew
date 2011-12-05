@@ -179,7 +179,7 @@ public class CommandLineTool {
     private static Logger log = LoggerFactory.getLogger("CommandLineTool");
 
     public CommandLineTool(String[] args) {
-		
+	log.setLevel("info");
 	// force the log4J configuration to log level info without formatting
 	if (log instanceof Log4JLogger) {
 	    try {
@@ -190,9 +190,10 @@ public class CommandLineTool {
 	}
 	String[] otherArgs = parse(args);
 	// switch to verbose mode
+	log.info("verbose is " + verbose);
 	if (verbose)
 	    log.setLevel("debug");
-		
+	
 	// if there's no other argument display helps
 	if (otherArgs.length == 0)
 	    usage(HelpFormat.SHORT);

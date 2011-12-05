@@ -4,8 +4,6 @@ package xtremweb.serv.dt.bittorrent;
 import xtremweb.core.exec.*;
 import xtremweb.core.log.*;
 import xtremweb.core.conf.*;
-
-import java.io.*;
 import java.util.Properties;
 
 /**
@@ -19,51 +17,35 @@ import java.util.Properties;
 public class BtpdCore {
     
     /**
-     * 
+     * Path to btpd daemon executable
      */
     private String btpdExec;
     
     /**
-     * 
-     */
-    private String btpdPath;
-    
-    /**
-     * 
+     * Options added to btpd
      */
     private String btpdOptions;
     
     /**
-     * 
+     * Default path to btpd
      */
-    public final static String DEFAULT_BTPD_EXEC = "/usr/local/bin/btpd";
+    public final static String DEFAULT_BTPD_EXEC = "/usr/bin/btpd";
     
     /**
-     * 
+     * btpd default options
      */
     public final static String DEFAULT_BTPD_OPTIONS = " --max-uploads -1 --empty-start ";
     
     /**
-     * 
+     * Log
      */
     protected static  Logger log = LoggerFactory.getLogger(BtpdCore.class);
 
-
     /**
      * Creates a new <code>BtpdCore</code> instance.
      *
      */
-    public BtpdCore() {
-	this(DEFAULT_BTPD_EXEC);
-    }
-
-
-    /**
-     * Creates a new <code>BtpdCore</code> instance.
-     *
-     */
-    public BtpdCore(String path) {	
-	btpdPath = path;
+    public BtpdCore() {	
 	//getting bittorrent configuration properties
 	Properties mainprop;		
 	try {
@@ -82,9 +64,6 @@ public class BtpdCore {
      *
      */
     public void startCore() throws BittorrentException {
-	File btpdDir = new File(btpdPath);
-	btpdDir.mkdir();
-	new File(btpdDir, "data").mkdir();
 	String btpdCmdLine = btpdExec + " " + btpdOptions;
 	log.debug("Sarting Btpd : " + btpdCmdLine );
 	try {
