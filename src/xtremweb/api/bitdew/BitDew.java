@@ -651,8 +651,8 @@ public class BitDew {
 	// local_locator.setdrname("localhost");
 	// local_locator.setprotocoluid(local_proto.getuid());
 	String pro = data.getoob();
-	log.debug(" Protocol is " + pro);
-	if(data.getoob().equals("bittorrent"))
+	log.debug(" Protocol is " + pro + " data is " + data);
+	if(data.getoob()!=null && data.getoob().equals("bittorrent"))
 	    local_locator.setref(data.getuid());
 	else
 	    local_locator.setref(file.getAbsolutePath());
@@ -821,6 +821,7 @@ public class BitDew {
 	    if (ddc != null)
 		return ddc.search(data);
 	} catch (DDCException ddce) {
+		ddce.printStackTrace();
 	    log.debug("cannot ddc find data : " + data + "\n" + ddce);
 	}
 	throw new BitDewException();
