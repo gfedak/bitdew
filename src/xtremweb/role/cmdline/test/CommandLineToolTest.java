@@ -37,7 +37,7 @@ public class CommandLineToolTest {
 	//String[] cmdargstwo = {"add","{repository:{login:\"anonymous\",path: \"/pub/linux/distributions/slackware/slackware-current\",port:21, name:\"ftp\",server:\"ftp.lip6.fr\",passwd:\"no\"}}"};
 	//cmdlinetool.add(cmdargstwo);
 	String[] cmdargsthree = {"proto","{repository:{name: \"scp\",login:\"jsaray\",server:\"access.lyon.grid5000.fr\",prkeypath:\"/home/jsaray/.ssh/id_dsa\",knownhosts:\"/home/jsaray/.ssh/known_hosts/\",passphrase:\"yes\",port: 22,path:\"/home/jsaray\"}}"};
-	cmdlinetool.add(cmdargsthree);
+	cmdlinetool.proto(cmdargsthree);
 	
 	Protocol p = null;
 	
