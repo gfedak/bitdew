@@ -8,7 +8,7 @@ import java.util.Hashtable;
  *
  * Created: Sun Apr  2 11:24:56 2006
  *
- * @author <a href="mailto:">Gilles Fedak</a>
+ * @author <a href="mailto:Gilles.Fedak@inria.fr">Gilles Fedak</a>
  * @version 1.0
  */
 public class LoggerFactory {
@@ -66,7 +66,7 @@ public class LoggerFactory {
 	    logClassName = "xtremweb.core.log.Log4JLogger";
             return logClassName;
         } catch (Throwable t) {
-            ;
+            ;//log4j was not in the class path, let's try the next one
         }
 
 	//check for jdk logger
@@ -79,7 +79,7 @@ public class LoggerFactory {
 		return logClassName;
 	    }
         } catch (Throwable t) {
-            ;
+            ;//jdk logger was not in the class path, let's switch to the default one
         }
 
         if (logClassName == null) {
@@ -98,13 +98,12 @@ public class LoggerFactory {
      *
      * @param clazz Class from which a log name will be derived
      *
-     * @exception LogConfigurationException if a suitable <code>Log</code>
-     *  instance cannot be returned
      */
     public static Logger getLogger(Class clazz) {
         return (getLogger(clazz.getName()));
 
     }
+
 
     /**
      * <p>Construct (if necessary) and return a <code>Logger</code> instance,
@@ -125,10 +124,8 @@ public class LoggerFactory {
 		instance = (Logger) cl.loadClass(logClassName).newInstance();
 		instance.init(name);
 		instances.put(name, instance);
-
 	    } catch (Exception e) {
-		//		throw new LoggerException("cannot instantiate " + logClassName + " : " + e );
-		;
+		System.out.println("Cannot instantiate " + logClassName + " : " + e );
 	    }
         }
         return (instance);

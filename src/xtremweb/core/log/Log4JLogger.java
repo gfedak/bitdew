@@ -10,23 +10,31 @@ import java.util.Properties;
  *
  * Created: Tue Jul 17 13:07:00 2007
  *
- * @author <a href="mailto:fedak@lri7-234.lri.fr">Gilles Fedak</a>
+ * @author <a href="mailto:Gilles.Fedak@inria.fr">Gilles Fedak</a>
  * @version 1.0
  */
 public class Log4JLogger extends xtremweb.core.log.Logger {
 
     org.apache.log4j.Logger logger;
+    private static boolean debug = false;
+    private final static String  DEFAULT_LOG4J_PROPERTIES = "conf/log4j.properties";
+    private static String log4jProperties = DEFAULT_LOG4J_PROPERTIES;
 
     /**
      * Creates a new <code>Log4JLogger</code> instance.
      *
      */
     public Log4JLogger() {
+	try {
+	    setProperties(log4jProperties);
+	} catch (LoggerException le) {
+	    System.out.println("cannot init properly : " + le );
+	} 
 	logger=  org.apache.log4j.Logger.getLogger("");
     }
 
     public Log4JLogger(String module) {
-	logger=  org.apache.log4j.Logger.getLogger(module);
+	this();
 	_module = module;
     } // Logger constructor
 
@@ -55,6 +63,10 @@ public class Log4JLogger extends xtremweb.core.log.Logger {
 
     
     public static void setProperties(String propertiesFileName)  throws LoggerException {
+	if (debug) {
+	    System.out.println("Log4j properties file : " + propertiesFileName);
+	}
+	log4jProperties = propertiesFileName;
 	File propFile = new File(propertiesFileName);
 	if (propFile.exists())
 	    PropertyConfigurator.configure(propertiesFileName);
@@ -72,15 +84,6 @@ public class Log4JLogger extends xtremweb.core.log.Logger {
 	}
     }
 
-    public static xtremweb.core.log.Logger getLogger( String module) {
-	try {
-	    setProperties("conf/log4j.properties");
-	} catch(LoggerException le) {
-	    System.out.println(le);
-	}
-	return new Log4JLogger(module);
-    }
-    
     //FIXME : make this generic to all logger
     public void setLevel(String level) {
 	if ("debug".equalsIgnoreCase(level)) {

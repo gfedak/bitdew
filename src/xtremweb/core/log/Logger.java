@@ -1,16 +1,13 @@
 package xtremweb.core.log;
 
 /**
- * Logger.java
+ * Logger is an abstract class to specify the various methods to log messages
  *
  *
- * Created: Thu Mar 10 11:11:52 2005
  *
- * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
+ * @author <a href="mailto:Gilles.Fedak@inria.fr">Gilles Fedak</a>
  * @version 1.0
  */
-
-//FIXME make this class abstract or an interface
 
 public abstract class Logger {
 
