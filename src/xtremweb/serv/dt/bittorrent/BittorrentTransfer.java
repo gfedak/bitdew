@@ -14,6 +14,7 @@ import xtremweb.core.log.*;
 import xtremweb.core.conf.*;
 import xtremweb.serv.dc.DataUtil;
 import xtremweb.serv.dt.*;
+import xtremweb.serv.dt.bittorrent.exception.HttpToolsException;
 import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.dc.Data;
@@ -172,7 +173,7 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 			+ ".torrent");
 		now = System.currentTimeMillis();
 		elapsed = now - d;
-		
+
 	    }
 	    log.info("First seeding done");
 	    if (!seeding)
@@ -208,7 +209,7 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 		throw new OOBException(
 			"Http errors when setting retreive from " + torrentURL);
 	    }
-	    
+
 	    log.debug("file sent");
 	} catch (HttpException e) {
 	    throw new OOBException(
@@ -244,15 +245,18 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	    log.debug("building file " + local_locator.getref() + ".torrent");
 	    while (!f.exists()) {
 	    }
-	    //if (!DataUtil.checksum(f).equals(data.getchecksum()))
-	//	throw new OOBException("There was an error with the .torrent file, it is corrupted");
+	    // if (!DataUtil.checksum(f).equals(data.getchecksum()))
+	    // throw new
+	    // OOBException("There was an error with the .torrent file, it is corrupted");
 	    log.debug("File exists ! , attempting to download");
 
 	    log.debug(" adding torrent " + local_locator.getref() + ".torrent");
 	    BtpdConnector.addTorrent(CLIDIR, local_locator.getref()
 		    + ".torrent");
 	} catch (BittorrentException e) {
-	    e.printStackTrace();
+	    throw new OOBException(
+		    "There was a problem using the btpd library "
+			    + e.getMessage());
 	}
     }
 
@@ -266,67 +270,37 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
      * This method downloads a file from its .torrent description
      */
     public void nonBlockingReceiveReceiverSide() throws OOBException {
-	HttpClient httpClient = new HttpClient();
-
-	remote_protocol.setport(8080);
-	String tfName = getData().getuid();
-
-	log.debug("tfName:" + tfName);
-
-	String torrentURL = "http://" + remote_protocol.getserver() + ":"
-		+ remote_protocol.getport() + "/data/" + tfName + ".torrent";
-	String url = torrentURL;
-
-	String localTorrent = tfName + ".torrent";
-
-	log.debug("getting " + url);
-	GetMethod getMethod = new GetMethod(url);
-
-	// Provide custom retry handler is necessary
-	getMethod.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
-		new DefaultHttpMethodRetryHandler(3, false));
-
+	int i =0;
+	int failures = 0;
+	BittorrentException exc = null ;
+	int MAX_TRIES = 5;
+	boolean done = false;
 	try {
-	    // Execute the method.
-	    int statusCode = httpClient.executeMethod(getMethod);
-
-	    if (statusCode != HttpStatus.SC_OK) {
-		log.debug("HttpClient getMethod failed: "
-			+ getMethod.getStatusLine());
-		throw new OOBException(
-			"Http errors when setting retreive from " + url);
+	    remote_protocol.setport(8080);
+	    String tfName = getData().getuid();
+	    log.debug("tfName:" + tfName);
+	    String torrentURL = "http://" + remote_protocol.getserver() + ":"
+		    + remote_protocol.getport() + "/data/" + tfName
+		    + ".torrent";
+	    String localTorrent = tfName + ".torrent";
+	    while (i < MAX_TRIES && !done){
+		try{
+		HttpTools.getHttpFile(localTorrent, torrentURL);
+		new BtpdConnector().addTorrent(torrentDir, localTorrent);
+		i++;
+		done = true;
+		}catch (BittorrentException be) {
+		    exc = be;
+		    failures++;
+		    i++;
+		} 
 	    }
-
-	    InputStream in = getMethod.getResponseBodyAsStream();
-	    byte[] buff = new byte[1024];
-	    int len;
-	    FileOutputStream out = new FileOutputStream(new File(localTorrent));
-
-	    while ((len = in.read(buff)) != -1) {
-		// write byte to file
-		out.write(buff, 0, len);
+	    if(failures == MAX_TRIES){
+		log.debug("Error when adding new torrents to btpd Core : " + exc);
+	    	throw new OOBException("Cannot perform Bittorrent nonBlockingReceive "+ exc.getMessage());
 	    }
-
-	} catch (HttpException e) {
-	    log.debug("Fatal protocol violation: " + e);
-	    throw new OOBException("Http errors when receiving receive " + "/"
-		    + remote_locator.getref());
-	} catch (IOException e) {
-	    System.err.println("Fatal transport error: " + e);
-	    throw new OOBException("Http errors when receiving receive " + "/"
-		    + remote_locator.getref());
-
-	} finally {
-	    log.debug("FIN du transfer");
-	    getMethod.releaseConnection();
-	}
-
-	try {
-	    new BtpdConnector().addTorrent(torrentDir, localTorrent);
-	} catch (BittorrentException be) {
-	    log.debug("Error when adding new torrents to btpd Core : " + be);
-	    throw new OOBException(
-		    "Cannot perform Bittorrent nonBlockingReceive");
+	} catch (HttpToolsException e) {
+	    throw new OOBException(e.getMessage());
 	}
     }
 
