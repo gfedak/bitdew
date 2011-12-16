@@ -87,6 +87,6 @@ public class HandlerRMITemplate extends UnicastRemoteObject {
     }
 
     public void perf(String m) {
-	perfSet.put(m, perfSet.get(m)+1);
+	//perfSet.put(m, perfSet.get(m)+1);
     }
 }
