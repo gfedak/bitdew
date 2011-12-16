@@ -100,6 +100,7 @@ public class BitDew {
 	    boolean onddc = Boolean.parseBoolean(props.getProperty("xtremweb.serv.dc.ddc"));
 	    if(onddc){
 		ddc = DistributedDataCatalogFactory.getDistributedDataCatalog();
+		log.info("ddc on init " + ddc+ "idc is "+ idc);
 		String entryPoint = idc.getDDCEntryPoint();
 		if (entryPoint != null) {
 		    ddc.join(entryPoint);
@@ -107,7 +108,8 @@ public class BitDew {
 		}
 	    }
 	} catch (Exception ddce) {
-	    log.warn("unable to start a Distributed Data Catalog service");
+	    log.warn("unable to start a Distributed Data Catalog service " + ddce);
+	    ddce.printStackTrace();
 	    ddc = null;
 	}
 	// TransferManagerFactory.init(idr, idt);
@@ -818,11 +820,13 @@ public class BitDew {
      */
     public List ddcSearch(String data) throws BitDewException {
 	try {
+	    log.info("ddc is " + ddc+ "data is " + data);
 	    if (ddc != null)
 		return ddc.search(data);
 	} catch (DDCException ddce) {
+	    log.info("Error in ddcSearch " + ddce.getMessage());
 		ddce.printStackTrace();
-	    log.debug("cannot ddc find data : " + data + "\n" + ddce);
+	    log.info("cannot ddc find data : " + data + "\n" + ddce);
 	}
 	throw new BitDewException();
     }
