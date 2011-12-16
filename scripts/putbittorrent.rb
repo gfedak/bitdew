@@ -2,14 +2,6 @@
 require 'rubygems'
 require 'net/ssh'
 
-=begin
-if File.exists? "flag"
-  flag=true
-else
-  flag=false
-  %x(echo laloco > flag)
-end
-=end
 filename = ARGV[0]
 protocol = ARGV[1]
 iout = IO.popen("cat nodelist").readlines
@@ -25,16 +17,17 @@ puts "putmachine #{putmachine}"
   out  = %x(taktuk -d-1 -f nodelist broadcast exec { 'killall btpd' })
   puts "kill btpd #{out}" 
   
+  
   %x(taktuk -d-1 -f nodelist broadcast exec { 'rm -rf *' })
   %x(taktuk -d-1 -f nodelist broadcast exec { 'rm -rf * .btpd/torrents' })
   IO.popen("scp bitdew-stand-alone-0.2.7.jar "+ httprepo+":") do |f|
     f.readlines
   end
-  #if !flag
+  
     IO.popen("scp lola.avi " + putmachine+":") do |f|
       f.readlines
     end
-  #end
+ 
   
   IO.popen("taktuk -d-1 -f nodelist broadcast put { /home/jsaray/sbam_standalone.jar } { /home/jsaray/sbam_standalone.jar }") do |f|
 	  f.readlines
@@ -100,6 +93,7 @@ puts "putmachine #{putmachine}"
           while !finish do
             if !(protocol.eql? "transmission") 
               result = ssh.exec! "md5sum " + uid
+             
             else
               result = ssh.exec! "md5sum Downloads/" + filename
             end
@@ -114,10 +108,13 @@ puts "putmachine #{putmachine}"
             end
             Thread.current[:machine] = elem
             result = result.split("\s")[0]
+            
             Thread.current[:result] = result
+            
             if result.eql? md5original then
               finish = true
               Thread.current[:output] = true
+              
             end
           end
         end
@@ -134,7 +131,7 @@ puts "putmachine #{putmachine}"
   while !(array.all? {|el| el[:output] }) do
     totally = array.find_all{ |el| el[:output] == true }.length
     array.each{|el|
-      puts "md5 in #{el[:machine]} is #{el[:result]}"
+      puts "md5 in #{el[:machine]} is #{el[:result]} " 
       
     }
     puts "Number of machines " + totally.to_s
