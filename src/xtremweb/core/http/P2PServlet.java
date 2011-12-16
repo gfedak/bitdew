@@ -77,14 +77,8 @@ public class P2PServlet extends HttpServlet {
 	    Properties props = ConfigurationProperties.getProperties();
 	    String ssht = (String)props.getProperty("xtremweb.core.http.sshTunneling");
 	    String bootstrapnode = (String)props.getProperty("xtremweb.core.http.bootstrapNode");
-	    
 	    BOOTSTRAP_NODE =  (bootstrapnode != null) ? bootstrapnode : InetAddress.getLocalHost().getHostAddress() ;
-	    if (ssht!=null || ssht.equals("yes")) {
-		BOOTSTRAP_NODE = "localhost";
-	    }
-
 	    String LOCAL_ADDRESS = InetAddress.getLocalHost().getHostAddress();
-	    
 	    ddc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP_NODE, "RMI", 4325,
 		    "dc");
 	    dr = (InterfaceRMIdr) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325,
@@ -95,16 +89,12 @@ public class P2PServlet extends HttpServlet {
 		    "ds");
 	    bd = new BitDew(ddc, dr, dt, ds);
 	    
-
-	   
-	   
-		    
 	} catch (ModuleLoaderException e) {
 	    log.warn("All bitdew services could not be loaded, if you want to use BitDew API make sure you launch them before " + e.getMessage());
 	} catch (UnknownHostException e) {
-	    e.printStackTrace();
+	    log.info("There was an exception !! "+e.getMessage());
 	} catch (ConfigurationException e) {
-	    e.printStackTrace();
+	    log.info("there was an exception !! "+e.getMessage());
 	}
     }
 
@@ -123,7 +113,7 @@ public class P2PServlet extends HttpServlet {
 	response.setContentType("xml");
 	String responsexml = "<table border=\"1\"><tr><td>Download</td><td>Song Name</td><td>MD5</td><td>Owner(s)</td></tr>";
 	List l;
-	try {
+	try {log.info("bd is 3"+bd);
 	    l = bd.ddcSearch(param);
 	    log.debug(" size of l is " + l.size());
 	    // for each result write it on a html table
