@@ -232,9 +232,11 @@ def torrentDeploy (filestodownload,protocol,totalstr,outputfilename)
                   }
                   Thread.current[:output] = true
                 end
-              rescue
+              rescue => e
                 Thread.current[:output] = true
                 puts "Cannot create md5 thread in #{elem}"
+                puts e.inspect
+  puts e.backtrace
               end
             }
             array << a
