@@ -112,7 +112,7 @@ public class P2PClient {
     // @param songname the song name
     // @param md5 the song signature 
     //
-    public void download(String songname, String md5,String ip) {
+    public void download(String songname, String md5,String ip) throws BitDewException, TransferManagerException, ModuleLoaderException{
 	try {
 	    // first retrieve the ip list of machines having signatures md5
 	    List ips = bitdew.ddcSearch(md5);
@@ -147,10 +147,13 @@ public class P2PClient {
 	    log.info("File : " + songname + " was successfully downloaded ");
 	} catch (BitDewException e) {
 	    e.printStackTrace();
+	    throw new BitDewException(e.getMessage());
 	} catch (TransferManagerException e) {
 	    e.printStackTrace();
+	    throw new TransferManagerException(e.getMessage());
 	} catch (ModuleLoaderException e) {
 	    e.printStackTrace();
+	    throw new ModuleLoaderException(e.getMessage());
 	}
     }
     
@@ -159,7 +162,7 @@ public class P2PClient {
     // @param song file name
     // @param md5 the md5 cheksum
     //
-    public void republish(String song,String md5) {
+    public void republish(String song,String md5) throws ModuleLoaderException,BitDewException{
 	try {
 	    //We are going to publish the new downloaded song in the DHT, so we need to 
 	    //build a reference to the distributed data catalog on the bootstrap node.
@@ -180,8 +183,10 @@ public class P2PClient {
 	    }
 	} catch (ModuleLoaderException e) {
 	    e.printStackTrace();
+	    throw new ModuleLoaderException(e.getMessage());
 	} catch (BitDewException e) {
 	    e.printStackTrace();
+	    throw new BitDewException(e.getMessage());
 	}
     }
 }
