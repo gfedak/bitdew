@@ -120,7 +120,7 @@ public class PutGet {
 	transferManager.stop();
 	log.info("data successfully transfered.");
 	log.info("To get the data, invoke the same program with the following arguments:");
-	log.info("get  " + data.getname() + "_copy "+ data.getuid());
+	log.info("get " + data.getname() + "_copy "+ data.getuid());
     }
     
 
