@@ -517,7 +517,7 @@ public class TransferManager {
 			}
 			// FIXME check for errors
 			if (oob.error()) {
-			    trans.setstatus(TransferStatus.INVALID);
+			    throw new OOBException("There was an exception on the Transfer Manager, your transfer of data "+trans.getdatauid() +" is marked as INVALID");
 			}
 		    } catch (RemoteException re) {
 			log.info("An error has occurred " + re.getMessage());
@@ -526,7 +526,7 @@ public class TransferManager {
 			break;
 		    } catch (OOBException oobe) {
 			// go in the state INVALID (should be ABORT ?)
-			log.info("An error has occurred " + oobe.getMessage());
+			log.info("Error on TRANSFERRING step : " + oobe.getMessage());
 			trans.setstatus(TransferStatus.INVALID);
 			oobe.printStackTrace();
 			break;
