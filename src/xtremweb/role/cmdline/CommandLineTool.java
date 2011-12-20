@@ -190,7 +190,6 @@ public class CommandLineTool {
 	}
 	String[] otherArgs = parse(args);
 	// switch to verbose mode
-	log.info("verbose is " + verbose);
 	if (verbose)
 	    log.setLevel("debug");
 	
