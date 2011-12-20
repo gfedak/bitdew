@@ -227,7 +227,10 @@ public abstract class OOBTransferImpl implements OOBTransfer {
     public Protocol getRemoteProtocol(){
 	return remote_protocol;
     }
-
+    
+    public void setError(){
+	error = true;
+    }
 
     public boolean error() {
 	return error;
