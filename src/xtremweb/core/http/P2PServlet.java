@@ -75,12 +75,15 @@ public class P2PServlet extends HttpServlet {
     public P2PServlet() {
 	try {
 	    Properties props = ConfigurationProperties.getProperties();
-	    String ssht = (String)props.getProperty("xtremweb.core.http.sshTunneling");
-	    String bootstrapnode = (String)props.getProperty("xtremweb.core.http.bootstrapNode");
-	    BOOTSTRAP_NODE =  (bootstrapnode != null) ? bootstrapnode : InetAddress.getLocalHost().getHostAddress() ;
+	    String ssht = (String) props
+		    .getProperty("xtremweb.core.http.sshTunneling");
+	    String bootstrapnode = (String) props
+		    .getProperty("xtremweb.core.http.bootstrapNode");
+	    BOOTSTRAP_NODE = (bootstrapnode != null) ? bootstrapnode
+		    : InetAddress.getLocalHost().getHostAddress();
 	    String LOCAL_ADDRESS = InetAddress.getLocalHost().getHostAddress();
-	    ddc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP_NODE, "RMI", 4325,
-		    "dc");
+	    ddc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP_NODE, "RMI",
+		    4325, "dc");
 	    dr = (InterfaceRMIdr) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325,
 		    "dr");
 	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325,
@@ -88,13 +91,14 @@ public class P2PServlet extends HttpServlet {
 	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325,
 		    "ds");
 	    bd = new BitDew(ddc, dr, dt, ds);
-	    
+
 	} catch (ModuleLoaderException e) {
-	    log.warn("All bitdew services could not be loaded, if you want to use BitDew API make sure you launch them before " + e.getMessage());
+	    log.warn("All bitdew services could not be loaded, if you want to use BitDew API make sure you launch them before "
+		    + e.getMessage());
 	} catch (UnknownHostException e) {
-	    log.info("There was an exception !! "+e.getMessage());
+	    log.info("There was an exception !! " + e.getMessage());
 	} catch (ConfigurationException e) {
-	    log.info("there was an exception !! "+e.getMessage());
+	    log.info("there was an exception !! " + e.getMessage());
 	}
     }
 
@@ -113,47 +117,51 @@ public class P2PServlet extends HttpServlet {
 	response.setContentType("xml");
 	String responsexml = "<table border=\"1\"><tr><td>Download</td><td>Song Name</td><td>MD5</td><td>Owner(s)</td></tr>";
 	List l;
-	try {log.info("bd is 3"+bd);
+	try {
+	    log.info("bd is 3" + bd);
 	    l = bd.ddcSearch(param);
 	    log.debug(" size of l is " + l.size());
 	    // for each result write it on a html table
 	    for (int i = 0; i < l.size(); i++) {
 		String md5 = ((Data) l.get(i)).getchecksum();
-		responsexml += "<tr>" + "<td><input type=\"checkbox\" name=\"checkbox"+ i+"\"/></td>"+ 
-					"<td>"+((Data) l.get(i)).getname() + "</td>"+ 
-					"<td>"+ md5 + "</td>" + 
-					"<td>"+getIps(md5)+"</td>"+
-					"</tr>";
+		responsexml += "<tr>"
+			+ "<td><input type=\"checkbox\" name=\"checkbox" + i
+			+ "\"/></td>" + "<td>" + ((Data) l.get(i)).getname()
+			+ "</td>" + "<td>" + md5 + "</td>" + "<td>"
+			+ getIps(md5) + "</td>" + "</tr>";
 	    }
-	    responsexml += "</table>" ;
-	
+	    responsexml += "</table>";
 	    response.getWriter().println(responsexml);
 	    response.setContentType("text/html");
 	    response.setStatus(HttpServletResponse.SC_OK);
 	} catch (BitDewException e) {
 	    e.printStackTrace();
+	    response.getWriter()
+		    .println(
+			    "<table border=\"1\">"
+				    + "<tr><td>Download</td><td>Song Name</td><td>MD5</td><td>Owner(s)</td></tr>"
+				    + "<tr><td>There was a problem executing your request "
+				    + e.getMessage() + "</td>"
+				    + "<td></td><td></td><td></td></tr>"
+				    + "</table>");
+	    response.setContentType("text/html");
+	    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 	}
     }
-    
-    private String getIps(String md5){
-	String responsexml="";
+
+    private String getIps(String md5) throws BitDewException {
+	String responsexml = "";
 	List ips;
-	try {
-	    ips = bd.ddcSearch(md5);
-	    HashSet s= new HashSet();
-	    s.addAll(ips);
-	   
-	    for (Iterator iterator = s.iterator(); iterator.hasNext();) {
-		String object = (String) iterator.next();
-		responsexml += object + ", ";
-	    }
-	 
-	    return responsexml;
-	} catch (BitDewException e) {
-	    e.printStackTrace();
+	ips = bd.ddcSearch(md5);
+	HashSet s = new HashSet();
+	s.addAll(ips);
+	for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+	    String object = (String) iterator.next();
+	    responsexml += object + ", ";
 	}
-	return null;
+	return responsexml;
     }
+
     /**
      * Http POST method is not used for the moment
      */
