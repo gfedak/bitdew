@@ -460,6 +460,7 @@ public class Version {
 </target>
  	<target name="sdk" depends="release">
  			<mkdir dir="${dist}/bitdew-sdk-${version}"/>
+ 			<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/dao"/>
  			<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/serv"/>
  			<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/gen/service"/>
  			<mkdir dir="${dist}/bitdew-sdk-${version}/src/xtremweb/core/obj"/>
