@@ -65,9 +65,10 @@ public class TransferThread extends Thread {
 	    }
 
 	} catch (OOBException oobe) {
-	    log.debug("Error when performing "
+	    log.info("Error when performing "
 		    + TransferType.toString(_oob.getTransfer().gettype()) + " "
 		    + oobe);
+	    _oob.setError();
 	} finally {
 	    isTransfering = false;
 	    notifyAll();
