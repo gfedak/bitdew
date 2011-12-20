@@ -13,80 +13,127 @@ import java.rmi.RemoteException;
 import java.util.Timer;
 
 /**
- * HandlerRMI.java
- * Handles RMI communications from servers  
- *
- * Created: Sun Jul  9 17:46:53 2000
- *
+ * HandlerRMI.java Handles RMI communications from servers
+ * 
+ * Created: Sun Jul 9 17:46:53 2000
+ * 
  * @author Gilles Fedak
  * @version
  */
 
 public class HandlerRMITemplate extends UnicastRemoteObject {
 
+    /**
+     * Logger
+     */
     protected static Logger log = LoggerFactory.getLogger("HandlerRMI");
 
-    //    private final static PerfMonitor perf = PerfMonitorFactory.createPerfMonitor("ServiceCalls", "hits per second", 3000);
-    //private final static PerfMonitor perf = PerfMonitorFactory.createPerfMonitor("ServiceCalls");
+    /**
+     * Performance Monitor
+     */
+    private static PerfMonitor perf =null;
 
+    /**
+     * Callback template
+     */
     protected CallbackTemplate callback;
 
+    /**
+     * Module name (dc,dt,dr,ds)
+     */
     protected String moduleName;
-    protected Vector moduleCall;
-    protected static HashMap<String,Integer> perfSet;    
+
+    /**
+     * 
+     */
+    protected static HashMap<String, Integer> perfSet;
+
+    /**
+     * Flag to signal if performance monitoring is enabled
+     */
     protected static boolean modulePerf = false;
-    protected static int count=0;
-    protected static int samplesnb=3000;
+
+    /**
+     * 
+     */
+    protected static int samplesnb = 3000;
+
+    /**
+     * Timer
+     */
     protected static Timer timer;
 
+    /**
+     * Initialze hashmap and timer
+     */
     static {
 	try {
 	    Properties prop = ConfigurationProperties.getProperties();
-	    modulePerf = (Boolean.valueOf(prop.getProperty("xtremweb.core.handler.perf","false"))).booleanValue();
-	} catch(Exception e) {
+	    modulePerf = (Boolean.valueOf(prop.getProperty(
+		    "xtremweb.core.handler.perf", "false"))).booleanValue();
+	} catch (Exception e) {
 	    modulePerf = false;
 	}
-	log.info("Using performance monitor on service call : " +modulePerf);
+	log.info("Using performance monitor on service call : " + modulePerf);
 	if (modulePerf) {
+	    perf = PerfMonitorFactory.createPerfMonitor("ServiceCalls");
 	    perfSet = new HashMap<String, Integer>();
-	    if (timer==null) timer=new Timer(); 
-	    timer.schedule(new TimerTask() { 
-		    public void run() { 
-			addSamples();
-		    } 
-		} , 0, 1000 ); 
+	    if (timer == null)
+		timer = new Timer();
+	    timer.schedule(new TimerTask() {
+		public void run() {
+		    addSamples();
+		}
+	    }, 0, 1000);
 	}
     }
 
+    /**
+     * Class constructor
+     */
     public HandlerRMITemplate() throws RemoteException {
-	super(ComWorld.getRmiServerPort() );
+	super(ComWorld.getRmiServerPort());
     }
 
+    /**
+     * 
+     */
     public void setupPerfMonitor(String module) {
-	/*moduleName = module;
+	moduleName = module;
 	try {
 	    perf.addSerie(moduleName, samplesnb);
-	    perfSet.put(moduleName,0);
+	    perfSet.put(moduleName, 0);
 	} catch (PerfException pe) {
-	    log.warn("cannot add the performance monitor for service : " + moduleName);
-	}*/		
+	    log.warn("cannot add the performance monitor for service : "
+		    + moduleName);
+	}
+
     }
-    
-    public void registerCallback( CallbackTemplate cb) {
+
+    /**
+     * Set the associated callback
+     */
+    public void registerCallback(CallbackTemplate cb) {
 	callback = cb;
     }
 
+    /**
+     * 
+     */
     public static void addSamples() {
-	//	log.debug("adding samples : " + count++);
-	/*if (modulePerf) {
+	if (modulePerf) {
 	    for (String m : perfSet.keySet()) {
 		perf.addSample(m, perfSet.get(m));
-		perfSet.put(m,0);
+		perfSet.put(m, 0);
 	    }
-	}*/
+	}
+
     }
 
+    /**
+     * 
+     */
     public void perf(String m) {
-	//perfSet.put(m, perfSet.get(m)+1);
+	perfSet.put(m, perfSet.get(m) + 1);
     }
 }
