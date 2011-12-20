@@ -115,9 +115,26 @@ public interface OOBTransfer {
      * @return a <code>Locator</code> value
      */
     public Locator getRemoteLocator();
-
+    
+    /**
+     * Is this transfer currently active?
+     * @return
+     */
     public boolean isTransfering();
-
+    
+    /**
+     * Waits this transfer to be finished
+     */
     public void waitFor();
+    
+    /**
+     * Reports if the tranfer has erros
+     * @return
+     */
     public boolean error();
+    
+    /**
+     * Mark this trasfer with an error
+     */
+    public void setError();
 } // ftpreceiver
