@@ -232,7 +232,7 @@ public class FTPServer {
 	try {
 	    // if a property file is specified, then use it
 	    if (args.length == 1) {
-		File fp = new File(System.getProperty("user.dir") + "/"
+		File fp = new File(System.getProperty("user.dir") + File.separator
 			+ args[0]);
 		if (fp.exists())
 		    System.setProperty("PROPERTIES_FILE", args[0]);
