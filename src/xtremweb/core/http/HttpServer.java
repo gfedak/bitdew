@@ -175,9 +175,6 @@ public class HttpServer {
 	downloadcontext.setContextPath("/download");
 	downloadcontext.addServlet(new ServletHolder(new DownloadSongServlet()),"/*");
 	
-	Context ipcontext = new Context(Context.SESSIONS);
-	ipcontext.setContextPath("/getips");
-	ipcontext.addServlet(new ServletHolder(new GetIpServlet()),"/*");
  
 	/*
 	//	server.setHandler(servletHandler);
@@ -201,7 +198,7 @@ public class HttpServer {
 	filedownloadContext.setHandler(resource_handler);
 
 	ContextHandlerCollection contexts = new ContextHandlerCollection();
-	contexts.setHandlers(new Handler[]{fileuploadContext,filedownloadContext,p2pContext,downloadcontext,ipcontext});
+	contexts.setHandlers(new Handler[]{fileuploadContext,filedownloadContext,p2pContext,downloadcontext});
         
 	uiContext = new Context(contexts, "/ui", Context.SESSIONS);
 	//	other.addServlet("xtremweb.core.http.UploadServlet", "/");
