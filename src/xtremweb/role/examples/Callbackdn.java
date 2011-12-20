@@ -32,7 +32,7 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
      * </li>
      * <li> The following example explains how to build a simple domain naming service such that, for a given service name dX, it
      * answers the ip address of the node containing that service. The service uses a database table (SERVICE) to store this information </li>
-     * <li> Download bitdew-sdk-XXX.zip</li>
+     * <li> Download <a href="https://gforge.inria.fr/frs/download.php/28564/bitdew-sdk-0.2.6.zip">bitdew-sdk-0.2.6.zip</a></li>
      * 
      * <li> Unzip, cd into de directory and type, 
      * 
@@ -40,7 +40,7 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
      *    java -jar lib/bitdew-stand-alone-X.X.X.jar gen dnaming Service
      * @endcode
      * 
-     * <li> Last command generate needed files to program a service called dnaming that will use the <a href=\"http://www.oracle.com/technetwork/java/index-jsp-135919.html\">jdo</a> 
+     * <li> Last command generate needed files to program a service called dnaming that will use the <a href="http://www.oracle.com/technetwork/java/index-jsp-135919.html">jdo</a> 
      * persistent object Service</li>
      * 
      * <ol> 
