@@ -179,6 +179,7 @@ public class Version {
 	    description="compile the source " >
       <javac compiler="modern" srcdir="src" debug="on" destdir="${build}" source="1.5" classpath="${project.classpath}">
           <exclude name="**/dplt/**"/>
+      	<exclude name="**/Callbackdn.java"/>
       </javac>
       <rmic base="${build}"
 	    classname="xtremweb.core.com.handler.HandlerRMIdc" 
@@ -414,6 +415,7 @@ public class Version {
       	<exclude name="**/FTPServerTest.java"/>
       	<exclude name="**/CommandLineToolTest.java"/>
       	<exclude name="**/CallbackdtTest.java"/>
+      	<exclude name="**/DnTest.java"/>
       </fileset>
     </batchtest>
     

@@ -1,14 +1,8 @@
-package xtremweb.role.examples;
+package xtremweb.serv.dnaming;
 
 import java.rmi.RemoteException;
-import java.util.Collection;
-import java.util.Iterator;
-import javax.jdo.PersistenceManager;
-import javax.jdo.PersistenceManagerFactory;
-import javax.jdo.Query;
-import javax.jdo.Transaction;
 import xtremweb.core.com.idl.CallbackTemplate;
-import xtremweb.core.iface.InterfaceRMIdn;
+import xtremweb.core.iface.InterfaceRMIdnaming;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 import xtremweb.core.obj.dn.Service;
@@ -22,7 +16,7 @@ import xtremweb.dao.service.DaoService;
  * @author jsaray
  * 
  */
-public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
+public class Callbackdnaming extends CallbackTemplate implements InterfaceRMIdnaming {
     /*! \example Callbackdn.java 
      * <ol>
      * <li> Prerrequesites :
@@ -99,61 +93,15 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
      * 
      * <li> In this file we are asking to map the service attribute of our jdp-ready java object in the SERVICE column on SERVICE table.</li>
      * 
+     * <li> Copy paste this file inside the file xtremweb.dao.Service.java </li>
+     * \include DaoService.java
+     * 
+     * <li> There is already some code pre generated for you in order to access to your data, we add the method 
+     * <em>getServiceByName</em> that uses the JDO Query object in order to perform a personalized query. </li>
+     * 
      * <li> Copy paste, the following code inside the class Callbackdnaming.java </li>
-     * @code
-     * package xtremweb.serv.dnaming;
-     * import java.rmi.RemoteException;
-     * import java.util.Collection;
-     * import java.util.Iterator;
-     * import javax.jdo.PersistenceManager;
-     * import javax.jdo.PersistenceManagerFactory;
-     * import javax.jdo.Query;
-     * import javax.jdo.Transaction;
-     * import xtremweb.core.com.idl.CallbackTemplate;
-     * import xtremweb.core.db.DBInterfaceFactory;
-     * import xtremweb.core.iface.InterfaceRMIdnaming;
-     * import xtremweb.core.log.Logger;
-     * import xtremweb.core.log.LoggerFactory;
-     * import xtremweb.core.obj.dnaming.Service;
-     * 
-     * public class Callbackdnaming extends CallbackTemplate implements InterfaceRMIdnaming {   
-     *	  
-     *	  public String getServiceAddress(String serviceName) throws RemoteException {
-     *		
-     *		String str = "";
-     *		PersistenceManagerFactory pmf = DBInterfaceFactory
-     *				.getPersistenceManagerFactory();
-     *	 	PersistenceManager pm = pmf.getPersistenceManager();
-     *		Transaction tx = pm.currentTransaction();
-     *	        tx.begin();
-     *	        Query query = pm.newQuery(xtremweb.core.obj.dnaming.Service.class,
-     *			"service == '" + serviceName + "'");
-     *	        Collection result = ((Collection) query.execute());
-     *	        Iterator iter = result.iterator();
-     *	        while (iter.hasNext()) {
-     *		   Service s = (Service) iter.next();
-     *		   str = s.getbundle();
-     *	        }
-     *	        tx.commit();
-     *	        return str;
-     *    }
-     *
-     *    public void registerService(String serviceName, String hostBundle) throws RemoteException {
-     *	
-     *	      PersistenceManagerFactory pmf = DBInterfaceFactory.getPersistenceManagerFactory();
-     *	      PersistenceManager pm = pmf.getPersistenceManager();
-     *	      Transaction tx = pm.currentTransaction();
-     *	      tx.begin();
-     *	      Service s = new Service();
-     *	      s.setservice(serviceName);
-     *	      s.setbundle(hostBundle);
-     *	      pm.makePersistent(s);
-     *	      tx.commit();
-     *    }
-     * }
-     * @endcode
-     * 
-     * <li> Last code insert a service (registerService) and search for one (getServiceAddress) using jpox jdo implementation </li>
+     * \include Callbackdn.java
+     * <li> Last code insert a service (registerService) and search for one (getServiceAddress) using Dao </li>
      * 
      * <li> In order to run a test of this service you can copy-paste the following class in a file called <em>CallbackTest.java</em> under the xtremweb.serv.dnaming directory : </li>
      * @code
@@ -166,7 +114,6 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
      * import javax.jdo.Query;
      * import javax.jdo.Transaction;
      * import xtremweb.core.com.idl.CallbackTemplate;
-     * import xtremweb.core.db.DBInterfaceFactory;
      * import xtremweb.core.iface.InterfaceRMIdnaming;
      * import xtremweb.core.log.Logger;
      * import xtremweb.core.log.LoggerFactory;
@@ -216,7 +163,7 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
      * <li> Now You are ready to test your brand-new created service, execute
      * 
      * @code
-     * java -cp lib/bitdew-stand-alone-0.2.5.jar:dist/myservice.jar xtremweb.role.cmdline.CommandLineTool serv dc dr dnaming
+     * java -cp lib/bitdew-stand-alone-X.X.X.jar:dist/myservice.jar xtremweb.role.cmdline.CommandLineTool serv dc dr dnaming
      * @endcode
      * 
      * <li> You should obtain something similar to </li>
@@ -255,7 +202,7 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
     
      * <li> Open a second tab and launch the test :
      * @code
-     *     java -cp lib/bitdew-stand-alone-0.2.5.jar:dist/myservice.jar xtremweb.serv.dnaming.CallbackTest
+     *     java -cp lib/bitdew-stand-alone-X.X.X.jar:dist/myservice.jar xtremweb.serv.dnaming.CallbackTest
      * @endcode
      * <li> You should get </li>
      * @code
@@ -272,9 +219,9 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
 	/**
 	 * Log
 	 */
-	protected static Logger log = LoggerFactory.getLogger(Callbackdn.class);
+	protected static Logger log = LoggerFactory.getLogger(Callbackdnaming.class);
 	private DaoService dao;
-	public Callbackdn(){
+	public Callbackdnaming(){
 		dao = (DaoService)DaoFactory.getInstance("xtremweb.dao.service.DaoService");
 	}
 	
@@ -314,7 +261,7 @@ public class Callbackdn extends CallbackTemplate implements InterfaceRMIdn {
 		Service s = new Service();
 		s.setservice(serviceName);
 		s.setbundle(hostBundle);
-		dao.makePersistent(s,true);
+		dao.makePersistent(s,false);
 		dao.commitTransaction();
 		log.debug("service succesfully registered");
 	}
