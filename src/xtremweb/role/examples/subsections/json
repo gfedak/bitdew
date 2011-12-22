@@ -1,0 +1,1 @@
+java -jar bitdew-stand-alone-X.X.X.jar add "{name: 'scp',path:'<remote_path_to_file>',server:'<my_host>',port:22,knownhosts:'<path_to_knownhost_file>',prkeypath:'<path_to_private_key>',pukeypath:'<path_to_public_key_path>',passphrase:'yes',login:'<yourlogin>'}"

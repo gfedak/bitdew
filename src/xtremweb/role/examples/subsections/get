@@ -1,0 +1,1 @@
+java -cp bitdew-stand-alone-0.2.7.jar:ScpTransfer.class xtremweb.role.cmdline.CommandLineTool --protocol scp get 6d8e45e0-7bc1-31e0-a4d6-1e20662fc11f hello_copy.txt

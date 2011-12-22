@@ -1,0 +1,9 @@
+public ScpTransfer(Data d,Transfer t,Locator l1, Locator l2, Protocol p1,Protocol p2) { 
+    super(d,t,l1,l2,p1,p2); this.user =
+    remote_protocol.getlogin(); this.host = remote_protocol.getserver();
+    this.lfile = local_locator.getref(); 
+    this.rfile = remote_locator.getref(); 
+    PRIVATE_KEY = remote_protocol.getprivatekeypath(); 
+    KNOWN_HOSTS = remote_protocol.getknownhosts(); 
+    PASSPHRASE = remote_protocol.getpassphrase(); 
+}

@@ -1,0 +1,10 @@
+public void connect() throws OOBException { 
+    JSch jsch = new JSch();
+    try { 
+		jsch.addIdentity(PRIVATE_KEY, PASSPHRASE);
+		jsch.setKnownHosts(KNOWN_HOSTS); session = jsch.getSession(user, host,22); 
+		session.connect();
+	} catch (JSchException e) {
+		e.printStackTrace();
+	} 
+}
