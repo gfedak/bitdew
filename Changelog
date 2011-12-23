@@ -16,6 +16,10 @@
 	version 0.2.7
 	Dao integration
 	
+	version 0.2.8
+	P2P example last version
+	Bittorrent integration with btpd tested and functional
+	
 ** HISTORY **
 
 May 23 2011
