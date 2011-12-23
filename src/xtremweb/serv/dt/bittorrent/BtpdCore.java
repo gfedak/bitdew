@@ -60,7 +60,7 @@ public class BtpdCore {
 
 
     /**
-     *  <code>startCore</code> start the daemon
+     * Start the btpd daemon
      *
      */
     public void startCore() throws BittorrentException {
@@ -77,20 +77,5 @@ public class BtpdCore {
 	    throw new BittorrentException("Error when launching btpd core");
 	} // end of try-catch
 	
-    }
-
-
-    /**
-     *  <code>main</code> test the launch of Azureus
-     *
-     * @param args a <code>String[]</code> value
-     */
-    public static void main(String [] args) throws Exception {
-	BtpdCore az = new BtpdCore();
-	if (args[0].equals("--btpd")) {
-	    az.startCore();
-	    
-	}
-	System.out.println("Test finished");
     }
 }

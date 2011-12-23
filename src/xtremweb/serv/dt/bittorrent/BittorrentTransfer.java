@@ -52,12 +52,12 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
     private Properties mainprop;
 
     /**
-     * 
+     * File where download the .torrent (on receiver)
      */
     private static String torrentDir;
 
     /**
-     * Directory where a desired .torrent file exists
+     * Directory where a desired .torrent file exists on sender
      */
     private static String CLIDIR;
 
@@ -96,11 +96,11 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
 	    CLIDIR = mainprop
-		    .getProperty("xtremweb.serv.dr.bittorrent.btpd.torrentDirReceiver");
+		    .getProperty("xtremweb.serv.dr.bittorrent.btpd.torrentDirSender");
 	    daemonDirName = mainprop
 		    .getProperty("xtremweb.serv.dr.bittorrent.btpd.exec");
 	    torrentDir = mainprop
-		    .getProperty("xtremweb.serv.dr.bittorrent.btpd.torrentDirSender");
+		    .getProperty("xtremweb.serv.dr.bittorrent.btpd.torrentDirReceiver");
 
 	} catch (ConfigurationException e) {
 	    e.printStackTrace();
@@ -245,9 +245,6 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	    log.debug("building file " + local_locator.getref() + ".torrent");
 	    while (!f.exists()) {
 	    }
-	    // if (!DataUtil.checksum(f).equals(data.getchecksum()))
-	    // throw new
-	    // OOBException("There was an error with the .torrent file, it is corrupted");
 	    log.debug("File exists ! , attempting to download");
 
 	    log.debug(" adding torrent " + local_locator.getref() + ".torrent");

@@ -28,7 +28,8 @@ import org.apache.commons.codec.binary.Hex;
 public class DownloadSongServlet extends HttpServlet {
 
     /**
-     * Client that encapsulate all BitDew logic
+     * Client that encapsulate the BitDew logic to perform a search
+     * in a P2P network
      */
     private P2PClient client;
 
@@ -38,15 +39,15 @@ public class DownloadSongServlet extends HttpServlet {
     protected Logger log = LoggerFactory.getLogger("DownloadSongServlet");
 
     /**
-	 * 
-	 */
+     * Class constructor
+     */
     public DownloadSongServlet() {
 	client = new P2PClient();
     }
 
     /**
      * Given a song name and his md5 signature, stablish a connection with the
-     * machine having this song and download
+     * host who has this song and download it
      * 
      * @param request
      *            http request containing songname and md5 signature

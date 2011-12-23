@@ -118,11 +118,18 @@ public class PerfMonitor {
 	}
     }
 
-
+    /**
+     * Get the samples
+     * @return
+     */
     public TimeSeriesCollection getSamples() {
 	return _dataset;
     }
-
+    
+    /**
+     * Get the series
+     * @return
+     */
     public Set<String> getSeries() {
 	return _series.keySet();
     }

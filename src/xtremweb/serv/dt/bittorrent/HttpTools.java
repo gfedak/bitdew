@@ -9,8 +9,19 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import xtremweb.serv.dt.bittorrent.exception.HttpToolsException;
 
+/**
+ * Helper class to handle .torrent file transfers through http
+ * @author josefrancisco
+ *
+ */
 public class HttpTools {
-
+    
+    /**
+     * Get a filename through http
+     * @param filename the filename
+     * @param url the url where the file is
+     * @throws HttpToolsException
+     */
     public static void getHttpFile(String filename, String url)
 	    throws HttpToolsException {
 	HttpClient httpclient = new DefaultHttpClient();

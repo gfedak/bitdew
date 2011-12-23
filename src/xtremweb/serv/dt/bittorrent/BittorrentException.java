@@ -4,6 +4,7 @@ import java.lang.Exception;
 
 
 /**
+ * Encapsulated Bittorrent exception
  * <code>BittorrentException</code> defines Exception
  *
  *
@@ -11,6 +12,11 @@ import java.lang.Exception;
  * @version 1.0
  */
 public class BittorrentException extends Exception {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
     /**
      * Creates a new <code>BittorrentException</code> instance.
