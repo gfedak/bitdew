@@ -244,6 +244,7 @@ public class Version {
 	<zipfileset dir="build"
 		    prefix="bitdew-${version}/build/" />
  	<zipfileset dir="sdk" includes="build.xml" prefix="bitdew-${version}/sdk"/>
+    <zipfileset dir="html" includes="**/*" prefix="bitdew-${version}/html"/>
       </zip>
     </target>
 
