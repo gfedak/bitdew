@@ -7,7 +7,7 @@ import org.mortbay.jetty.*;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.servlet.*;
 import org.mortbay.jetty.handler.*;
-
+import xtremweb.role.examples.*;
 
 /**
  * <code>HttpServer</code> is an embedded HTTP Server. It allows to
