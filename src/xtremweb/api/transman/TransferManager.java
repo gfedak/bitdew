@@ -25,24 +25,15 @@ import xtremweb.core.util.*;
 
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
-import xtremweb.core.perf.PerfMonitor;
-import xtremweb.core.perf.PerfMonitorFactory;
-
 import java.util.*;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Iterator;
-import javax.jdo.PersistenceManager;
-import javax.jdo.PersistenceManagerFactory;
-import javax.jdo.Query;
-import javax.jdo.Transaction;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import xtremweb.core.util.uri.*;
 import xtremweb.dao.DaoFactory;
-import xtremweb.dao.DaoJDOImpl;
-import xtremweb.dao.InterfaceDao;
 import xtremweb.dao.transfer.DaoTransfer;
 
 /**
