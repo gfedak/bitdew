@@ -63,7 +63,7 @@ public abstract class NonBlockingOOBTransferImpl
      */
     public void receiveSenderSide() throws OOBException {
 	_isTransfering = true;
-	nonBlockingReceiveReceiverSide();
+	nonBlockingReceiveSenderSide();
     }
 
     /**
