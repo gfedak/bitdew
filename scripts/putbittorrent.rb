@@ -11,34 +11,37 @@ getmachines = iout[2 .. iout.length-1]
 puts "repo #{httprepo}"
 puts "putmachine #{putmachine}"
 
-  %x(taktuk -d-1 -f nodelist broadcast exec { 'killall java' })
-  %x(taktuk -d-1 -f nodelist broadcast exec { 'killall bttrack' })
-  %x(taktuk -d-1 -f nodelist broadcast exec { 'killall /usr/bin/python' })
-  out  = %x(taktuk -d-1 -f nodelist broadcast exec { 'killall btpd' })
+  %x(taktuk -s -f nodelist broadcast exec { 'killall java' })
+  %x(taktuk -s -f nodelist broadcast exec { 'killall bttrack' })
+  %x(taktuk -s -f nodelist broadcast exec { 'killall /usr/bin/python' })
+  out  = %x(taktuk -s -f nodelist broadcast exec { 'killall btpd' })
   puts "kill btpd #{out}" 
+  puts "FIRST DONE"
   
-  
-  %x(taktuk -d-1 -f nodelist broadcast exec { 'rm -rf *' })
-  %x(taktuk -d-1 -f nodelist broadcast exec { 'rm -rf * .btpd/torrents' })
+  %x(taktuk -s -f nodelist broadcast exec { 'rm -rf *' })
+  %x(taktuk -s -f nodelist broadcast exec { 'rm -rf .btpd/torrents/*' })
+  puts "commands done"
   IO.popen("scp bitdew-stand-alone-0.2.7.jar "+ httprepo+":") do |f|
     f.readlines
   end
-  
+  puts "bitdewdone"
     IO.popen("scp lola.avi " + putmachine+":") do |f|
       f.readlines
     end
- 
+puts "loladone"
+puts "despues de lolq" 
   
-  IO.popen("taktuk -d-1 -f nodelist broadcast put { /home/jsaray/sbam_standalone.jar } { /home/jsaray/sbam_standalone.jar }") do |f|
+  IO.popen("taktuk -s -f nodelist broadcast put { /home/jsaray/sbam_standalone.jar } { /home/jsaray/sbam_standalone.jar }") do |f|
 	  f.readlines
   end
-  
-  IO.popen("taktuk -d-1 -f nodelist broadcast put { /home/jsaray/bitdew-stand-alone-0.2.7.jar } { /home/jsaray/bitdew-stand-alone-0.2.7.jar }") do |f|
+  puts "dessd"
+  IO.popen("taktuk -s -f nodelist broadcast put { /home/jsaray/bitdew-stand-alone-0.2.7.jar } { /home/jsaray/bitdew-stand-alone-0.2.7.jar }") do |f|
 	  f.readlines
   end
-  
+puts "atteñ"  
   Net::SSH.start(httprepo,"jsaray")do|ssh|
-    ssh.exec "nohup bttrack.bittorrent --port 6969 --dfile dfile > /home/jsaray/trackerout 2> /home/jsaray/trackererr &"
+puts "connection stqbl"    
+ssh.exec "nohup bttrack.bittorrent --port 6969 --dfile dfile > /home/jsaray/trackerout 2> /home/jsaray/trackererr &"
     ssh.exec "nohup java -jar bitdew-stand-alone-0.2.7.jar -v serv dc dt dr ds > initout 2> initerr &"
   end
   puts "sleeping ; wait "
@@ -52,7 +55,7 @@ puts "putmachine #{putmachine}"
 	    f.readlines
 	  end
 	  puts "parsing uid"
-	  uid = IO.readlines("putout")[1]
+	  uid = IO.readlines("putout")[0]
 	  puts "The id line is #{uid}"
 	  uid = uid.match(/[[a-fA-F0-9-]*]/)[0]
 	  uid = uid[1,uid.length-2]
@@ -68,12 +71,17 @@ puts "putmachine #{putmachine}"
   
   getmachines.each{|machine|
     machine = machine.slice(/[^\n]*/)
+    begin
     Net::SSH.start(machine,"jsaray") do |ssh|
       
-      cmd = "nohup java -jar bitdew-stand-alone-0.2.7.jar get --protocol bittorrent --host "+ httprepo +" "+ uid + " > getout 2> geterr &"
+      cmd = "nohup java -jar bitdew-stand-alone-0.2.7.jar get --verbose --protocol bittorrent --host "+ httprepo +" "+ uid + " > getout 2> geterr &"
       puts "launching on machine #{machine}, command " + cmd
 	  ssh.exec cmd
 	  puts "done"
+      sleep(1)
+    end
+    rescue
+    puts "Connection could not be stablished on #{machine}"
     end
   }
   
@@ -128,6 +136,8 @@ puts "putmachine #{putmachine}"
     array << a
   }
   totally = 0
+  
+  begin
   while !(array.all? {|el| el[:output] }) do
     totally = array.find_all{ |el| el[:output] == true }.length
     array.each{|el|
@@ -142,4 +152,9 @@ puts "putmachine #{putmachine}"
   end
   timefi = Time.new
   total = (timefi - timeini).to_s
-  puts "Total elapsed time : #{total}" 
+  puts "Total elapsed time : #{total}"
+  rescue
+    timefi = Time.new 
+    total = (timefi - timeini).to_s
+    puts "Total elapsed time : #{total}"
+  end 
