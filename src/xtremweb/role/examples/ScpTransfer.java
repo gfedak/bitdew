@@ -136,7 +136,7 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
      * 
      * @code 
      * 
-     * javac -cp bitdew-stand-alone-X.X.X.jar ScpTransfer.java </li>
+     * javac -cp bitdew-stand-alone-X.X.X.jar ScpTransfer.java
      * 
      * @endcode
      * 
