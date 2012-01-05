@@ -179,7 +179,12 @@ public class Version {
 	    description="compile the source " >
       <javac compiler="modern" srcdir="src" debug="on" destdir="${build}" source="1.5" classpath="${project.classpath}">
           <exclude name="**/dplt/**"/>
-      	<exclude name="**/Callbackdn.java"/>
+      	  <exclude name="**/Callbackdn.java"/>
+      	  <exclude name="**/Broadcast.java"/>
+      	  <exclude name="**/AllToAll.java"/>
+      	<exclude name="**/Worker.java"/>
+      	  <exclude name="**/Master.java"/>
+      	<exclude name="**/FaultToleranceBench.java"/>
       </javac>
       <rmic base="${build}"
 	    classname="xtremweb.core.com.handler.HandlerRMIdc" 
