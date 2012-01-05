@@ -114,7 +114,7 @@ import com.google.gson.JsonSyntaxException;
  --host                    service hostname
  --port                    service port
  --protocol                file transfer protocol
-
+ --file                    an optional file to load configuration
  Services:
  serv [dc|dr|dt|ds]        start the list of services separated by a space
 
@@ -177,7 +177,7 @@ public class CommandLineTool {
     private boolean verbose;
     private boolean server = false;
     private static Logger log = LoggerFactory.getLogger("CommandLineTool");
-
+    private String fileName;
     public CommandLineTool(String[] args) {
 	log.setLevel("info");
 	// force the log4J configuration to log level info without formatting
@@ -199,6 +199,10 @@ public class CommandLineTool {
 
 	// start services
 	if (otherArgs[0].equals("serv")) {
+	    if(fileName != null && !fileName.equals(""))
+	    {
+		System.setProperty("PROPERTIES_FILE", fileName);
+	    }
 	    boolean skipserv = false;
 	    Vector services = new Vector();
 	    for (String s : otherArgs) {
@@ -606,6 +610,7 @@ public class CommandLineTool {
 								     "verbose");
 	CmdLineParser.Option dirOption = parser.addStringOption('d', "dir");
 	CmdLineParser.Option hostOption = parser.addStringOption("host");
+	CmdLineParser.Option fileOption = parser.addStringOption("file");
 	CmdLineParser.Option protocolOption = parser.addStringOption("protocol");
 
 	try {
@@ -616,6 +621,7 @@ public class CommandLineTool {
 	}
 
 	host = (String) parser.getOptionValue(hostOption, "localhost");
+	fileName = (String) parser.getOptionValue(fileOption);
 	dirName = (String) parser.getOptionValue(dirOption, ".");
 	protocol = (String) parser.getOptionValue(protocolOption,"http");
 	boolean help = ((Boolean) parser.getOptionValue(helpOption,
@@ -692,6 +698,7 @@ public class CommandLineTool {
 	    usage.option("--host", "service hostname");
 	    usage.option("--port", "service port");
 	    usage.option("--protocol", "file transfer protocol to use when transfering data");
+	    usage.option("--file", "an optional properties file to load the configuration");
 	    usage.ln();
 	    usage.section("Services:");
 	    usage.option("serv [dc|dr|dt|ds]",
