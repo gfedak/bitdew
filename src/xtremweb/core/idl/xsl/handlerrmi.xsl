@@ -43,7 +43,6 @@ import java.rmi.server.UnicastRemoteObject;
 public class HandlerRMI<xsl:value-of select="$moduleName"/> extends HandlerRMITemplate implements InterfaceRMI<xsl:value-of select="$moduleName"/> {
 
     public HandlerRMI<xsl:value-of select="$moduleName"/> ()  throws RemoteException  { 
-          if (modulePerf) setupPerfMonitor("<xsl:value-of select="$moduleName"/>");
     }
 
   <xsl:for-each select="/Module/Method">
@@ -70,7 +69,6 @@ public class HandlerRMI<xsl:value-of select="$moduleName"/> extends HandlerRMITe
 
 <!-- Builds the attributes --> 
      public <xsl:value-of select="concat($return/@type , ' ', $methodName/@name)"/>( <xsl:call-template name="params-to-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> ) throws RemoteException  {
-             if(modulePerf) perf(moduleName);
              <xsl:if test="$return/@type!='void'">return (</xsl:if><xsl:value-of select="concat('((InterfaceRMI', $moduleName, ') callback ).',$methodName/@name)"/>( <xsl:call-template name="params-to-untyped-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> )<xsl:if test="$return/@type!='void'">)</xsl:if>;
     }
 </xsl:template>

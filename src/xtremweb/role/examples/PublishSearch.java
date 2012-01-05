@@ -19,9 +19,6 @@ import xtremweb.api.transman.*;
 import xtremweb.core.obj.dc.*;
 import xtremweb.core.obj.ds.*;
 import xtremweb.role.ui.*;
-import xtremweb.serv.bench.*;
-
-import java.util.Vector;
 import java.util.Random;
 
 public class PublishSearch {
@@ -32,7 +29,7 @@ public class PublishSearch {
     TransferManager transferManager = null;
     String _dir;
 
-    InterfaceRMIbench ibench=null;
+   // InterfaceRMIbench ibench=null;
     long myrank;
 
     String hostName = "prout";
@@ -62,9 +59,9 @@ public class PublishSearch {
 	if (master) {
 	    String[] modules = {"dc","dr","dt","ds"};
 	    ServiceLoader sl = new ServiceLoader("RMI", port, modules);
-	    CallbackFaultTolerantBench cbbench = new CallbackFaultTolerantBench();
-	    sl.addSubCallback("RMI", port, "bench", cbbench); 
-	    cbbench.configure(workers, 1);
+	    //CallbackFaultTolerantBench cbbench = new CallbackFaultTolerantBench();
+	    //sl.addSubCallback("RMI", port, "bench", cbbench); 
+	    //cbbench.configure(workers, 1);
 	    log.info("bench installed");
 	}
 
@@ -79,13 +76,13 @@ public class PublishSearch {
 
 	} else {
 
-	    ibench = (InterfaceRMIbench) ComWorld.getComm( host, "rmi", port, "bench" );
-	    myrank = ibench.register(hostName);
+	   // ibench = (InterfaceRMIbench) ComWorld.getComm( host, "rmi", port, "bench" );
+	   // myrank = ibench.register(hostName);
 	    log.info( hostName +  "rank is " + myrank );
 	    Random generator=null;
 	    generator = new Random(myrank);
 
-	    while(ibench.startExperience() == -1) {
+	 /*   while(ibench.startExperience() == -1) {
 		
 		long start=System.currentTimeMillis();
 		for (int i=0; i< 500;i++) {
@@ -93,10 +90,10 @@ public class PublishSearch {
 		    Locator loc = bitdew.createLocator(generator.nextInt() + "hostname" + hostName + "_" +  i);
 		    bitdew.putLocator(loc);
 		    long end=System.currentTimeMillis();
-		    ibench.endExperience(myrank,end-start,null);
+		   // ibench.endExperience(myrank,end-start,null);
 		    
 		}
-	    }
+	    }*/
 	}
 	
     }
