@@ -246,7 +246,7 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	    while (!f.exists()) {
 	    }
 	    log.debug("File exists ! , attempting to download");
-
+	    Thread.sleep(10000);
 	    log.debug(" adding torrent " + local_locator.getref() + ".torrent");
 	    BtpdConnector.addTorrent(CLIDIR, local_locator.getref()
 		    + ".torrent");
@@ -254,6 +254,8 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	    throw new OOBException(
 		    "There was a problem using the btpd library "
 			    + e.getMessage());
+	}catch(InterruptedException e){
+		throw new OOBException("The thread has been interrupted " + e.getMessage());
 	}
     }
 
