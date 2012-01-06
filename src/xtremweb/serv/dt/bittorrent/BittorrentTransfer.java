@@ -12,7 +12,6 @@ package xtremweb.serv.dt.bittorrent;
 
 import xtremweb.core.log.*;
 import xtremweb.core.conf.*;
-import xtremweb.serv.dc.DataUtil;
 import xtremweb.serv.dt.*;
 import xtremweb.serv.dt.bittorrent.exception.HttpToolsException;
 import xtremweb.core.obj.dr.Protocol;
@@ -20,10 +19,6 @@ import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.Locator;
 import org.apachev3.commons.httpclient.*;
-import org.apachev3.commons.httpclient.methods.*;
-import org.apachev3.commons.httpclient.methods.multipart.*;
-import org.apachev3.commons.httpclient.params.*;
-
 import java.io.*;
 import java.util.Properties;
 
@@ -156,8 +151,6 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 		    remote_locator.getref() + ".torrent");
 	    log.info("Torrent created ");
 	    BtpdConnector btcli = new BtpdConnector();
-	    HttpClient httpcli = new HttpClient();
-
 	    Properties mainprop = ConfigurationProperties.getProperties();
 	    log.info("Seeding file for the first time ....");
 	    btcli.addTorrent(CLIDIR, remote_locator.getref() + ".torrent");
@@ -165,7 +158,8 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 		    + ".torrent");
 	    log.debug(" wait for seeding");
 	    log.debug("Seeding ? " + seeding);
-	    long TIMEOUT = 120000;
+	    Properties props = ConfigurationProperties.getProperties();
+	    long TIMEOUT = Long.parseLong(props.getProperty("xtremweb.serv.dr.bittorrent.makemeta.timeout"));
 	    long d = System.currentTimeMillis();
 	    long now, elapsed = 0;
 	    while (!seeding && elapsed < TIMEOUT) {
@@ -175,10 +169,10 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 		elapsed = now - d;
 
 	    }
-	    log.info("First seeding done");
 	    if (!seeding)
 		throw new OOBException(
 			" Seeding could not be performed, time out reached ");
+	    log.info("First seeding done");
 	    String tfName = local_locator.getref();
 	    log.debug("Torrent file name :" + tfName);
 
@@ -186,39 +180,7 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 		    "xtremweb.serv.dt.http.uploadServlet", "/fileupload");
 	    String torrentURL = "http://" + remote_protocol.getserver()
 		    + ":8080" + uploadServlet + "/";
-	    PostMethod postMethod = new PostMethod(torrentURL);
-
-	    log.debug("seindinf file to " + torrentURL);
-	    File file = new File(remote_locator.getref() + ".torrent");
-	    log.debug("sending " + file.getName() + " to " + torrentURL);
-
-	    // Part[] parts = {new FilePart(file.getName(), file)};
-	    Part[] parts = { new FilePart(remote_locator.getref() + ".torrent",
-		    remote_locator.getref() + ".torrent", file) };
-	    log.info("Sending .torrent file to http repository ....");
-	    // prepare the file upload as a multipart POST request
-	    postMethod.setRequestEntity(new MultipartRequestEntity(parts,
-		    postMethod.getParams()));
-	    log.info("File sent, the http repository will try to pull your file using bittorrent, this can take some minutes ....");
-	    // execute the transfer and get the result as a status
-	    int status = httpcli.executeMethod(postMethod);
-	    log.info("Status code for the HTTP multipart post : " + status);
-	    if (status != HttpStatus.SC_OK) {
-		log.debug("HttpClient getMethod failed: "
-			+ postMethod.getStatusLine());
-		throw new OOBException(
-			"Http errors when setting retreive from " + torrentURL);
-	    }
-
-	    log.debug("file sent");
-	} catch (HttpException e) {
-	    throw new OOBException(
-		    "There was a problem when trying to transfer the .torrent file to repository : "
-			    + e.getMessage());
-	} catch (IOException e) {
-	    throw new OOBException(
-		    "There was a problem when trying to transfer the .torrent file to repository : "
-			    + e.getMessage());
+	    HttpTools.postFileHttp(remote_locator.getref() + ".torrent", torrentURL);
 	} catch (ConfigurationException e) {
 	    throw new OOBException(
 		    "There was a problem when reading the properties file : "
@@ -227,6 +189,8 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	    throw new OOBException(
 		    "There was a problem when adding the torrent for first seeding : "
 			    + e.getMessage());
+	} catch (HttpToolsException e) {
+	    e.printStackTrace();
 	}
 
     }
