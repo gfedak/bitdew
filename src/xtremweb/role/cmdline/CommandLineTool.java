@@ -196,13 +196,13 @@ public class CommandLineTool {
 	// if there's no other argument display helps
 	if (otherArgs.length == 0)
 	    usage(HelpFormat.SHORT);
-
+	if(fileName != null && !fileName.equals(""))
+	    {
+		System.setProperty("PROPERTIES_FILE", System.getProperty("user.dir") + File.separator +fileName);
+	    }
 	// start services
 	if (otherArgs[0].equals("serv")) {
-	    if(fileName != null && !fileName.equals(""))
-	    {
-		System.setProperty("PROPERTIES_FILE", fileName);
-	    }
+	    
 	    boolean skipserv = false;
 	    Vector services = new Vector();
 	    for (String s : otherArgs) {
