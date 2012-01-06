@@ -323,10 +323,10 @@ public class P2PSongs {
 	//First argument is file name
 	log.debug("Searching for file in " + System.getProperty("user.dir")
 		+ "/" + args[0]);
-	File fp = new File(System.getProperty("user.dir") + "/" + args[0]);
+	File fp = new File(System.getProperty("user.dir") + File.separator + args[0]);
 	if (fp.exists()) {
 	    System.setProperty("PROPERTIES_FILE",
-		    System.getProperty("user.dir") + "/" + args[0]);
+		    System.getProperty("user.dir") + File.separator + args[0]);
 	    P2PSongs p2p = new P2PSongs(args[1]);
 	    p2p.put(args[2]);
 	}
