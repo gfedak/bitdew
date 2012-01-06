@@ -43,9 +43,6 @@ public class UIFactory {
 	    if (httpServer==null) {
 		try {
 		    httpServer =  HttpServerFactory.getHttpServer();
-		    httpServer.addUiServlet("xtremweb.role.ui.PerfServlet", "/perfmonitor");
-		    httpServer.addUiServlet("xtremweb.role.ui.GraphServlet", "/ts.png");
-		    httpServer.addUiServlet("xtremweb.role.ui.DataBaseServlet", "/database");
 		} catch (Exception e) {
 		    log.warn("cannot start Http based ui : " + e);
 		    e.printStackTrace();
