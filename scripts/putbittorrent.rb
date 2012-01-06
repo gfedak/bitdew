@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'rubygems'
 require 'net/ssh'
-
+version="0.2.8"
 filename = ARGV[0]
 protocol = ARGV[1]
 iout = IO.popen("cat nodelist").readlines
@@ -21,7 +21,7 @@ puts "putmachine #{putmachine}"
   %x(taktuk -s -f nodelist broadcast exec { 'rm -rf *' })
   %x(taktuk -s -f nodelist broadcast exec { 'rm -rf .btpd/torrents/*' })
   puts "commands done"
-  IO.popen("scp bitdew-stand-alone-0.2.7.jar "+ httprepo+":") do |f|
+  IO.popen("scp bitdew-stand-alone-"+version+".jar "+ httprepo+":") do |f|
     f.readlines
   end
   puts "bitdewdone"
@@ -35,21 +35,26 @@ puts "despues de lolq"
 	  f.readlines
   end
   puts "dessd"
-  IO.popen("taktuk -s -f nodelist broadcast put { /home/jsaray/bitdew-stand-alone-0.2.7.jar } { /home/jsaray/bitdew-stand-alone-0.2.7.jar }") do |f|
+  IO.popen("taktuk -s -f nodelist broadcast put { /home/jsaray/bitdew-stand-alone-"+version+".jar } { /home/jsaray/bitdew-stand-alone-"+version+".jar }") do |f|
 	  f.readlines
   end
+  
+  IO.popen("taktuk -s -f nodelist broadcast put { /home/jsaray/propertiestorrent.json } { /home/jsaray/propertiestorrent.json }") do |f|
+      f.readlines
+  end
+
 puts "atteñ"  
   Net::SSH.start(httprepo,"jsaray")do|ssh|
 puts "connection stqbl"    
 ssh.exec "nohup bttrack.bittorrent --port 6969 --dfile dfile > /home/jsaray/trackerout 2> /home/jsaray/trackererr &"
-    ssh.exec "nohup java -jar bitdew-stand-alone-0.2.7.jar -v serv dc dt dr ds > initout 2> initerr &"
+    ssh.exec "nohup java -jar bitdew-stand-alone-"+version+".jar -v --file propertiestorrent.json serv dc dt dr ds > initout 2> initerr &"
   end
   puts "sleeping ; wait "
   sleep(20)
   uid = ""
   Net::SSH.start(putmachine,"jsaray")do |ssh|
 	  puts "executing put "
-	  uid = ssh.exec! "nohup java -jar bitdew-stand-alone-0.2.7.jar put --host "+httprepo+" --protocol bittorrent lola.avi > putout 2> puterr"
+	  uid = ssh.exec! "nohup java -jar bitdew-stand-alone-"+version+".jar --file propertiestorrent.json put --host "+httprepo+" --protocol bittorrent lola.avi > putout 2> puterr"
 	  puts "retrieving output to parse uid"
 	  IO.popen("scp " + putmachine +":putout .") do|f|
 	    f.readlines
@@ -74,7 +79,7 @@ ssh.exec "nohup bttrack.bittorrent --port 6969 --dfile dfile > /home/jsaray/trac
     begin
     Net::SSH.start(machine,"jsaray") do |ssh|
       
-      cmd = "nohup java -jar bitdew-stand-alone-0.2.7.jar get --verbose --protocol bittorrent --host "+ httprepo +" "+ uid + " > getout 2> geterr &"
+      cmd = "nohup java -jar bitdew-stand-alone-"+version+".jar --file propertiestorrent.json get --verbose --protocol bittorrent --host "+ httprepo +" "+ uid + " > getout 2> geterr &"
       puts "launching on machine #{machine}, command " + cmd
 	  ssh.exec cmd
 	  puts "done"
