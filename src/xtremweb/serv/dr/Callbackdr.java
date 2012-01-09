@@ -120,6 +120,10 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 			protocol.setpassword(mainprop.getProperty("xtremweb.serv.dr.s3.key"));
 			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.s3.bucketName"));
 			registerProtocol(protocol);
+		    } if (protoName.equals("dropbox")){
+			protocol.setlogin(mainprop.getProperty("xtremweb.serv.dr.dropbox.key"));
+			protocol.setpassword(mainprop.getProperty("xtremweb.serv.dr.dropbox.secret"));
+			registerProtocol(protocol);
 		    }
 		    if (protoName.equals("scp")) {
 			log.debug("Setting scp protocol from the configuration file");
