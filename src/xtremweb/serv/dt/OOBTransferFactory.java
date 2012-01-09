@@ -5,6 +5,7 @@ import xtremweb.serv.dt.http.*;
 import xtremweb.serv.dt.scp.ScpTransfer;
 import xtremweb.serv.dt.amazonS3.AmazonS3Transfer;
 import xtremweb.serv.dt.bittorrent.BittorrentTransfer;
+import xtremweb.serv.dt.dropbox.DropBoxTransfer;
 import xtremweb.serv.dt.dummy.*;
 import xtremweb.core.log.*;
 
@@ -124,6 +125,8 @@ public class OOBTransferFactory {
 		return new AmazonS3Transfer(d,t,rl,ll,rp,lp);
 	    if (rp.getname().toLowerCase().equals("bittorrent"))
 		return new BittorrentTransfer(d,t,rl,ll,rp,lp);
+	    if (rp.getname().toLowerCase().equals("dropbox"))
+		return new DropBoxTransfer(d,t,rl,ll,rp,lp);
 		
 	} else  if (rp.getname().toLowerCase().equals("local")) {
 	    if (lp.getname().toLowerCase().equals("ftp")) 

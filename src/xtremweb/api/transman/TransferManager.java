@@ -17,6 +17,7 @@ import xtremweb.core.obj.dc.*;
 import xtremweb.serv.dt.*;
 import xtremweb.serv.dt.amazonS3.AmazonS3Transfer;
 import xtremweb.serv.dt.bittorrent.BittorrentTransfer;
+import xtremweb.serv.dt.dropbox.DropBoxTransfer;
 import xtremweb.serv.dt.dummy.DummyTransfer;
 import xtremweb.serv.dt.ftp.FtpTransfer;
 import xtremweb.serv.dt.http.HttpTransfer;
@@ -322,6 +323,8 @@ public class TransferManager {
 		return new AmazonS3Transfer(d, t, rl, ll, rp, lp);
 	    if (rp.getname().toLowerCase().equals("bittorrent"))
 		return new BittorrentTransfer(d, t, rl, ll, rp, lp);
+	    if (rp.getname().toLowerCase().equals("dropbox"))
+		return new DropBoxTransfer(d, t, rl, ll, rp, lp);
 	} else if (rp.getname().toLowerCase().equals("local")) {
 	    if (lp.getname().toLowerCase().equals("ftp"))
 		return new FtpTransfer(d, t, rl, ll, rp, lp);
