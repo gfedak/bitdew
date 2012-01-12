@@ -77,12 +77,10 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 	    String protoName = protocols[i].toLowerCase();
 
 	    try {
-		if (protoName == "http")
-		    HttpTransfer.init();
+		
 		if (protoName.equals("bittorrent"))
 		    BittorrentTransfer.init();
-		if (protoName == "dummy")
-		    DummyTransfer.init();
+		
 	    } catch (OOBException oe) {
 		log.warn("Was not able to perform BitTorrent initialization"
 			+ oe);
