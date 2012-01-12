@@ -10,10 +10,10 @@ import java.util.Properties;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.exception.DropboxException;
+import com.dropbox.client2.session.AccessTokenPair;
 import com.dropbox.client2.session.AppKeyPair;
 import com.dropbox.client2.session.RequestTokenPair;
 import com.dropbox.client2.session.Session.AccessType;
-import com.dropbox.client2.session.TokenPair;
 import com.dropbox.client2.session.WebAuthSession;
 import com.dropbox.client2.session.WebAuthSession.WebAuthInfo;
 
@@ -25,98 +25,207 @@ import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dt.Transfer;
 import xtremweb.serv.dt.BlockingOOBTransferImpl;
 import xtremweb.serv.dt.OOBException;
-import xtremweb.serv.dt.bittorrent.HttpTools;
-import xtremweb.serv.dt.bittorrent.exception.HttpToolsException;
 
+/**
+ * This class implements a transfer using Dropbox protocol
+ * @author josefrancisco
+ *
+ */
 public class DropBoxTransfer extends BlockingOOBTransferImpl {
-    private Properties props;
-    private DropboxAPI api;
     
+    /**
+     * Properties file
+     */
+    private static Properties props;
     
-    public DropBoxTransfer(Data d, Transfer t, Locator rl, Locator ll,Protocol rp, Protocol lp) {
-	super(d, t, rl, ll, rp, lp);
-    }
-
-    public void connect() throws OOBException {
-	
+    /**
+     * Dropbox api
+     */
+    private static DropboxAPI api;
+    
+    /**
+     * Dropbox Application key
+     */
+    private static String app_key;
+    
+    /**
+     * Dropbox Application secret
+     */
+    private static String app_secret;
+    
+    /**
+     * Web Authentication session
+     */
+    private static WebAuthSession was;
+    
+    /**
+     * Dropbox generated access token key
+     */
+    private String access_token_key;
+    
+    /**
+     * Drop box generated access token secret
+     */
+    private String access_token_secret;
+    
+    static {
 	try {
-	    props = ConfigurationProperties.getProperties();	
-	    String key = props.getProperty("xtremweb.serv.dr.dropbox.app-key");
-	    String secret =props.getProperty("xtremweb.serv.dr.dropbox.app-secret");
-	    System.out.println("Key is " + key + " secret is " + secret);
-	    AppKeyPair pair = new AppKeyPair(key, secret);
-	    WebAuthSession was = new WebAuthSession(pair, AccessType.APP_FOLDER);
-	    WebAuthInfo info = was.getAuthInfo();
-	    RequestTokenPair tpair = info.requestTokenPair;
-	    System.out.println("the key generated is " + tpair.key + "the secret generated is " + tpair.secret);
-	    String redirecturl = info.url;
-	    System.out.println("the redirect url is " + redirecturl);
-	    Thread.sleep(45000);
-	    was.retrieveWebAccessToken(tpair);
-	    api = new DropboxAPI(was);
-	    System.out.println("PSOOOOOOOO LA PRUEBA DE FUEGO !!!!");
+	    props = ConfigurationProperties.getProperties();
 	} catch (ConfigurationException e) {
-	    e.printStackTrace();
-	} catch (DropboxException e) {
-	    e.printStackTrace();
-	} catch (InterruptedException e) {
-	    // TODO Auto-generated catch block
+	    log.fatal("Error while configuring ther properties ");
 	    e.printStackTrace();
 	}
     }
     
+    /**
+     * Dropbox transfer constructor
+     * @param d data
+     * @param t transfer
+     * @param rl remote locator
+     * @param ll local locator
+     * @param rp remote protocol
+     * @param lp local protocol
+     * @throws OOBException if a problem happens
+     */
+    public DropBoxTransfer(Data d, Transfer t, Locator rl, Locator ll,
+	    Protocol rp, Protocol lp) throws OOBException {
+	super(d, t, rl, ll, rp, lp);
+	app_key = props.getProperty("xtremweb.serv.dr.dropbox.app-key");
+	app_secret = props.getProperty("xtremweb.serv.dr.dropbox.app-secret");
+	log.debug("Key is " + app_key + " secret is " + app_secret);
+    }
+    
+    /**
+     * Connect method, connects to dropbox using the Java SDK, if
+     * there is no previously saved token secret and key , a couple
+     * if generated, else a couple is searched on dropbox.properties file
+     */
+    public void connect() throws OOBException {
+
+	app_key = props.getProperty("xtremweb.serv.dr.dropbox.app-key");
+	app_secret = props.getProperty("xtremweb.serv.dr.dropbox.app-secret");
+	AppKeyPair pair = new AppKeyPair(app_key, app_secret);
+	was = new WebAuthSession(pair, AccessType.APP_FOLDER);
+	WebAuthInfo info;
+	access_token_key = props
+		.getProperty("xtremweb.serv.dr.dropbox.token-key");
+	access_token_secret = props
+		.getProperty("xtremweb.serv.dr.dropbox.token-secret");
+
+	if (access_token_key == null || access_token_key.equals("")
+		|| access_token_secret == null
+		|| access_token_secret.equals("")) {
+
+	    try {
+		info = was.getAuthInfo();
+		RequestTokenPair tpair = info.requestTokenPair;
+		log.info("the key generated is " + tpair.key
+			+ " the secret generated is " + tpair.secret);
+		String redirecturl = info.url;
+		String exp = props
+			.getProperty("xtremweb.serv.dr.dropbox.expiration");
+		log.info("You have "
+			+ exp
+			+ " seconds to go to his url : "
+			+ redirecturl
+			+ " and grant bitdew permission in your dropbox account, this procedure will be done just once");
+		Thread.sleep(Long.parseLong(exp));
+
+		String userLogin = was.retrieveWebAccessToken(tpair);
+		log.debug(" nom dutilisateur " + userLogin);
+		AccessTokenPair at = was.getAccessTokenPair();
+		log.info("Key " + at.key +" Secret " + at.secret);
+		
+		api = new DropboxAPI(was);
+	    } catch (DropboxException e) {
+		e.printStackTrace();
+		throw new OOBException("A exception related to dropbox has appeared " + e.getMessage());
+	    } catch (NumberFormatException e) {
+		e.printStackTrace();
+		throw new OOBException(e.getMessage());
+	    } catch (InterruptedException e) {
+		e.printStackTrace();
+		throw new OOBException(e.getMessage());
+	    }
+	} else {
+	    AccessTokenPair atp = new AccessTokenPair(access_token_key,
+		    access_token_secret);
+	    was.setAccessTokenPair(atp);
+	    api = new DropboxAPI(was);
+	}
+    }
+    
+    /**
+     * Returns transfer state
+     */
     public boolean poolTransfer() {
 	return !isTransfering();
     }
 
-    @Override
+    /**
+     * Disconnect from dropbox
+     */
     public void disconnect() throws OOBException {
-	// TODO Auto-generated method stub
-	
     }
 
-    @Override
+    /**
+     * Put a file using dropbox
+     */
     public void blockingSendSenderSide() throws OOBException {
-	String path = props.getProperty("xtremweb.serv.dr.dropbox.path") + local_locator.getdatauid();
+	String path = props.getProperty("xtremweb.serv.dr.dropbox.path")
+		+ local_locator.getdatauid();
 	System.out.println("the locator is " + local_locator.getref());
+	System.out.println("the locator 2 is " + remote_locator.getref());
 	File f = new File(local_locator.getref());
 	FileInputStream fis;
 	try {
 	    fis = new FileInputStream(f);
-	    api.putFile(path,fis,f.length(),null,null);
+	    api.putFile(path, fis, f.length(), null, null);
 	} catch (FileNotFoundException e) {
 	    e.printStackTrace();
 	    throw new OOBException("The file was not found " + e.getMessage());
-	    
+
 	} catch (DropboxException e) {
 	    e.printStackTrace();
-	    throw new OOBException("There was an exception using the DropBox API " + e.getMessage());
-	    
+	    throw new OOBException(
+		    "There was an exception using the DropBox API "
+			    + e.getMessage());
+
 	}
     }
 
-    @Override
+    /**
+     * Empty method in dropbox case
+     */
     public void blockingSendReceiverSide() throws OOBException {
 	
     }
 
-    @Override
+    /**
+     * Empty method in dropbox case
+     */
     public void blockingReceiveSenderSide() throws OOBException {
-	// TODO Auto-generated method stub
 	
     }
 
-    @Override
+    /**
+     * Get file using dropbox
+     */
     public void blockingReceiveReceiverSide() throws OOBException {
-	String path = props.getProperty("xtremweb.serv.dr.dropbox.path") + data.getuid();
-	System.out.println("the path is " +path);
+	String path = props.getProperty("xtremweb.serv.dr.dropbox.path")
+		+ data.getuid();
+	System.out.println("the path is " + path);
+	log.debug("loca loc is " + local_locator.getref());
+	log.debug(" remote loc is " + remote_locator.getref());
 	try {
-	    OutputStream fos = new FileOutputStream(new File(local_locator.getref()));
-	    api.getFile(path ,null , fos, null);
+	    OutputStream fos = new FileOutputStream(new File(
+		    local_locator.getref()));
+	    api.getFile(path, null, fos, null);
 	    fos.close();
 	} catch (DropboxException e) {
 	    e.printStackTrace();
-	    throw new OOBException("There was a dropbox exception : " + e.getMessage());
+	    throw new OOBException("There was a dropbox exception : "
+		    + e.getMessage());
 	} catch (FileNotFoundException e) {
 	    e.printStackTrace();
 	    throw new OOBException("File not found exception " + e.getMessage());
@@ -124,8 +233,6 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 	    e.printStackTrace();
 	    throw new OOBException("IO exception " + e.getMessage());
 	}
-	
-	
     }
 
 }
