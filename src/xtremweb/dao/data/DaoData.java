@@ -1,10 +1,7 @@
 package xtremweb.dao.data;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Vector;
-
-import javax.jdo.Extent;
 import javax.jdo.Query;
 
 import xtremweb.core.obj.dc.Data;
