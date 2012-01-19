@@ -14,6 +14,8 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+
 import xtremweb.serv.dt.bittorrent.exception.HttpToolsException;
 
 /**
@@ -90,6 +92,22 @@ public class HttpTools {
 		    "There was an error executing the file POST request "
 			    + e.getMessage());
 	}
+    }
+    
+    public static String httpPost(String url) throws HttpToolsException
+    {	HttpClient client = new DefaultHttpClient();
+	HttpPost httppost = new HttpPost(url);
+	HttpResponse response;
+	try {
+	    response = client.execute(httppost);
+	    HttpEntity entity = response.getEntity();
+	    return EntityUtils.toString(entity);
+	} catch (ClientProtocolException e) {
+	    throw new HttpToolsException("Client protocol exception " + e.getMessage());
+	} catch (IOException e) {
+	    throw new HttpToolsException("IO exception " + e.getMessage());
+	}
+	
     }
 
 }
