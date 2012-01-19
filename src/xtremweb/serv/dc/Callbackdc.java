@@ -166,13 +166,14 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
     public Data getData(String uid) throws RemoteException {
 
     	Data dataStored ;
+    	DaoData mydao = new DaoData();
 	try {
-	    dao.beginTransaction();
+	    mydao.beginTransaction();
 	  
-	    dataStored = (Data) dao.getByUid(Data.class, uid);
+	    dataStored = (Data) mydao.getByUid(Data.class, uid);
 	 
 		
-	    dao.commitTransaction();
+	    mydao.commitTransaction();
 	} finally {
 	    if (dao.transactionIsActive())
 		dao.transactionRollback();
@@ -265,10 +266,11 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
      */
     public Locator getLocatorByDataUID(String uid) throws RemoteException {
 	Locator ret = null;
+	DaoData mydao = new DaoData();
 	try {
-	    dao.beginTransaction();
+	    mydao.beginTransaction();
 
-	    Collection e = dao.getAll(Locator.class);
+	    Collection e = mydao.getAll(Locator.class);
 	    // Query q=pm.newQuery(e, "datauid == " + uid);
 	    Iterator iter = e.iterator();
 	    while (iter.hasNext()) {
@@ -280,10 +282,10 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 		    	return ret;
 		}
 	    }
-	    dao.commitTransaction();
+	    mydao.commitTransaction();
 	} finally {
-	    if (dao.transactionIsActive())
-		dao.transactionRollback();
+	    if (mydao.transactionIsActive())
+		mydao.transactionRollback();
 	}
 
 	return null;

@@ -231,20 +231,20 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
      */
     public Protocol getProtocolByUID(String uid) throws RemoteException {
 	Protocol t = null;
-	
+	DaoProtocol daop = new DaoProtocol();
 	try {
-	    dao.beginTransaction();
-	    t = (Protocol) dao.getByUid(Protocol.class, uid);
+	    daop.beginTransaction();
+	    t = (Protocol) daop.getByUid(Protocol.class, uid);
 	    if (t == null) {
 		log.debug(" proto fetched is null ");
 	    } else {
 		
 		log.debug(" proto fetched " + t.getuid());
 	    }
-	    dao.commitTransaction();
+	    daop.commitTransaction();
 	} finally {
-	    if (dao.transactionIsActive())
-		dao.transactionRollback();
+	    if (daop.transactionIsActive())
+		daop.transactionRollback();
 	    
 	}
 	return t;

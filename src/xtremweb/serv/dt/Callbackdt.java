@@ -146,10 +146,10 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 		    + oobt.getData().getuid() + "md5 "
 		    + oobt.getData().getchecksum() + " size "
 		    + oobt.getData().getsize());
-
-	    dao.makePersistent(oobt.getData(), true);
-	    dao.makePersistent(oobt.getRemoteProtocol(), true);
-	    dao.makePersistent(oobt.getLocalProtocol(), true);
+	    DaoTransfer mydao = new DaoTransfer();
+	    mydao.makePersistent(oobt.getData(), true);
+	    mydao.makePersistent(oobt.getRemoteProtocol(), true);
+	    mydao.makePersistent(oobt.getLocalProtocol(), true);
 
 	    oobt.getRemoteLocator().setdatauid(oobt.getData().getuid());
 	    oobt.getLocalLocator().setdatauid(oobt.getData().getuid());
@@ -159,14 +159,14 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 	    oobt.getLocalLocator().setprotocoluid(
 		    oobt.getLocalProtocol().getuid());
 
-	    dao.makePersistent(oobt.getRemoteLocator(), true);
-	    dao.makePersistent(oobt.getLocalLocator(), true);
+	    mydao.makePersistent(oobt.getRemoteLocator(), true);
+	    mydao.makePersistent(oobt.getLocalLocator(), true);
 
 	    oobt.getTransfer().setlocatorremote(
 		    oobt.getRemoteLocator().getuid());
 	    oobt.getTransfer().setlocatorlocal(oobt.getLocalLocator().getuid());
 	    oobt.getTransfer().setdatauid(oobt.getData().getuid());
-	    dao.makePersistent(oobt.getTransfer(), true);
+	    mydao.makePersistent(oobt.getTransfer(), true);
 
 	    // FIXME: should have an assert here
 	    if ((tuid != null) && (!tuid.equals(oobt.getTransfer().getuid())))
