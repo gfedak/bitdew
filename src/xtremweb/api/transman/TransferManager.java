@@ -35,6 +35,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import xtremweb.core.util.uri.*;
 import xtremweb.dao.DaoFactory;
+import xtremweb.dao.data.DaoData;
 import xtremweb.dao.transfer.DaoTransfer;
 
 /**
@@ -140,10 +141,12 @@ public class TransferManager {
 		+ oobt.getData().getuid() + "md5 "
 		+ oobt.getData().getchecksum() + " size "
 		+ oobt.getData().getsize());
-
-	dao.makePersistent(oobt.getData(), true);
-	dao.makePersistent(oobt.getRemoteProtocol(), true);
-	dao.makePersistent(oobt.getLocalProtocol(), true);
+	DaoData newdao = new DaoData();
+	
+	newdao.makePersistent(oobt.getData(), true);
+	
+	newdao.makePersistent(oobt.getRemoteProtocol(), true);
+	newdao.makePersistent(oobt.getLocalProtocol(), true);
 
 	oobt.getRemoteLocator().setdatauid(oobt.getData().getuid());
 	oobt.getLocalLocator().setdatauid(oobt.getData().getuid());
@@ -152,13 +155,13 @@ public class TransferManager {
 		oobt.getRemoteProtocol().getuid());
 	oobt.getLocalLocator().setprotocoluid(oobt.getLocalProtocol().getuid());
 
-	dao.makePersistent(oobt.getRemoteLocator(), true);
-	dao.makePersistent(oobt.getLocalLocator(), true);
+	newdao.makePersistent(oobt.getRemoteLocator(), true);
+	newdao.makePersistent(oobt.getLocalLocator(), true);
 
 	oobt.getTransfer().setlocatorremote(oobt.getRemoteLocator().getuid());
 	oobt.getTransfer().setlocatorlocal(oobt.getLocalLocator().getuid());
 	oobt.getTransfer().setdatauid(oobt.getData().getuid());
-	dao.makePersistent(oobt.getTransfer(), true);
+	newdao.makePersistent(oobt.getTransfer(), true);
 
 	// FIXME: should have an assert here
 	if ((tuid != null) && (!tuid.equals(oobt.getTransfer().getuid())))
