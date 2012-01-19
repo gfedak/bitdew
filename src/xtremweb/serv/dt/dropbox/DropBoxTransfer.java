@@ -37,6 +37,10 @@ import xtremweb.serv.dt.OOBException;
 public class DropBoxTransfer extends BlockingOOBTransferImpl {
     
     /**
+     * Factor to transform seconds to miliseconds
+     */
+    private long CONVERSION_RATIO=1000;
+    /**
      * Properties file
      */
     private static Properties props;
@@ -72,7 +76,7 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
     private String access_token_secret;
     
     /**
-     * 
+     * Properties file where access token and secret will be stored
      */
     private String propertiesFile = "initialCredentials.properties";
     
@@ -135,7 +139,7 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 			+ " seconds to go to his url : "
 			+ redirecturl
 			+ " and grant bitdew permission in your dropbox account, this procedure will be done just once");
-		Thread.sleep(Long.parseLong(exp));
+		Thread.sleep(Long.parseLong(exp)*CONVERSION_RATIO);
 
 		String userLogin = was.retrieveWebAccessToken(tpair);
 		log.debug(" nom dutilisateur " + userLogin);
@@ -164,6 +168,11 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 	}
     }
     
+    /**
+     * This method reads a specific property from the properties file containing the access token and secret
+     * @param string
+     * @return
+     */
     private String readProperty(String string) {
 	Properties Myproperties =  new Properties();
 	String s="";
@@ -180,7 +189,13 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 	}
 	return s;
     }
-
+    
+    /**
+     * Writes the properties file containing user access key and secret 
+     * @param key
+     * @param secret
+     * @throws IOException
+     */
     private void writePropertiesFile(String key, String secret) throws IOException{
 	File f = new File(System.getProperty("user.dir") + File.separator + propertiesFile);
 	BufferedWriter bw = new BufferedWriter(new FileWriter(f));
