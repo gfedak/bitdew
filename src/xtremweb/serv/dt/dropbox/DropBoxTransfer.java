@@ -1,10 +1,13 @@
 package xtremweb.serv.dt.dropbox;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
@@ -68,6 +71,11 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
      */
     private String access_token_secret;
     
+    /**
+     * 
+     */
+    private String propertiesFile = "initialCredentials.properties";
+    
     static {
 	try {
 	    props = ConfigurationProperties.getProperties();
@@ -107,10 +115,8 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 	AppKeyPair pair = new AppKeyPair(app_key, app_secret);
 	was = new WebAuthSession(pair, AccessType.APP_FOLDER);
 	WebAuthInfo info;
-	access_token_key = props
-		.getProperty("xtremweb.serv.dr.dropbox.token-key");
-	access_token_secret = props
-		.getProperty("xtremweb.serv.dr.dropbox.token-secret");
+	access_token_key = readProperty("xtremweb.serv.dr.dropbox.token-key");
+	access_token_secret = readProperty("xtremweb.serv.dr.dropbox.token-secret");
 
 	if (access_token_key == null || access_token_key.equals("")
 		|| access_token_secret == null
@@ -135,7 +141,7 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 		log.debug(" nom dutilisateur " + userLogin);
 		AccessTokenPair at = was.getAccessTokenPair();
 		log.info("Key " + at.key +" Secret " + at.secret);
-		
+		writePropertiesFile(at.key,at.secret);
 		api = new DropboxAPI(was);
 	    } catch (DropboxException e) {
 		e.printStackTrace();
@@ -144,6 +150,9 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 		e.printStackTrace();
 		throw new OOBException(e.getMessage());
 	    } catch (InterruptedException e) {
+		e.printStackTrace();
+		throw new OOBException(e.getMessage());
+	    } catch (IOException e) {
 		e.printStackTrace();
 		throw new OOBException(e.getMessage());
 	    }
@@ -155,6 +164,34 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 	}
     }
     
+    private String readProperty(String string) {
+	Properties Myproperties =  new Properties();
+	String s="";
+	try {
+	    //load the data from a file of it exists
+	    if ((new File(System.getProperty("user.dir") + File.separator + propertiesFile)).exists()) {
+		InputStream data = new FileInputStream(propertiesFile);
+		Myproperties.load(data);
+		log.info("set properties from file " + propertiesFile);
+		s = (String)Myproperties.get(string);
+	    }
+	} catch (Exception e) {
+	    log.info("cannot load properties from file " + propertiesFile + " : " + e);
+	}
+	return s;
+    }
+
+    private void writePropertiesFile(String key, String secret) throws IOException{
+	File f = new File(System.getProperty("user.dir") + File.separator + propertiesFile);
+	BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+	
+	    bw.write("xtremweb.serv.dr.dropbox.token-key="+key+"\n");
+	
+	bw.write("xtremweb.serv.dr.dropbox.token-secret="+secret);
+	bw.close();
+	
+    }
+
     /**
      * Returns transfer state
      */
