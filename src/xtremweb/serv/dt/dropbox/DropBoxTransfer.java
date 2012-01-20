@@ -90,6 +90,13 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
     }
     
     /**
+     * Default constructor
+     */
+    public DropBoxTransfer(){
+	
+    }
+    
+    /**
      * Dropbox transfer constructor
      * @param d data
      * @param t transfer

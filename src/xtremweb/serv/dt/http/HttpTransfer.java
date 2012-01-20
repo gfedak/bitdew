@@ -45,6 +45,13 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements
 	    log.warn("cannot start HttpServer : " + e);
 	}
     }
+    
+    /**
+     * Default constructor
+     */
+    public HttpTransfer(){
+	
+    }
 
     public HttpTransfer(Data d, Transfer t, Locator rl, Locator ll,
 	    Protocol rp, Protocol lp) {
