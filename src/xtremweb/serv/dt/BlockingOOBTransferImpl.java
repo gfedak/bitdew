@@ -15,8 +15,7 @@ import xtremweb.core.obj.dt.Transfer;
  * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
  */
-public abstract class BlockingOOBTransferImpl extends OOBTransferImpl implements
-	OOBTransfer, BlockingOOBTransfer {
+public abstract class BlockingOOBTransferImpl extends OOBTransferImpl implements BlockingOOBTransfer {
 
     /**
      * <code>runner</code> is a TransferThread which helps to implements non
@@ -24,7 +23,14 @@ public abstract class BlockingOOBTransferImpl extends OOBTransferImpl implements
      * 
      */
     protected TransferThread runner;
-
+    
+    /**
+     * Default constructor
+     */
+    public BlockingOOBTransferImpl()
+    {
+	
+    }
     /**
      * Creates a new <code>BlockingOOBTransferImpl</code> instance.
      * 
