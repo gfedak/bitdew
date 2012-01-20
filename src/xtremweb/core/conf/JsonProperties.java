@@ -6,9 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -22,39 +19,39 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+/**
+ * This class implements a properties source using Json language
+ * @author josefrancisco
+ */
 public class JsonProperties implements PropertiesSource {
+    
+    /**
+     * first place to search the json file
+     */
     private final String PATH = "properties.json";
+    
+    /**
+     * Place to search the json file inside the JAR
+     */
     private final String JAR_PATH = "/properties.json";
+    
+    /**
+     * json object
+     */
     private JsonObject jobj;
+    
+    /**
+     * Log
+     */
     private Logger log = LoggerFactory.getLogger(JsonProperties.class);
-
-    public String convertStreamToString(InputStream is) throws IOException {
-	/*
-	 * To convert the InputStream to String we use the Reader.read(char[]
-	 * buffer) method. We iterate until the Reader return -1 which means
-	 * there's no more data to read. We use the StringWriter class to
-	 * produce the string.
-	 */
-	if (is != null) {
-	    Writer writer = new StringWriter();
-
-	    char[] buffer = new char[4];
-	    try {
-		Reader reader = new BufferedReader(new InputStreamReader(is,
-			"UTF-8"));
-		int n;
-		while ((n = reader.read(buffer)) != -1) {
-		    writer.write(buffer, 0, n);
-		}
-	    } finally {
-		is.close();
-	    }
-	    return writer.toString();
-	} else {
-	    return "";
-	}
-    }
-
+    
+    /**
+     * Convert the json structure to a Properties one, for example if we have 
+     * {key1: {key2: "value1"},key3: {key4: "value2"}}, it will be converted as if the properties file were :
+     * 
+     * key1.key2 = "value1"
+     * key3.key4 = "value2"
+     */
     public Properties getProperties() throws ConfigurationException {
 
 	String tot = "";
@@ -106,14 +103,19 @@ public class JsonProperties implements PropertiesSource {
 	}
 
 	tot = CommandLineToolHelper.jsonize(tot);
+	//get the json object
 	jobj = new JsonParser().parse(tot).getAsJsonObject();
 	Set<Map.Entry<String, JsonElement>> set = jobj.entrySet();
 	Iterator iter = set.iterator();
+	//iteration over the json file watched as a set of <String,JsonElement>
 	while (iter.hasNext()) {
 	    Map.Entry<String, JsonElement> mp = (Map.Entry<String, JsonElement>) iter
 		    .next();
+	    //extract key
 	    String key = mp.getKey();
+	    //extract object
 	    JsonObject objint = jobj.get(key).getAsJsonObject();
+	    //internal entries of the object, the maximum depth are two levels
 	    Set<Map.Entry<String, JsonElement>> internset = objint.entrySet();
 	    Iterator intern = internset.iterator();
 	    while (intern.hasNext()) {
@@ -127,7 +129,13 @@ public class JsonProperties implements PropertiesSource {
 	}
 	return p;
     }
-
+    
+    /**
+     * Give a property from the json file
+     * @param key a string of the form key1.key2.key3....finalvalue
+     * @return the JsonObject that correspond to this key, that is :
+     * {key1.key2...key(n-1): finalvalue}
+     */
     public Object getProperty(String key) {
 	Pattern p = Pattern.compile("[a-zA-Z]*\\.?");
 	Matcher m = p.matcher(key);
