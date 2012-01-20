@@ -23,7 +23,11 @@ import xtremweb.dao.DaoFactory;
 import xtremweb.dao.protocol.DaoProtocol;
 import java.io.File;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+
+
 
 /**
  * This class represents a data repository, this is an abstraction to represent
@@ -40,6 +44,7 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
      */
     protected static Logger log = LoggerFactory.getLogger(Callbackdr.class);
     private DaoProtocol dao;
+    private Properties mainprop;
     /**
      * Class constructor, it tries to load a set of protocols and repositories
      * from a json file indicated in System parameters if it is not possible it
@@ -47,19 +52,20 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
      */
     public Callbackdr() {
     	dao = (DaoProtocol)DaoFactory.getInstance("xtremweb.dao.protocol.DaoProtocol");
-	Properties mainprop;
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
 	} catch (ConfigurationException ce) {
 	    log.warn("Not able to find configuration protocols : " + ce);
 	    mainprop = new Properties();
 	}
-	String temp = mainprop.getProperty("xtremweb.serv.dr.protocols", null);
+	
+	String temp = mainprop.getProperty("xtremweb.serv.dr.protocols");
+	log.info(" The list of protocols to load " + temp);
+	
 	if (temp == null) {
-	    System.out.println(" temp is nulll !!!!! " + temp);
+	    log.debug(" temp is nulll !!!!! " + temp);
 	    temp = "dummy http";
 	}
-	System.out.println("List of protocols to load :" + temp);
 
 	String[] protocols = temp.split(" ");
 	for (int i = 0; i < protocols.length; i++) {
@@ -77,6 +83,8 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 			protocol.setserver(mainprop.getProperty(
 				"xtremweb.serv.dr.ftp.server", InetAddress
 					.getLocalHost().getHostName()));
+			log.debug("the protocol is !!!! " + mainprop.getProperty(
+				"xtremweb.serv.dr.ftp.port", "21"));
 			protocol.setport((Integer.valueOf(mainprop.getProperty(
 				"xtremweb.serv.dr.ftp.port", "21"))).intValue());
 			protocol.setlogin(mainprop.getProperty(
@@ -86,6 +94,7 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 				"bush@whitehouse.gov"));
 			protocol.setpath(mainprop.getProperty(
 				"xtremweb.serv.dr.ftp.path", "pub/incoming"));
+			protocol.setclassName(mainprop.getProperty("xtremweb.serv.dr.ftp.className",null));
 			registerProtocol(protocol);
 		    }
 		    if (protoName.equals("http")) {
@@ -106,6 +115,7 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 				.intValue());
 			protocol.setpath(mainprop.getProperty(
 				"xtremweb.serv.dr.http.path", "."));
+			protocol.setclassName(mainprop.getProperty("xtremweb.serv.dr.http.className",null));
 			registerProtocol(protocol);
 		    }
 
@@ -119,12 +129,15 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 			protocol.setlogin(mainprop.getProperty("xtremweb.serv.dr.s3.key"));
 			protocol.setpassword(mainprop.getProperty("xtremweb.serv.dr.s3.key"));
 			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.s3.bucketName"));
+			protocol.setclassName(mainprop.getProperty("xtremweb.serv.dr.s3.className",null));
 			registerProtocol(protocol);
 		    } if (protoName.equals("dropbox")){
 			protocol.setlogin(mainprop.getProperty("xtremweb.serv.dr.dropbox.key"));
 			protocol.setpassword(mainprop.getProperty("xtremweb.serv.dr.dropbox.secret"));
+			protocol.setclassName(mainprop.getProperty("xtremweb.serv.dr.dropbox.className",null));
 			registerProtocol(protocol);
 		    }
+		   
 		    if (protoName.equals("scp")) {
 			log.debug("Setting scp protocol from the configuration file");
 			protocol.setpassphrase(mainprop.getProperty(
@@ -144,6 +157,7 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 				"xtremweb.serv.dr.scp.path", null));
 			protocol.setport(Integer.parseInt(mainprop.getProperty(
 				"xtremweb.serv.dr.scp.port", "22")));
+			protocol.setclassName(mainprop.getProperty("xtremweb.serv.dr.scp.className",null));
 			registerProtocol(protocol);
 		    }
 		    if (protoName.equals("bittorrent")) {
@@ -151,8 +165,7 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.bittorrent.server"));
 			protocol.setpath(mainprop.getProperty(
 				"xtremweb.serv.dr.bittorrent.path", "torrent"));
-			// FIXME FIXME FIXME!!!!
-			// default_http_protocol.setport(Integer.getInteger(mainprop.getProperty("xtremweb.serv.dr.bittorrent.port"),6969).intValue());
+			protocol.setclassName(mainprop.getProperty("xtremweb.serv.dr.bittorrent.className",null));
 			registerProtocol(protocol);
 		    }
 		}
@@ -166,6 +179,24 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 	log.info(browse());
 
     } // Callbackobj constructor
+
+    private String parseProtocols() {
+	String res ="";
+	Set<Map.Entry<Object,Object>> keys = mainprop.entrySet();
+	Iterator it = keys.iterator();
+	while(it.hasNext())
+	{
+	    Map.Entry<String,String> key = (Map.Entry<String,String>)it.next();
+	    String keystr = key.getKey();
+	    if(keystr.contains("xtremweb.serv.dr")){
+		System.out.println("entro " + keystr);
+		String[] lengo = keystr.split("\\.");
+	    	res = lengo[lengo.length -1]+ " ";
+	    }
+	}
+	
+	return res;
+    }
 
     /**
      * This method is doing nothing and is a good idea to erase it

@@ -13,6 +13,7 @@
 <Attribute  name="publickeypath" type="String" desc="public key path"/>
 <Attribute  name="privatekeypath" type="String" desc="private key path"/>
 <Attribute  name="passphrase" type="String" desc="passhphrase"/>
+<Attribute name="className" type="String" desc="The path to classname"/>
 </Object>
 
 <Method name="registerProtocol">
