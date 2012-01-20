@@ -111,6 +111,7 @@ public class UploadServlet extends HttpServlet {
 	    }
 	} catch (Exception e) {
 	    log.debug("Error" + e);
+	    e.printStackTrace();
 	}
 	
 	response.setContentType("text/html");
