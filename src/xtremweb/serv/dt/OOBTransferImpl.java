@@ -72,27 +72,10 @@ public abstract class OOBTransferImpl implements OOBTransfer {
 
 
     protected boolean error = false;
-
-    /**
-     * Creates a new <code>OOBTransferImpl</code> instance.
-     *
-     * @param tuid a <code>String</code> value: Transfer unique id
-     */
-    public OOBTransferImpl(String tuid) {
-	log.debug(tuid);
-	dao = (DaoTransfer)DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
-	try {
-	    dao.beginTransaction();
-	    transfer = (Transfer) dao.getByUid(xtremweb.core.obj.dt.Transfer.class, tuid);
-	    log.debug( "transfer " + transfer.getuid() + ":" + transfer.getoob() + ":" + transfer.gettype());
-	    dao.commitTransaction();
-        } finally {
-            if (dao.transactionIsActive())
-                dao.transactionRollback();
-           
-	}
-    } // OOBTransferImpl constructor
-
+    
+    public OOBTransferImpl(){
+	
+    }
  
     /**
      * Creates a new <code>OOBTransferImpl</code> instance.
@@ -226,6 +209,30 @@ public abstract class OOBTransferImpl implements OOBTransfer {
      */
     public Protocol getRemoteProtocol(){
 	return remote_protocol;
+    }
+    
+    public void setData(Data d){
+	data = d;
+    }
+    public void setLocalLocator(Locator local){
+	local_locator = local;
+    }
+    public void setRemoteLocator(Locator remote){
+	remote_locator = remote;
+    }
+    
+    public void setLocalProtocol(Protocol local_protocol)
+    {
+	this.local_protocol = local_protocol;
+    }
+    public void setRemoteProtocol(Protocol remote_protocol)
+    {
+	this.remote_protocol = remote_protocol;
+    }
+    
+    public void setTransfer(Transfer t)
+    {
+	transfer = t;
     }
     
     public void setError(){

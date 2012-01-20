@@ -99,6 +99,7 @@ public class OOBTransferFactory {
      * @exception OOBException if an error occurs
      */
     public static OOBTransfer createOOBTransfer(Data d, Transfer t, Locator rl, Locator ll, Protocol rp,  Protocol lp ) throws OOBException {
+	try {
 	if (d==null)
 	    throw new OOBException("Unable to find the correct OOB Transfers for transfer : " + t.getuid() + " data (d) is null"  );
 	if (t==null)
@@ -111,32 +112,49 @@ public class OOBTransferFactory {
 	    throw new OOBException("Unable to find the correct OOB Transfers for transfer : " + t.getuid() + " local protocol (lp) is null"  );
 	if (rp==null)
 	    throw new OOBException("Unable to find the correct OOB Transfers for transfer : " + t.getuid() + " remote protocol (rp) is null"  );
-
-	if (lp.getname().toLowerCase().equals("local")) {
-	    if (rp.getname().toLowerCase().equals("ftp")) 
-		return new FtpTransfer(d,t,rl,ll,rp,lp);
-	    if (rp.getname().toLowerCase().equals("http")) 
-		return new HttpTransfer(d,t,rl,ll,rp,lp); 
-	    if (rp.getname().toLowerCase().equals("dummy")) 
-		return new DummyTransfer(d,t,rl,ll,rp,lp); 
-	    if (rp.getname().toLowerCase().equals("scp"))
-		return new ScpTransfer(d,t,rl,ll,rp,lp);
-	    if (rp.getname().toLowerCase().equals("s3"))
-		return new AmazonS3Transfer(d,t,rl,ll,rp,lp);
-	    if (rp.getname().toLowerCase().equals("bittorrent"))
-		return new BittorrentTransfer(d,t,rl,ll,rp,lp);
-	    if (rp.getname().toLowerCase().equals("dropbox"))
-		return new DropBoxTransfer(d,t,rl,ll,rp,lp);
-		
+	if (lp.getname().toLowerCase().equals("local")) {    
+	    return OOBTransferFactory.newInstance(rp.getclassName(),d,t,rl,ll,rp,lp);
 	} else  if (rp.getname().toLowerCase().equals("local")) {
-	    if (lp.getname().toLowerCase().equals("ftp")) 
-		return new FtpTransfer(d,t,rl,ll,rp,lp);
-	    if (lp.getname().toLowerCase().equals("http")) 
-		return new HttpTransfer(d,t,rl,ll,rp,lp); 
-	    if (rp.getname().toLowerCase().equals("dummy")) 
-		return new DummyTransfer(d,t,rl,ll,rp,lp); 
+	    return OOBTransferFactory.newInstance(rp.getclassName(),d,t,rl,ll,rp,lp);
+	}
+	} catch (InstantiationException e) {
+	     e.printStackTrace();
+	     throw new OOBException("There was an error building the transfer");
+	} catch (IllegalAccessException e) {		
+		e.printStackTrace();
+		throw new OOBException("There was an error building the transfer");
+	} catch (ClassNotFoundException e) {
+		e.printStackTrace();
+		throw new OOBException("There was an error building the transfer");
 	}
 	throw new OOBException("Unable to find the correct OOB Transfers for transfer : " + t.getuid() + "[rl:" + lp.getname() + "|" + "rp:" + lp.getname() + "]"  );
+    }
+    
+    /**
+     * This class builds a new transfer in runtime
+     * @param clazz the complete class name we want to build
+     * @param d the data associated
+     * @param t transfer associated
+     * @param remote_locator remote locator associated
+     * @param local_locator local locator associated
+     * @param remote_protocol remote protocol associated
+     * @param local_protocol local protocol associated
+     * @return a OOBTransfer of the specific class
+     * @throws InstantiationException if anything goes wrong when attempting to build this class at runtime
+     * @throws IllegalAccessException if anything goes wrong when attempting to build this class at runtime
+     * @throws ClassNotFoundException if anything goes wrong when attempting to build this class at runtime
+     */
+    public static OOBTransfer newInstance(String clazz, Data d, Transfer t, Locator remote_locator, Locator local_locator, Protocol remote_protocol, Protocol local_protocol) throws InstantiationException, IllegalAccessException, ClassNotFoundException
+    {
+	OOBTransferImpl oob = (OOBTransferImpl)Class.forName(clazz).newInstance();
+	oob.setData(d);
+	oob.setTransfer(t);
+	oob.setRemoteLocator(remote_locator);
+	oob.setLocalLocator(local_locator);
+	oob.setRemoteProtocol(remote_protocol);
+	oob.setLocalProtocol(local_protocol);
+	return oob;
+	
     }
 
 }
