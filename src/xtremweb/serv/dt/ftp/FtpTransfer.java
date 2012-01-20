@@ -27,7 +27,15 @@ public class FtpTransfer extends BlockingOOBTransferImpl implements
     protected FTPClient ftp;
 
     protected static Logger log = LoggerFactory.getLogger(FtpTransfer.class);
-
+    
+    /**
+     * Default constructor
+     */
+    public FtpTransfer()
+    {
+    }
+    
+    
     public FtpTransfer(Data d, Transfer t, Locator rl, Locator ll, Protocol rp,
 	    Protocol lp) {
 	super(d, t, rl, ll, rp, lp);

@@ -47,6 +47,11 @@ public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
     private String objectKey;
     
     /**
+     * Constructor default
+     */
+    public AmazonS3Transfer(){}
+    
+    /**
      * Class constructor
      * @param d
      * @param t
