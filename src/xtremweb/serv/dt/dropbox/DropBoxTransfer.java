@@ -148,8 +148,8 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 		writePropertiesFile(at.key,at.secret);
 		api = new DropboxAPI(was);
 	    } catch (DropboxException e) {
+		throw new OOBException("A exception related to dropbox has appeared, please be sure to grant permission to bitdew, exception detail : " + e.getMessage());
 		e.printStackTrace();
-		throw new OOBException("A exception related to dropbox has appeared " + e.getMessage());
 	    } catch (NumberFormatException e) {
 		e.printStackTrace();
 		throw new OOBException(e.getMessage());
