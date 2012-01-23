@@ -9,22 +9,19 @@ puts "Erasing all"
 IO.popen("taktuk -d-1 -f nodelist broadcast exec { 'rm -rf *' }")do |f|
    f.readlines
 end
-#%x("taktuk -d-1 -f nodelist broadcast exec { 'killall java' }")
-
-
+puts "Sending bitdew jar file"
 IO.popen("taktuk -d-1 -f nodelist broadcast put { /home/jsaray/bitdew-stand-alone-"+version+".jar } { /home/jsaray/bitdew-stand-alone-"+version+".jar }")do |f|
  f.readlines
 end
 
-#%x("taktuk -d-1 -f nodelist broadcast put { /home/jsaray/props.json } { /home/jsaray/props.json }")
+puts "Sending props file"
 IO.popen("taktuk -d-1 -f nodelist broadcast put { /home/jsaray/props.json } { /home/jsaray/props.json }")do |f|
     f.readlines
 end
-#uid = ARGV[0]
-#stable_node = ARGV[1]
+
+
 number_of_threads = ARGV[0]
 filename = ARGV[1]
-
 i = 0
 machines = IO.readlines("nodelist")
 services = machines[0].slice(/[^\n]*/)
@@ -67,7 +64,7 @@ while i < number_of_threads.to_i do
 Net::SSH.start(machine,"jsaray") do |ssh|
 #    while i < number_of_threads.to_i do
   puts "while"
-        ssh.exec "nohup java -cp bitdew-stand-alone-"+version+".jar xtremweb.role.cmdline.TestGetMultiple " + stable_node + " "+ uid + " " + i.to_s + " > out"+i.to_s + " 2> err"+i.to_s+" &"
+        ssh.exec "nohup java -cp bitdew-stand-alone-"+version+".jar xtremweb.role.integration.TestGetMultiple " + stable_node + " "+ uid + " " + i.to_s + " > out"+i.to_s + " 2> err"+i.to_s+" &"
         i = i + 1
 
 #    end
