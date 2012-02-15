@@ -8,6 +8,7 @@
   <!-- set global properties for this build -->
   <property name="src" location="src"/>
   <property name="lib" location="lib"/>
+  <property name="libjsaga" location="lib-jsaga"/>
   <property name="build" location="build"/>
   <property name="conf" location="conf"/>
   <property name="dist" location="dist"/>
@@ -38,6 +39,9 @@
     <fileset dir="${lib}">
       <include name="**/*.jar"/>
       <exclude name="jfreechart-1.0.5.jar"/>
+    </fileset>
+    <fileset dir="${libjsaga}">
+    	<include name="**/*.jar"/>
     </fileset>
   </path>
   <path id="cobertura.classpath">
@@ -275,6 +279,9 @@ public class Version {
 	  <exclude name="jfreechart-1.0.5.jar"/>	
 	  <exclude name="sbam_standalone.jar"/>
 	</fileset>
+      	<fileset dir="libjsaga">
+      		<exclude name="**/*.jar"/>
+      	</fileset>
       </unzip>
     </target>
   
