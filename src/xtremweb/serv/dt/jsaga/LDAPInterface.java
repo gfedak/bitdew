@@ -25,6 +25,11 @@ public interface LDAPInterface {
      */
     public String search(String base,int scope, String query, String[] attrs_param) throws LDAPEngineException;
     
+    /**
+     * Returns a gridftp endpoint (url) suitable to make a transfer
+     * @return
+     * @throws LDAPEngineException
+     */
     public String getGFTPEndpoint()throws LDAPEngineException;
     
     /**
