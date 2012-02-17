@@ -103,6 +103,7 @@ public class JsonProperties implements PropertiesSource {
 	}
 
 	tot = CommandLineToolHelper.jsonize(tot);
+	log.debug("before jsonize is " + tot);
 	//get the json object
 	jobj = new JsonParser().parse(tot).getAsJsonObject();
 	Set<Map.Entry<String, JsonElement>> set = jobj.entrySet();
