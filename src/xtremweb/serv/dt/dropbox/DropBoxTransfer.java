@@ -111,7 +111,6 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 	super(d, t, rl, ll, rp, lp);
 	app_key = props.getProperty("xtremweb.serv.dr.dropbox.app-key");
 	app_secret = props.getProperty("xtremweb.serv.dr.dropbox.app-secret");
-	log.debug("Key is " + app_key + " secret is " + app_secret);
     }
     
     /**
@@ -149,7 +148,6 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 		Thread.sleep(Long.parseLong(exp)*CONVERSION_RATIO);
 
 		String userLogin = was.retrieveWebAccessToken(tpair);
-		log.debug(" nom dutilisateur " + userLogin);
 		AccessTokenPair at = was.getAccessTokenPair();
 		log.info("Key " + at.key +" Secret " + at.secret);
 		writePropertiesFile(at.key,at.secret);
@@ -232,8 +230,6 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
     public void blockingSendSenderSide() throws OOBException {
 	String path = props.getProperty("xtremweb.serv.dr.dropbox.path")
 		+ local_locator.getdatauid();
-	System.out.println("the locator is " + local_locator.getref());
-	System.out.println("the locator 2 is " + remote_locator.getref());
 	File f = new File(local_locator.getref());
 	FileInputStream fis;
 	try {
