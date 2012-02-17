@@ -12,7 +12,7 @@ public class TestGetMultiple {
 	//for ( int i =0; i < tam;i++)
 	//{
 	    ThreadGet tg = new ThreadGet(STABLE_NODE,uid,tam);
-	    tg.popo();
+	    tg.execute();
 	//}
 	log.info("finish main");
     }
