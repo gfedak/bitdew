@@ -61,7 +61,11 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
      */
     protected static Logger log = LoggerFactory
 	    .getLogger(BittorrentTransfer.class);
-
+    
+    public BittorrentTransfer(){
+	setParams();
+    }
+    
     /**
      * Bittorrent transfer constructor
      * 
