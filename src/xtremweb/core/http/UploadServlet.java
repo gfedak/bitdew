@@ -37,15 +37,6 @@ public class UploadServlet extends HttpServlet {
     private String _documentRoot; 
 
     Logger log = LoggerFactory.getLogger("UploadServlet");
-
-    /**
-     * Creates a new <code>UploadServlet</code> instance.
-     *
-     * @param documentRoot a <code>String</code> value
-     */
-    public UploadServlet(String documentRoot) {
-	//	_documentRoot = documentRoot;
-    }
  
     
     /**
