@@ -3,6 +3,7 @@ package xtremweb.core.http;
 import xtremweb.core.log.*;
 import xtremweb.core.conf.*;
 import java.util.*;
+
 import org.mortbay.jetty.*;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.servlet.*;
@@ -84,7 +85,22 @@ public class HttpServer {
      * Jetty Server
      */
     private static Server server;
-
+    
+    /**
+     * Number of servlets to load
+     */
+    private int SERVLET_NUMBER;
+    
+    /**
+     * Current servlet position
+     */
+    private int pos;
+    
+    /**
+     * Jetty servlet handlers
+     */
+    private Handler[] servlethandlers;
+    
     /**
      * Creates a new <code>HttpServer</code> instance.
      *
@@ -104,6 +120,9 @@ public class HttpServer {
 	_documentPath = mainprop.getProperty("xtremweb.core.http.path", DEFAULT_DOCUMENT_PATH);
 	_documentRoot = mainprop.getProperty("xtremweb.core.http.documentRoot", DEFAULT_DOCUMENT_ROOT);
 	_uploadServlet = mainprop.getProperty("xtremweb.core.http.uploadServlet", DEFAULT_UPLOAD_SERVLET);
+	SERVLET_NUMBER = mainprop.getProperty("xtremweb.core.http.servlets").split(";").length + 1;
+	servlethandlers = new Handler[SERVLET_NUMBER];
+	pos=0;
 	init();
     }
 
@@ -125,6 +144,7 @@ public class HttpServer {
 	_uploadServlet = uploadServlet;
 	
 	init();
+	
     }
 
     /**
@@ -161,17 +181,23 @@ public class HttpServer {
 	log.debug("Searching for resources in " + bundle);
 	
 	//the servlet is accessed with the /fileupload reference
-	Context fileuploadContext = new Context(Context.SESSIONS);
-	fileuploadContext.setContextPath(_uploadServlet);
-	fileuploadContext.addServlet(new ServletHolder(new UploadServlet(_documentRoot)), "/*");
 	
-	Context p2pContext = new Context(Context.SESSIONS);
-	p2pContext.setContextPath("/p2pquery");
-	p2pContext.addServlet(new ServletHolder(new P2PServlet()),"/*");
+	ArrayList keys = ConfigurationProperties.getServlets();
 	
-	Context downloadcontext = new Context(Context.SESSIONS);
-	downloadcontext.setContextPath("/download");
-	downloadcontext.addServlet(new ServletHolder(new DownloadSongServlet()),"/*");
+	for (int i = 0; i < keys.size(); i++) {
+	    log.debug("Charging servlet : " + (String)keys.get(i));
+	}
+	
+	Properties props = ConfigurationProperties.getProperties();
+	for (int i = 0; i < keys.size() ; i++) {
+	    String object = (String) keys.get(i);
+	    Context context = new Context(Context.SESSIONS);
+	    log.debug(" url is "+props.getProperty(object + ".url")); 
+	    context.setContextPath(props.getProperty(object + ".url"));
+	    context.addServlet(new ServletHolder( ServletFactory.getInstance(object)),"/*");
+	    servlethandlers[pos] = context;
+	    pos++;
+	}
 	
 	//regular documents are served with the regular resource handler
 	ResourceHandler resource_handler=new ResourceHandler();
@@ -180,9 +206,9 @@ public class HttpServer {
 	ContextHandler filedownloadContext = new ContextHandler();
 	filedownloadContext.setContextPath(_documentPath);
 	filedownloadContext.setHandler(resource_handler);
-
+	servlethandlers[pos] = filedownloadContext;
 	ContextHandlerCollection contexts = new ContextHandlerCollection();
-	contexts.setHandlers(new Handler[]{fileuploadContext,filedownloadContext,p2pContext,downloadcontext});
+	contexts.setHandlers(servlethandlers);
         
 	uiContext = new Context(contexts, "/ui", Context.SESSIONS);
         HandlerCollection handlers = new HandlerCollection();
