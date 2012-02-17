@@ -261,85 +261,8 @@ public class TransferManager {
 	log.debug("OOBTransferFactory create " + t.getuid() + ":" + t.getoob()
 		+ ":" + TransferType.toString(t.gettype()));
 
-	return createOOBTransfer(d, t, rl, ll, rp, lp);
+	return OOBTransferFactory.createOOBTransfer(d, t, rl, ll, rp, lp);
 
-    }
-
-    /**
-     * <code>createOOBTransfer</code> creates an OOBTransfer from the Transfer,
-     * Data, Protocol and Locator. The correct class corresponding to the right
-     * protocol is selected (Http, Ftp etc..)
-     * 
-     * @param d
-     *            a <code>Data</code> value
-     * @param t
-     *            a <code>Transfer</code> value
-     * @param rl
-     *            a <code>Locator</code> value
-     * @param ll
-     *            a <code>Locator</code> value
-     * @param rp
-     *            a <code>Protocol</code> value
-     * @param lp
-     *            a <code>Protocol</code> value
-     * @return an <code>OOBTransfer</code> value
-     * @exception OOBException
-     *                if an error occurs
-     */
-    public static OOBTransfer createOOBTransfer(Data d, Transfer t, Locator rl,
-	    Locator ll, Protocol rp, Protocol lp) throws OOBException {
-	if (d == null)
-	    throw new OOBException(
-		    "Unable to find the correct OOB Transfers for transfer : "
-			    + t.getuid() + " data (d) is null");
-	if (t == null)
-	    throw new OOBException(
-		    "Unable to find the correct OOB Transfers for transfer : "
-			    + t.getuid() + " transfer (t) is null");
-	if (rl == null)
-	    throw new OOBException(
-		    "Unable to find the correct OOB Transfers for transfer : "
-			    + t.getuid() + " remote locator (rl) is null");
-	if (ll == null)
-	    throw new OOBException(
-		    "Unable to find the correct OOB Transfers for transfer : "
-			    + t.getuid() + " local locator (ll) is null");
-	if (lp == null)
-	    throw new OOBException(
-		    "Unable to find the correct OOB Transfers for transfer : "
-			    + t.getuid() + " local protocol (lp) is null");
-	if (rp == null)
-	    throw new OOBException(
-		    "Unable to find the correct OOB Transfers for transfer : "
-			    + t.getuid() + " remote protocol (rp) is null");
-
-	if (lp.getname().toLowerCase().equals("local")) {
-	    if (rp.getname().toLowerCase().equals("ftp"))
-		return new FtpTransfer(d, t, rl, ll, rp, lp);
-	    if (rp.getname().toLowerCase().equals("http"))
-		return new HttpTransfer(d, t, rl, ll, rp, lp);
-	    if (rp.getname().toLowerCase().equals("dummy"))
-		return new DummyTransfer(d, t, rl, ll, rp, lp);
-	    if (rp.getname().toLowerCase().equals("scp"))
-		return new ScpTransfer(d, t, rl, ll, rp, lp);
-	    if (rp.getname().toLowerCase().equals("s3"))
-		return new AmazonS3Transfer(d, t, rl, ll, rp, lp);
-	    if (rp.getname().toLowerCase().equals("bittorrent"))
-		return new BittorrentTransfer(d, t, rl, ll, rp, lp);
-	    if (rp.getname().toLowerCase().equals("dropbox"))
-		return new DropBoxTransfer(d, t, rl, ll, rp, lp);
-	} else if (rp.getname().toLowerCase().equals("local")) {
-	    if (lp.getname().toLowerCase().equals("ftp"))
-		return new FtpTransfer(d, t, rl, ll, rp, lp);
-	    if (lp.getname().toLowerCase().equals("http"))
-		return new HttpTransfer(d, t, rl, ll, rp, lp);
-	    if (rp.getname().toLowerCase().equals("dummy"))
-		return new DummyTransfer(d, t, rl, ll, rp, lp);
-	}
-	throw new OOBException(
-		"Unable to find the correct OOB Transfers for transfer : "
-			+ t.getuid() + "[rl:" + lp.getname() + "|" + "rp:"
-			+ lp.getname() + "]");
     }
 
     public OOBTransfer getOOBTransfer(Transfer trans) throws OOBException {
