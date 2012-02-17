@@ -20,7 +20,11 @@ public abstract class NonBlockingOOBTransferImpl
     implements OOBTransfer, NonBlockingOOBTransfer {
 
     protected boolean _isTransfering = false;
- 
+    
+    public NonBlockingOOBTransferImpl(){
+	
+    }
+    
     /**
      * Creates a new <code>NonBlockingOOBTransferImpl</code> instance.
      *
