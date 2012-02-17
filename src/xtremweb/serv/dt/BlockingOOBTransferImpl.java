@@ -29,7 +29,7 @@ public abstract class BlockingOOBTransferImpl extends OOBTransferImpl implements
      */
     public BlockingOOBTransferImpl()
     {
-	
+	runner = new TransferThread(this);
     }
     /**
      * Creates a new <code>BlockingOOBTransferImpl</code> instance.
