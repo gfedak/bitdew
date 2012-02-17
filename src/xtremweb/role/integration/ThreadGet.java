@@ -46,7 +46,7 @@ public class ThreadGet extends Thread {
 	}
     }
 
-    public void popo() {
+    public void execute() {
 	Data d;
 	try {
 	    System.out.println(" Thread #   " + thnum);
