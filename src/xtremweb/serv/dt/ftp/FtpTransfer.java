@@ -12,7 +12,6 @@ package xtremweb.serv.dt.ftp;
 
 import org.apache.commons.net.ftp.*;
 import xtremweb.core.log.*;
-import xtremweb.core.uid.*;
 import xtremweb.serv.dt.*;
 import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dt.Transfer;
