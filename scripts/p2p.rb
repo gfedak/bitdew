@@ -3,11 +3,18 @@ require 'rubygems'
 require 'net/ssh'
 version="0.2.8"
 
+# This SCRIPT splits equally files on a given folder in your localhost to N different hosts
+
+
 #allhosts will store the Grid500 OAR_NODEFILE content 
 iout = IO.popen("uniq nodelist")
 allhosts = iout.readlines
 #the folder that contains all songs
 path = ARGV[0]
+if path.eql? "-h" or path.eql? "--help" then
+	puts "Usage : ruby p2p.rb <folderpath> <#hosts> <#filesperhost>"
+	exit(0)
+end
 #number of peers different from the bootstrap node from OAR_NODEFILE, effectively making part of the experiment, offset <= NUMBER_OF_LINES(OAR_NODEFILE)
 offset = ARGV[1].to_i
 #how many files will be send to a host
