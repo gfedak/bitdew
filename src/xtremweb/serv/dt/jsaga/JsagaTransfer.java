@@ -39,12 +39,6 @@ import xtremweb.serv.dt.OOBException;
  */
 public class JsagaTransfer extends BlockingOOBTransferImpl {
 
-    private static final String OPT_HELP = "h", LONGOPT_HELP = "help";
-    private static final String OPT_NOT_OVERWRITE = "i", LONGOPT_NOT_OVERWRITE = "interactive";
-    private static final String OPT_RECURSIVE = "r", LONGOPT_RECURSIVE = "recursive";
-    private static final String OPT_PRESERVE_TIMES = "p", LONGOPT_PRESERVE_TIMES = "preserve";
-    private static final String OPT_MONITOR = "m", LONGOPT_MONITOR = "monitor";
-
     public JsagaTransfer(Data d, Transfer t, Locator rl, Locator ll, Protocol rp, Protocol lp) {
 	super(d, t, rl, ll, rp, lp);
     }
@@ -163,9 +157,6 @@ public class JsagaTransfer extends BlockingOOBTransferImpl {
 
 	String urltarget="";
 	try {
-	    //LDAPInterface ldap = new JndiLdapImpl();
-	    //ldap.connect(mainprops.getProperty("xtremweb.serv.dr.jsaga.ldapurl"));
-	    //String urltarget = ldap.getGFTPEndpoint();
 	    if(remote_protocol.getname().equals("gsiftp"))
 		urltarget = "gsiftp://"+remote_protocol.getserver()+":"+remote_protocol.getport()+remote_protocol.getpath()  + "/" + remote_locator.getref();
 	    log.debug("The target is " + urltarget + " the local is " + local_locator.getref());
@@ -224,6 +215,7 @@ public class JsagaTransfer extends BlockingOOBTransferImpl {
      * implement
      */
     public void blockingSendReceiverSide() throws OOBException {
+	log.debug("Called blocking send receiver side ");
     }
 
     /**

@@ -23,7 +23,7 @@ public interface LDAPInterface {
      * @param query the query to search
      * @return
      */
-    public String search(String base,int scope, String query, String[] attrs_param) throws LDAPEngineException;
+    public String searchByService(String service)throws LDAPEngineException;
     
     /**
      * Returns a gridftp endpoint (url) suitable to make a transfer

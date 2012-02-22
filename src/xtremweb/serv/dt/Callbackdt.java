@@ -64,7 +64,7 @@ public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
 	if (b) {
 	    tm = TransferManagerFactory.getTransferManager();
 	    log.debug("tm that callback is using " + tm);
-	    //tm.start();
+	    tm.start();
 	}
 
 	String temp = mainprop.getProperty("xtremweb.serv.dt.protocols");

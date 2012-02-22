@@ -47,12 +47,14 @@ public class JndiLdapImpl implements LDAPInterface {
     /**
      * Search for an element in the LDAP tree
      */
-    public String search(String base, int scope, String query, String[] attrs_param)throws LDAPEngineException {
+    public String searchByService(String service)throws LDAPEngineException {
 	SearchControls ctrls = new SearchControls();
-	ctrls.setReturningAttributes(attrs_param);
+	String query ="(& (objectclass=GlueService) (GlueServiceAccessControlBaseRule=vo:vo.rhone-alpes.idgrilles.fr) (GlueServiceType="+service+"))";
+	ctrls.setReturningAttributes(new String[]{"GlueServiceEndPoint"});
 	ctrls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 	NamingEnumeration<SearchResult> answers;
-	Attribute gluesuid=null;		
+	Attribute gluesuid=null;	
+	String finalret;
 	try {
 	    answers = context.search("mds-vo-name=local,o=grid",query, ctrls);
 	    for(;answers.hasMore();)
@@ -62,13 +64,14 @@ public class JndiLdapImpl implements LDAPInterface {
 	        gluesuid = attrs.get("GlueServiceEndpoint");
 	        break;
 	    }
+	    finalret = (String)gluesuid.get();
 	} catch (NamingException e) {
 	    e.printStackTrace();
 	    throw new LDAPEngineException("There was a problem executing LDAP command " + e.getMessage());
 	}
 	
 
-	return gluesuid.toString();
+	return finalret;
     }
 
     /**
