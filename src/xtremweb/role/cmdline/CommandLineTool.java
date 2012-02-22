@@ -13,10 +13,13 @@ import xtremweb.api.bitdew.*;
 import xtremweb.api.activedata.*;
 import xtremweb.api.transman.*;
 import xtremweb.serv.dc.*;
+import xtremweb.serv.dr.Callbackdr;
+import xtremweb.serv.dr.ProtocolUtil;
 import xtremweb.serv.ds.*;
 import xtremweb.core.iface.*;
 import xtremweb.core.log.*;
 import xtremweb.core.com.idl.*;
+import xtremweb.core.conf.ConfigurationException;
 import xtremweb.core.serv.*;
 import xtremweb.role.ui.*;
 import xtremweb.core.obj.dc.Data;
@@ -27,10 +30,11 @@ import xtremweb.core.obj.ds.Attribute;
 import xtremweb.serv.dt.OOBException;
 import xtremweb.serv.dt.OOBTransfer;
 import xtremweb.serv.dt.OOBTransferFactory;
+import xtremweb.serv.dt.jsaga.*;
 import xtremweb.gen.service.GenService;
 
 import java.io.*;
-
+import java.net.URISyntaxException;
 import jargs.gnu.CmdLineParser;
 
 
@@ -40,6 +44,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+
 
 /*!
  * @defgroup cmdline Using BitDew
@@ -264,8 +269,39 @@ public class CommandLineTool {
 	// get dataId [file]
 	if (otherArgs[0].equals("get")) {
 	    get(otherArgs);
+	}if (otherArgs[0].equals("bdii")) {
+	    bdii(otherArgs);
 	}
     } // CommandLineTool constructor
+
+
+    private void bdii(String[] otherArgs) {
+	LDAPInterface ldap;
+	try {
+	    ldap = (LDAPInterface) new JndiLdapImpl();
+	    ldap.connect(otherArgs[1]);
+	    String url = ldap.searchByService(otherArgs[2]);
+	    ldap.close();
+	    Callbackdr idr = (Callbackdr)ComWorld.getComm(host,"rmi",4325,"dr");
+	    Protocol p = ProtocolUtil.getProtocol(url);
+	
+	    p.setclassName("xtremweb.serv.dt.jsaga.JsagaTransfer");
+	    idr.registerProtocol(p);
+	} catch (ConfigurationException e) {
+	    log.debug("Problem configuraing files");
+	    e.printStackTrace();
+	} catch (LDAPEngineException e) {
+	    log.debug("problem in ldap communication");
+	    e.printStackTrace();
+	} catch (ModuleLoaderException e) {
+	    log.debug("problem in ModuleLoacer");
+	    e.printStackTrace();
+	} catch (URISyntaxException e) {
+	    log.debug("problem in URI parsing");
+	    e.printStackTrace();
+	}
+	
+    }
 
 
     private void gen(String[] otherArgs) {
@@ -746,6 +782,10 @@ public class CommandLineTool {
 	    usage.option("put file_name [dataId]",
 			 "copy a file in the data space. If dataId is not specified, a new data will be created from the file.");
 	    usage.option("get dataId [file_name]", "get the file from dataId. The default name of the file is the same as the data name. Otherwise, an alternate file name can be specified as an option");
+	    usage.ln();
+	    
+	    usage.section("Grid");
+	    usage.option("bdii -H ldap_url resource_type", "perform a bdii request for services on the grid and initialize a bitdew repository accordingly");
 	    usage.ln();
 	    break;
 	case SHORT:
