@@ -115,6 +115,15 @@ public class BitDew {
 	// TransferManagerFactory.init(idr, idt);
 
     }
+    
+    public void finishddc(){
+	try {
+	    ddc.stop();
+	} catch (DDCException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+    }
 
     /**
      * <code>createData</code> creates Data.
@@ -136,7 +145,7 @@ public class BitDew {
 	throw new BitDewException();
     }
     
-    public void registerSecuredProtocol (String login,String name, String server, int port,String path, String knownhosts,String privatekeypath,String publickeypath,String passphrase)
+    public void registerSecuredProtocol (String login,String name, String classname,String server, int port,String path, String knownhosts,String privatekeypath,String publickeypath,String passphrase)
     {	try {
 	    CommandLineToolHelper.notNull("login", login);
 	 
@@ -150,6 +159,7 @@ public class BitDew {
 	    proto.setpublickeypath(publickeypath);
 	    proto.setpassphrase(passphrase);
 	    proto.setpath(path);
+	    proto.setclassName(classname);
 	    idr.registerProtocol(proto);
 	} catch (RemoteException e) {
 	    // TODO Auto-generated catch block
@@ -157,7 +167,7 @@ public class BitDew {
 	}
     }
     
-    public String registerNonSecuredProtocol(String name, String server, int port,
+    public String registerNonSecuredProtocol(String name,String classname, String server, int port,
 	    String path, String login, String passwd) {
 	try {
 	    Protocol proto = new Protocol();
@@ -167,6 +177,7 @@ public class BitDew {
 	    proto.setport(port);
 	    proto.setpassword(passwd);
 	    proto.setpath(path);
+	    proto.setclassName(classname);
 	    String result = idr.registerProtocol(proto);
 	    return result;
 	} catch (RemoteException e) {
@@ -582,7 +593,7 @@ public class BitDew {
 	    log.debug("Cannot find a oob protocol " + data.getoob() + " " + re);
 	    throw new BitDewException();
 	}
-
+	log.debug(" the class is " + remote_proto.getclassName());
 	Locator remote_locator = new Locator();
 	remote_locator.setdatauid(data.getuid());
 	remote_locator.setdrname(((CommRMITemplate) idr).getHostName());

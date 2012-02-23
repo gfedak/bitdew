@@ -38,11 +38,23 @@ import xtremweb.serv.dt.OOBException;
  * @author josefrancisco
  */
 public class JsagaTransfer extends BlockingOOBTransferImpl {
-
+    
+    /**
+     * JSaga transfer parameter constructor
+     * @param d the data
+     * @param t the transfer
+     * @param rl the remote locator
+     * @param ll the local locator
+     * @param rp the remote protocol
+     * @param lp the local protocol
+     */
     public JsagaTransfer(Data d, Transfer t, Locator rl, Locator ll, Protocol rp, Protocol lp) {
 	super(d, t, rl, ll, rp, lp);
     }
     
+    /**
+     * Jsaga default constructor
+     */
     public JsagaTransfer()
     {
 	
@@ -140,25 +152,30 @@ public class JsagaTransfer extends BlockingOOBTransferImpl {
     }
 
     /**
-     * 
+     * Give back the obtained resources
      */
     public void disconnect() throws OOBException {
-	// TODO Auto-generated method stub
+	session.close();
 
     }
+    
+    /**
+     * As this class inherits from OOBBlockingTransfer , we only keep watching for the
+     * transferring flag
+     */
     public boolean poolTransfer()
     {
 	return !isTransfering();
     }
+    
     /**
-     * 
+     * Send a file using a grid protocol using JSAGA
      */
     public void blockingSendSenderSide() throws OOBException {
-
+	log.debug("remote locator is " + remote_locator.getref());
 	String urltarget="";
 	try {
-	    if(remote_protocol.getname().equals("gsiftp"))
-		urltarget = "gsiftp://"+remote_protocol.getserver()+":"+remote_protocol.getport()+remote_protocol.getpath()  + "/" + remote_locator.getref();
+	    urltarget = remote_protocol.getname()+"://"+remote_protocol.getserver()+":"+remote_protocol.getport()+remote_protocol.getpath()  + "/" + remote_locator.getref();
 	    log.debug("The target is " + urltarget + " the local is " + local_locator.getref());
 	    URL source = URLFactory.createURL("file://" + local_locator.getref());
 	    URL target = URLFactory.createURL(urltarget);
@@ -207,7 +224,7 @@ public class JsagaTransfer extends BlockingOOBTransferImpl {
 	    
 	    e.printStackTrace();
 	    throw new OOBException("IncorrectStateException, for more information execute with -v");
-	} 
+	}
     }
 
     /**
@@ -226,14 +243,12 @@ public class JsagaTransfer extends BlockingOOBTransferImpl {
     }
 
     /**
-     * 
+     * Receive a file using a grid protocol with JSAGA
      */
     public void blockingReceiveReceiverSide() throws OOBException {
 	String urltarget="";
 	try {
-	    
-	    if(remote_protocol.getname().equals("gsiftp"))
-		urltarget = "gsiftp://"+remote_protocol.getserver()+":"+remote_protocol.getport()+ remote_protocol.getpath()  + "/" + remote_locator.getdatauid();
+	    urltarget = remote_protocol.getname()+"://"+remote_protocol.getserver()+":"+remote_protocol.getport()+ remote_protocol.getpath()  + "/" + remote_locator.getdatauid();
 	    log.debug("The target is " + urltarget + " the local is " + local_locator.getref());
 	    URL source = URLFactory.createURL(urltarget);
 	    URL target = URLFactory.createURL("file://" + local_locator.getref());

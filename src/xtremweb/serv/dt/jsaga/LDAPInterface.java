@@ -1,7 +1,5 @@
 package xtremweb.serv.dt.jsaga;
 
-import java.util.Collection;
-
 /**
  * Interface to an LDAP api
  * @author josefrancisco
@@ -10,27 +8,19 @@ import java.util.Collection;
 public interface LDAPInterface {
     
     /**
-     * Connect to an LDAP uri
-     * @param host
-     * @param port
+     * Connect to an LDAP server
+     * @param host the ldap uri
      */
     public void connect(String host) throws LDAPEngineException;
     
     /**
      * 
-     * @param base the base in the LDAP tree
-     * @param scope the scope of the search
-     * @param query the query to search
+     * @param service the EGEE service you want to query, list of available
+     * services can be found on https://forge.ogf.org/sf/wiki/do/viewPage/projects.glue-wg/wiki/ServiceTypes
      * @return
      */
     public String searchByService(String service)throws LDAPEngineException;
     
-    /**
-     * Returns a gridftp endpoint (url) suitable to make a transfer
-     * @return
-     * @throws LDAPEngineException
-     */
-    public String getGFTPEndpoint()throws LDAPEngineException;
     
     /**
      * Close the connection

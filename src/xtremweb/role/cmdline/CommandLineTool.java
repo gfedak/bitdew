@@ -13,13 +13,11 @@ import xtremweb.api.bitdew.*;
 import xtremweb.api.activedata.*;
 import xtremweb.api.transman.*;
 import xtremweb.serv.dc.*;
-import xtremweb.serv.dr.Callbackdr;
 import xtremweb.serv.dr.ProtocolUtil;
 import xtremweb.serv.ds.*;
 import xtremweb.core.iface.*;
 import xtremweb.core.log.*;
 import xtremweb.core.com.idl.*;
-import xtremweb.core.conf.ConfigurationException;
 import xtremweb.core.serv.*;
 import xtremweb.role.ui.*;
 import xtremweb.core.obj.dc.Data;
@@ -282,22 +280,16 @@ public class CommandLineTool {
 	    ldap.connect(otherArgs[1]);
 	    String url = ldap.searchByService(otherArgs[2]);
 	    ldap.close();
-	    Callbackdr idr = (Callbackdr)ComWorld.getComm(host,"rmi",4325,"dr");
 	    Protocol p = ProtocolUtil.getProtocol(url);
-	
 	    p.setclassName("xtremweb.serv.dt.jsaga.JsagaTransfer");
-	    idr.registerProtocol(p);
-	} catch (ConfigurationException e) {
-	    log.debug("Problem configuraing files");
-	    e.printStackTrace();
+	    log.info("Registering protocol :"+ p.getname()+"://" + p.getserver() + ":"+p.getport() +p.getpath());
+	    bitdew.registerNonSecuredProtocol(p.getname(), p.getclassName(),p.getserver(), p.getport(), p.getpath(), p.getlogin(), p.getpassword());
+	    log.info("Protocol registered");
 	} catch (LDAPEngineException e) {
-	    log.debug("problem in ldap communication");
+	    log.info("problem in ldap communication");
 	    e.printStackTrace();
-	} catch (ModuleLoaderException e) {
-	    log.debug("problem in ModuleLoacer");
-	    e.printStackTrace();
-	} catch (URISyntaxException e) {
-	    log.debug("problem in URI parsing");
+	}catch (URISyntaxException e) {
+	    log.info("problem in URI parsing");
 	    e.printStackTrace();
 	}
 	
@@ -323,7 +315,7 @@ public class CommandLineTool {
      */
     public void proto(String[] otherArgs) {
 	String object = otherArgs[1];
-
+	
 	String json = CommandLineToolHelper.jsonize(object);
 
 	JsonObject repo = new JsonParser().parse(json).getAsJsonObject();
@@ -338,6 +330,7 @@ public class CommandLineTool {
 	    String name = (String) repo.get("name").getAsString();
 	    String path = (String) repo.get("path").getAsString();
 	    String host = (String) repo.get("server").getAsString();
+	    String classname = (String) repo.get("className").getAsString();
 	    Long lon = (Long) repo.get("port").getAsLong();
 	    int port = lon.intValue();
 
@@ -358,10 +351,10 @@ public class CommandLineTool {
 
 	    if (name.equals("http") || name.equals("ftp"))// TODO make it
 		// extensible
-		bitdew.registerNonSecuredProtocol(name, host, port, path,
+		bitdew.registerNonSecuredProtocol(name,classname, host, port, path,
 						  login, passwd);
 	    else
-		bitdew.registerSecuredProtocol(login, name, host, port, path,
+		bitdew.registerSecuredProtocol(login, name, classname,host, port, path,
 					       knownhosts, prkeypath, pukeypath, passphrase);
 	    log.info("Protocol "+ name + " added succesfully ");
 	} else {
@@ -634,7 +627,6 @@ public class CommandLineTool {
     }
 
     private String[] parse(String[] args) {
-	
 	// if there's no argument display helps
 	if (args.length == 0)
 	    usage(HelpFormat.SHORT);
@@ -648,11 +640,10 @@ public class CommandLineTool {
 	CmdLineParser.Option hostOption = parser.addStringOption("host");
 	CmdLineParser.Option fileOption = parser.addStringOption("file");
 	CmdLineParser.Option protocolOption = parser.addStringOption("protocol");
-
 	try {
 	    parser.parse(args);
 	} catch (CmdLineParser.OptionException e) {
-	    log.debug(e.getMessage());
+	    log.info("Problem parsing arguments "+e.getMessage());
 	    usage(HelpFormat.SHORT);
 	}
 
@@ -785,7 +776,7 @@ public class CommandLineTool {
 	    usage.ln();
 	    
 	    usage.section("Grid");
-	    usage.option("bdii -H ldap_url resource_type", "perform a bdii request for services on the grid and initialize a bitdew repository accordingly");
+	    usage.option("bdii ldap_url resource_type", "perform a bdii request for services on the grid and initialize a bitdew repository accordingly");
 	    usage.ln();
 	    break;
 	case SHORT:

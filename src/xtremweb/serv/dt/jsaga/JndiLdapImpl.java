@@ -1,7 +1,5 @@
 package xtremweb.serv.dt.jsaga;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -11,14 +9,10 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-
-import org.jfree.util.Log;
-
 import xtremweb.core.conf.ConfigurationException;
 import xtremweb.core.conf.ConfigurationProperties;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
-import xtremweb.serv.dt.http.HttpTransfer;
 
 /**
  * JNDI implementation
@@ -33,14 +27,18 @@ public class JndiLdapImpl implements LDAPInterface {
      */
     private InitialDirContext  context;
     
+    /**
+     * Logger
+     */
     private Logger log =  LoggerFactory.getLogger(JndiLdapImpl.class);
     
-    
-    private Properties confprops ; 
-    
-    public JndiLdapImpl() throws ConfigurationException
+    /**
+     * JndiLdap default constructor
+     * @throws ConfigurationException
+     */
+    public JndiLdapImpl() 
     {
-	confprops = ConfigurationProperties.getProperties();
+	
     }
     
     
@@ -65,6 +63,7 @@ public class JndiLdapImpl implements LDAPInterface {
 	        break;
 	    }
 	    finalret = (String)gluesuid.get();
+	    log.debug("Final ret is "+finalret);
 	} catch (NamingException e) {
 	    e.printStackTrace();
 	    throw new LDAPEngineException("There was a problem executing LDAP command " + e.getMessage());
@@ -89,8 +88,8 @@ public class JndiLdapImpl implements LDAPInterface {
     /**
      * Connect to a LDAP server
      * 
-     * @param an
-     *            url of the form ldap://host:port
+     * @param host an
+     *            uri of the form ldap://host:port
      */
     public void connect(String host) throws LDAPEngineException{
 	try {
@@ -106,58 +105,4 @@ public class JndiLdapImpl implements LDAPInterface {
 	    throw new LDAPEngineException("There was a problem connecting to LDAP server "+host);
 	}
     }
-
-    /**
-     * 
-     */
-    public String getGFTPEndpoint() throws LDAPEngineException {
-	String fin=null;
-	SearchControls ctrls = new SearchControls();
-	String servtype  = confprops.getProperty("xtremweb.serv.dr.jsaga.transfertypes");
-	Log.debug("transfer type " + servtype); 
-	ctrls.setReturningAttributes(new String[]{"GlueServiceEndpoint"});
-	ctrls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-	NamingEnumeration<SearchResult> answers;
-	Attribute gluesuid=null;		
-	try {
-	    String querycommand = "(&(objectclass=GlueService)(GlueServiceAccessControlBaseRule=vo:vo.rhone-alpes.idgrilles.fr)(GlueServiceType="+servtype+"))";
-	    log.debug("command is " + querycommand);
-	    answers = context.search("mds-vo-name=local,o=grid",querycommand, ctrls);
-	    for(;answers.hasMore();)
-	    {	log.debug("there is one answer");
-	        SearchResult sr = answers.next();
-	        Attributes attrs = sr.getAttributes();
-	        gluesuid = attrs.get("GlueServiceEndpoint");
-	        log.debug("the answer is " + gluesuid);
-	        fin = (String)gluesuid.get();
-	        break;
-	    }
-	} catch (NamingException e) {
-	    e.printStackTrace();
-	    throw new LDAPEngineException("There was a problem executing LDAP command " + e.getMessage());
-	}
-	if (gluesuid==null)
-            throw new LDAPEngineException("There is no GSIFTP resource");
-	//String reto = modifAdHocTemporal(fin);
-	return "gsiftp://prabi-ce3.ibcp.fr:2811/tmp";
-    }
-
-
-    private String modifAdHocTemporal(String string) {
-	try {
-	    String[] toks = string.split("/{1}");
-	    URL url = new URL(string);
-	    String host = url.getHost();
-	    String protocol= url.getProtocol();
-	    int port = url.getPort();
-	    String aret = protocol + "://" + host + ":" + port + "/tmp";
-	    System.out.println("returning "+ aret);
-	    return aret;
-	} catch (MalformedURLException e) {
-	    e.printStackTrace();
-	}
-	return null;
-    }
-    
-     
 }

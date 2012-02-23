@@ -167,13 +167,6 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 				"xtremweb.serv.dr.bittorrent.path", "torrent"));
 			protocol.setclassName(mainprop.getProperty("xtremweb.serv.dr.bittorrent.className",null));
 			registerProtocol(protocol);
-		    }if(protoName.equals("gsiftp")){
-			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.gsiftp.server"));
-			protocol.setpath(mainprop.getProperty("xtremweb.serv.dr.gsiftp.path"));
-			//log.debug("the port is ") + 
-			protocol.setport(Integer.parseInt(mainprop.getProperty("xtremweb.serv.dr.gsiftp.port")));
-			protocol.setclassName(mainprop.getProperty("xtremweb.serv.dr.gsiftp.className",null));
-			registerProtocol(protocol);
 		    }
 		}
 	    } catch (RemoteException re) {
