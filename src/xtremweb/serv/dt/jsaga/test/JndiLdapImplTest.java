@@ -21,8 +21,6 @@ public class JndiLdapImplTest extends TestCase{
 	try {
 	    impl = new JndiLdapImpl();
 	    impl.connect(HOST);
-	} catch (ConfigurationException e) {
-	    fail();
 	} catch (LDAPEngineException e) {
 	   fail();
 	}
