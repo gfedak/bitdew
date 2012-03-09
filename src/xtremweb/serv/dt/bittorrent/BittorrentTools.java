@@ -119,7 +119,7 @@ public class BittorrentTools {
 	try {
 	    e.start();
 	} catch (ExecutorLaunchException ele) {
-	    System.out.println("Error when launching " + execString + " " + ele);
+	    log.debug("Error when launching " + execString + " " + ele);
 	}
     }
     
@@ -132,7 +132,7 @@ public class BittorrentTools {
     public static void makeTorrent( String fileName, String torrentName)throws BittorrentException {
 	//todo different make tools have different syntaxis, factory pattrrn
 	String execString =  makeTorrentExec + " " +  fileName  + " "+ trackerurl+ " --target "  + torrentName  ;
-	System.out.println("execcommand "+ execString);
+	log.info("Executing command  "+ execString + " to build .torrent file");
 	Executor e = new Executor( execString ) ;
 	log.debug("Make torrent file  : " + trackerurl + " " + fileName );
 	try {
@@ -141,7 +141,7 @@ public class BittorrentTools {
 	} catch (ExecutorLaunchException ele) {
 	    File bin = new File(makeTorrentExec);
 	    if (!bin.exists())
-		throw new BittorrentException("The binary file to make a torrent " + makeTorrentExec + "do not exist");
+		throw new BittorrentException("The binary file used to produce a .torrent " + makeTorrentExec + "do not exist");
 	    else
 		throw new BittorrentException("There was a problem making the .torrent file " + ele.getMessage());
 	}

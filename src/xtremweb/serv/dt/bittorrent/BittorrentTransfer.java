@@ -54,7 +54,7 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
     /**
      * Directory where a desired .torrent file exists on sender
      */
-    private static String CLIDIR;
+    private static String TORRENT_DIR_SENDER;
 
     /**
      * Log
@@ -94,7 +94,7 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
     public void setParams() {
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
-	    CLIDIR = mainprop
+	    TORRENT_DIR_SENDER = mainprop
 		    .getProperty("xtremweb.serv.dr.bittorrent.btpd.torrentDirSender");
 	    daemonDirName = mainprop
 		    .getProperty("xtremweb.serv.dr.bittorrent.btpd.exec");
@@ -153,11 +153,11 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	    log.info("Creating torrent .... ");
 	    BittorrentTools.makeTorrent(remote_locator.getref(),
 		    remote_locator.getref() + ".torrent");
-	    log.info("Torrent created ");
+	    log.info("Torrent file " + remote_locator.getref() + ".torrent created ");
 	    BtpdConnector btcli = new BtpdConnector();
 	    Properties mainprop = ConfigurationProperties.getProperties();
 	    log.info("Seeding file for the first time ....");
-	    btcli.addTorrent(CLIDIR, remote_locator.getref() + ".torrent");
+	    btcli.addTorrent(TORRENT_DIR_SENDER, remote_locator.getref() + ".torrent");
 	    boolean seeding = btcli.isSeedingComplete(remote_locator.getref()
 		    + ".torrent");
 	    log.debug(" wait for seeding");
@@ -214,9 +214,10 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	    while (!f.exists()) {
 	    }
 	    log.debug("File exists ! , attempting to download");
-	    Thread.sleep(10000);
+	    long timeout = Long.parseLong(mainprop.getProperty("xtremweb.serv.dr.bittorrent.rcvtimeout"));
+	    Thread.sleep(timeout);
 	    log.debug(" adding torrent " + local_locator.getref() + ".torrent");
-	    BtpdConnector.addTorrent(CLIDIR, local_locator.getref()
+	    BtpdConnector.addTorrent(TORRENT_DIR_SENDER, local_locator.getref()
 		    + ".torrent");
 	} catch (BittorrentException e) {
 	    throw new OOBException(
@@ -276,5 +277,8 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
      */
     public void disconnect() throws OOBException {
 	log.debug("disconnect");
+	File target = new File(local_locator.getref());
+	File source = new File(remote_locator.getref());
+	source.renameTo(target);
     }
 } // BittorrentTransfer
