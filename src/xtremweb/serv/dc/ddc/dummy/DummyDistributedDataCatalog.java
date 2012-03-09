@@ -1,17 +1,10 @@
 package xtremweb.serv.dc.ddc.dummy;
 import java.io.Serializable;
 import java.util.List;
-import xtremweb.serv.dc.*;
 import xtremweb.serv.dc.ddc.*;
 
 /**
- * Describe class DummyDistributedDataCatalog here.
- *
- *
- * Created: Tue Jul 17 13:36:14 2007
- *
- * @author <a href="mailto:fedak@lri7-234.lri.fr">Gilles Fedak</a>
- * @version 1.0
+ * This class implements the DistributedDataCatalog interface in a dummy way.
  */
 public class DummyDistributedDataCatalog extends DistributedDataCatalogImpl implements DistributedDataCatalog {
 
@@ -39,6 +32,13 @@ public class DummyDistributedDataCatalog extends DistributedDataCatalogImpl impl
 
     public List search(String key) throws DDCException {
 	return null;
+    }
+
+
+    @Override
+    public void stop() throws DDCException {
+	// TODO Auto-generated method stub
+	
     }
 
 
