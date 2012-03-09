@@ -3,7 +3,9 @@ require 'rubygems'
 require 'net/ssh'
 require 'thread'
 require 'socket'
-
+#This script was used to test different implementations of the bittorrent protocol
+# in order to choose the more efficient, btpd show the better results and it was integrated in
+# bitdew, please execute putbittorrent.rb to test this integration.
 def torrentDeploy (filename,torrentname,protocol,totalstr,outputfilename)
     
     puts "TorrentStress usage : ruby torrentstress.rb <filename> <torrentname> <protocol> <number_of_tries> <output_file>"
