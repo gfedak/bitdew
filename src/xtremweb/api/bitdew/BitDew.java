@@ -44,8 +44,6 @@ public class BitDew {
     private InterfaceRMIds ids;
     private DaoData dao;
     private DistributedDataCatalog ddc = null;
-    private String myHost = "test_that_dude";
-
     private long splittime;
     private long creattime;
 
@@ -116,12 +114,11 @@ public class BitDew {
 
     }
     
-    public void finishddc(){
+    public void ddcStop() throws BitDewException{
 	try {
 	    ddc.stop();
 	} catch (DDCException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+	    throw new BitDewException(" An exception has occurred when stopping the distributed data catalog " +e.getMessage());
 	}
     }
 
@@ -831,12 +828,10 @@ public class BitDew {
      */
     public List ddcSearch(String data) throws BitDewException {
 	try {
-	    log.info("ddc is " + ddc+ "data is " + data);
-	    if (ddc != null)
-		return ddc.search(data);
-	} catch (DDCException ddce) {
+	   return ddc.search(data);
+	}catch (DDCException ddce) {
 	    log.info("Error in ddcSearch " + ddce.getMessage());
-		ddce.printStackTrace();
+	    ddce.printStackTrace();
 	    log.info("cannot ddc find data : " + data + "\n" + ddce);
 	}
 	throw new BitDewException();
