@@ -8,7 +8,8 @@ import org.mortbay.jetty.*;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.servlet.*;
 import org.mortbay.jetty.handler.*;
-import xtremweb.role.examples.*;
+import org.mortbay.thread.*;
+
 
 /**
  * <code>HttpServer</code> is an embedded HTTP Server. It allows to
@@ -216,6 +217,9 @@ public class HttpServer {
 
 	//we associate the contexts with the server and start the server
 	server.setHandler(handlers);
+	BoundedThreadPool tp = new BoundedThreadPool() ;
+	tp.setMaxThreads(2000);
+	server.setThreadPool(tp);
 	server.start();
 	log.info("Http Server started serving files on " + _documentRoot + " with http://localhost:" + _port + "/" + _documentPath +" and uploading files with the servlet http://localhost:" + _port + "/" + _uploadServlet );
 	//	server.join();

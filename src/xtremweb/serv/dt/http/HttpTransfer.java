@@ -20,7 +20,7 @@ import java.util.Properties;
 
 public class HttpTransfer extends BlockingOOBTransferImpl implements
 	BlockingOOBTransfer, OOBTransfer {
-
+    private final int HTTP_TIMEOUT = 20000;
     protected static HttpServer httpServer = null;
     protected HttpClient httpClient;
     protected GetMethod getMethod;
@@ -68,7 +68,7 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements
     public void connect() throws OOBException {
 	httpClient = new HttpClient();
 	httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(
-		5000);
+		HTTP_TIMEOUT);
 	log.debug("connecting " + this.toString());
 	b = true;
     }
@@ -125,6 +125,7 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements
 			+ HttpStatus.getStatusText(status));
 	    }
 	} catch (Exception ex) {
+	    ex.printStackTrace();
 	    log.debug("Error: " + ex);
 	    throw new OOBException("Http errors when sending  " + "/"
 		    + remote_locator.getref() + " " + ex);
@@ -143,7 +144,7 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements
     	if(!b){
     		httpClient = new HttpClient();
     		httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(
-    			5000);
+    			HTTP_TIMEOUT);
     		log.debug("connecting " + this.toString());
     		b = true;
     	}
