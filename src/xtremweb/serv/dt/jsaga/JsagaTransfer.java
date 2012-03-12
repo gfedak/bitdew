@@ -163,7 +163,7 @@ public class JsagaTransfer extends BlockingOOBTransferImpl {
      * Give back the obtained resources
      */
     public void disconnect() throws OOBException {
-	session.close();
+	//session.close();
 
     }
     
