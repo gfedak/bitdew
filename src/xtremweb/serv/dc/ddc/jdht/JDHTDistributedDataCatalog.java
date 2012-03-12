@@ -2,6 +2,7 @@ package xtremweb.serv.dc.ddc.jdht;
 
 import xtremweb.serv.dc.*;
 import xtremweb.serv.dc.ddc.*;
+
 import org.kth.dks.JDHT;
 
 import java.io.Serializable;
@@ -79,6 +80,12 @@ public class JDHTDistributedDataCatalog extends DistributedDataCatalogImpl
 			throw new DDCException();
 		}
 		return new ArrayList();
+	}
+
+	@Override
+	public void stop() throws DDCException {
+	    // TODO Auto-generated method stub
+	    
 	}
 
 }
