@@ -23,15 +23,12 @@ public class XMLTest extends TestCase{
     
     @Test
     public void testXML(){
-	try {
-	    assertEquals(dom.getElement("Server"),"voms://cclcgvomsli01.in2p3.fr:15011/O=GRID-FR/C=FR/O=CNRS/OU=CC-IN2P3/CN=cclcgvomsli01.in2p3.fr");
 	
+	assertEquals(dom.getElement("Server"),"voms://cclcgvomsli01.in2p3.fr:15011/O=GRID-FR/C=FR/O=CNRS/OU=CC-IN2P3/CN=cclcgvomsli01.in2p3.fr");
 	assertEquals(dom.getElement("UserCert"),"/Users/josefrancisco/usercert.pem");
 	assertEquals(dom.getElement("UserKey"),"/Users/josefrancisco/userkey.pem");
 	assertEquals(dom.getElement("LifeTime"),"PT24H");
-	} catch (XMLException e) {
-	    fail();
-	}
+	
     }
     
     public void tearDown(){
