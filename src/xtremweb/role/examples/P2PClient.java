@@ -116,7 +116,7 @@ public class P2PClient {
 	try {
 	    // first retrieve the ip list of machines having signatures md5
 	    List ips = bitdew.ddcSearch(md5);
-	   
+	    log.debug("The ips for that md5 are " + ips.size());
 	    // Once we have an ip of a machine having that md5sum, we are able to begin the download,
 	    // but first we need to contact that  machine's catalog and repository
 	    if (ips != null && ips.size() != 0 && ip.equals("none")) {

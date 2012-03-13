@@ -1,6 +1,9 @@
 package xtremweb.role.examples;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashSet;
@@ -25,7 +28,6 @@ import xtremweb.core.iface.InterfaceRMIds;
 import xtremweb.core.iface.InterfaceRMIdt;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
-import xtremweb.core.obj.dc.Data;
 
 /**
  * This class builds a HTTP response with the list of songs matching a specific
@@ -65,9 +67,11 @@ public class P2PServlet extends HttpServlet {
      * Logger
      */
     protected Logger log = LoggerFactory.getLogger("P2PServlet");
-
+    
+    /**
+     * The node that starts DHT
+     */
     private String BOOTSTRAP_NODE;
-    private boolean SSH_TUNNELING;
 
     /**
      * Constructor
@@ -75,8 +79,6 @@ public class P2PServlet extends HttpServlet {
     public P2PServlet() {
 	try {
 	    Properties props = ConfigurationProperties.getProperties();
-	    String ssht = (String) props
-		    .getProperty("xtremweb.core.http.sshTunneling");
 	    String bootstrapnode = (String) props
 		    .getProperty("xtremweb.core.http.bootstrapNode");
 	    BOOTSTRAP_NODE = (bootstrapnode != null) ? bootstrapnode
@@ -84,8 +86,7 @@ public class P2PServlet extends HttpServlet {
 	    String LOCAL_ADDRESS = InetAddress.getLocalHost().getHostAddress();
 	    ddc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP_NODE, "RMI",
 		    4325, "dc");
-	    dr = (InterfaceRMIdr) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325,
-		    "dr");
+	   
 	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325,
 		    "dt");
 	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325,
@@ -110,58 +111,40 @@ public class P2PServlet extends HttpServlet {
      */
     protected void doGet(HttpServletRequest request,
 	    HttpServletResponse response) throws ServletException, IOException {
-	String HOST_NAME = InetAddress.getLocalHost().getHostName();
 	String param = request.getParameter("term");
 	log.debug("parameter term : " + param);
 	log.debug("bootstrap node value is " + BOOTSTRAP_NODE);
 	response.setContentType("xml");
 	String responsexml = "<table border=\"1\"><tr><td>Download</td><td>Song Name</td><td>MD5</td><td>Owner(s)</td></tr>";
 	List l;
-	try {
-	    log.info("bd is 3" + bd);
-	    l = bd.ddcSearch(param);
-	    log.debug(" size of l is " + l.size());
-	    // for each result write it on a html table
-	    for (int i = 0; i < l.size(); i++) {
-		String md5 = ((Data) l.get(i)).getchecksum();
-		responsexml += "<tr>"
-			+ "<td><input type=\"checkbox\" name=\"checkbox" + i
-			+ "\"/></td>" + "<td>" + ((Data) l.get(i)).getname()
+	Process p = Runtime.getRuntime().exec("java -cp sbam_standalone.jar:bitdew-stand-alone-0.2.8.jar xtremweb.role.integration.P2PClient search "+ BOOTSTRAP_NODE +" "+ param);
+	int i = 0;
+	InputStream in = p.getInputStream();
+	String line;
+	BufferedReader reader = new BufferedReader (new InputStreamReader(in));
+	log.debug("enter in while");
+	line = reader.readLine();
+	log.debug("pass, line is " + line);
+	while (!line.equals("END")) {
+	    log.debug("value of line " + line);
+	    if(line.contains("Result")){
+		System.out.println ("Stdout: " + line);
+		String name = line.split(" ")[1];
+		String md5 = line.split(" ")[2];
+		String ips = line.split(" ")[3];
+		responsexml += "<tr>"+ "<td><input type=\"checkbox\" name=\"checkbox" + i+ "\"/></td>" + "<td>" + name
 			+ "</td>" + "<td>" + md5 + "</td>" + "<td>"
-			+ getIps(md5) + "</td>" + "</tr>";
+				+ ips + "</td>" + "</tr>";
+	    
+	    i++;
 	    }
-	    responsexml += "</table>";
-	    response.getWriter().println(responsexml);
-	    response.setContentType("text/html");
-	    response.setStatus(HttpServletResponse.SC_OK);
-	} catch (BitDewException e) {
-	    e.printStackTrace();
-	    response.getWriter()
-		    .println(
-			    "<table border=\"1\">"
-				    + "<tr><td>Download</td><td>Song Name</td><td>MD5</td><td>Owner(s)</td></tr>"
-				    + "<tr><td>There was a problem executing your request "
-				    + e.getMessage() + "</td>"
-				    + "<td></td><td></td><td></td></tr>"
-				    + "</table>");
-	    response.setContentType("text/html");
-	    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+	    line= reader.readLine();
 	}
+	responsexml += "</table>";
+	response.getWriter().println(responsexml);
+	response.setContentType("text/html");
+	response.setStatus(HttpServletResponse.SC_OK);
     }
-
-    private String getIps(String md5) throws BitDewException {
-	String responsexml = "";
-	List ips;
-	ips = bd.ddcSearch(md5);
-	HashSet s = new HashSet();
-	s.addAll(ips);
-	for (Iterator iterator = s.iterator(); iterator.hasNext();) {
-	    String object = (String) iterator.next();
-	    responsexml += object + ", ";
-	}
-	return responsexml;
-    }
-
     /**
      * Http POST method is not used for the moment
      */
