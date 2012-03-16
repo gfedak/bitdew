@@ -52,7 +52,7 @@ public class FTPServer {
         	xtremweb.core.http.UploadServlet: {url:"/fileupload"},
 			xtremweb.role.examples.DownloadSongServlet:{url: "/download"},
 			xtremweb.serv.dr.http:{className:"xtremweb.serv.dt.http.HttpTransfer",  name: "http",port: "8080",path:"data"},
-			xtremweb.core.ftp : {server: "ftp.lip6.fr", login: "anonymous", path:"/pub/linux/distributions/slackware/slackware-current", passwd:"anonymous",className:"xtremweb.serv.dt.ftp.FtpTransfer"},
+			xtremweb.serv.dr.ftp : {server: "ftp.lip6.fr", login: "anonymous", path:"/pub/linux/distributions/slackware/slackware-current", passwd:"anonymous",className:"xtremweb.serv.dt.ftp.FtpTransfer"},
 			xtremweb.serv.dr.dummy: {name: "dummy"},
 			xtremweb.serv.dt: {protocols: "dummy http", embeddedtm: "true"}
 		}
