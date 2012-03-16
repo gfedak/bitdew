@@ -1,15 +1,14 @@
 package xtremweb.serv.dt.http;
 
 import xtremweb.core.log.*;
-import xtremweb.core.uid.*;
 import xtremweb.serv.dt.*;
 import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.Locator;
 import xtremweb.core.conf.*;
-import xtremweb.core.http.*;
 
+import org.apache.commons.httpclient.util.URIUtil;
 import org.apachev3.commons.httpclient.*;
 import org.apachev3.commons.httpclient.methods.*;
 import org.apachev3.commons.httpclient.methods.multipart.*;
@@ -18,164 +17,180 @@ import org.apachev3.commons.httpclient.params.*;
 import java.io.*;
 import java.util.Properties;
 
-public class HttpTransfer extends BlockingOOBTransferImpl implements
-	BlockingOOBTransfer, OOBTransfer {
-    private final int HTTP_TIMEOUT = 20000;
-    protected static HttpServer httpServer = null;
-    protected HttpClient httpClient;
-    protected GetMethod getMethod;
-    protected PostMethod postMethod;
-    protected static Logger log = LoggerFactory.getLogger(HttpTransfer.class);
-    private boolean b = false;
-    public static void init() {
-	Properties mainprop;
-	try {
-	    mainprop = ConfigurationProperties.getProperties();
-	} catch (ConfigurationException ce) {
-	    log.warn("No Http Protocol Information found : " + ce);
-	    mainprop = new Properties();
-	}
+/**
+ * This class performs a one-threaded http transfer on the transfer manager
+ * 
+ * @author jose
+ * 
+ */
+public class HttpTransfer extends BlockingOOBTransferImpl implements BlockingOOBTransfer, OOBTransfer {
 
-	try {
-	    if (httpServer == null) {
-		log.debug("starting HttpServer");
-		httpServer = HttpServerFactory.getHttpServer();
-	    }
-	} catch (Exception e) {
-	    log.warn("cannot start HttpServer : " + e);
-	}
-    }
-    
     /**
-     * Default constructor
+     * Request timeout
      */
-    public HttpTransfer(){
-	
+    private final int HTTP_TIMEOUT = 20000;
+
+    /**
+     * Apache API http client
+     */
+    protected HttpClient httpClient;
+
+    /**
+     * Apache API getMethod
+     */
+    protected GetMethod getMethod;
+
+    /**
+     * Apache API postMethod
+     */
+    protected PostMethod postMethod;
+
+    /**
+     * Logger
+     */
+    protected static Logger log = LoggerFactory.getLogger(HttpTransfer.class);
+
+    /**
+     * Flag to indicate that is already connected
+     */
+    private boolean b = false;
+
+    /**
+     * Default constructor, needed on Factory Pattern
+     */
+    public HttpTransfer() {
+
     }
 
-    public HttpTransfer(Data d, Transfer t, Locator rl, Locator ll,
-	    Protocol rp, Protocol lp) {
+    /**
+     * Parameter constructor
+     * 
+     * @param d
+     *            data
+     * @param t
+     *            transfer
+     * @param rl
+     *            remote locator
+     * @param ll
+     *            local locator
+     * @param rp
+     *            remote protocol
+     * @param lp
+     *            local protocol
+     */
+    public HttpTransfer(Data d, Transfer t, Locator rl, Locator ll, Protocol rp, Protocol lp) {
 	super(d, t, rl, ll, rp, lp);
 	transfer.setoob(this.getClass().toString());
     }
 
+    /**
+     * Get a string representation for this transfer
+     */
     public String toString() {
-	return "http://" + remote_protocol.getserver() + ":"
-		+ remote_protocol.getport() + "/" + remote_protocol.getpath()
-		+ "/" + remote_locator.getref();
+	return "http://" + remote_protocol.getserver() + ":" + remote_protocol.getport() + "/" + remote_protocol.getpath() + "/" + remote_locator.getref();
     }
 
+    /**
+     * Initialize apache http client
+     */
     public void connect() throws OOBException {
 	httpClient = new HttpClient();
-	httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(
-		HTTP_TIMEOUT);
+	httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(HTTP_TIMEOUT);
 	log.debug("connecting " + this.toString());
 	b = true;
     }
 
+    /**
+     * Send a file to a http repository
+     */
     public void blockingSendSenderSide() throws OOBException {
-
-	// FIXME TODO UGLY
-	Properties mainprop;
-
-	try {
-	    mainprop = ConfigurationProperties.getProperties();
-	} catch (ConfigurationException ce) {
-	    log.warn("No Http Protocol Information found : " + ce);
-	    mainprop = new Properties();
-	}
-
-	String uploadServlet = mainprop.getProperty(
-		"xtremweb.serv.dt.http.uploadServlet", "/fileupload");
-	// probleme de upload path et de download path et de uploadservlet
-	String url = "http://" + remote_protocol.getserver() + ":"
-		+ remote_protocol.getport() + "" + uploadServlet + "/";
-
 	// L'URL qui va bien http://localhost:8080/fileupload/
 	// http://localhost:8080//fileupload/ erreur File not found
 	// http://localhost:8080//fileupload erreur Move Temporarly
-
-	log.debug("Sending to " + url);
-	postMethod = new PostMethod(url);
+	Properties mainprop;
 	try {
+	    mainprop = ConfigurationProperties.getProperties();
+	    String uploadServlet = mainprop.getProperty("xtremweb.serv.dt.http.uploadServlet", "/fileupload");
+	    // probleme de upload path et de download path et de uploadservlet
+	    String url = "http://" + remote_protocol.getserver() + ":" + remote_protocol.getport() + "" + uploadServlet + "/";
+	    log.debug("Sending to " + url);
+	    postMethod = new PostMethod(url);
+
 	    log.debug("localref is" + local_locator.getref());
 	    File file = new File(local_locator.getref());
 	    log.debug("sending " + file.getName() + " to " + url);
 
 	    // Part[] parts = {new FilePart(file.getName(), file)};
-	    Part[] parts = { new FilePart(remote_locator.getref(),
-		    remote_locator.getref(), file) };
+	    Part[] parts = { new FilePart(remote_locator.getref(), remote_locator.getref(), file) };
 
 	    // prepare the file upload as a multipart POST request
-	    postMethod.setRequestEntity(new MultipartRequestEntity(parts,
-		    postMethod.getParams()));
-	    postMethod.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
-		new DefaultHttpMethodRetryHandler(3, false));
+	    postMethod.setRequestEntity(new MultipartRequestEntity(parts, postMethod.getParams()));
+	    postMethod.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
 	    // execute the transfer and get the result as a status
 	    int status = httpClient.executeMethod(postMethod);
 
 	    if (status == HttpStatus.SC_OK) {
-		log.debug("Upload complete, response="
-			+ postMethod.getResponseBodyAsString());
+		log.debug("Upload complete, response=" + postMethod.getResponseBodyAsString());
 	    } else {
-		log.debug("Upload failed, response="
-			+ HttpStatus.getStatusText(status));
-		throw new OOBException("Http errors when sending  " + "/"
-			+ remote_locator.getref() + " "
-			+ HttpStatus.getStatusText(status));
+		log.debug("Upload failed, response=" + HttpStatus.getStatusText(status));
+		throw new OOBException("Http errors when sending  " + "/" + remote_locator.getref() + " " + HttpStatus.getStatusText(status));
 	    }
 	} catch (Exception ex) {
 	    ex.printStackTrace();
 	    log.debug("Error: " + ex);
-	    throw new OOBException("Http errors when sending  " + "/"
-		    + remote_locator.getref() + " " + ex);
+	    throw new OOBException("Http errors when sending  " + "/" + remote_locator.getref() + " " + ex);
 	} finally {
 	    postMethod.releaseConnection();
 	}
     }
-
+    
+    /**
+     * Nothing to do here for this case
+     */
     public void blockingSendReceiverSide() throws OOBException {
     }
-
+    
+    /**
+     * Nothing to do here for this case
+     */
     public void blockingReceiveSenderSide() throws OOBException {
     }
-
+    
+    /**
+     * Receive a file using http
+     */
     public void blockingReceiveReceiverSide() throws OOBException {
-    	if(!b){
-    		httpClient = new HttpClient();
-    		httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(
-    			HTTP_TIMEOUT);
-    		log.debug("connecting " + this.toString());
-    		b = true;
-    	}
+	if (!b) {
+	    httpClient = new HttpClient();
+	    httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(HTTP_TIMEOUT);
+	    log.debug("connecting " + this.toString());
+	    b = true;
+	}
 	// faut pas cherhcer
 	// http://localhost:8080//data/25966a30-db9b-31db-9f4a-492d005f0c4a
-	String url = "http://" + remote_protocol.getserver() + ":"
-		+ remote_protocol.getport() + "/" + remote_protocol.getpath()
-		+ "/" + remote_locator.getref();
-	log.debug("getting " + url);
-	getMethod = new GetMethod(url);
-
-	// Provide custom retry handler is necessary
-	getMethod.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
-		new DefaultHttpMethodRetryHandler(3, false));
-
 	try {
+	    String url = "http://" + remote_protocol.getserver() + ":" + remote_protocol.getport() + "/" + remote_protocol.getpath() + "/"
+		    + remote_locator.getref();
+	    log.debug("getting " + url);
+	    url = URIUtil.encodePath(url, "ISO-8859-1");
+	    log.debug("The encoded url is " + url);
+	    getMethod = new GetMethod(url);
+
+	    // Provide custom retry handler is necessary
+	    getMethod.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
+
 	    // Execute the method.
 	    int statusCode = httpClient.executeMethod(getMethod);
 
 	    if (statusCode != HttpStatus.SC_OK) {
-		log.debug("HttpClient getMethod failed: "
-			+ getMethod.getStatusLine());
-		throw new OOBException(
-			"Http errors when setting retreive from " + url);
+		log.debug("HttpClient getMethod failed: " + getMethod.getStatusLine());
+		throw new OOBException("Http errors when setting retreive from " + url + "HttpClient getMethod failed: " + getMethod.getStatusLine());
 	    }
 
 	    InputStream in = getMethod.getResponseBodyAsStream();
 	    byte[] buff = new byte[1024];
 	    int len;
-	    FileOutputStream out = new FileOutputStream(new File(local_locator
-		    .getref()));
+	    FileOutputStream out = new FileOutputStream(new File(local_locator.getref()));
 
 	    while ((len = in.read(buff)) != -1) {
 		// write byte to file
@@ -184,19 +199,19 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements
 
 	} catch (HttpException e) {
 	    log.debug("Fatal protocol violation: " + e);
-	    throw new OOBException("Http errors when receiving receive " + "/"
-		    + remote_locator.getref());
+	    throw new OOBException("Http errors when receiving receive " + "/" + remote_locator.getref());
 	} catch (IOException e) {
 	    log.debug("Fatal transport error: " + e);
-	    throw new OOBException("Http errors when receiving receive " + "/"
-		    + remote_locator.getref());
+	    throw new OOBException("Http errors when receiving receive " + "/" + remote_locator.getref());
 
 	} finally {
 	    log.debug("FIN du transfer");
 	    getMethod.releaseConnection();
 	}
     }
-
+    /**
+     * Disconnect and give back resources
+     */
     public void disconnect() throws OOBException {
 
     }
@@ -234,8 +249,7 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements
 	t.setlocatorlocal(local_locator.getuid());
 	// Data data = DataUtil.fileToData(file);
 
-	HttpTransfer http = new HttpTransfer(data, t, remote_locator,
-		local_locator, remote_proto, local_proto);
+	HttpTransfer http = new HttpTransfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
 	// log.debug(htto.toString());
 	try {
 	    http.connect();
@@ -248,8 +262,7 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements
 	remote_locator.setref("copy_test-http");
 	remote_proto.setpath("fileupload");
 
-	http = new HttpTransfer(data, t, remote_locator, local_locator,
-		remote_proto, local_proto);
+	http = new HttpTransfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
 
 	try {
 	    http.connect();
@@ -261,7 +274,10 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements
 	log.debug("upload completed");
 
     }
-
+    
+    /**
+     * For this case return its istransfering status
+     */
     public boolean poolTransfer() {
 	return !isTransfering();
     }
