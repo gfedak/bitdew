@@ -8,8 +8,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jfree.util.Log;
-
 import xtremweb.api.bitdew.BitDew;
 import xtremweb.api.bitdew.BitDewException;
 import xtremweb.api.transman.TransferManager;
@@ -20,6 +18,7 @@ import xtremweb.core.iface.InterfaceRMIdc;
 import xtremweb.core.iface.InterfaceRMIdr;
 import xtremweb.core.iface.InterfaceRMIds;
 import xtremweb.core.iface.InterfaceRMIdt;
+import xtremweb.core.log.*;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.serv.dt.OOBTransfer;
 
@@ -30,6 +29,8 @@ import xtremweb.serv.dt.OOBTransfer;
 //
 //
 public class P2PClient {
+    
+    private Logger log;
     
     //
     // Bitdew API
@@ -69,14 +70,20 @@ public class P2PClient {
     public P2PClient(String bootstrap) {
 	BOOTSTRAP = bootstrap;
 	try {
+	    log = LoggerFactory.getLogger("P2PClient");
+	    log.setLevel("INFO");
+	    log.info("logging sysgtem activated");
+	    Log4JLogger.setProperties("conf/log4jcmdlinetool.properties");
 	    LOCAL_ADDRESS = InetAddress.getLocalHost().getHostAddress();
 	    dc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP, "rmi", 4325, "dc");
 	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "dt");
 	    tm = new TransferManager(dt);
-	    bitdew = new BitDew(dc, dr, dt, ds);
+	    bitdew = new BitDew(dc, dr, dt, ds,true);
 	} catch (ModuleLoaderException e) {
 	    e.printStackTrace();
 	} catch (UnknownHostException e) {
+	    e.printStackTrace();
+	} catch (LoggerException e) {
 	    e.printStackTrace();
 	}
     }
@@ -92,7 +99,6 @@ public class P2PClient {
 	    
 	    System.out.println("The value of results is " + results + " and the size is " + results.size());
 	    for (int i = 1; i <= results.size(); i++) {
-		System.out.println("entro al ciclo");
 		Data sbd = (Data) results.get(i - 1);
 		System.out.println("Result " + sbd.getname() + " " + sbd.getchecksum() + " " + getIps(sbd.getchecksum()));
 	    }
@@ -118,7 +124,7 @@ public class P2PClient {
 	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "dt");
 	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "ds");
 	    // build a new bitdew instance from these services.
-	    bitdew = new BitDew(dc, dr, dt, ds);
+	    bitdew = new BitDew(dc, dr, dt, ds,true);
 	    String[] toks = song.split("[\\s\\._-]");
 	    // We split the file name to extract each word composing it, and we
 	    // index the song name
@@ -148,12 +154,13 @@ public class P2PClient {
 	try {
 	    // first retrieve the ip list of machines having signatures md5
 	    List ips = bitdew.ddcSearch(md5);
-	    System.out.println("The ips for that md5 are " + ips.size());
+	    System.out.println("The ips for that md5 are " + ips.size() + " name to download " + songname);
 	    // Once we have an ip of a machine having that md5sum, we are able
 	    // to begin the download,
 	    // but first we need to contact that machine's catalog and
 	    // repository
 	   // bitdew.ddcStop();
+	    System.out.println("Creating services ");
 	    if (ips != null && ips.size() != 0 && ip.equals("none")) {
 		dr = (InterfaceRMIdr) ComWorld.getComm((String) ips.get(0), "rmi", 4325, "dr");
 		dc = (InterfaceRMIdc) ComWorld.getComm((String) ips.get(0), "rmi", 4325, "dc");
@@ -162,6 +169,7 @@ public class P2PClient {
 		dc = (InterfaceRMIdc) ComWorld.getComm((String) ip, "rmi", 4325, "dc");
 	    } else
 		throw new BitDewException("There is not ip for that md5 ! ");
+	    System.out.println("Services created");
 	    // Then we create a new bitdew API from these newly created services
 	    bitdew = new BitDew(dc, dr, dt, ds);
 	    tm.start();
@@ -179,7 +187,6 @@ public class P2PClient {
 	    tm.stop();
 	    republish(songname, md5);
 	    System.out.println("DONE");
-	    bitdew.ddcStop();
 	} catch (BitDewException e) {
 	    e.printStackTrace();
 
