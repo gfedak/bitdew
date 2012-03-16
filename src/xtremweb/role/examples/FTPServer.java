@@ -35,36 +35,33 @@ public class FTPServer {
      * dt, ds) and makes existing files on a remote ftp folder available in
      * bitdew. Then you can use the "CommandLineTool get" option to download the
      * files served by the FTP server. <ol> <li> Download and locate the file <a
-     * href="http://www.bitdew.net/properties.json">properties.json</a> in the same directory
+     * href="http://www.bitdew.net/properties_ftpexample.json">properties_ftpexample.json</a> in the same directory
      * than the jar distribution.</li>
      * 
      * <li> This json file contains a list of repositories, one by protocol</li>
      * 
      * @code 
      * {	xtremweb.role : {ui: "true"},
-	xtremweb.core.db : {driver: "org.hsqldb.jdbcDriver", url: "jdbc:hsqldb:mem:test",user:"sa",password: "", connectionPooling: "DBCP"},
-	xtremweb.serv.dr.ftp : {name:"ftp",server:"ftp.lip6.fr",port:21,login:"anonymous", passwd:"anonymous",path:"/pub/linux/distributions/slackware/slackware-current"},
-	xtremweb.core.com.rmi: {port: 4325},
-	xtremweb.serv.dr : {protocols: "dummy http ftp"},
-	xtremweb.serv.dr.ftp : {server: "ftp.lip6.fr", login: "anonymous", path:"/pub/linux/distributions/slackware/slackware-current", passwd:"anonymous"},
-	xtremweb.core.http: {port: 8080,path:"/data",documentRoot:".",uploadServlet:"/fileupload"},
-	xtremweb.serv.dr.http: {name:"http",port:8080,path:"data"},
-	xtremweb.serv.dr.dummy: {name: "dummy"},
-	xtremweb.serv.dr.bittorrent: {name:"bittorrent",path:"torrents",port:6969},
-	xtremweb.serv.dt: {protocols: "dummy http"},
-	xtremweb.serv.dt.bittorrent: {makeTorrentExe:"/Users/fedak/shared/projects/bitdew/python/btmakemetafile.py",azureusjar:"/Users/fedak/shared/projects/bitdew/lib/azureus.jar",
-								  trackerExec:"/Users/fedak/shared/projects/bitdew/python/bttrack.py",
-								  trackerOption:"--dfile dstate"},
-	xtremweb.core.handler: {perf: "true"}							  
-}
-
-     * 
+			xtremweb.core.db : {driver: "org.hsqldb.jdbcDriver", url: "jdbc:hsqldb:mem:test",user:"sa",password: "", connectionPooling: "DBCP", propertiesFile: "dbcp.properties"},
+			xtremweb.core.com.rmi: {port: 4325},
+			xtremweb.serv.dr : {protocols: "http ftp"},
+			xtremweb.serv.dc : {ddc: "false"},
+			xtremweb.core.http: {splittingCharacter: ";", port: 8080,path:"/data",documentRoot:".",servlets: "xtremweb.core.http.UploadServlet;xtremweb.role.examples.P2PServlet;xtremweb.role.examples.DownloadSongServlet;xtremweb.role.examples.GetFilesServlet"},
+        	xtremweb.role.examples.P2PServlet: {url:"/p2pquery"},
+        	xtremweb.role.examples.GetFilesServlet: {url: "/getfiles"},
+        	xtremweb.core.http.UploadServlet: {url:"/fileupload"},
+			xtremweb.role.examples.DownloadSongServlet:{url: "/download"},
+			xtremweb.serv.dr.http:{className:"xtremweb.serv.dt.http.HttpTransfer",  name: "http",port: "8080",path:"data"},
+			xtremweb.core.ftp : {server: "ftp.lip6.fr", login: "anonymous", path:"/pub/linux/distributions/slackware/slackware-current", passwd:"anonymous",className:"xtremweb.serv.dt.ftp.FtpTransfer"},
+			xtremweb.serv.dr.dummy: {name: "dummy"},
+			xtremweb.serv.dt: {protocols: "dummy http", embeddedtm: "true"}
+		}
      * @endcode 
      * 
      * 
      * <li> To run the example, execute the following command : </li>
      * 
-     * @code java -cp bitdew-stand-alone-X.X.X.jar xtremweb.role.examples.FTPServer properties.json
+     * @code java -cp bitdew-stand-alone-X.X.X.jar xtremweb.role.examples.FTPServer properties_ftpexample.json
      * 
      * @endcode
      * 
