@@ -13,13 +13,6 @@ t[h]}if(f.isEmptyObject(t)){var u=s.handle;u&&(u.elem=null),delete s.events,dele
 	
 	charge = function(){
 		try{
-			$('div[id="dwnmessage"]').empty();
-			$('div[id="dwnmessage"]').append("<p>Downloading ...</p>")
-			var dir = $('input[name="directory"]').val()
-			var songname = ""
-			var md5sum = ""
-			var bol;
-			var downloadsongs = false
 			$('div[id="tableresult"] > table > tbody > tr').each(function(index){
 				bol = $(this).find('input[type="checkbox"]:checked').val()
 				if (bol == "on")
@@ -28,6 +21,14 @@ t[h]}if(f.isEmptyObject(t)){var u=s.handle;u&&(u.elem=null),delete s.events,dele
 			
 			if (!downloadsongs)
 				throw "You need to choose at least one song to download";
+			
+			$('div[id="dwnmessage"]').empty();
+			$('div[id="dwnmessage"]').append("<p>Downloading ...</p>")
+			var dir = $('input[name="directory"]').val()
+			var songname = ""
+			var md5sum = ""
+			var bol;
+			var downloadsongs = false
 				
 			$('div[id="tableresult"] > table > tbody > tr').each(function(index){					
 				bol = $(this).find('input[type="checkbox"]:checked').val()
@@ -66,6 +67,8 @@ t[h]}if(f.isEmptyObject(t)){var u=s.handle;u&&(u.elem=null),delete s.events,dele
  		    {
 		    	alert("You have to fill term and directory fields")
      		}else{
+     			$('div[id="dwnmessage"]').empty();
+     			$('div[id="dwnmessage"]').append("<p>Searching ...</p>")
      			var compurl = "http://localhost:8080/p2pquery?term=" + term; 
      		    	$.ajax({
     				url: compurl,
@@ -75,7 +78,9 @@ t[h]}if(f.isEmptyObject(t)){var u=s.handle;u&&(u.elem=null),delete s.events,dele
 						$("div[id=tableresult]").append(data);
      				}	
      		    });
-				$('button[id="downbutton"]').disabled = false
+     		    $('div[id="dwnmessage"]').empty();
+     		    $('div[id="dwnmessage"]').append("<p>Search performed</p>")
+				$('button[id="downbutton"]').removeAttr("disabled");
      		}	
 		});
 		
@@ -122,7 +127,7 @@ t[h]}if(f.isEmptyObject(t)){var u=s.handle;u&&(u.elem=null),delete s.events,dele
     	</fieldset>
 		<br>
 		<br>
-		<button disabled="true" id="downbutton">Download this songs</button>
+		<button disabled id="downbutton">Download this songs</button>
 		<div id="dwnmessage"></div>
     	<div id="tableresult">
     		
