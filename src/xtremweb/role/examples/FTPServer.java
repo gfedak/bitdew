@@ -79,9 +79,10 @@ public class FTPServer {
      * To retrieve any of these files in your system inside a file <file_name> 
      * 
      * @endcode <li> You can execute CommandLineTool get command in order to
-     * retrieve a file from the ftp server, for example :</li>
+     * retrieve a file from the ftp server, for example, to save BOOTING.TXT, execute the following command,
+     * changing the hexa chain for the BOOTING.TXT uid that you see on your screen  :</li>
      * 
-     * @code java -jar bitdew-stand-alone-X.X.X.jar get 639edd60-1cbc-31e0-ab7e-c0c64755d3e6 ftp LOCAL_BOOTING.TXT
+     * @code java -jar bitdew-stand-alone-X.X.X.jar --protocol ftp get 639edd60-1cbc-31e0-ab7e-c0c64755d3e6 LOCAL_BOOTING.TXT
      * 
      * @endcode
      * 
