@@ -16,7 +16,6 @@
 	<property name="dist" location="dist"/>
 	<property name="obj" location="${src}/xtremweb/core/obj"/>
 	<property name="xsl" location="${src}/xtremweb/core/idl/xsl/"/>
-	<property name="cobertura.dir" value="${env.COB_HOME}" />
 	<property name="reports" location="reports"/>
 	<property name="reports.tests" location="${reports}/tests"/>
 	<property name="reports.html" location="${reports}/html"/>
@@ -39,12 +38,6 @@
 			<include name="**/*.jar"/>
 		</fileset>
 	</path>
-	<path id="cobertura.classpath">
-		<fileset dir="${cobertura.dir}">
-			<include name="cobertura.jar" />
-			<include name="lib/**/*.jar" />
-		</fileset>
-	</path>
 	<property name="project.classpath" refid="id.project.classpath"/>
 	<!--echo>classpath ::   ${project.classpath}</echo -->
 	<property name = "saxon6"
@@ -54,7 +47,6 @@
 	<taskdef name = "mtxslt"
          classname = "org.xmLP.ant.taskdefs.xslt.XSLTProcess"
 	   classpath="${project.classpath}"/>
-	<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
 	<tstamp prefix="time"/>
 
 
@@ -377,7 +369,6 @@ public class Version {
 			<classpath>
 				<pathelement path="lib/jsch-0.1.44.jar:lib/jakarta-oro-2.0.8.jar:lib/commons-net-1.3.0.jar:lib/commons-fileupload-1.1.1.jar:lib/servlet-api-2.5-6.1.1.jar:lib/jetty-util-6.1.1.jar:lib/jetty-html-6.1.1.jar:lib/jets3t-0.6.0.jar:lib/jetty-6.1.1.jar:lib/jcommon-1.0.9.jar:lib/jfreechart-1.0.5.jar:build:conf:lib/jpox-enhancer.jar:lib/commons-collections-3.1.jar:lib/commons-dbcp-1.2.1.jar:lib/commons-pool-1.2.jar:lib/jpox-dbcp-1.1.0-rc-1.jar:lib/jargs.jar:lib/mysql.jar:lib/hsqldb.jar:lib/bcel.jar:lib/jdo.jar:lib/jpox-1.1.0-rc-1.jar:lib/log4j.jar"/>
 			</classpath>
-			<classpath refid="cobertura.classpath" />
 			<batchtest fork="yes" todir="${reports.tests}">
 				<formatter type="plain" usefile="false" />
 				<formatter type="xml" usefile="true" />

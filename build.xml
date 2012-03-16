@@ -429,6 +429,8 @@ public class Version {
       	<exclude name="**/CallbackdtTest.java"/>
       	<exclude name="**/DnTest.java"/>
       	<exclude name="**/TestGetMultiple.java"/>
+      	<exclude name="**/XMLTest.java"/>
+      	<exclude name="**/xtremweb/role/integration/**"/>
       </fileset>
     </batchtest>
     

@@ -20,8 +20,9 @@ import xtremweb.core.obj.dc.Locator;
 import xtremweb.serv.dc.DataUtil;
 
 public class P2PSongs {
-    /*
-     * ! \example P2PSongs.java In this tutorial we will learn how to configure
+    /*! \example P2PSongs.java 
+     * 
+     * In this tutorial we will learn how to configure
      * a P2P file sharing system using BitDew, with this system, you can share a
      * folder on your machine on a P2P network, people can find and download
      * files from your computer, and you can make remote requests, to find and
