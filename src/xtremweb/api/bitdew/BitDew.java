@@ -64,7 +64,7 @@ public class BitDew {
 	    if (o instanceof InterfaceRMIds)
 		ids = (InterfaceRMIds) o;
 	}
-	init();
+	init(false);
     }
 
     /**
@@ -84,25 +84,34 @@ public class BitDew {
 	idc = cdc;
 	idr = cdr;
 	ids = cds;
-	init();
+	init(false);
     } // BitDew constructor
+    
+    public BitDew(InterfaceRMIdc cdc, InterfaceRMIdr cdr, InterfaceRMIdt cdt ,InterfaceRMIds cds,boolean enableddc) {
+    	dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
+	idc = cdc;
+	idr = cdr;
+	ids = cds;
+	init(enableddc);
+    }
+    
+    
     public void setPort(int theport)
     {
     	port = theport;
     }
    
-    private void init() {
+    private void init(boolean onddc) {
 
 	try {
-	    Properties props = ConfigurationProperties.getProperties();
-	    boolean onddc = Boolean.parseBoolean(props.getProperty("xtremweb.serv.dc.ddc"));
 	    if(onddc){
 		ddc = DistributedDataCatalogFactory.getDistributedDataCatalog();
 		log.info("ddc on init " + ddc+ "idc is "+ idc);
 		String entryPoint = idc.getDDCEntryPoint();
+		log.info("entry point is "+ entryPoint);
 		if (entryPoint != null) {
 		    ddc.join(entryPoint);
-		    System.out.println("Started DHT service for distributed data catalog [entryPoint:"+ entryPoint + "]");
+		    log.info("Started DHT service for distributed data catalog [entryPoint:"+ entryPoint + "]");
 		}
 	    }
 	} catch (Exception ddce) {
