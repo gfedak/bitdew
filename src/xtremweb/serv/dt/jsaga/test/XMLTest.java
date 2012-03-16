@@ -15,7 +15,6 @@ public class XMLTest extends TestCase{
 	try {
 	    dom = new XmlDomImpl("VOMS","/Applications/JSAGA/etc/jsaga-default-contexts.xml");
 	} catch (XMLException e) {
-	    System.out.println("se totio");
 	    e.printStackTrace();
 	    fail();
 	}
