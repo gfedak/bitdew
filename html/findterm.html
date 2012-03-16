@@ -12,13 +12,23 @@ t[h]}if(f.isEmptyObject(t)){var u=s.handle;u&&(u.elem=null),delete s.events,dele
 	<script type="text/javascript">
 	
 	charge = function(){
-		
+		try{
 			$('div[id="dwnmessage"]').empty();
 			$('div[id="dwnmessage"]').append("<p>Downloading ...</p>")
 			var dir = $('input[name="directory"]').val()
 			var songname = ""
 			var md5sum = ""
 			var bol;
+			var downloadsongs = false
+			$('div[id="tableresult"] > table > tbody > tr').each(function(index){
+				bol = $(this).find('input[type="checkbox"]:checked').val()
+				if (bol == "on")
+				downloadsongs = true
+			});
+			
+			if (!downloadsongs)
+				throw "You need to choose at least one song to download";
+				
 			$('div[id="tableresult"] > table > tbody > tr').each(function(index){					
 				bol = $(this).find('input[type="checkbox"]:checked').val()
 				
@@ -42,7 +52,10 @@ t[h]}if(f.isEmptyObject(t)){var u=s.handle;u&&(u.elem=null),delete s.events,dele
 						}});
 					}
 			});
+		}catch (err){
+				alert(err);
 		}
+	}
 	
 	 $(document).ready(function() {
  		$('button[id="thebutton"]').click(function(){
