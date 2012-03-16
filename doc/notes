@@ -36,7 +36,7 @@ pour faire une nouvelle release:
 * générer la documentation
 	à partir des sources de la release (bitdew-src-0.X.X.zip), exécuter doxygen
 	faire un scp sur le site web de la forge 
-	sftp <yourlogin>@scm.gforge.inria.fr:/home/groups/bitdew/htdocs/
+scp -r doc/doxygen/html/ jose@scm.gforge.inria.fr:/home/groups/bitdew/htdocs/doxygen
 
 	publier le html.zip dans la partie documentation de la forge
 	
