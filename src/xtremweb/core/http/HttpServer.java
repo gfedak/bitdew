@@ -46,11 +46,7 @@ public class HttpServer {
      *
      */
     public static String DEFAULT_UPLOAD_SERVLET = "/fileupload";
-    
-    /**
-     * p2p servlet path
-     */
-    public static String DEFAULT_P2P_SERVLET = "/p2pquery";
+
     
     /**
      * Log
@@ -120,7 +116,7 @@ public class HttpServer {
 	_port = (Integer.valueOf(mainprop.getProperty("xtremweb.core.http.port", "" + DEFAULT_PORT))).intValue();
 	_documentPath = mainprop.getProperty("xtremweb.core.http.path", DEFAULT_DOCUMENT_PATH);
 	_documentRoot = mainprop.getProperty("xtremweb.core.http.documentRoot", DEFAULT_DOCUMENT_ROOT);
-	_uploadServlet = mainprop.getProperty("xtremweb.core.http.uploadServlet", DEFAULT_UPLOAD_SERVLET);
+	_uploadServlet = mainprop.getProperty("xtremweb.core.http.UploadServlet.url", DEFAULT_UPLOAD_SERVLET);
 	SERVLET_NUMBER = mainprop.getProperty("xtremweb.core.http.servlets").split(";").length + 1;
 	servlethandlers = new Handler[SERVLET_NUMBER];
 	pos=0;
