@@ -2,7 +2,7 @@
 	xtremweb.core.db : {driver: "org.hsqldb.jdbcDriver", url: "jdbc:hsqldb:mem:test",user:"sa",password: "", connectionPooling: "DBCP", propertiesFile: "dbcp.properties"},
 	xtremweb.core.com.rmi: {port: 4325},
 	xtremweb.serv.dr : {protocols: "http"},
-	xtremweb.serv.dc : {ddc: "true"},
+	xtremweb.serv.dc : {ddc: "false"},
 	xtremweb.core.http: {splittingCharacter: ";", port: 8080,path:"/data",documentRoot:".",servlets: "xtremweb.core.http.UploadServlet;xtremweb.role.examples.P2PServlet;xtremweb.role.examples.DownloadSongServlet;xtremweb.role.examples.GetFilesServlet"},
     xtremweb.role.examples.P2PServlet: {url:"/p2pquery"},
     xtremweb.role.examples.GetFilesServlet: {url: "/getfiles"},
