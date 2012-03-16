@@ -15,13 +15,6 @@ import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.dc.*;
 import xtremweb.serv.dt.*;
-import xtremweb.serv.dt.amazonS3.AmazonS3Transfer;
-import xtremweb.serv.dt.bittorrent.BittorrentTransfer;
-import xtremweb.serv.dt.dropbox.DropBoxTransfer;
-import xtremweb.serv.dt.dummy.DummyTransfer;
-import xtremweb.serv.dt.ftp.FtpTransfer;
-import xtremweb.serv.dt.http.HttpTransfer;
-import xtremweb.serv.dt.scp.ScpTransfer;
 import xtremweb.core.util.*;
 
 import xtremweb.core.log.Logger;
@@ -45,29 +38,55 @@ import xtremweb.dao.transfer.DaoTransfer;
  * @version 1.0
  */
 public class TransferManager {
-
+    
+    /**
+     * dt associated to this Transfer Manager
+     */
     private InterfaceRMIdt dt = null;
 
     /** time between two periodic activities (in milli seconds) */
     private int timeout = 1000;
+    
+    /**
+     * Dao to talk with the DB and perform transfer operations on the check thread
+     */
     private DaoTransfer daocheck;
+    
+    /**
+     * Timer to synchronize transfer automaton
+     */
     private Timer timer;
+    
+    /**
+     * Timer lock
+     */
     private Lock timerLock = new ReentrantLock();
+    
+    /**
+     * How many tasks has been scheduled
+     */
     private static int timerSchedules = 0;
+    
+    /**
+     * Dao to perform DB operations on the main thread
+     */
     private DaoTransfer dao;
+    
+    /**
+     * Maximum number of downloads
+     */
     private long maxDownloads = 10;
-    private static Vector ongoingUid = new Vector();
-
-   // private final static PerfMonitor perf = PerfMonitorFactory
-   //	    .createPerfMonitor("TransferManager", "hits per second", 3000);
-
-    /*
+    
+    /**
      * <code>oobTransfers</code> is a Hashtable associating an OOBTransfer to
      * each transfer. It is used to cache OOBTransfer and to avoid creating
      * OOBTransfer for each Transfer scanned in the Database
      */
     private SortedVector oobTransfers;
-
+    
+    /**
+     * Class log
+     */
     private Logger log = LoggerFactory.getLogger("Transfer Manager (transman)");
 
     /**
@@ -79,10 +98,8 @@ public class TransferManager {
      *            an <code>InterfaceRMIdr</code> value
      */
     public TransferManager(InterfaceRMIdt ldt) {
-	daocheck = (DaoTransfer) DaoFactory
-		.getInstance("xtremweb.dao.transfer.DaoTransfer");
-	dao = (DaoTransfer) DaoFactory
-		.getInstance("xtremweb.dao.transfer.DaoTransfer");
+	daocheck = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
+	dao = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	dt = ldt;
 	init();
     }
@@ -92,10 +109,8 @@ public class TransferManager {
      * 
      */
     public TransferManager() {
-	daocheck = (DaoTransfer) DaoFactory
-		.getInstance("xtremweb.dao.transfer.DaoTransfer");
-	dao = (DaoTransfer) DaoFactory
-		.getInstance("xtremweb.dao.transfer.DaoTransfer");
+	daocheck = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
+	dao = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	init();
     }
 
@@ -106,17 +121,17 @@ public class TransferManager {
      *            a <code>Vector</code> value
      */
     public TransferManager(Vector comms) {
-	daocheck = (DaoTransfer) DaoFactory
-		.getInstance("xtremweb.dao.transfer.DaoTransfer");
-	dao = (DaoTransfer) DaoFactory
-		.getInstance("xtremweb.dao.transfer.DaoTransfer");
+	daocheck = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
+	dao = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	for (Object o : comms) {
 	    if (o instanceof InterfaceRMIdt)
 		dt = (InterfaceRMIdt) o;
 	}
 	init();
     }
-
+    /**
+     * initialize oobtransfers
+     */
     private void init() {
 	oobTransfers = new SortedVector(new OOBTransferOrder());
     }
@@ -133,26 +148,21 @@ public class TransferManager {
      */
     public void registerTransfer(OOBTransfer oobt) {
 	String tuid = oobt.getTransfer().getuid();
-	if ((oobt.getTransfer() != null)
-		&& (oobt.getTransfer().getuid() != null))
-	    log.debug("Transfer already persisted : "
-		    + oobt.getTransfer().getuid());
-	log.debug(" data snapshot just before persisting uid"
-		+ oobt.getData().getuid() + "md5 "
-		+ oobt.getData().getchecksum() + " size "
+	if ((oobt.getTransfer() != null) && (oobt.getTransfer().getuid() != null))
+	    log.debug("Transfer already persisted : " + oobt.getTransfer().getuid());
+	log.debug(" data snapshot just before persisting uid" + oobt.getData().getuid() + "md5 " + oobt.getData().getchecksum() + " size "
 		+ oobt.getData().getsize());
 	DaoData newdao = new DaoData();
-	
+
 	newdao.makePersistent(oobt.getData(), true);
-	
+
 	newdao.makePersistent(oobt.getRemoteProtocol(), true);
 	newdao.makePersistent(oobt.getLocalProtocol(), true);
 
 	oobt.getRemoteLocator().setdatauid(oobt.getData().getuid());
 	oobt.getLocalLocator().setdatauid(oobt.getData().getuid());
 
-	oobt.getRemoteLocator().setprotocoluid(
-		oobt.getRemoteProtocol().getuid());
+	oobt.getRemoteLocator().setprotocoluid(oobt.getRemoteProtocol().getuid());
 	oobt.getLocalLocator().setprotocoluid(oobt.getLocalProtocol().getuid());
 
 	newdao.makePersistent(oobt.getRemoteLocator(), true);
@@ -165,10 +175,14 @@ public class TransferManager {
 
 	// FIXME: should have an assert here
 	if ((tuid != null) && (!tuid.equals(oobt.getTransfer().getuid())))
-	    log.debug(" Transfer has been incorrectly persisted    " + tuid
-		    + "  !=" + oobt.getTransfer().getuid());
+	    log.debug(" Transfer has been incorrectly persisted    " + tuid + "  !=" + oobt.getTransfer().getuid());
     }
-
+    
+    /**
+     * Get the numeric status (PENDING,COMPLETE,TRANSFERRING)of a transfer given its uid
+     * @param tid
+     * @return
+     */
     public int getTransferStatus(String tid) {
 	try {
 	    dao.beginTransaction();
@@ -227,44 +241,55 @@ public class TransferManager {
 
 	}
     }
-
+    
+    /**
+     * Remove a transfer 
+     * @param trans the transfer object we want to be removed
+     * @throws OOBException
+     */
     public void removeOOBTransfer(Transfer trans) throws OOBException {
 	oobTransfers.removeElement(trans.getuid());
     }
-
-    public OOBTransfer createOOBTransfer(Transfer t, DaoTransfer daocheck)
-	    throws OOBException {
+    
+    /**
+     * Create a OOBTransfer
+     * @param t the transfer object
+     * @param daocheck this method is called from the checkTransfer thread, and thus
+     * must share the same DAO
+     * @return the OOBTransfer
+     * @throws OOBException
+     */
+    private OOBTransfer createOOBTransfer(Transfer t, DaoTransfer daocheck) throws OOBException {
 	Data d = null;
 	Locator rl = null;
 	Locator ll = null;
 	Protocol lp = null;
 	Protocol rp = null;
 
-	ll = (Locator) daocheck.getByUid(xtremweb.core.obj.dc.Locator.class,
-		t.getlocatorlocal());
+	ll = (Locator) daocheck.getByUid(xtremweb.core.obj.dc.Locator.class, t.getlocatorlocal());
 
-	rl = (Locator) daocheck.getByUid(xtremweb.core.obj.dc.Locator.class,
-		t.getlocatorremote());
+	rl = (Locator) daocheck.getByUid(xtremweb.core.obj.dc.Locator.class, t.getlocatorremote());
 
-	rp = (Protocol) daocheck.getByUid(xtremweb.core.obj.dr.Protocol.class,
-		rl.getprotocoluid());
+	rp = (Protocol) daocheck.getByUid(xtremweb.core.obj.dr.Protocol.class, rl.getprotocoluid());
 
-	lp = (Protocol) daocheck.getByUid(xtremweb.core.obj.dr.Protocol.class,
-		ll.getprotocoluid());
+	lp = (Protocol) daocheck.getByUid(xtremweb.core.obj.dr.Protocol.class, ll.getprotocoluid());
 	// FIXME to use transfet.getdatauid() instead
 	if (!ll.getdatauid().equals(rl.getdatauid()))
-	    throw new OOBException(
-		    "O-O-B Transfers refers to two different data ");
+	    throw new OOBException("O-O-B Transfers refers to two different data ");
 
-	d = (Data) daocheck.getByUid(xtremweb.core.obj.dc.Data.class,
-		ll.getdatauid());
-	log.debug("OOBTransferFactory create " + t.getuid() + ":" + t.getoob()
-		+ ":" + TransferType.toString(t.gettype()));
+	d = (Data) daocheck.getByUid(xtremweb.core.obj.dc.Data.class, ll.getdatauid());
+	log.debug("OOBTransferFactory create " + t.getuid() + ":" + t.getoob() + ":" + TransferType.toString(t.gettype()));
 
 	return OOBTransferFactory.createOOBTransfer(d, t, rl, ll, rp, lp);
 
     }
-
+    
+    /**
+     * Get a OOBTransfer from a transfer object
+     * @param trans the transfer object
+     * @return OOBTransfer
+     * @throws OOBException
+     */
     public OOBTransfer getOOBTransfer(Transfer trans) throws OOBException {
 	OOBTransfer oob = null;
 	int idx = oobTransfers.search(trans.getuid());
@@ -273,15 +298,8 @@ public class TransferManager {
 	else {
 	    oob = createOOBTransfer(trans, daocheck);
 	    oobTransfers.addElement(oob);
-	    log.debug("TransferManager new transfer " + trans.getuid() + " : "
-		    + oob.toString());
+	    log.debug("TransferManager new transfer " + trans.getuid() + " : " + oob.toString());
 	}
-	/*
-	 * OOBTransfer oob = (OOBTransfer) oobTransfers.get(trans.getuid()); if
-	 * (oob==null) { oob = OOBTransferFactory.createOOBTransfer(trans);
-	 * oobTransfers.put(trans.getuid(), oob); log.debug("RESUMING TRANSFER "
-	 * + trans.getuid() + " : " + oob.toString()); }
-	 */
 	return oob;
     }
 
@@ -295,15 +313,12 @@ public class TransferManager {
      * </ol>
      */
     private void checkTransfer() {
-	long start = System.currentTimeMillis();
-
 	try {
 
 	    daocheck.beginTransaction();
 
 	    /* begin nouveau */
-	    Collection results = (Collection) daocheck
-		    .getTransfersDifferentStatus(TransferStatus.TODELETE);
+	    Collection results = (Collection) daocheck.getTransfersDifferentStatus(TransferStatus.TODELETE);
 	    if (results == null) {
 		log.debug("nothing to check");
 		return;
@@ -313,9 +328,7 @@ public class TransferManager {
 	    OOBTransfer oob;
 	    while (iter.hasNext()) {
 		Transfer trans = (Transfer) iter.next();
-		log.debug("Checking Transfer in " + this + " : "
-			+ trans.getuid() + ":"
-			+ TransferType.toString(trans.gettype()));
+		log.debug("Checking Transfer in " + this + " : " + trans.getuid() + ":" + TransferType.toString(trans.gettype()));
 		switch (trans.getstatus()) {
 		// Register the transfer remotely if it
 		// succeed, set the local transfer to READY
@@ -329,18 +342,11 @@ public class TransferManager {
 			oob = getOOBTransfer(trans);
 			if (TransferType.isLocal(trans.gettype())) {
 
-			    log.debug("transfer " + trans + " | data "
-				    + oob.getData() + " | remote protocol "
-				    + oob.getRemoteProtocol()
-				    + " | remote locator "
+			    log.debug("transfer " + trans + " | data " + oob.getData() + " | remote protocol " + oob.getRemoteProtocol() + " | remote locator "
 				    + oob.getRemoteLocator());
 			    log.debug("value of dt is " + dt + " in " + this);
-			    log.debug("is about to insert one transfer in "
-				    + this);
-			    dt.registerTransfer(trans, oob.getData(),
-				    oob.getRemoteProtocol(),
-				    oob.getRemoteLocator());
-			    log.debug("Transfer registred");
+			    log.debug("is about to insert one transfer in " + this);
+			    dt.registerTransfer(trans, oob.getData(), oob.getRemoteProtocol(), oob.getRemoteLocator());
 			}
 
 		    } catch (Exception re) {
@@ -384,11 +390,8 @@ public class TransferManager {
 			    }
 
 			} catch (OOBException oobe) {
-			    log.info("An error has occurred "
-				    + oobe.getMessage());
-			    log.info("The transfer could not succesfully finish "
-				    + oobe.getMessage()
-				    + " it will be erased from cache");
+			    log.info("An error has occurred " + oobe.getMessage());
+			    log.info("The transfer could not succesfully finish " + oobe.getMessage() + " it will be erased from cache");
 			    oobe.printStackTrace();
 			    trans.setstatus(TransferStatus.INVALID);
 			    break;
@@ -402,8 +405,7 @@ public class TransferManager {
 
 		    try {
 			if (TransferType.isLocal(trans.gettype()))
-			    dt.setTransferStatus(trans.getuid(),
-				    TransferStatus.INVALID);
+			    dt.setTransferStatus(trans.getuid(), TransferStatus.INVALID);
 		    } catch (RemoteException re) {
 			log.info("An error has occurred " + re.getMessage());
 			re.printStackTrace();
@@ -420,8 +422,7 @@ public class TransferManager {
 		    // check if transfer is complete
 		    try {
 			oob = getOOBTransfer(trans);
-			log.debug("transfer type "
-				+ TransferType.toString(trans.gettype()));
+			log.debug("transfer type " + TransferType.toString(trans.gettype()));
 			if (trans.gettype() == TransferType.UNICAST_SEND_SENDER_SIDE)
 			    complete = dt.poolTransfer(trans.getuid());
 			if (trans.gettype() == TransferType.UNICAST_SEND_RECEIVER_SIDE)
@@ -437,7 +438,8 @@ public class TransferManager {
 			}
 			// FIXME check for errors
 			if (oob.error()) {
-			    throw new OOBException("There was an exception on the Transfer Manager, your transfer of data "+trans.getdatauid() +" is marked as INVALID");
+			    throw new OOBException("There was an exception on the Transfer Manager, your transfer of data " + trans.getdatauid()
+				    + " is marked as INVALID");
 			}
 		    } catch (RemoteException re) {
 			log.info("An error has occurred " + re.getMessage());
@@ -494,8 +496,7 @@ public class TransferManager {
 		    log.debug("ERROR");
 
 		}
-		log.debug("Trans status of id " + trans.getuid()
-			+ "before persisting is " + trans.getstatus());
+		log.debug("Trans status of id " + trans.getuid() + "before persisting is " + trans.getstatus());
 		daocheck.makePersistent(trans, false);
 	    }
 
@@ -507,33 +508,35 @@ public class TransferManager {
 		daocheck.transactionRollback();
 
 	}
-	long end = System.currentTimeMillis();
-	//perf.addSample(end - start);
-    }
 
+    }
+    
+    /**
+     * How many transfers are being currently executed
+     * @return the number of transfers currently executed
+     */
     public long ongoingTransfers() {
 	long result = -1;
-	result = new Long((Long) daocheck.getTransfersByStatus(
-		TransferStatus.TRANSFERING, true, "uid")).longValue();
+	result = new Long((Long) daocheck.getTransfersByStatus(TransferStatus.TRANSFERING, true, "uid")).longValue();
 	return result;
     }
 
-    // FIXME c pas top; mettre une limite au premier resultat retourne
-    public boolean downloadComplete() {
-	DaoTransfer daot = (DaoTransfer) DaoFactory
-		.getInstance("xtremweb.dao.transfer.DaoTransfer");
+    /**
+     * Are all the transfers completed ?
+     * @return true if all transfers are completed, otherwise false
+     */
+    private boolean downloadComplete() {
+	DaoTransfer daot = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	try {
 	    daot.beginTransaction();
-	    Collection results = daot
-		    .getAll(xtremweb.core.obj.dt.Transfer.class);
+	    Collection results = daot.getAll(xtremweb.core.obj.dt.Transfer.class);
 	    if (results == null) {
 		return true;
 	    } else {
 		Iterator iter = results.iterator();
 		while (iter.hasNext()) {
 		    Transfer trans = (Transfer) iter.next();
-		    log.debug("scanning transfer " + trans.getuid() + " "
-			    + trans.getdatauid() + trans.getstatus());
+		    log.debug("scanning transfer " + trans.getuid() + " " + trans.getdatauid() + trans.getstatus());
 		    if (trans.getstatus() != TransferStatus.TODELETE)
 			return false;
 		}
@@ -546,11 +549,18 @@ public class TransferManager {
 
 	return true;
     }
-
+    
+    /**
+     * Self-explanatory
+     * @param cd
+     */
     public void setMaximumConcurrentDownloads(long cd) {
 	maxDownloads = cd;
     }
-
+    
+    /**
+     * Self-explanatory
+     */
     public long getMaximumConcurrentDonwloads() {
 	return maxDownloads;
     }
@@ -578,20 +588,13 @@ public class TransferManager {
      *            a <code>Data</code> value
      * @return a <code>boolean</code> value
      */
-    public boolean isTransferComplete(Data data) {// José Francisco : I have to
-						  // build another dao here
-						  // because it is not taking
-						  // into account
-	// the commits of daocheck this is not a sensful solution but i need to
-	// keep going.
+    public boolean isTransferComplete(Data data) {
 	boolean isComplete = true;
 	DaoTransfer daot = null;
 	try {
-	    daot = (DaoTransfer) DaoFactory
-		    .getInstance("xtremweb.dao.transfer.DaoTransfer");
+	    daot = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	    daot.beginTransaction();
-	    Collection results = (Collection) daot.getTransfersByDataUid(data
-		    .getuid());
+	    Collection results = (Collection) daot.getTransfersByDataUid(data.getuid());
 	    if (results == null) {
 		log.debug("pas de resultat");
 		return true;
@@ -599,10 +602,8 @@ public class TransferManager {
 		Iterator iter = results.iterator();
 		while (iter.hasNext()) {
 		    Transfer trans = (Transfer) iter.next();
-		    log.debug("scanning transfer locator "
-			    + trans.getlocatorlocal() + " tuid: "
-			    + trans.getuid() + " " + trans.getdatauid()
-			    + " status : " + trans.getstatus());
+		    log.debug("scanning transfer locator " + trans.getlocatorlocal() + " tuid: " + trans.getuid() + " " + trans.getdatauid() + " status : "
+			    + trans.getstatus());
 		    if (trans.getstatus() != TransferStatus.TODELETE)
 			return false;
 		}
@@ -634,30 +635,12 @@ public class TransferManager {
 	    log.debug("waitFor data " + data.getuid());
 	}
     }
-
-    public void retriveData() {
-	try {
-
-	    dao.beginTransaction();
-	    Collection results = (Collection) dao
-		    .getAll(xtremweb.core.obj.dc.Data.class);
-	    if (results == null) {
-		log.debug("pas de resultat");
-		return;
-	    } else {
-		Iterator iter = results.iterator();
-		while (iter.hasNext()) {
-		    Data d = (Data) iter.next();
-		    System.out.println("scanning Data: uid= " + d.getuid());
-		}
-	    }
-	    dao.commitTransaction();
-	} finally {
-	    if (dao.transactionIsActive())
-		dao.transactionRollback();
-	}
-    }
-
+    
+    /**
+     * Waits for a uid list
+     * @param uidList
+     * @throws TransferManagerException
+     */
     public void waitFor(Vector<String> uidList) throws TransferManagerException {
 	log.debug("begin waitFor!");
 	try {
@@ -668,12 +651,10 @@ public class TransferManager {
 		dao.beginTransaction();
 		for (int i = 0; i < N; i++) {
 		    String uid = uidList.elementAt(i);
-		    Data dataStored = (Data) dao.getByUid(
-			    xtremweb.core.obj.dc.Data.class, uid);
+		    Data dataStored = (Data) dao.getByUid(xtremweb.core.obj.dc.Data.class, uid);
 
 		    waitFor(dataStored);
-		    log.debug("Oh ha Transfer waitfor data uid="
-			    + dataStored.getuid());
+		    log.debug("Oh ha Transfer waitfor data uid=" + dataStored.getuid());
 		}
 
 		dao.commitTransaction();
@@ -688,14 +669,17 @@ public class TransferManager {
 	}
 
     }
-
+    /**
+     * Wait for a bitdew uri
+     * @param uri
+     * @throws TransferManagerException
+     */
     public void waitFor(BitDewURI uri) throws TransferManagerException {
 	log.debug("begin waitFor!");
 	try {
 	    dao.beginTransaction();
 	    String uid = uri.getUid();
-	    Data dataStored = (Data) dao.getByUid(
-		    xtremweb.core.obj.dc.Data.class, uid);
+	    Data dataStored = (Data) dao.getByUid(xtremweb.core.obj.dc.Data.class, uid);
 	    waitFor(dataStored);
 	    log.debug("Oh ha Transfer waitfor data uid=" + dataStored.getuid());
 	    dao.commitTransaction();
