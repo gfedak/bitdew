@@ -42,7 +42,6 @@ puts mkdir
 IO.popen("taktuk -d-1 -f nodelist broadcast put { /home/jsaray/bitdew-stand-alone-"+version+".jar } { /home/jsaray/bitdew-stand-alone-"+version+".jar }")do |f|
   f.readlines
 end
-%x(taktuk -d-1 -f nodelist broadcast put { /home/jsaray/properties.json } { /home/jsaray/properties.json })
 centralnode = centralnode.slice(/[^\n]*/)
 #services are started on central node, special attention is dc, which contains a ddc and the DHT 
 Net::SSH.start(centralnode,"jsaray") do |ssh|
@@ -50,7 +49,7 @@ Net::SSH.start(centralnode,"jsaray") do |ssh|
 end
 puts "Waiting for services launching"
 sleep(7)
-
+%x(taktuk -d-1 -f nodelist broadcast put { /home/jsaray/properties.json } { /home/jsaray/properties.json })
 allfiles = Dir.entries(path)
 puts "allfiles content " + allfiles.to_s
 puts "allfiles size is " + allfiles.length.to_s
@@ -58,12 +57,12 @@ puts "allfiles sub 5 is " + allfiles.to_s
 puts "arr content is " + arr.to_s
 posi = 2
 #the files on directory are sent in blocks of signaled by variable filesperhost
-arr.each{|line|   
+arr[1..offset].each{|line|   
     line = line.slice(/[^\n]*/)
     
 
     Net::SSH.start(line,"jsaray") do |ssh|
-        ssh.exec "nohup java -cp sbam_standalone.jar:bitdew-stand-alone-"+version+".jar xtremweb.role.cmdline.CommandLineTool serv dc dt dr ds > /home/jsaray/outserv" + line + " 2> /home/jsaray/errserv" + line + " &"
+        ssh.exec "nohup java -cp sbam_standalone.jar:bitdew-stand-alone-"+version+".jar xtremweb.role.cmdline.CommandLineTool -v --file properties.json serv dc dt dr ds > /home/jsaray/outserv" + line + " 2> /home/jsaray/errserv" + line + " &"
     end
     sleep(3)
 
