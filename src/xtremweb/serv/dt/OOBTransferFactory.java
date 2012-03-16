@@ -1,14 +1,6 @@
 package xtremweb.serv.dt;
 
-import xtremweb.serv.dt.ftp.*;
-import xtremweb.serv.dt.http.*;
-import xtremweb.serv.dt.scp.ScpTransfer;
-import xtremweb.serv.dt.amazonS3.AmazonS3Transfer;
-import xtremweb.serv.dt.bittorrent.BittorrentTransfer;
-import xtremweb.serv.dt.dropbox.DropBoxTransfer;
-import xtremweb.serv.dt.dummy.*;
 import xtremweb.core.log.*;
-
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dc.Locator;
