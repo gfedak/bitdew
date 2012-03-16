@@ -1,1 +1,1 @@
-java -cp bitdew-stand-alone-X.X.X.jar:ScpTransfer.class xtremweb.role.cmdline.CommandLineTool --protocol scp put helloworld.txt
+java -cp bitdew-stand-alone-X.X.X.jar:. xtremweb.role.cmdline.CommandLineTool --protocol scp put helloworld.txt
