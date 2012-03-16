@@ -75,8 +75,8 @@ t[h]}if(f.isEmptyObject(t)){var u=s.handle;u&&(u.elem=null),delete s.events,dele
 						$("div[id=tableresult]").append(data);
      				}	
      		    });
-     		}
-     		
+				$('button[id="downbutton"]').disabled = false
+     		}	
 		});
 		
 		$('button[id="downbutton"]').click(charge);
@@ -122,7 +122,7 @@ t[h]}if(f.isEmptyObject(t)){var u=s.handle;u&&(u.elem=null),delete s.events,dele
     	</fieldset>
 		<br>
 		<br>
-		<button id="downbutton">Download this songs</button>
+		<button disabled="true" id="downbutton">Download this songs</button>
 		<div id="dwnmessage"></div>
     	<div id="tableresult">
     		
