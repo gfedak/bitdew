@@ -1,14 +1,13 @@
 package xtremweb.api.bitdew;
 
 import java.util.List;
-import java.util.Properties;
+
 
 import xtremweb.role.cmdline.CommandLineToolHelper;
 import xtremweb.serv.dc.*;
 import xtremweb.core.iface.*;
 import xtremweb.core.log.*;
 import xtremweb.core.com.idl.*;
-import xtremweb.core.conf.ConfigurationProperties;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.DataChunk;
 import xtremweb.core.obj.dc.DataCollection;
@@ -34,18 +33,36 @@ import xtremweb.dao.data.DaoData;
  * @version 1.0
  */
 public class BitDew {
-	
+    
+    /**
+     * Class logger
+     */
     private static Logger log = LoggerFactory.getLogger(BitDew.class);
     
-    //FIXME THIS IS TEMPORAL !!!!
-    private int port;
+    /**
+     * Service data catalog
+     */
     private InterfaceRMIdc idc;
+    
+    /**
+     * Service data repository
+     */
     private InterfaceRMIdr idr;
+    
+    /**
+     * Service Data scheduler
+     */
     private InterfaceRMIds ids;
+    
+    /**
+     * Dao to interact with DB
+     */
     private DaoData dao;
+    
+    /**
+     * Catalog service using DHT
+     */
     private DistributedDataCatalog ddc = null;
-    private long splittime;
-    private long creattime;
 
     /**
      * Creates a new <code>BitDew</code> instance.
@@ -87,6 +104,14 @@ public class BitDew {
 	init(false);
     } // BitDew constructor
     
+    /**
+     * Create a Bitdew instance with the possibility to turn on/off the distributed data catalog
+     * @param cdc
+     * @param cdr
+     * @param cdt
+     * @param cds
+     * @param enableddc, true to connect to a ddc, otherwise false
+     */
     public BitDew(InterfaceRMIdc cdc, InterfaceRMIdr cdr, InterfaceRMIdt cdt ,InterfaceRMIds cds,boolean enableddc) {
     	dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
 	idc = cdc;
@@ -95,14 +120,11 @@ public class BitDew {
 	init(enableddc);
     }
     
-    
-    public void setPort(int theport)
-    {
-    	port = theport;
-    }
-   
+    /**
+     * Init ddc (if applies)
+     * @param onddc
+     */
     private void init(boolean onddc) {
-
 	try {
 	    if(onddc){
 		ddc = DistributedDataCatalogFactory.getDistributedDataCatalog();
@@ -119,10 +141,12 @@ public class BitDew {
 	    ddce.printStackTrace();
 	    ddc = null;
 	}
-	// TransferManagerFactory.init(idr, idt);
-
     }
     
+    /**
+     * stops ddc
+     * @throws BitDewException
+     */
     public void ddcStop() throws BitDewException{
 	try {
 	    ddc.stop();
@@ -151,10 +175,22 @@ public class BitDew {
 	throw new BitDewException();
     }
     
+    /**
+     * Register a protocol that uses SSH (i.e SCP, SFTP)
+     * @param login
+     * @param name
+     * @param classname
+     * @param server
+     * @param port
+     * @param path
+     * @param knownhosts
+     * @param privatekeypath
+     * @param publickeypath
+     * @param passphrase
+     */
     public void registerSecuredProtocol (String login,String name, String classname,String server, int port,String path, String knownhosts,String privatekeypath,String publickeypath,String passphrase)
     {	try {
-	    CommandLineToolHelper.notNull("login", login);
-	 
+	    CommandLineToolHelper.notNull("login", login);	 
 	    Protocol proto = new Protocol();
 	    proto.setname(name);
 	    proto.setlogin(login);
@@ -168,11 +204,21 @@ public class BitDew {
 	    proto.setclassName(classname);
 	    idr.registerProtocol(proto);
 	} catch (RemoteException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
     }
     
+    /**
+     * Registers a protocol that dont use SSH
+     * @param name
+     * @param classname
+     * @param server
+     * @param port
+     * @param path
+     * @param login
+     * @param passwd
+     * @return
+     */
     public String registerNonSecuredProtocol(String name,String classname, String server, int port,
 	    String path, String login, String passwd) {
 	try {
@@ -219,6 +265,15 @@ public class BitDew {
 	throw new BitDewException();
     }
     
+    /**
+     * Create a data from its attributes
+     * @param name
+     * @param protocol
+     * @param size
+     * @param checksum
+     * @return the created data
+     * @throws BitDewException
+     */
     public Data createData(String name,String protocol,long size, String checksum)throws BitDewException
     {	try {
 	    Data data = new Data();
@@ -226,8 +281,7 @@ public class BitDew {
 	    data.setname(name);
 	    data.setoob(protocol);
 	    data.setsize(size);
-	    data.setchecksum(checksum);
-	   
+	    data.setchecksum(checksum);	   
 	    dao.makePersistent(data,true);
 	    idc.putData(data);  
 	    return data;
@@ -257,12 +311,10 @@ public class BitDew {
 	    data.setstatus(DataStatus.ON_LOCAL_CACHE);
 	    data.setname(name);
 	    data.setoob(protocol);
-	    data.setsize(size);
-	    
+	    data.setsize(size);	    
 	    dao.makePersistent(data,true);
 	    idc.putData(data);
 	    return data;
-
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
 	} 
@@ -405,8 +457,6 @@ public class BitDew {
     		log.info("Cannot find service " + re);
     		throw new BitDewException();
     	}
-    	
-    	
     }
     
     /**
@@ -724,11 +774,6 @@ public class BitDew {
 
 	try {
 	    oobTransfer = OOBTransferFactory.createOOBTransfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
-	    /*	    oobTransfer.connect();
-	    oobTransfer.receiveReceiverSide();
-	    oobTransfer.waitFor();
-	    oobTransfer.disconnect();
-	    */
 	} catch(OOBException oobe) {
 	   log.debug("Was not able to transfer " + oobe);
 	   throw new BitDewException("Error when transfering data from : " + remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
@@ -954,8 +999,6 @@ public class BitDew {
 		log.debug("datachunk uid = " + datachunk.getuid());
 	    }
 	    long t3 = System.currentTimeMillis();
-	    setCreatTime(t3 - t2);
-
 	    return datacollection;
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
@@ -981,16 +1024,12 @@ public class BitDew {
      */
     public DataCollection createDataCollection(String fullNameAndPath,
 	    long blocksize) throws BitDewException {
-	long t1 = System.currentTimeMillis();
 	SeparatorChannel separator = new SeparatorChannel();
 	try {
 	    separator.SepFile(fullNameAndPath, blocksize);
 	} catch (IOException ioe) {
 	    ioe.printStackTrace();
 	}
-	long t2 = System.currentTimeMillis();
-	setSplitTime(t2 - t1);
-
 	String directory = null;
 	int fn = fullNameAndPath.lastIndexOf("/");
 	if (fn != -1)
@@ -1007,12 +1046,7 @@ public class BitDew {
 
 	DataCollection datacollection = new DataCollection();
 	datacollection.setname(fullNameAndPath);
-	// long tang = System.currentTimeMillis();
-	datacollection
-		.setchecksum(DataUtil.checksum(new File(fullNameAndPath)));
-	// datacollection.setchecksum("0");
-	// long bing = System.currentTimeMillis();
-	// log.debug("md5sum for gss.tar.gz is:"+((bing-tang)/1000));
+	datacollection.setchecksum(DataUtil.checksum(new File(fullNameAndPath)));
 	datacollection.setsize(totalsize);
 	datacollection.setchunks(FileNum);
 
@@ -1045,9 +1079,6 @@ public class BitDew {
 		idc.putDataChunk(datachunk);
 		log.debug("datachunk uid = " + datachunk.getuid());
 	    }
-	    long t3 = System.currentTimeMillis();
-	    setCreatTime(t3 - t2);
-
 	    return datacollection;
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
@@ -1560,34 +1591,30 @@ public class BitDew {
 	}
 	return uidList;
     }
-
+    
+    /**
+     * Get a file from string uri
+     * @param uri
+     * @param file
+     * @throws BitDewException
+     */
     public void get(String uri, File file) throws BitDewException {
 	BitDewURI bduri = new BitDewURI(uri);
 	String dataUid = bduri.getUid();
 	Data data = searchDataByUid(dataUid);
 	get(data, file);
     }
-
+    
+    /**
+     * Get a file from a uri
+     * @param uri
+     * @param file
+     * @throws BitDewException
+     */
     public void get(BitDewURI uri, File file) throws BitDewException {
 	String dataUid = uri.getUid();
 	Data data = searchDataByUid(dataUid);
 	get(data, file);
-    }
-
-    public long getSplitTime() {
-	return this.splittime;
-    }
-
-    public void setSplitTime(long t) {
-	this.splittime = t;
-    }
-
-    public long getCreatTime() {
-	return this.creattime;
-    }
-
-    public void setCreatTime(long t) {
-	this.creattime = t;
     }
 }
 // BitDew
