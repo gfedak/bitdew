@@ -82,7 +82,7 @@ public class DownloadSongServlet extends HttpServlet {
 		// P2PClient is executed in a different java process because some problems were appearing 
 		// when attempting to connect to the DLPT from a servlet contained in a web browser, on a node different 
 		// than the bootstrap
-		String cmdtolaunch = "java -cp sbam_standalone.jar:bitdew-stand-alone-0.2.8.jar xtremweb.role.integration.P2PClient download " + BOOTSTRAP_NODE +" " + songname + " " + md5 + " " + ip;
+		String[] cmdtolaunch = new String[]{"java","-cp","sbam_standalone.jar:bitdew-stand-alone-0.2.8.jar","xtremweb.role.integration.P2PClient","download",BOOTSTRAP_NODE,songname,md5,ip};
 		log.debug("Cmd to launch is " + cmdtolaunch); 
 		Process p = Runtime.getRuntime().exec(cmdtolaunch);
 		InputStream in = p.getInputStream();
