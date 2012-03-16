@@ -141,7 +141,7 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
      * 
      * <li> Launch bitdew services with : </li>
      * 
-     * @code java -jar bitdew-stand-alone-XXX.jar serv dc dt ds dr
+     * @code java -cp bitdew-stand-alone-XXX.jar:. xtremweb.role.cmdline.CommandLineTool serv dc dt ds dr
      * 
      * @endcode 
      * 

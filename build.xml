@@ -184,6 +184,7 @@ public class Version {
       <javac compiler="modern" srcdir="src" debug="on" destdir="${build}" source="1.5" classpath="${project.classpath}">
           <exclude name="**/dplt/**"/>
       	  <exclude name="**/Callbackdn.java"/>
+      	  <exclude name="**/ScpTransfer.java"/>
       	  <exclude name="**/Broadcast.java"/>
       	  <exclude name="**/AllToAll.java"/>
       	<exclude name="**/Worker.java"/>
