@@ -1,0 +1,14 @@
+{	xtremweb.role : {ui: "true"},
+	xtremweb.core.db : {driver: "org.hsqldb.jdbcDriver", url: "jdbc:hsqldb:mem:test",user:"sa",password: "", connectionPooling: "DBCP", propertiesFile: "dbcp.properties"},
+	xtremweb.core.com.rmi: {port: 4325},
+	xtremweb.serv.dr : {protocols: "http"},	
+	xtremweb.serv.dc : {ddc: "false"},
+	xtremweb.core.http: {bootstrapNode: "ip.of.your.bootstrap.node.com",servletnumber: "4",splittingCharacter: ";",port: 8080,path:"/",documentRoot:".",servlets: "xtremweb.core.http.UploadServlet;xtremweb.role.examples.P2PServlet;xtremweb.role.examples.DownloadSongServlet;xtremweb.role.examples.GetFilesServlet"},
+    xtremweb.role.examples.P2PServlet: {url:"/p2pquery"},
+    xtremweb.core.http.UploadServlet: {url:"/fileupload"},
+	xtremweb.role.examples.GetFilesServlet: {url: "/getfiles"},
+	xtremweb.role.examples.DownloadSongServlet:{url: "/download"},
+	xtremweb.serv.dr.http:{className:"xtremweb.serv.dt.http.HttpTransfer",name: "http",port: "8080",path:"folder/path/relative/to/BITDEW_HOME"},
+	xtremweb.serv.dt: {protocols: "dummy http dropbox", embeddedtm: "true"},
+    xtremweb.serv.dr.s3: {className: "xtremweb.serv.dt.bittorrent.S3Transfer",name: "s3", key: "AKIAIPH3MZAJHDJAB7BQ", secret: "M4Tf7GBiW8TteuGnuqT8/l8M5nbzIK92YUeVPm4B", bucketName: "bucket-000", objectKey: "objkey000"}					  
+}
