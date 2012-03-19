@@ -24,9 +24,6 @@ import xtremweb.serv.dt.OOBTransfer;
 //
 //This class request over the P2P network a specific term for later download
 //
-//@author josefrancisco
-//
-//
 public class P2PClient {
     
     private Logger log;
@@ -69,10 +66,12 @@ public class P2PClient {
     public P2PClient(String bootstrap) {
 	BOOTSTRAP = bootstrap;
 	try {
+	    //Logging configuration
 	    log = LoggerFactory.getLogger("P2PClient");
 	    log.setLevel("INFO");
-	    log.info("logging sysgtem activated");
+	    log.info("logging system activated");
 	    Log4JLogger.setProperties("conf/log4jcmdlinetool.properties");
+	    //Build a bitdew instance pointing to the distributed data catalog bootstrap node.
 	    LOCAL_ADDRESS = InetAddress.getLocalHost().getHostAddress();
 	    dc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP, "rmi", 4325, "dc");
 	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "dt");
@@ -88,15 +87,15 @@ public class P2PClient {
     }
     //
     // Search for a list of songs that match a specified term.
-    // @param term the term to search for 
     public void get(String term) {
 	try {
 	    List results;
 	    //ddcSearch method will return the list of file names having "term" as one of their words
 	    results = bitdew.ddcSearch(term);	    
-	    System.out.println("The value of results is " + results + " and the size is " + results.size());
+	    System.out.println("Found " + results.size() + " files");
 	    for (int i = 1; i <= results.size(); i++) {
 		Data sbd = (Data) results.get(i - 1);
+		// In case you are using a console client, this will print your query result.
 		System.out.println("Result " + sbd.getname() + " " + sbd.getchecksum() + " " + getIps(sbd.getchecksum()));
 	    }
 	    System.out.println("END");
@@ -106,48 +105,18 @@ public class P2PClient {
     }
     
     //
-    // This method includes you as the owner of a file once you have downloaded it
-    // @param song file name
-    // @param md5 the md5 cheksum
-    //
-    public void republish(String song, String md5) throws ModuleLoaderException, BitDewException {
-	    // We are going to publish the new downloaded song in the DHT, so we
-	    // need to
-	    // build a reference to the distributed data catalog on the
-	    // bootstrap node.
-	    dc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP, "rmi", 4325, "dc");
-	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "dt");
-	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "ds");
-	    // build a new bitdew instance from these services.
-	    bitdew = new BitDew(dc, dr, dt, ds,true);
-	    String[] toks = song.split("[\\s\\._-]");
-	    // We split the file name to extract each word composing it, and we
-	    // index the song name
-	    // with each one of this words, then we index the MD5 too together
-	    // with the IP address
-	    for (int i = 0; i < toks.length; i++) {
-		Data sb = new Data();
-		sb.setname(song);
-		sb.setchecksum(md5);
-		bitdew.ddcPublish(md5, LOCAL_ADDRESS);
-	    }
-    }
-    
-    //
-    // Download a song from the P2P network, it builds the neccessary build infrastructure to achieve this.
+    // Download a song from the P2P network using bitdew
     // @param songname the song name
     // @param md5 the song signature 
-    //
+    // @param ip the choosen ip
     public void download(String songname, String md5, String ip) {
 	try {
-	    // first retrieve the ip list of machines having signatures md5
+	    // first retrieve the ip list of the machines having a file with signature md5.
 	    List ips = bitdew.ddcSearch(md5);
-	    System.out.println("The ips for that md5 are " + ips.size() + " name to download " + songname);
-	    // Once we have an ip of a machine having that md5sum, we are able
-	    // to begin the download,
+	    System.out.println("Found " + ips.size() + " hosts having " + songname);
+	    // Once we have an ip, we are able to begin the download,
 	    // but first we need to contact that machine's catalog and
 	    // repository
-	    System.out.println("Creating services ");
 	    if (ips != null && ips.size() != 0 && ip.equals("none")) {
 		dr = (InterfaceRMIdr) ComWorld.getComm((String) ips.get(0), "rmi", 4325, "dr");
 		dc = (InterfaceRMIdc) ComWorld.getComm((String) ips.get(0), "rmi", 4325, "dc");
@@ -156,8 +125,7 @@ public class P2PClient {
 		dc = (InterfaceRMIdc) ComWorld.getComm((String) ip, "rmi", 4325, "dc");
 	    } else
 		throw new BitDewException("There is not ip for that md5 ! ");
-	    System.out.println("Services created");
-	    // Then we create a new bitdew API from these newly created services
+	    // Then we create a new bitdew API pointing to the host's having our song dc and dr.
 	    bitdew = new BitDew(dc, dr, dt, ds);
 	    tm.start();
 	    File file = new File(songname);
@@ -184,6 +152,33 @@ public class P2PClient {
 	    e.printStackTrace();
 	    System.out.println("ERROR: " + e.getMessage());
 	}
+    }
+    
+    //
+    // This method includes you as the owner of a file once you have downloaded it
+    // @param song file name
+    // @param md5 the md5 cheksum
+    //
+    public void republish(String song, String md5) throws ModuleLoaderException, BitDewException {
+	    // We are going to publish the new downloaded song in the DHT, so we
+	    // need to build a reference to the distributed data catalog on the
+	    // bootstrap node.
+	    dc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP, "rmi", 4325, "dc");
+	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "dt");
+	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "ds");
+	    // build a new bitdew instance from these services.
+	    bitdew = new BitDew(dc, dr, dt, ds,true);
+	    String[] toks = song.split("[\\s\\._-]");
+	    // We split the file name to extract each word composing it, and we
+	    // index the song name
+	    // with each one of this words, then we index the MD5 too together
+	    // with the IP address
+	    for (int i = 0; i < toks.length; i++) {
+		Data sb = new Data();
+		sb.setname(song);
+		sb.setchecksum(md5);
+		bitdew.ddcPublish(md5, LOCAL_ADDRESS);
+	    }
     }
     
     // Given a md5 file checksum, retrieve a comma-separated list of IPs storing that file
