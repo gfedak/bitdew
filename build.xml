@@ -3,7 +3,7 @@
       Ant build file
   </description>
 
-  <property name="version" value="0.2.8" />
+  <property name="version" value="1.0" />
   <property environment="env" />
   <!-- set global properties for this build -->
   <property name="src" location="src"/>

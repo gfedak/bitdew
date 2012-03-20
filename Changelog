@@ -20,8 +20,16 @@
 	P2P example last version
 	Bittorrent integration with btpd tested and functional
 	
+		
 ** HISTORY **
+March 20, 2012
 
+	version 1.0
+	-Dropbox,bittorrent,Jsaga transfer done, documentation comply with software
+	-Stress test: 2500 threads for a concurrent GET against a single stable node, then dr service crash
+	-Stess test: 1000 concurrent PUT and GET with FTP and SCP transfers, problem with http detected
+	-P2P example documentation comply with the software
+	- bdii utility developed to query for grid resources
 May 23 2011
 	version 0.2.6
 	-scp and dnaming tutorial completed
