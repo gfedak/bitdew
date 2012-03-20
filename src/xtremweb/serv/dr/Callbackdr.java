@@ -163,8 +163,6 @@ public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
 		    if (protoName.equals("bittorrent")) {
 			log.debug("Setting Bittorrent protocol from the configuration file");
 			protocol.setserver(mainprop.getProperty("xtremweb.serv.dr.bittorrent.server"));
-			protocol.setpath(mainprop.getProperty(
-				"xtremweb.serv.dr.bittorrent.path", "torrent"));
 			protocol.setclassName(mainprop.getProperty("xtremweb.serv.dr.bittorrent.className",null));
 			registerProtocol(protocol);
 		    }

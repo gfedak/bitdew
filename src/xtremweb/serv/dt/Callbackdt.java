@@ -4,8 +4,6 @@ import java.rmi.*;
 import xtremweb.core.com.idl.*;
 import xtremweb.core.iface.*;
 import xtremweb.core.log.*;
-import xtremweb.serv.dt.http.*;
-import xtremweb.serv.dt.dummy.*;
 import xtremweb.serv.dt.bittorrent.*;
 import xtremweb.api.transman.*;
 import xtremweb.core.conf.*;
