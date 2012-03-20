@@ -93,7 +93,8 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
      * Default constructor
      */
     public DropBoxTransfer(){
-	
+	app_key = props.getProperty("xtremweb.serv.dr.dropbox.app-key");
+	app_secret = props.getProperty("xtremweb.serv.dr.dropbox.app-secret");
     }
     
     /**
@@ -122,6 +123,7 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 
 	app_key = props.getProperty("xtremweb.serv.dr.dropbox.app-key");
 	app_secret = props.getProperty("xtremweb.serv.dr.dropbox.app-secret");
+	log.debug("app key " + app_key + " app sec " + app_secret);
 	AppKeyPair pair = new AppKeyPair(app_key, app_secret);
 	was = new WebAuthSession(pair, AccessType.APP_FOLDER);
 	WebAuthInfo info;
@@ -153,6 +155,7 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 		writePropertiesFile(at.key,at.secret);
 		api = new DropboxAPI(was);
 	    } catch (DropboxException e) {
+		e.printStackTrace();
 		throw new OOBException("A exception related to dropbox has appeared, please be sure to grant permission to bitdew, exception detail : " + e.getMessage());
 	    } catch (NumberFormatException e) {
 		e.printStackTrace();
