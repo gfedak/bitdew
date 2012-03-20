@@ -78,7 +78,7 @@ public class BtpdConnector {
      */
     public boolean isSeedingComplete(String torrentFile) throws BittorrentException {
 	log.debug("enter in seeding complete");
-	String cmd = "btcli list " + torrentFile;
+	String cmd = btpdCliExec+" list " + torrentFile;
 	
 	try {
 	    Process  p = Runtime.getRuntime().exec(cmd);

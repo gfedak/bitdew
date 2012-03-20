@@ -22,29 +22,14 @@ public class BittorrentTools {
     public static int DEFAULT_TRACKER_PORT = 6969;
     
     /**
-     * Command line client tracker daemon options 
-     */
-    private static String trackerOption;
-    
-    /**
      * Tracker url
      */
     private static String trackerurl;
     
     /**
-     * Path of program that will work as a tracker
-     */
-    private static String trackerExec;
-    
-    /**
      * Make torrent executable
      */
     private static String makeTorrentExec;
-    
-    /**
-     * Tracker port
-     */
-    private static int trackerPort = 6969;
     
     /**
      * Logger 
@@ -75,20 +60,10 @@ public class BittorrentTools {
 	    log.warn("No Bittorrent Protocol Information found : " + ce);
 	    mainprop = new Properties();
 	}
-	if (mainprop.getProperty("xtremweb.serv.dr.bittorrent.trackerExec")== null)
-	    throw new OOBException ("You need to specify the tracker binary path in properties.json");
 	if(mainprop.getProperty("xtremweb.serv.dr.bittorrent.makeTorrentExec")== null)
 	    throw new OOBException("You need to specify the bin path to the program that makes bittorrent");
-	if(mainprop.getProperty("xtremweb.serv.dr.bittorrent.port") ==null)
-	    throw new OOBException("You need to specify the port");
-	
-	 
-	//initializing the BittorrentTools
-	setTrackerExec(mainprop.getProperty("xtremweb.serv.dr.bittorrent.btpd.trackerExec"));	
 	setMakeTorrentExec(mainprop.getProperty("xtremweb.serv.dr.bittorrent.makeTorrentExec"));
-	setTrackerPort( new Integer(mainprop.getProperty("xtremweb.serv.dr.bittorrent.port")).intValue());
 	setTrackerUrl(mainprop.getProperty("xtremweb.serv.dr.bittorrent.trackerurl"));
-	setOptions(mainprop.getProperty("xtremweb.serv.dr.bittorrent.trackerOption"));
     }
     
     /**
@@ -98,29 +73,6 @@ public class BittorrentTools {
     private static void setTrackerUrl(String property) {
 	trackerurl = property;
 	
-    }
-    /**
-     * Sets the tracker options
-     * @param property the options
-     */
-    private static void setOptions(String property) {
-	trackerOption = property;
-	
-    }
-    
-    /**
-     * Creates a process to run the bittorrent tracker
-     */
-    public static void startBittorrentTracker() {
-	String execString = trackerExec + " " + trackerOption;
-	log.debug("Sarting tracker " + execString);
-	System.out.println("Starting tracker " + execString);
-	Executor e = new Executor( execString ) ;
-	try {
-	    e.start();
-	} catch (ExecutorLaunchException ele) {
-	    log.debug("Error when launching " + execString + " " + ele);
-	}
     }
     
     /**
@@ -146,52 +98,11 @@ public class BittorrentTools {
 		throw new BittorrentException("There was a problem making the .torrent file " + ele.getMessage());
 	}
     }
-    
-    /**
-     * Gets the tracker binary file path
-     * @return
-     */
-    public static String getTrackerExec() {
-	return trackerExec;
-    }
-    
-    /**
-     * Sets the tracker binary file path
-     * @param tracker
-     */
-    public static void setTrackerExec(String tracker) {
-	trackerExec = tracker;
-    }
-    
-    /**
-     * Gets the tracker port
-     * @return
-     */
-    public static int getTrackerPort() {
-	return trackerPort;
-    }
-    
-    /**
-     * Sets the tracker port
-     * @param port
-     */
-    public static void setTrackerPort(int port) {
-	trackerPort = port;
-    }
-    
     /**
      * Set the binary path of executable torrent
      * @param torrentExec
      */
     public static void setMakeTorrentExec(String torrentExec) {
 	makeTorrentExec = torrentExec;
-    }
-    
-    /**
-     * Set tracker options
-     * @param to
-     */
-    public static void setTrackerOption(String to) {
-	trackerOption = to;
     }
 }

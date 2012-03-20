@@ -18,7 +18,6 @@ import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.Locator;
-import org.apachev3.commons.httpclient.*;
 import java.io.*;
 import java.util.Properties;
 
@@ -37,11 +36,6 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
     protected static BtpdCore btpd;
 
     /**
-     * Binary path to daemon directory
-     */
-    private static String daemonDirName;
-
-    /**
      * Bittorrent transfer properties (trackerurl, daemon path etc)
      */
     private Properties mainprop;
@@ -49,7 +43,7 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
     /**
      * File where download the .torrent (on receiver)
      */
-    private static String torrentDir;
+    private static String TORRENT_DIR_RECEIVER;
 
     /**
      * Directory where a desired .torrent file exists on sender
@@ -62,6 +56,9 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
     protected static Logger log = LoggerFactory
 	    .getLogger(BittorrentTransfer.class);
     
+    /**
+     * Constructor
+     */
     public BittorrentTransfer(){
 	setParams();
     }
@@ -89,19 +86,20 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
     }
 
     /**
-     * 
+     * Initialize parameters
      */
     public void setParams() {
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
 	    TORRENT_DIR_SENDER = mainprop
 		    .getProperty("xtremweb.serv.dr.bittorrent.btpd.torrentDirSender");
-	    daemonDirName = mainprop
-		    .getProperty("xtremweb.serv.dr.bittorrent.btpd.exec");
-	    torrentDir = mainprop
+	    TORRENT_DIR_RECEIVER = mainprop
 		    .getProperty("xtremweb.serv.dr.bittorrent.btpd.torrentDirReceiver");
-
+	    init();
 	} catch (ConfigurationException e) {
+	    e.printStackTrace();
+	} catch (OOBException e) {
+	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
     }
@@ -111,13 +109,8 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
      * @throws OOBException
      */
     public static void init() throws OOBException {
-
 	// intialization of the bittorrent tools
 	BittorrentTools.init();
-
-	// start the tracker
-	BittorrentTools.startBittorrentTracker();
-
     }
 
     /**
@@ -163,7 +156,7 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	    log.debug(" wait for seeding");
 	    log.debug("Seeding ? " + seeding);
 	    Properties props = ConfigurationProperties.getProperties();
-	    long TIMEOUT = Long.parseLong(props.getProperty("xtremweb.serv.dr.bittorrent.makemeta.timeout"));
+	    long TIMEOUT = Long.parseLong(props.getProperty("xtremweb.serv.dr.bittorrent.sdrtimeout"));
 	    long d = System.currentTimeMillis();
 	    long now, elapsed = 0;
 	    while (!seeding && elapsed < TIMEOUT) {
@@ -177,13 +170,11 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 		throw new OOBException(
 			" Seeding could not be performed, time out reached ");
 	    log.info("First seeding done");
-	    String tfName = local_locator.getref();
-	    log.debug("Torrent file name :" + tfName);
-
+	    String httpport = mainprop.getProperty("xtremweb.serv.dr.http.port");
 	    String uploadServlet = mainprop.getProperty(
-		    "xtremweb.serv.dt.http.uploadServlet", "/fileupload");
+		    "xtremweb.core.http.UploadServlet.url", "/fileupload");
 	    String torrentURL = "http://" + remote_protocol.getserver()
-		    + ":8080" + uploadServlet + "/";
+		    + ":"+ httpport + uploadServlet + "/";
 	    HttpTools.postFileHttp(remote_locator.getref() + ".torrent", torrentURL);
 	} catch (ConfigurationException e) {
 	    throw new OOBException(
@@ -241,12 +232,14 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	int i =0;
 	int failures = 0;
 	BittorrentException exc = null ;
-	int MAX_TRIES = 5;
+	int MAX_TRIES; 
 	boolean done = false;
+	int theport;
 	try {
-	    remote_protocol.setport(8080);
+	    MAX_TRIES = Integer.parseInt(mainprop.getProperty("xtremweb.serv.dr.bittorrent.maxtries"));
+	    theport = Integer.parseInt(mainprop.getProperty("xtremweb.serv.dr.http.port"));
+	    remote_protocol.setport(theport);
 	    String tfName = getData().getuid();
-	    log.debug("tfName:" + tfName);
 	    String torrentURL = "http://" + remote_protocol.getserver() + ":"
 		    + remote_protocol.getport() + "/data/" + tfName
 		    + ".torrent";
@@ -254,7 +247,7 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	    while (i < MAX_TRIES && !done){
 		try{
 		HttpTools.getHttpFile(localTorrent, torrentURL);
-		new BtpdConnector().addTorrent(torrentDir, localTorrent);
+		new BtpdConnector().addTorrent(TORRENT_DIR_RECEIVER, localTorrent);
 		i++;
 		done = true;
 		}catch (BittorrentException be) {
@@ -269,6 +262,8 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
 	    }
 	} catch (HttpToolsException e) {
 	    throw new OOBException(e.getMessage());
+	}catch(NumberFormatException e){
+	    throw new OOBException("xtremweb.serv.dr.bittorrent.maxtries and xtremweb.serv.dr.http.port must be an integer values");
 	}
     }
 
