@@ -6,5 +6,6 @@
 	xtremweb.core.http: {splittingCharacter: ";", port: 8080,path:"/data",documentRoot:".",servlets: "xtremweb.core.http.UploadServlet"},
     xtremweb.core.http.UploadServlet: {url:"/fileupload"},
 	xtremweb.serv.dr.http:{className:"xtremweb.serv.dt.http.HttpTransfer",  name: "http",port: "8080",path:"data"},
-	xtremweb.serv.dt: {protocols: "dummy http", embeddedtm: "true"}
+	xtremweb.serv.dt: {protocols: "dummy http", embeddedtm: "true"},
+	xtremweb.serv.dr.bittorrent: {makeTorrentExec: "/usr/bin/makemetafile.bittorrent"}
 }
