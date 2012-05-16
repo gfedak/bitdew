@@ -432,6 +432,7 @@ public class Version {
       	<exclude name="**/TestGetMultiple.java"/>
       	<exclude name="**/XMLTest.java"/>
       	<exclude name="**/xtremweb/role/integration/**"/>
+      	<exclude name="**/DLPTTest.java	"/>
       </fileset>
     </batchtest>
     
