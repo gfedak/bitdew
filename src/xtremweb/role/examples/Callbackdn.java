@@ -91,9 +91,9 @@ public class Callbackdnaming extends CallbackTemplate implements InterfaceRMIdna
      * </class>
      * @endcode
      * 
-     * <li> In this file we are asking to map the service attribute of our jdp-ready java object in the SERVICE column on SERVICE table.</li>
+     * <li> In this file we are asking to map the service attribute of our jdo-ready java object in the SERVICE column on SERVICE table.</li>
      * 
-     * <li> Copy paste this file inside the file xtremweb.dao.Service.java </li>
+     * <li> Copy paste this file inside the file xtremweb.dao.DaoService.java </li>
      * \include DaoService.java
      * 
      * <li> There is already some code pre generated for you in order to access to your data, we add the method 

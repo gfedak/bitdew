@@ -15,8 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import xtremweb.core.conf.ConfigurationException;
 import xtremweb.core.conf.ConfigurationProperties;
-import xtremweb.core.log.Logger;
-import xtremweb.core.log.LoggerFactory;
+import xtremweb.core.log.*;
 
 /**
  * This class builds a HTTP response when a user attempts to download a song
@@ -69,7 +68,7 @@ public class DownloadSongServlet extends HttpServlet {
 		log.debug("md5 is " + md5 + " ip is " + ip);
 		String songname = request.getParameter("songname");
 		// P2PClient is executed in a different java process
-		String[] cmdtolaunch = new String[] { "java", "-cp", "sbam_standalone.jar:bitdew-stand-alone-0.2.8.jar", "xtremweb.role.examples.P2PClient",
+		String[] cmdtolaunch = new String[] { "java", "-cp", "sbam_standalone.jar:bitdew-stand-alone-"+Version.version+".jar", "xtremweb.role.examples.P2PClient",
 			"download", BOOTSTRAP_NODE, songname, md5, ip };
 		Process p = Runtime.getRuntime().exec(cmdtolaunch);
 		InputStream in = p.getInputStream();

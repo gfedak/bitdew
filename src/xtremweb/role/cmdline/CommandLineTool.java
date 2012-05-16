@@ -727,6 +727,7 @@ public class CommandLineTool {
 	    usage.option("--protocol", "file transfer protocol to use when transfering data");
 	    usage.option("--file", "an optional properties file to load the configuration");
 	    usage.ln();
+	    usage.section("Commands:");
 	    usage.section("Services:");
 	    usage.option("serv [dc|dr|dt|ds]",
 			 "start the list of services separated by a space");
@@ -739,7 +740,7 @@ public class CommandLineTool {
 			
 	    usage.section("Attributes:");
 	    usage.option("attr attr_definition",
-			 "create attribute where attr_definition has the syntax {name: '<attribute_name>', replicat: '<number_of_replicas>', ft: '<fault_tolerance>'," +
+			 "create attribute where attr is [proto|attr], attr_definition has the syntax {name: '<attribute_name>', replicat: '<number_of_replicas>', ft: '<fault_tolerance>'," +
 			 "lftabs: '<absolute_lifetime>', lftrel: '<relative_lifetime>',affinity: '<data_affinity>',oob: '<oob_protocol>',distrib: '<distrib>'}");
 	    usage.option("", "Field can have the following values :");
 	    usage.option("    replicat=int",
