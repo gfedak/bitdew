@@ -20,6 +20,7 @@ public class ModuleLoader {
     public static final String rootComClassPath = "xtremweb.core.com.com";
 
     private static Logger log =  LoggerFactory.getLogger(ModuleLoader.class);
+	public static String rootIfaceClassPath = "xtremweb.core.iface.InterfaceRMI";
 
     private static Object createInstance( String className )  throws ModuleLoaderException {
 	try {
@@ -140,6 +141,9 @@ public class ModuleLoader {
 		log.info("cannot connect to " + media + " server " + " when installing module " +  module + " on port " + port + " " + e );
 		throw new ModuleLoaderException (); 
 	    }
+	}else if (media.toLowerCase().equals("xmlrpc")){
+		log.info("Loading xmlrpc service " + module + " from XmlRpcServlet on Jetty ... ");
+		return;
 	}
 	throw new ModuleLoaderException (" Cannot find a " + media + "handler for module " + module)  ;
     }

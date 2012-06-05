@@ -191,7 +191,15 @@ public class HttpServer {
 	    Context context = new Context(Context.SESSIONS);
 	    log.debug(" url is "+props.getProperty(object + ".url")); 
 	    context.setContextPath(props.getProperty(object + ".url"));
-	    context.addServlet(new ServletHolder( ServletFactory.getInstance(object)),"/*");
+	    
+	    ServletHolder servlet = new ServletHolder(ServletFactory.getInstance(object));
+		String enableForExtensions = props.getProperty(object + ".enabledForExtensions");
+		if(enableForExtensions != null && !enableForExtensions.equals("") && enableForExtensions.equals("true")){
+			servlet.setInitParameter("enabledForExtensions","true");
+			log.info("Enabled for extensions on xmlrcp");
+		}
+	    
+	    context.addServlet(servlet,"/*");
 	    servlethandlers[pos] = context;
 	    pos++;
 	}

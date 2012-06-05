@@ -114,6 +114,7 @@ import com.google.gson.JsonSyntaxException;
  -h, --help                    display this helps
  -v, --verbose                 display debugging information
  -d, --dir                     working directory
+ -m, --media				   rmi or xmlrcp (default rmi)
  --host                    service hostname
  --port                    service port
  --protocol                file transfer protocol
@@ -177,6 +178,7 @@ public class CommandLineTool {
     private String dirName;
     private int port;
     private String protocol;
+    private String media;
     private boolean verbose;
     private boolean server = false;
     private static Logger log = LoggerFactory.getLogger("CommandLineTool");
@@ -217,7 +219,7 @@ public class CommandLineTool {
 		else
 		    skipserv = true;
 	    }
-	    ServiceLoader sl = new ServiceLoader("RMI", port, services);
+	    ServiceLoader sl = new ServiceLoader(media, port, services);
 	    UIFactory.createUIFactory();
 	    server = true;
 	    return;
@@ -230,8 +232,7 @@ public class CommandLineTool {
 
 	//for the other command, we need to create a communication to the services
 	try {
-	    Vector comms = ComWorld.getMultipleComms(host, "rmi", port,
-							     "dc", "dr", "dt", "ds");
+	    Vector comms = ComWorld.getMultipleComms(host,media, port,"dc", "dr", "dt", "ds");
 	    activeData = new ActiveData(comms);
 	    bitdew = new BitDew(comms);
 	    transferManager = new TransferManager(comms);
@@ -640,6 +641,7 @@ public class CommandLineTool {
 	CmdLineParser.Option hostOption = parser.addStringOption("host");
 	CmdLineParser.Option fileOption = parser.addStringOption("file");
 	CmdLineParser.Option protocolOption = parser.addStringOption("protocol");
+	CmdLineParser.Option mediaOption = parser.addStringOption('m',"media");
 	try {
 	    parser.parse(args);
 	} catch (CmdLineParser.OptionException e) {
@@ -651,6 +653,7 @@ public class CommandLineTool {
 	fileName = (String) parser.getOptionValue(fileOption);
 	dirName = (String) parser.getOptionValue(dirOption, ".");
 	protocol = (String) parser.getOptionValue(protocolOption,"http");
+	media = (String) parser.getOptionValue(mediaOption,"rmi");
 	boolean help = ((Boolean) parser.getOptionValue(helpOption,
 							Boolean.FALSE)).booleanValue();
 	verbose = ((Boolean) parser
@@ -722,6 +725,7 @@ public class CommandLineTool {
 	    usage.option("-h", "--help", "display this helps");
 	    usage.option("-v", "--verbose", "display debugging information");
 	    usage.option("-d", "--dir", "working directory");
+	    usage.option("-m", "--media", "the media (rmi or xmlrcp, default rmi)");
 	    usage.option("--host", "service hostname");
 	    usage.option("--port", "service port");
 	    usage.option("--protocol", "file transfer protocol to use when transfering data");
