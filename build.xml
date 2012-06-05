@@ -22,7 +22,7 @@
   <property name="reports.html" location="${reports}/html"/>
   <property name="instrumented.dir" location="instr"/>
   <property name="coveragereport.dir" location="covreport"/>
-  
+  <property name="rpc-servlet-properties-path" location="temp-jar/org/apache/xmlrpc/webserver"/>
  
   
  
@@ -218,6 +218,11 @@ public class Version {
 
     <target name="dist" depends="init, idl, compile, compile_bench, copyjdo, enhance"
 	    description="build bitdew-${version}" >
+    	<copy todir="${rpc-servlet-properties-path}">
+    	    	        <fileset dir="${conf}">
+    	    	            <include name="XmlRpcServlet.properties"/>
+    	    	      	</fileset>
+    	    	    </copy>
     </target>
 
 <!--
@@ -267,6 +272,7 @@ public class Version {
 
     <target name="jar" depends="dist">
       <jar destfile="dist/bitdew-lib-${version}.jar" basedir="${build}"/>
+    	
     </target>
     
     <target name="deflate-jars">
@@ -286,6 +292,7 @@ public class Version {
   
     <target name="standalone-jar" depends="dist">
       <jar destfile="dist/bitdew-stand-alone-${version}.jar" manifest="bitdew.mf">
+    
 	<fileset dir="${build}"/>
 	<fileset dir="temp-jar"/>
     <fileset dir="html"/>
@@ -295,6 +302,7 @@ public class Version {
 	  <include name="log4jcmdlinetool.properties"/>
 	  <include name="dbcp.properties"/>
 	</fileset>
+    
       </jar>
     </target>
 
