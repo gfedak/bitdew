@@ -10,6 +10,7 @@ package xtremweb.api.activedata;
  * @version 1.0
  */
 
+import java.rmi.RemoteException;
 import java.util.*;
 
 import xtremweb.serv.ds.*;
@@ -21,6 +22,7 @@ import xtremweb.core.obj.dc.*;
 import xtremweb.core.obj.ds.Attribute;
 import xtremweb.core.obj.ds.Host;
 import xtremweb.dao.DaoFactory;
+import xtremweb.dao.data.DaoData;
 
 /**
  * This class controls Data scheduling according to tags defined in data Atrributes,
@@ -217,10 +219,15 @@ public class ActiveData {
 			datasync.add(data.getuid());
 		}
 	    }
+	    log.debug("Local cache : " + datasync.toString());
 	    //2. Call ds sync function , this function returns data that must be persisted on worker.
 	    Vector newdatauid = cds.sync(host, datasync);
+	    
+	    log.debug("This data must be mantained "+ newdatauid.toString());
+	    
 	    //3. The complement of Data returned in 2 is computed and must be deleted from worker Cache.
 	    Collection result = (Collection) daocheck.getDataToDelete(newdatauid);
+	    
 	    iter = result.iterator();
 	    String toDelete = "";
 	    // erase anything different in cache from what the scheduler

@@ -233,7 +233,6 @@ public class BitDew {
 	    String result = idr.registerProtocol(proto);
 	    return result;
 	} catch (RemoteException e) {
-	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
 	return null;
@@ -252,13 +251,9 @@ public class BitDew {
 	    Data data = new Data();
 	    data.setstatus(DataStatus.ON_LOCAL_CACHE);
 	    data.setname(name);
-	   
 	    dao.makePersistent(data,true);
-	    //System.out.println("data is " + data.getname());
-	    //DBInterfaceFactory.getDBInterface().makePersistent(data);
 	    idc.putData(data);
 	    return data;
-
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
 	} 
@@ -566,7 +561,7 @@ public class BitDew {
 	    throw new BitDewException(re.getMessage());
 	} 
 	remote_locator.setdatauid(data.getuid());
-	remote_locator.setdrname(((CommRMITemplate) idr).getHostName());
+	remote_locator.setdrname(((CommRMITemplate)idr).getHostName());
 	remote_locator.setprotocoluid(remote_proto.getuid());	
 	try {
 	    idc.putLocator(remote_locator);
@@ -640,6 +635,7 @@ public class BitDew {
 	    if(remote_proto==null){
 		throw new BitDewException("Unknown protocol ");
 	    }
+	    
 	    log.debug("Remote_proto fetched : " + remote_proto.getuid() + " : "
 		    + remote_proto.getname() + "://" + remote_proto.getlogin()
 		    + ":" + remote_proto.getpassword() + "@"
@@ -755,9 +751,7 @@ public class BitDew {
 	try {
 	    remote_proto = idr
 		    .getProtocolByUID(remote_locator.getprotocoluid());
-	    log.debug("Remote_proto fetched : " + remote_proto.getuid() + " : "
-		    + remote_proto.getname() + "://" + remote_proto.getlogin()
-		    + ":" + remote_proto.getpassword() + "@"
+	    log.debug("Remote_proto fetched : " + remote_proto.getuid() + " : "+ remote_proto.getname() + "://" + remote_proto.getlogin()+ ":" + remote_proto.getpassword() + "@"
 		    + ((CommRMITemplate) idr).getHostName() + ":"
 		    + remote_proto.getport() + "/" + remote_proto.getpath());
 	} catch (RemoteException re) {
