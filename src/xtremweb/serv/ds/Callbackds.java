@@ -36,9 +36,7 @@ public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
      */
     public Callbackds() {
     	dao = (DaoAttribute) DaoFactory.getInstance("xtremweb.dao.attribute.DaoAttribute");
-	ds = new DataScheduler();
-	// FIXME
-	// ds.start();
+    	ds = new DataScheduler();
     }
 
     /**

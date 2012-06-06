@@ -3,30 +3,13 @@ package xtremweb.serv.ds;
 import xtremweb.core.util.SortedVector;
 
 import java.util.*;
-
-import xtremweb.serv.ds.*;
 import xtremweb.serv.dc.*;
-import xtremweb.core.iface.*;
 import xtremweb.core.log.*;
-import xtremweb.core.com.com.*;
-import xtremweb.core.com.idl.*;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.ds.Attribute;
 import xtremweb.core.obj.ds.Host;
-import xtremweb.core.obj.dr.Protocol;
-import xtremweb.core.obj.dc.Locator;
-import xtremweb.core.obj.dt.Transfer;
-
-import java.io.File;
-import java.rmi.RemoteException;
-import java.util.Collection;
 import java.util.Iterator;
-import javax.jdo.PersistenceManager;
-import javax.jdo.PersistenceManagerFactory;
-import javax.jdo.Extent;
-import javax.jdo.Query;
-import javax.jdo.Transaction;
-import java.util.Properties;
+
 
 /**
  * <code>DataScheduler</code> implements the scheduling of data
@@ -36,19 +19,24 @@ import java.util.Properties;
  */
 
 public class DataScheduler {
-
+	
+	/**
+	 * Cache on Scheduler service side
+	 */
     private DataQueue schedulerDataCache;
-    private Vector toSchedule;
-
+    
+    /**
+     * 
+     */
     private int numberOfDataToSchedule = 5;
-
+    
+    /**
+     * Logging interface
+     */
     protected Logger log = LoggerFactory.getLogger("Data Scheduler");
 
     /** time between two periodic activities (in milli seconds) */
     protected int timeout = 500; 
-
-    private Timer timer;
-
 
     /**
      * Creates a new <code>DataScheduler</code> instance.
@@ -64,7 +52,13 @@ public class DataScheduler {
     public int getNumberOfDataToSchedule(){
 	return this.numberOfDataToSchedule;
     }
-
+    
+    /**
+     * This method is currently only being used by DataSchedulerTest, for 
+     * practical purposes on the future I leave it.
+     * @param data
+     * @param attr
+     */
     public void addDataAttribute(Data data, Attribute attr) {
 	schedulerDataCache.addElement( new CacheEntry(data, attr) );
     }
@@ -85,40 +79,6 @@ public class DataScheduler {
 	}
     }
 
-    /*fill the cache 
-    public void checkDataFuck() {
-	PersistenceManagerFactory pmf = DBInterfaceFactory.getPersistenceManagerFactory();
-	PersistenceManager pm = pmf.getPersistenceManager();
-	Transaction tx=pm.currentTransaction();
-
-	try { 
-	    tx.begin();
-            Extent e=pm.getExtent(Data.class,true);//DataStatus.TODELETE
-            Iterator iter=e.iterator();
-	    
-            while (iter.hasNext()) {
-		Data data = (Data) iter.next();
-		//if it's int the 
-		//		log.debug("look for data in the cache " + data.getuid() );
-		if (schedulerDataCache.search(data.getuid()) == -1) {
-		    //look for the corresponding attribute
-		    Query query = pm.newQuery(xtremweb.core.obj.ds.Attribute.class,  "uid == \"" + data.getattruid() + "\"");
-		    query.setUnique(true);
-		    Attribute attribute = (Attribute) query.execute();
-		    log.debug("adding data in the cache " + data.getuid() + AttributeUtil.toString(attribute));
-		    CacheEntry ce = new CacheEntry(data, attribute);
-		    schedulerDataCache.addElement(ce);
-		}
-	    }	
-	} catch (Exception e) {
-	    log.debug("exception occured when running DataScheduler " + e);
-	} finally {
-	    if (tx.isActive())
-		tx.rollback();
-	    pm.close();
-	}
-    }
-    */
     public void updateAttribute(Attribute attr) {
 	Iterator iter=schedulerDataCache.iterator();	
 	while (iter.hasNext()) {
@@ -162,10 +122,17 @@ public class DataScheduler {
 	ce.setAttribute(attr);
     }
 
-
+    /**
+     * A specified host sends to data scheduler, the data contained on his local cache. 
+     * The scheduler filter out this data and return a new list contained data that
+     * has to be retained by host.
+     * @param host the host
+     * @param uidslist list of Data uid actually contained by host
+     * @return a new Vector contained data that still has to be mantained by host
+     */
     public synchronized Vector removeDataFromCache(Host host, Vector uidslist) {
 	Vector result = new Vector();
-
+	log.debug("sched cache content " + schedulerDataCache);
 	//we scan the uids. If the data should be kept by the node,
 	//then the uids is put in the cache
 	//If the data is not put in the result vector then it will
@@ -173,22 +140,27 @@ public class DataScheduler {
 	for (int i=0; i<uidslist.size(); i++) {
 	    int idx = schedulerDataCache.search(uidslist.elementAt(i));
 	    // the data is not present in the cache
-	    if (idx==-1) 
+	    if (idx==-1){ 
+	    log.debug("not included because not found on schedulerDataCache");
 		continue;
+		
+	    }
 	    CacheEntry ce = (CacheEntry) schedulerDataCache.elementAt(idx);
 	    Data data = ce.getData();
 	    Attribute attr = ce.getAttribute();
 
 	    //perform check according to data status 
-	    if ( data.getstatus() == DataStatus.TODELETE )
+	    if ( data.getstatus() == DataStatus.TODELETE ){
+	    	log.debug("not included because marked TODELETE");
 		continue;
-
+	    }
 	    //the data is in the cache
 	    // we first check for a valid lifetime
 
 	    // if the absolute lifetime exceeds now, the data is deleted
 	    if ( AttributeType.isAttributeTypeSet( attr, AttributeType.LFTABS )
 		 && ( attr.getlftabs() < System.currentTimeMillis())) {
+	    	log.debug("not included because LFTABS exceeds now");
 		data.setstatus(DataStatus.TODELETE);
 		continue;
 	    }
@@ -198,12 +170,14 @@ public class DataScheduler {
 		//if the relative data is not in the cache
 		if (idxrel == -1) {
 		    data.setstatus(DataStatus.TODELETE);
+		    log.debug("not included because relative data not in cache");
 		    continue;
 		}
 		Data datarel = ((CacheEntry) schedulerDataCache.elementAt(idxrel)).getData();
 		//if the relative data  has status TODELETE, the data is deleted
 		if ( datarel.getstatus() == DataStatus.TODELETE ) {
 		    data.setstatus(DataStatus.TODELETE);
+		    log.debug("not included because relative data marked to delete");
 		    continue;
 		}
 	    }
@@ -303,7 +277,9 @@ public class DataScheduler {
 	Vector result = new Vector();
 	//	String ownerUid
 	result = removeDataFromCache( host, uidslist );
+	log.debug("result after remove  " + result.toString());
 	result = getNewDataFromCache( host, result );
+	log.debug("result after new  " + result.toString());
 	return result;
     }
 
