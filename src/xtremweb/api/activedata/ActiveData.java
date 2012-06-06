@@ -21,46 +21,75 @@ import xtremweb.core.obj.dc.*;
 import xtremweb.core.obj.ds.Attribute;
 import xtremweb.core.obj.ds.Host;
 import xtremweb.dao.DaoFactory;
-import xtremweb.dao.attribute.DaoAttribute;
-import xtremweb.dao.data.DaoData;
-import xtremweb.dao.transfer.DaoTransfer;
 
-import java.rmi.RemoteException;
-import javax.jdo.PersistenceManager;
-import javax.jdo.PersistenceManagerFactory;
-import javax.jdo.Extent;
-import javax.jdo.Query;
-import javax.jdo.Transaction;
-
+/**
+ * This class controls Data scheduling according to tags defined in data Atrributes,
+ * each time period X, this class checks for new data to be scheduled
+ * @author jsaray
+ *
+ */
 public class ActiveData {
-
+	
+	/**
+	 * Data Catalog Interface
+	 */
     private InterfaceRMIdc cdc;
+    
+    /**
+     * Data scheduling interface
+     */
     private InterfaceRMIds cds;
-    private Vector cache;
+    
+    /**
+     * Data Access Object to Data structures
+     */
     private DaoData dao;
+    
+    /**
+     * Second Data Access Object, this method launches two threads, different DAO are used on each thread
+     */
     private DaoData daocheck;
+    
+    /**
+     * This HOST id
+     */
     private Host host = ComWorld.getHost();
-
+    
+    /**
+     * List of User-Declared callbacks
+     */
     private Vector<ActiveDataCallback> callbacks;
-    // FIXME
-    // hash attributes from attr uid to attribute
+    
+    /**
+     * Attribute Cache
+     */
     private HashMap<String, Attribute> attributes;
 
     /** time between two periodic activities (in milli seconds) */
     protected int timeout = 10000;
-
+    
+    /**
+     * Timer to schedule task of scheduling
+     */
     private Timer timer;
-
+    
+    /**
+     * true if heartbeating is active, false if it is not
+     */
     private boolean isActive = false;
-
+    
+    /**
+     * Logging Interface
+     */
     protected Logger log = LoggerFactory.getLogger("Active Data");
 
-    // FIXME BING
+    /**
+     * Workaround performed by Bing Tang
+     */
     public boolean closedel = false; // default, with data deletion
 
     /**
      * Creates a new <code>ActiveData</code> instance.
-     * 
      */
     public ActiveData(InterfaceRMIdc dc, InterfaceRMIds ds) {
 	daocheck = (DaoData) DaoFactory
@@ -70,7 +99,10 @@ public class ActiveData {
 	cds = ds;
 	init();
     }
-
+    
+    /**
+     * Creates a new <code>ActiveData</code> instance.
+     */
     public ActiveData(Vector comms) {
 	daocheck = (DaoData) DaoFactory
 		.getInstance("xtremweb.dao.data.DaoData");
@@ -95,18 +127,25 @@ public class ActiveData {
 	dao = (DaoData) DaoFactory.getInstance("xtremweb.dao.data.DaoData");
 	closedel = b;
     }
-
+    
+    /**
+     * Initialize 
+     */
     public void init() {
-	cache = new Vector();
 	callbacks = new Vector<ActiveDataCallback>();
 	attributes = new HashMap<String, Attribute>();
     }
-
+    
+    /**
+     * Is heartbeating active ?
+     * @return
+     */
     public boolean isActive() {
 	return isActive;
     }
 
     /**
+     * Stop hearbeating
      * <code>stop</code> stops periodic Active Data Engine
      */
     public void stop() {
@@ -114,7 +153,11 @@ public class ActiveData {
 	timer.cancel();
 	isActive = false;
     }
-
+    
+    /**
+     * Start hearbeating
+     * @param isDaemon
+     */
     public void start(boolean isDaemon) {
 	log.debug("Starting AD Engine");
 	if (timer == null)
@@ -134,11 +177,26 @@ public class ActiveData {
 	// by default, do not start as a daemon
 	start(false);
     }
-
+    
+    /**
+     * Main scheduling task :
+     * 
+     * DELETION
+     * 
+     * 1. Extract all Data from the local cache.
+     * 2. Call ds sync function , this function returns data that must be persisted on worker.
+     * 3. The complement of Data returned in 2 is computed and must be deleted from worker Cache.
+     * 4. Mark computed elements on 3 as TO_DELETE and execute the handler onDataDeleted
+     * 
+     * 5.for each data that the scheduler returns; check if it is new or is already present. If is new Data call onDataScheduledHandler, else
+     * do nothing
+     * 
+     * 
+     */
     protected void checkData() {
 
 	Vector datasync = new Vector();
-
+	// 1. Extract all Data from the local cache.
 	try {
 	    daocheck.beginTransaction();
 	    Collection e = daocheck.getAll(Data.class);
@@ -159,9 +217,10 @@ public class ActiveData {
 			datasync.add(data.getuid());
 		}
 	    }
+	    //2. Call ds sync function , this function returns data that must be persisted on worker.
 	    Vector newdatauid = cds.sync(host, datasync);
-	    Collection result = (Collection) daocheck
-		    .getDataToDelete(newdatauid);
+	    //3. The complement of Data returned in 2 is computed and must be deleted from worker Cache.
+	    Collection result = (Collection) daocheck.getDataToDelete(newdatauid);
 	    iter = result.iterator();
 	    String toDelete = "";
 	    // erase anything different in cache from what the scheduler
@@ -169,8 +228,8 @@ public class ActiveData {
 	    while (iter.hasNext()) {
 
 		Data data = (Data) iter.next();
-		log.debug("Data " + data.getname() + "status "
-			+ data.getstatus());
+		log.debug("Data " + data.getname() + "status "+ data.getstatus());
+		//4. Mark computed elements on 3 as TO_DELETE and execute the handler onDataDeleted
 		if (data.getstatus() == DataStatus.ON_SCHEDULER)
 		    data.setstatus(DataStatus.TODELETE);
 
@@ -184,8 +243,7 @@ public class ActiveData {
 		if ((attr == null) && (data.getattruid() != null)) {
 		    attr = cds.getAttributeByUid(data.getattruid());
 		    if (attr == null)
-			log.debug("cannot get attribute " + data.getattruid()
-				+ " from the DS service");
+			log.debug("cannot get attribute " + data.getattruid()+ " from the DS service");
 		    else
 			attributes.put(attr.getuid(), attr);
 		}
@@ -193,15 +251,9 @@ public class ActiveData {
 		    // now call the delete callback
 		    for (ActiveDataCallback callback : callbacks) {
 			if ((data == null) || (attr == null))
-			    log.debug("on callback delete "
-				    + ((data == null) ? " data is null " : "")
-				    + ((attr == null) ? " attr is null " : ""));
+			    log.debug("on callback delete "+ ((data == null) ? " data is null " : "")+ ((attr == null) ? " attr is null " : ""));
 			else {
-			    log.debug("calling callback Delete on data data  [d: "
-				    + data.getuid()
-				    + "|a: "
-				    + attr.getuid()
-				    + "]");
+			    log.debug("calling callback Delete on data data  [d: "+ data.getuid()+ "|a: "+ attr.getuid()+ "]");
 			}
 			callback.onDataDeleted(data, attr);
 		    }
@@ -210,10 +262,11 @@ public class ActiveData {
 	    }
 	    if (!toDelete.equals(""))
 		log.debug("uids deleted " + toDelete);
-	    // FIXME get better performances
 	    // check for data to download
 	    // for each data that the scheduler returns; check if it is new or
 	    // is already present
+	    //5.for each data that the scheduler returns; check if it is new or is already present. If is new Data call onDataScheduledHandler, else
+	    // do nothing
 	    for (int i = 0; i < newdatauid.size(); i++) {
 		String uid = ((String) newdatauid.elementAt(i));
 		Data d = daocheck.getByUidNotToDelete(uid);
@@ -231,8 +284,7 @@ public class ActiveData {
 			attributes.put(attr.getuid(), attr);
 		    }
 		    for (ActiveDataCallback callback : callbacks) {
-			log.debug("calling callback Schedule on data data  [d "
-				+ d.getuid() + ":a " + attr.getuid() + "]");
+			log.debug("calling callback Schedule on data data  [d "+ d.getuid() + ":a " + attr.getuid() + "]");
 			callback.onDataScheduled(d, attr);
 		    }
 		} else {
@@ -249,16 +301,21 @@ public class ActiveData {
 		daocheck.transactionRollback();
 	}
     }
-
+    
+    /**
+     * Register a callback
+     * @param callback
+     */
     public void registerActiveDataCallback(ActiveDataCallback callback) {
 	callbacks.add(callback);
     }
-
-    public void registerActiveDataCallback(ActiveDataCallback callback,
-	    Attribute attr) {
-
-    }
-
+    
+    /**
+     * Set the data oob to the one on attribute
+     * @param data
+     * @param attr
+     * @throws ActiveDataException
+     */
     private void fixoob(Data data, Attribute attr) throws ActiveDataException {
 	try {
 	    if (attr.getoob() == null)
@@ -272,7 +329,13 @@ public class ActiveData {
 	    throw new ActiveDataException();
 	}
     }
-
+    
+    /**
+     * Schedule a data with some attributes
+     * @param data
+     * @param attr
+     * @throws ActiveDataException
+     */
     public void schedule(Data data, Attribute attr) throws ActiveDataException {
 	try {
 	    fixoob(data, attr);
@@ -280,15 +343,20 @@ public class ActiveData {
 	    cdc.putData(data);
 	    cds.associateDataAttribute(data, attr);
 	    data.setstatus(DataStatus.ON_SCHEDULER);
-	    // DBInterfaceFactory.getDBInterface().makePersistent(data);
-
 	    dao.makePersistent(data, true);
 	} catch (RemoteException re) {
 	    log.debug("Cannot find service " + re);
 	    throw new ActiveDataException();
 	}
     }
-
+    
+    /**
+     * This method signals to the Data Scheduler that the Data exists but only the method caller will want to have it.
+     * @param data
+     * @param attr
+     * @param host
+     * @throws ActiveDataException
+     */
     public void scheduleAndPin(Data data, Attribute attr, Host host)
 	    throws ActiveDataException {
 	try {
@@ -304,7 +372,12 @@ public class ActiveData {
 	    throw new ActiveDataException();
 	}
     }
-
+    
+    /**
+     * Remove data from scheduling
+     * @param data
+     * @throws ActiveDataException
+     */
     public void unschedule(Data data) throws ActiveDataException {
 	try {
 	    cds.removeData(data);
@@ -313,7 +386,13 @@ public class ActiveData {
 	    throw new ActiveDataException();
 	}
     }
-
+    
+    /**
+     * Only associates a Data with a Host
+     * @param data
+     * @param host
+     * @throws ActiveDataException
+     */
     public void pin(Data data, Host host) throws ActiveDataException {
 	try {
 	    cds.associateDataHost(data, host);
@@ -322,7 +401,10 @@ public class ActiveData {
 	    throw new ActiveDataException();
 	}
     }
-
+    
+    /**
+     * Self-explained
+     */
     public Attribute getAttributeByUid(String uid) throws ActiveDataException {
 	Attribute attr = null;
 	try {
@@ -336,13 +418,19 @@ public class ActiveData {
 		    + " from the DS service");
 	return attr;
     }
-
+    
+    /**
+     * Self-explained
+     */
     public Attribute createAttribute(String def) throws ActiveDataException {
 	Attribute attr = AttributeUtil.parseAttribute(def);
 	dao.makePersistent(attr, true);
 	return registerAttribute(attr);
     }
-
+    
+    /**
+     * Self-explained
+     */
     public Attribute registerAttribute(Attribute attr)
 	    throws ActiveDataException {
 	try {
@@ -353,11 +441,21 @@ public class ActiveData {
 	}
 	throw new ActiveDataException();
     }
-
+    
+    /**
+     * Self-explained
+     */
     public void settimeout(int ms) {
 	timeout = ms;
     }
-
+    
+    /**
+     * Schedules a whole collection of data with an Attributes list
+     * @param datacollection
+     * @param attr
+     * @param oob
+     * @throws ActiveDataException
+     */
     public void schedule(DataCollection datacollection, Attribute attr,
 	    String oob) throws ActiveDataException {
 	try {
@@ -367,17 +465,12 @@ public class ActiveData {
 
 	    while (iter.hasNext()) {
 		DataChunk datachunk = (DataChunk) iter.next();
-		if (datachunk.getcollectionuid()
-			.equals(datacollection.getuid())) {
-		    Data dataStored = (Data) dao.getByUid(Data.class,
-			    datachunk.getdatauid());
+		if (datachunk.getcollectionuid().equals(datacollection.getuid())) {
+		    Data dataStored = (Data) dao.getByUid(Data.class,datachunk.getdatauid());
 		    dataStored.setoob(oob);
 		    schedule(dataStored, attr);
-		    log.debug("Oh ha, Schedule!! data uid="
-			    + dataStored.getuid());
-		    log.debug("Oh ha, Schedule!! attr uid=" + attr.getuid()
-			    + " distrib=" + attr.getdistrib());
-
+		    log.debug("Oh ha, Schedule!! data uid="+ dataStored.getuid());
+		    log.debug("Oh ha, Schedule!! attr uid=" + attr.getuid()+ " distrib=" + attr.getdistrib());
 		}
 	    }
 	    dao.commitTransaction();
