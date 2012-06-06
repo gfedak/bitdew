@@ -17,11 +17,11 @@ import xtremweb.serv.dc.DataStatus;
 public class DaoData extends DaoJDOImpl {
 
     /**
-     * This method is used by the ActiveData API to erase thada locally stored
+     * This method is used by the ActiveData API to erase the data locally stored
      * in cache from the scheduler response
      * 
-     * @param newdatauid
-     * @return
+     * @param newdatauid the data that must be persisted 
+     * @return a Data Collection of UID that must be erased 
      */
     public Collection getDataToDelete(Vector newdatauid) throws Exception {
 	String datauids = "";
@@ -35,16 +35,16 @@ public class DaoData extends DaoJDOImpl {
 	Collection result = (Collection) query.execute();
 	return result;
     }
+    
     /**
-     * 
+     * This method get a Data if it has the uid specified by parameter and its status is different to TODELETE
      * TODO WITH DSSSS
-     * THIS METHOD HAS NOT BEEEE UNITARY TESTEDDDDDDDDD !!!!!!!!!, TEST IT WITH DSSSS
+     * although functionally it works,this method has not been unitary tested !!!!!!!!!, TEST IT WITH DSSSS
      * @param uid
      * @return
      */
     public Data getByUidNotToDelete(String uid) {
-	Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class, "uid == \""
-		+ uid + "\" && status != " + DataStatus.TODELETE);
+	Query query = pm.newQuery(xtremweb.core.obj.dc.Data.class, "uid == \""+ uid + "\" && status != " + DataStatus.TODELETE);
 	query.setUnique(true);
 	Data d = (Data) query.execute();
 	return d;
