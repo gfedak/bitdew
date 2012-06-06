@@ -64,8 +64,7 @@ public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
 	    ddc = null;
 	} catch (ConfigurationException e) {
 	    e.printStackTrace();
-	}
-	log.info("Started DHT service for distributed data catalog");
+	}	
     } // Callbackobj constructor
 
     /**
