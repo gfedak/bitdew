@@ -10,7 +10,6 @@ package xtremweb.core.com.idl;
  * @version 1.0
  */
 import java.rmi.*;
-import xtremweb.core.poxwo.*;
 
 public interface InterfaceRMITemplate extends Remote{
 
