@@ -10,13 +10,11 @@ import java.rmi.*;
  * @version 
  */
 
-public class CommRMITemplate {
+public class CommRMITemplate extends CommTemplate {
     
     protected Remote rmi; 
 
-    protected String _hostname;
-    protected int _port;
-    protected String _module;
+    
 
     public CommRMITemplate () {
 	try {
@@ -65,15 +63,5 @@ public class CommRMITemplate {
      }
     }
     
-    public String getHostName() {
-	return _hostname;
-    }
-
-    public int getPort() {
-	return _port;
-    }
     
-    public String getModule() {
-	return _module;
-    }
 }
