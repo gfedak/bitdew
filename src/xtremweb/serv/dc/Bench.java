@@ -9,14 +9,11 @@ package xtremweb.serv.dc;
  * @author <a href="mailto:">Gilles Fedak</a>
  * @version 1.0
  */
-import xtremweb.core.iface.*;
 import xtremweb.core.com.com.*;
 import xtremweb.core.com.idl.*;
 import xtremweb.core.obj.dc.Data;
 import java.io.*;
 
-import java.util.Enumeration;
-import java.util.Vector;
 import java.util.Timer;
 import java.util.TimerTask;
 
