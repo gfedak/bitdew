@@ -7,13 +7,8 @@ import xtremweb.dao.DaoFactory;
 import xtremweb.dao.DaoJDOImpl;
 
 import java.lang.reflect.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.*;
 
-import org.apache.xmlrpc.client.XmlRpcClient;
-import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-import org.apache.xmlrpc.client.util.ClientFactory;
 
 /**
  *  <code>ComWorld</code> allows to configure the distributed system.
@@ -23,19 +18,47 @@ import org.apache.xmlrpc.client.util.ClientFactory;
  */
 public class ComWorld {
     
+	/**
+	 * Host tha you want to contact
+	 */
     private static Host host = null;
     
+    /**
+     * Log
+     */
     private static Logger log = LoggerFactory.getLogger("ComWorld");
-
+    
+    /**
+     * RMI_DEFAULT_CLIENT_PORT
+     */
     private static final int RMI_DEFAULT_CLIENT_PORT = 4325;
+    
+    /**
+     * RMI_DEFAULT_SERVER_PORT
+     */
     private static final int RMI_DEFAULT_SERVER_PORT = 4327;
+    
+    /**
+     * RMI_DEFAULT_REGISTRY_PORT
+     */
     private static final int RMI_DEFAULT_REGISTRY_PORT = 4327;
-
+    
+    /**
+     * rmiClientPort
+     */
     private static int rmiClientPort;
+    
+    /**
+     * rmiServerPort
+     */
     private static int rmiServerPort;
+    
+    /**
+     * rmiRegistryPort
+     */
     private static int rmiRegistryPort;
 
-
+    
     static {
 	try {
 	    Properties prop = ConfigurationProperties.getProperties();
@@ -114,8 +137,10 @@ public class ComWorld {
 	    className = ModuleLoader.rootServiceClassPath + "." + service + ".Callback" + service;
 	    return createInstance(className);
 	} 
-	if (media.toLowerCase().equals("rmi")) {
+	if (media.toLowerCase().equals("rmi")) 
 	    className = ModuleLoader.rootComClassPath + ".CommRMI" + service;
+	if (media.toLowerCase().equals("xmlrpc")) 
+	    className = ModuleLoader.rootCommXmlRpcPath + ".CommXmlRpc"+service;
 	    try {
 		Object comm = createInstance(className);
 	    //	    try {
@@ -130,34 +155,18 @@ public class ComWorld {
 
 	    } catch (NoSuchMethodException nsme ) {
 		log.warn("cannot find method " + nsme );
-		// } catch (Exception e) {
-		//log.debug("cannot invoke method " + e );
+		nsme.printStackTrace();
 	    } catch (InvocationTargetException ite) {
 		log.debug("wrong invokation " + ite);
+		ite.printStackTrace();
 	    }  catch (IllegalArgumentException iae) {
 		log.debug("illegal argument " + iae);
+		iae.printStackTrace();
 	    } catch (IllegalAccessException ilae) {
 		log.debug("illegal access  " + ilae);
+		ilae.printStackTrace();
 	    }
-	}if (media.toLowerCase().equals("xmlrpc")) {
-		try {
-			log.info("There is a xmlrpc call ");
-			XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-			// config.setServerURL(new URL("http://127.0.0.1:8080/xmlrpc"));
-			config.setServerURL(new URL(("http://" + host + ":" + port + "/xmlrpc")));
-			config.setEnabledForExceptions(true);
-			config.setEnabledForExtensions(true);
-			XmlRpcClient client = new XmlRpcClient();
-			client.setConfig(config);
-			Class iface = Class.forName(ModuleLoader.rootIfaceClassPath+ ".InterfaceRMI" + service);
-			ClientFactory factory = new ClientFactory(client);
-			return factory.newInstance(iface);
-		} catch (MalformedURLException mue) {
-			log.debug("bad URL syntax : " + "http://" + host + ":" + port+ "/xmlrpc");
-		} catch (ClassNotFoundException cnfe) {
-			log.debug("cannot find class : "+ ModuleLoader.rootIfaceClassPath + ".InterfaceRMI"+ service);
-		}
-	}
+	
 	throw new ModuleLoaderException ("Not able to instantiate  " + className);
     }
 
@@ -179,7 +188,13 @@ public class ComWorld {
 	}
 	return v;
     }
-
+    
+    /**
+     * Create a class instance dynamically.
+     * @param className
+     * @return
+     * @throws ModuleLoaderException
+     */
     private static Object createInstance( String className )  throws ModuleLoaderException {
 	try {
 	    Class classClass = (ComWorld.class.getClassLoader()).loadClass( className);
