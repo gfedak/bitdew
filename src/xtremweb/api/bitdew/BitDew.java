@@ -470,7 +470,7 @@ public class BitDew {
 	    prot.setpath(f.getPath());
 	    remote_locator.setdatauid(data.getuid());
 	    remote_locator.setprotocoluid(prot.getuid());
-	    remote_locator.setdrname(((CommRMITemplate) idr).getHostName());
+	    remote_locator.setdrname(((CommTemplate) idr).getHostName());
 	    remote_locator.setref(data.getname());
 	    remote_locator.setpublish(true);
 	} catch (RemoteException e) {
@@ -555,13 +555,13 @@ public class BitDew {
 		dao.makePersistent(remote_locator,true);
 	    }
 	    remote_proto = idr.getProtocolByName(data.getoob());
-	    log.debug("Remote_proto fetched : " + remote_proto.getuid() + " : " +remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() );
+	    log.debug("Remote_proto fetched : " + remote_proto.getuid() + " : " +remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommTemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() );
 	} catch (RemoteException re) {
 	    log.debug("Cannot find a oob protocol " + data.getoob() + " " + re);
 	    throw new BitDewException(re.getMessage());
 	} 
 	remote_locator.setdatauid(data.getuid());
-	remote_locator.setdrname(((CommRMITemplate)idr).getHostName());
+	remote_locator.setdrname(((CommTemplate)idr).getHostName());
 	remote_locator.setprotocoluid(remote_proto.getuid());	
 	try {
 	    idc.putLocator(remote_locator);
@@ -636,11 +636,9 @@ public class BitDew {
 		throw new BitDewException("Unknown protocol ");
 	    }
 	    
-	    log.debug("Remote_proto fetched : " + remote_proto.getuid() + " : "
-		    + remote_proto.getname() + "://" + remote_proto.getlogin()
+	    log.debug("Remote_proto fetched : " + remote_proto.getuid() + " : "+ remote_proto.getname() + "://" + remote_proto.getlogin()
 		    + ":" + remote_proto.getpassword() + "@"
-		    + ((CommRMITemplate) idr).getHostName() + ":"
-		    + remote_proto.getport() + "/" + remote_proto.getpath());
+		    + ((CommTemplate) idr).getHostName() + ":" + remote_proto.getport() + "/" + remote_proto.getpath());
 	} catch (RemoteException re) {
 	    log.debug("Cannot find a oob protocol " + data.getoob() + " " + re);
 	    throw new BitDewException();
@@ -648,7 +646,7 @@ public class BitDew {
 	log.debug(" the class is " + remote_proto.getclassName());
 	Locator remote_locator = new Locator();
 	remote_locator.setdatauid(data.getuid());
-	remote_locator.setdrname(((CommRMITemplate) idr).getHostName());
+	remote_locator.setdrname(((CommTemplate) idr).getHostName());
 	remote_locator.setprotocoluid(remote_proto.getuid());
 
 	try {
@@ -671,7 +669,7 @@ public class BitDew {
 	   
 	} catch(OOBException oobe) {
 	   log.debug("Error when creating OOBTransfer " + oobe);
-	   throw new BitDewException("Error when transfering data : " + remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
+	   throw new BitDewException("Error when transfering data : " + remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommTemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
 	}
 	// FIXME cannot assume that the data has been fully copied now.
 	// should put a status to the locator ????
@@ -689,7 +687,7 @@ public class BitDew {
 		+ "] with remote storage [" + remote_locator.getref() + "] "
 		+ remote_proto.getname() + "://[" + remote_proto.getlogin()
 		+ ":" + remote_proto.getpassword() + "]@"
-		+ ((CommRMITemplate) idr).getHostName() + ":"
+		+ ((CommTemplate) idr).getHostName() + ":"
 		+ remote_proto.getport() + "/" + remote_proto.getpath() + "/"
 		+ remote_locator.getref());
 	return oobTransfer;
@@ -752,7 +750,7 @@ public class BitDew {
 	    remote_proto = idr
 		    .getProtocolByUID(remote_locator.getprotocoluid());
 	    log.debug("Remote_proto fetched : " + remote_proto.getuid() + " : "+ remote_proto.getname() + "://" + remote_proto.getlogin()+ ":" + remote_proto.getpassword() + "@"
-		    + ((CommRMITemplate) idr).getHostName() + ":"
+		    + ((CommTemplate) idr).getHostName() + ":"
 		    + remote_proto.getport() + "/" + remote_proto.getpath());
 	} catch (RemoteException re) {
 	    log.debug("Cannot find a protocol oob " + re);
@@ -770,7 +768,7 @@ public class BitDew {
 	    oobTransfer = OOBTransferFactory.createOOBTransfer(data, t, remote_locator, local_locator, remote_proto, local_proto);
 	} catch(OOBException oobe) {
 	   log.debug("Was not able to transfer " + oobe);
-	   throw new BitDewException("Error when transfering data from : " + remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommRMITemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
+	   throw new BitDewException("Error when transfering data from : " + remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommTemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() + "/" + remote_locator.getref() );
 
 	}
 	return oobTransfer;
