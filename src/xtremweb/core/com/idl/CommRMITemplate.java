@@ -12,20 +12,22 @@ import java.rmi.*;
 
 public class CommRMITemplate extends CommTemplate {
     
+	/**
+	 * Remote Interface
+	 */
     protected Remote rmi; 
 
     
-
+    /**
+     * Class constructor
+     */
     public CommRMITemplate () {
-	try {
-	} catch ( Exception e ) {
-	}
     }
-
-    public void initComm ( String hostname,
-			   int port,
-			   String module
-			) throws CommException {
+    
+   /**
+    * Overriden method to initialize values and RMI Interface
+    */
+    public void initComm ( String hostname,int port,String module) throws CommException {
 	_hostname = hostname;
 	_port = port;
 	_module = module;
