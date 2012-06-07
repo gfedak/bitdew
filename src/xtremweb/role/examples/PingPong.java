@@ -8,6 +8,7 @@ import xtremweb.api.activedata.ActiveData;
 import xtremweb.api.activedata.ActiveDataException;
 import xtremweb.api.activedata.ActiveDataCallback;
 import xtremweb.core.com.idl.ComWorld;
+import xtremweb.core.conf.ConfigurationProperties;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.ds.Attribute;
 
@@ -113,9 +114,11 @@ public class PingPong {
 	 */
 	public PingPong(String host, int port) throws Exception {
 
-		// intialize the communication vectors which will be used by
-		// the API
-		Vector comms = ComWorld.getMultipleComms(host, "rmi", port, "dc", "dr",
+		// Bitdew supports two medias : RMI and XMLRPC, by default RMI is selected.
+		String media = ConfigurationProperties.getProperties().getProperty("xtremweb.media");
+				// intialize the communication vectors which will be used by
+				// the API
+		Vector comms = ComWorld.getMultipleComms(host, media, port, "dc", "dr",
 				"ds");
 
 		// now intialize the APIs
@@ -317,7 +320,7 @@ public class PingPong {
 	 */
 	public static void main(String[] args) throws Exception {
 		String role;
-		if ((args.length == 0) || (args.length > 2))
+		if ((args.length == 0) || (args.length > 3))
 			PingPong.usage();
 		role = args[0].toLowerCase();
 		if (!(role.equals("ping") || role.equals("pong")))
