@@ -9,6 +9,7 @@ import xtremweb.serv.dt.OOBTransfer;
 import xtremweb.api.transman.TransferManager;
 import xtremweb.api.transman.TransferManagerFactory;
 import xtremweb.core.com.idl.ComWorld;
+import xtremweb.core.conf.ConfigurationProperties;
 import xtremweb.core.obj.dc.Data;
 
 import java.util.Vector;
@@ -89,10 +90,11 @@ public class PutGet {
      *
      */
     public PutGet(String host, int port) throws Exception {
-
+    // Bitdew supports two medias : RMI and XMLRPC, by default RMI is selected.
+    String media = ConfigurationProperties.getProperties().getProperty("xtremweb.media");
 	//intialize the communication vectors which will be used by
 	//the API
-	comms = ComWorld.getMultipleComms(host, "rmi", port, "dc", "dr", "dt");
+	comms = ComWorld.getMultipleComms(host, media, port, "dc", "dr", "dt");
 
 	//now intialize the APIs
 	bitdew = new BitDew(comms);
