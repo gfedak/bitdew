@@ -6,6 +6,7 @@ import xtremweb.api.bitdew.BitDew;
 import xtremweb.api.activedata.ActiveData;
 import xtremweb.api.activedata.ActiveDataCallback;
 import xtremweb.core.com.idl.ComWorld;
+import xtremweb.core.conf.ConfigurationProperties;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.ds.Attribute;
 
@@ -72,10 +73,12 @@ public class HelloWorld {
      * @param port an <code>int</code> value
      */
     public HelloWorld(String host, int port) throws Exception {
-
-	//intialize the communication vectors which will be used by
-	//the API
-	Vector comms = ComWorld.getMultipleComms(host, "rmi", port, "dc", "dr",  "ds");
+    	// Bitdew supports two medias : RMI and XMLRPC, by default RMI is selected
+    	String media = ConfigurationProperties.getProperties().getProperty("xtremweb.media");
+    	//intialize the communication vectors which will be used by
+    	//the API
+	
+ 	Vector comms = ComWorld.getMultipleComms(host, media, port, "dc", "dr",  "ds");
 
 	//now intialize the APIs
 	bitdew = new BitDew(comms);

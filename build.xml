@@ -129,6 +129,7 @@
 	      classpath = "${saxon6.classpath}"/>
     	<mtxslt processor = "${saxon6}" basedir = "src/xtremweb/serv/" includes ="**/*.idl" style = "src/xtremweb/core/idl/xsl/xmlrpcservlet.xsl" destdir="${timestampdir}" extension=".timestamp-xmlrpcservlet" classpath = "${saxon6.classpath}"/>
     	<mtxslt processor = "${saxon6}" basedir = "src/xtremweb/serv/" includes ="**/*.idl" style = "src/xtremweb/core/idl/xsl/requestprocessorfactoryfactory.xsl" destdir="${timestampdir}" extension=".timestamp-requestprocessorfactoryfactory" classpath = "${saxon6.classpath}"/>
+    	<mtxslt processor = "${saxon6}" basedir = "src/xtremweb/serv/" includes ="**/*.idl" style = "src/xtremweb/core/idl/xsl/commxmlrpc.xsl" destdir="${timestampdir}" extension=".timestamp-commxmlrpc" classpath = "${saxon6.classpath}"/>
     </target>
     
     <target name="init">
