@@ -33,10 +33,8 @@ package xtremweb.core.com.com;
 
 import xtremweb.core.com.idl.*;
 import xtremweb.core.iface.InterfaceRMI<xsl:value-of select="$moduleName"/>;
-import xtremweb.serv.<xsl:value-of select="$moduleName"/>.Callback<xsl:value-of select="$moduleName"/>;
 import xtremweb.core.obj.<xsl:value-of select="Module/@name" />.*;
 import java.rmi.*;
-import java.rmi.server.UnicastRemoteObject;
 <xsl:value-of select="Module/@import" />
 
 public class CommRMI<xsl:value-of select="$moduleName"/> extends CommRMITemplate implements InterfaceRMI<xsl:value-of select="$moduleName"/> {

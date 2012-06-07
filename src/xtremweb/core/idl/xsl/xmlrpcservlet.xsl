@@ -37,7 +37,7 @@ import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
 import org.apache.xmlrpc.webserver.XmlRpcServlet;
 import org.apache.xmlrpc.XmlRpcException;
 import xtremweb.core.iface.InterfaceRMI<xsl:value-of select="$moduleName"/>;
-import xtremweb.core.com.com.CommRMI<xsl:value-of select="$moduleName"/>;
+import xtremweb.serv.<xsl:value-of select="$moduleName"/>.Callback<xsl:value-of select="$moduleName"/>;
 import xtremweb.core.com.xmlrpc.Callback<xsl:value-of select="$moduleName"/>ProcessorFactoryFactory;
 public class Callback<xsl:value-of select="$moduleName"/>XmlRpcServlet extends XmlRpcServlet {
 	
@@ -48,7 +48,7 @@ public class Callback<xsl:value-of select="$moduleName"/>XmlRpcServlet extends X
 	protected XmlRpcHandlerMapping newXmlRpcHandlerMapping(){
             try{
 		PropertyHandlerMapping phm = new PropertyHandlerMapping();
-		InterfaceRMI<xsl:value-of select="$moduleName"/><xsl:text>  </xsl:text><xsl:value-of select="$moduleName"/> = new CommRMI<xsl:value-of select="$moduleName"/>();
+		InterfaceRMI<xsl:value-of select="$moduleName"/><xsl:text>  </xsl:text><xsl:value-of select="$moduleName"/> = new Callback<xsl:value-of select="$moduleName"/>();
 		phm.setRequestProcessorFactoryFactory(new Callback<xsl:value-of select="$moduleName"/>ProcessorFactoryFactory(<xsl:value-of select="$moduleName"/>));
 		phm.setVoidMethodEnabled(true);
                 phm.addHandler(InterfaceRMI<xsl:value-of select="$moduleName"/>.class.getName(), InterfaceRMI<xsl:value-of select="$moduleName"/>.class);
