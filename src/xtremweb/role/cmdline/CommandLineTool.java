@@ -219,6 +219,12 @@ public class CommandLineTool {
 		else
 		    skipserv = true;
 	    }
+	    if(!media.equals("rmi") && !media.equals("xmlrpc"))
+	    {
+	    	usage(HelpFormat.LONG);
+	    	return;
+	    }
+	    
 	    ServiceLoader sl = new ServiceLoader(media, port, services);
 	    UIFactory.createUIFactory();
 	    server = true;
