@@ -37,15 +37,15 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.XmlRpcRequest;
 import org.apache.xmlrpc.server.RequestProcessorFactoryFactory;
 
-import xtremweb.core.iface.InterfaceRMI<xsl:value-of select="$moduleName"/>;
+import xtremweb.core.iface.Interface<xsl:value-of select="$moduleName"/>;
 
 public class Callback<xsl:value-of select="$moduleName"/>ProcessorFactoryFactory implements RequestProcessorFactoryFactory {
 
   private final RequestProcessorFactory factory = (RequestProcessorFactory) new Callback<xsl:value-of select="$moduleName"/>RequestProcessorFactory();
   
-  private final InterfaceRMI<xsl:value-of select="$moduleName"/><xsl:text>  </xsl:text> <xsl:value-of select="$moduleName"/>;
+  private final Interface<xsl:value-of select="$moduleName"/><xsl:text>  </xsl:text> <xsl:value-of select="$moduleName"/>;
   
-  public Callback<xsl:value-of select="$moduleName"/>ProcessorFactoryFactory(InterfaceRMI<xsl:value-of select="$moduleName"/><xsl:text>  </xsl:text>
+  public Callback<xsl:value-of select="$moduleName"/>ProcessorFactoryFactory(Interface<xsl:value-of select="$moduleName"/><xsl:text>  </xsl:text>
   <xsl:value-of select="$moduleName"/>){
        this.<xsl:value-of select="$moduleName"/> = <xsl:value-of select="$moduleName"/>;
   }

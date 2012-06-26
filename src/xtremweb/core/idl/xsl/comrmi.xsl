@@ -32,12 +32,12 @@ package xtremweb.core.com.com;
  */
 
 import xtremweb.core.com.idl.*;
-import xtremweb.core.iface.InterfaceRMI<xsl:value-of select="$moduleName"/>;
+import xtremweb.core.iface.Interface<xsl:value-of select="$moduleName"/>;
 import xtremweb.core.obj.<xsl:value-of select="Module/@name" />.*;
 import java.rmi.*;
 <xsl:value-of select="Module/@import" />
 
-public class CommRMI<xsl:value-of select="$moduleName"/> extends CommRMITemplate implements InterfaceRMI<xsl:value-of select="$moduleName"/> {
+public class CommRMI<xsl:value-of select="$moduleName"/> extends CommRMITemplate implements Interface<xsl:value-of select="$moduleName"/> {
 
   <xsl:for-each select="/Module/Method">
     <xsl:call-template name="java-method">
@@ -65,7 +65,7 @@ public class CommRMI<xsl:value-of select="$moduleName"/> extends CommRMITemplate
      public <xsl:value-of select="concat($return/@type , ' ', $methodName/@name)"/>( <xsl:call-template name="params-to-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> ) throws RemoteException  {
          <xsl:if test="$return/@type!='void'"><xsl:value-of select="concat($return/@type , ' x;')"/></xsl:if>
          try {
-              <xsl:if test="$return/@type!='void'">x = </xsl:if><xsl:value-of select="concat('((InterfaceRMI', $moduleName, ') rmi ).',$methodName/@name)"/>( <xsl:call-template name="params-to-untyped-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> );
+              <xsl:if test="$return/@type!='void'">x = </xsl:if><xsl:value-of select="concat('((Interface', $moduleName, ') rmi ).',$methodName/@name)"/>( <xsl:call-template name="params-to-untyped-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> );
          } catch (RemoteException e) {
 		 throw new RemoteException(" " +e);
 	}

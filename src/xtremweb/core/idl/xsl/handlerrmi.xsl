@@ -32,7 +32,7 @@ package xtremweb.core.com.handler;
  */
 
 import xtremweb.core.com.idl.*;
-import xtremweb.core.iface.InterfaceRMI<xsl:value-of select="$moduleName"/>;
+import xtremweb.core.iface.Interface<xsl:value-of select="$moduleName"/>;
 import xtremweb.serv.<xsl:value-of select="$moduleName"/>.Callback<xsl:value-of select="$moduleName"/>;
 import xtremweb.core.obj.<xsl:value-of select="Module/@name" />.*;
 import java.rmi.*;
@@ -40,7 +40,7 @@ import java.rmi.server.UnicastRemoteObject;
 <xsl:value-of select="Module/@import" />
 
 
-public class HandlerRMI<xsl:value-of select="$moduleName"/> extends HandlerRMITemplate implements InterfaceRMI<xsl:value-of select="$moduleName"/> {
+public class HandlerRMI<xsl:value-of select="$moduleName"/> extends HandlerRMITemplate implements Interface<xsl:value-of select="$moduleName"/> {
 
     public HandlerRMI<xsl:value-of select="$moduleName"/> ()  throws RemoteException  { 
     }
@@ -69,7 +69,7 @@ public class HandlerRMI<xsl:value-of select="$moduleName"/> extends HandlerRMITe
 
 <!-- Builds the attributes --> 
      public <xsl:value-of select="concat($return/@type , ' ', $methodName/@name)"/>( <xsl:call-template name="params-to-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> ) throws RemoteException  {
-             <xsl:if test="$return/@type!='void'">return (</xsl:if><xsl:value-of select="concat('((InterfaceRMI', $moduleName, ') callback ).',$methodName/@name)"/>( <xsl:call-template name="params-to-untyped-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> )<xsl:if test="$return/@type!='void'">)</xsl:if>;
+             <xsl:if test="$return/@type!='void'">return (</xsl:if><xsl:value-of select="concat('((Interface', $moduleName, ') callback ).',$methodName/@name)"/>( <xsl:call-template name="params-to-untyped-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> )<xsl:if test="$return/@type!='void'">)</xsl:if>;
     }
 </xsl:template>
 

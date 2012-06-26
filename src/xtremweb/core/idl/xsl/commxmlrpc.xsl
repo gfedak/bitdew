@@ -32,7 +32,7 @@ package xtremweb.core.com.xmlrpc;
  */
 
 import xtremweb.core.com.idl.*;
-import xtremweb.core.iface.InterfaceRMI<xsl:value-of select="$moduleName"/>;
+import xtremweb.core.iface.Interface<xsl:value-of select="$moduleName"/>;
 import xtremweb.core.obj.<xsl:value-of select="Module/@name" />.*;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
@@ -48,9 +48,9 @@ import org.apache.xmlrpc.client.util.ClientFactory;
 
 <xsl:value-of select="Module/@import" />
 
-public class CommXmlRpc<xsl:value-of select="$moduleName"/> extends CommXmlRpcTemplate implements InterfaceRMI<xsl:value-of select="$moduleName"/> {
+public class CommXmlRpc<xsl:value-of select="$moduleName"/> extends CommXmlRpcTemplate implements Interface<xsl:value-of select="$moduleName"/> {
   
-  private InterfaceRMI<xsl:value-of select="$moduleName"/><xsl:text> </xsl:text><xsl:value-of select="$moduleName"/>;
+  private Interface<xsl:value-of select="$moduleName"/><xsl:text> </xsl:text><xsl:value-of select="$moduleName"/>;
   
   private Logger log = LoggerFactory.getLogger("CommXmlRpc<xsl:value-of select="$moduleName"/>");
   
@@ -70,7 +70,7 @@ public class CommXmlRpc<xsl:value-of select="$moduleName"/> extends CommXmlRpcTe
 	client.setConfig(config);
 	Class iface = Class.forName(ModuleLoader.rootIfaceClassPath + _module);
 	ClientFactory factory = new ClientFactory(client);
-	<xsl:value-of select="$moduleName"/><xsl:text> </xsl:text> = (InterfaceRMI<xsl:value-of select="$moduleName"/>)factory.newInstance(iface);
+	<xsl:value-of select="$moduleName"/><xsl:text> </xsl:text> = (Interface<xsl:value-of select="$moduleName"/>)factory.newInstance(iface);
       }catch (MalformedURLException mue) {
 	log.info("bad URL syntax : " + "http://" + _hostname + ":" + _port+ "/xmlrpc");
 	mue.printStackTrace();

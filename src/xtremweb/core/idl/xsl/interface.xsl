@@ -12,7 +12,7 @@
 <xsl:message>Processing Interface for module <xsl:value-of select="$moduleName" /></xsl:message>
 
 <xsl:variable name="filename"
-  select="concat('src/xtremweb/core/iface/InterfaceRMI',$moduleName,'.java')" />
+  select="concat('src/xtremweb/core/iface/Interface',$moduleName,'.java')" />
 <xsl:message>Creating <xsl:value-of select="$filename" /></xsl:message>
 <xsl:document href="{$filename}" method="text">
 
@@ -36,7 +36,7 @@ import java.rmi.*;
  * @version "1.0"
  */
 
-public interface InterfaceRMI<xsl:value-of select="$moduleName"/> extends InterfaceRMITemplate {
+public interface Interface<xsl:value-of select="$moduleName"/> extends InterfaceRMITemplate {
 
   <xsl:for-each select="/Module/Method">
     <xsl:call-template name="java-method">
