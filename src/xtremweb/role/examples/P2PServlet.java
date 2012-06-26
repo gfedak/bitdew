@@ -18,10 +18,10 @@ import xtremweb.core.com.idl.ComWorld;
 import xtremweb.core.com.idl.ModuleLoaderException;
 import xtremweb.core.conf.ConfigurationException;
 import xtremweb.core.conf.ConfigurationProperties;
-import xtremweb.core.iface.InterfaceRMIdc;
-import xtremweb.core.iface.InterfaceRMIdr;
-import xtremweb.core.iface.InterfaceRMIds;
-import xtremweb.core.iface.InterfaceRMIdt;
+import xtremweb.core.iface.Interfacedc;
+import xtremweb.core.iface.Interfacedr;
+import xtremweb.core.iface.Interfaceds;
+import xtremweb.core.iface.Interfacedt;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 import xtremweb.core.obj.dc.Data;
@@ -38,22 +38,22 @@ public class P2PServlet extends HttpServlet {
     /**
      * Data catalog
      */
-    private InterfaceRMIdc ddc;
+    private Interfacedc ddc;
 
     /**
      * Data repository
      */
-    private InterfaceRMIdr dr;
+    private Interfacedr dr;
 
     /**
      * Data scheduler
      */
-    private InterfaceRMIds ds;
+    private Interfaceds ds;
 
     /**
      * Data Transfer
      */
-    private InterfaceRMIdt dt;
+    private Interfacedt dt;
 
     /**
      * Bitdew API
@@ -94,10 +94,10 @@ public class P2PServlet extends HttpServlet {
 	    log.debug("bootstrap node value is " + BOOTSTRAP_NODE);
 	    BOOTSTRAP_NODE = (bootstrapnode != null) ? bootstrapnode : InetAddress.getLocalHost().getHostAddress();
 	    String LOCAL_ADDRESS = InetAddress.getLocalHost().getHostAddress();
-	    ddc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP_NODE, "RMI", 4325, "dc");
-	    dr = (InterfaceRMIdr) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325, "dr");
-	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325, "dt");
-	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325, "ds");
+	    ddc = (Interfacedc) ComWorld.getComm(BOOTSTRAP_NODE, "RMI", 4325, "dc");
+	    dr = (Interfacedr) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325, "dr");
+	    dt = (Interfacedt) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325, "dt");
+	    ds = (Interfaceds) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325, "ds");
 	    bd = new BitDew(ddc, dr, dt, ds, true);
 	    log.debug("enter in p2pservlet get " + bd);
 	    l = bd.ddcSearch(param);

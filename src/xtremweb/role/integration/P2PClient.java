@@ -14,10 +14,10 @@ import xtremweb.api.transman.TransferManager;
 import xtremweb.api.transman.TransferManagerException;
 import xtremweb.core.com.idl.ComWorld;
 import xtremweb.core.com.idl.ModuleLoaderException;
-import xtremweb.core.iface.InterfaceRMIdc;
-import xtremweb.core.iface.InterfaceRMIdr;
-import xtremweb.core.iface.InterfaceRMIds;
-import xtremweb.core.iface.InterfaceRMIdt;
+import xtremweb.core.iface.Interfacedc;
+import xtremweb.core.iface.Interfacedr;
+import xtremweb.core.iface.Interfaceds;
+import xtremweb.core.iface.Interfacedt;
 import xtremweb.core.log.*;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.serv.dt.OOBTransfer;
@@ -38,19 +38,19 @@ public class P2PClient {
     
     //
     // Data Catalog service
-    private InterfaceRMIdc dc;
+    private Interfacedc dc;
     
     //
     // Data Transfer service
-    private InterfaceRMIdt dt;
+    private Interfacedt dt;
     
     //
     // Data repository service
-    private InterfaceRMIdr dr;
+    private Interfacedr dr;
     
     //
     // Data scheduler service
-    private InterfaceRMIds ds;
+    private Interfaceds ds;
     
     //
     // Transfer manager API
@@ -75,8 +75,8 @@ public class P2PClient {
 	    log.info("logging sysgtem activated");
 	    Log4JLogger.setProperties("conf/log4jcmdlinetool.properties");
 	    LOCAL_ADDRESS = InetAddress.getLocalHost().getHostAddress();
-	    dc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP, "rmi", 4325, "dc");
-	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "dt");
+	    dc = (Interfacedc) ComWorld.getComm(BOOTSTRAP, "rmi", 4325, "dc");
+	    dt = (Interfacedt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "dt");
 	    tm = new TransferManager(dt);
 	    bitdew = new BitDew(dc, dr, dt, ds,true);
 	} catch (ModuleLoaderException e) {
@@ -120,9 +120,9 @@ public class P2PClient {
 	    // need to
 	    // build a reference to the distributed data catalog on the
 	    // bootstrap node.
-	    dc = (InterfaceRMIdc) ComWorld.getComm(BOOTSTRAP, "rmi", 4325, "dc");
-	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "dt");
-	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "ds");
+	    dc = (Interfacedc) ComWorld.getComm(BOOTSTRAP, "rmi", 4325, "dc");
+	    dt = (Interfacedt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "dt");
+	    ds = (Interfaceds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "ds");
 	    // build a new bitdew instance from these services.
 	    bitdew = new BitDew(dc, dr, dt, ds,true);
 	    String[] toks = song.split("[\\s\\._-]");
@@ -162,11 +162,11 @@ public class P2PClient {
 	   // bitdew.ddcStop();
 	    System.out.println("Creating services ");
 	    if (ips != null && ips.size() != 0 && ip.equals("none")) {
-		dr = (InterfaceRMIdr) ComWorld.getComm((String) ips.get(0), "rmi", 4325, "dr");
-		dc = (InterfaceRMIdc) ComWorld.getComm((String) ips.get(0), "rmi", 4325, "dc");
+		dr = (Interfacedr) ComWorld.getComm((String) ips.get(0), "rmi", 4325, "dr");
+		dc = (Interfacedc) ComWorld.getComm((String) ips.get(0), "rmi", 4325, "dc");
 	    } else if (!ip.equals("none")) {
-		dr = (InterfaceRMIdr) ComWorld.getComm((String) ip, "rmi", 4325, "dr");
-		dc = (InterfaceRMIdc) ComWorld.getComm((String) ip, "rmi", 4325, "dc");
+		dr = (Interfacedr) ComWorld.getComm((String) ip, "rmi", 4325, "dr");
+		dc = (Interfacedc) ComWorld.getComm((String) ip, "rmi", 4325, "dc");
 	    } else
 		throw new BitDewException("There is not ip for that md5 ! ");
 	    System.out.println("Services created");

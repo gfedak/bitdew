@@ -8,10 +8,10 @@ import xtremweb.api.transman.TransferManager;
 import xtremweb.api.transman.TransferManagerException;
 import xtremweb.core.com.idl.ComWorld;
 import xtremweb.core.com.idl.ModuleLoaderException;
-import xtremweb.core.iface.InterfaceRMIdc;
-import xtremweb.core.iface.InterfaceRMIdr;
-import xtremweb.core.iface.InterfaceRMIds;
-import xtremweb.core.iface.InterfaceRMIdt;
+import xtremweb.core.iface.Interfacedc;
+import xtremweb.core.iface.Interfacedr;
+import xtremweb.core.iface.Interfaceds;
+import xtremweb.core.iface.Interfacedt;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.serv.dt.OOBTransfer;
 
@@ -57,14 +57,14 @@ public class GetProcess {
 	try {
 	    prnum = filenumber;
 	    this.getfilename= getfname;
-	    InterfaceRMIdr idr = (InterfaceRMIdr) ComWorld.getComm(stable,
+	    Interfacedr idr = (Interfacedr) ComWorld.getComm(stable,
 		    "rmi", 4325, "dr");
 
-	    InterfaceRMIdc idc = (InterfaceRMIdc) ComWorld.getComm(stable,
+	    Interfacedc idc = (Interfacedc) ComWorld.getComm(stable,
 		    "rmi", 4325, "dc");
-	    InterfaceRMIds ids = (InterfaceRMIds) ComWorld.getComm(stable,
+	    Interfaceds ids = (Interfaceds) ComWorld.getComm(stable,
 		    "rmi", 4325, "ds");
-	    InterfaceRMIdt idt = (InterfaceRMIdt) ComWorld.getComm(stable,
+	    Interfacedt idt = (Interfacedt) ComWorld.getComm(stable,
 		    "rmi", 4325, "dt");
 	    duid = uid;
 	  

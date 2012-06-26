@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 
 import xtremweb.core.com.idl.ComWorld;
 import xtremweb.core.com.idl.ModuleLoaderException;
-import xtremweb.core.iface.InterfaceRMIdn;
+import xtremweb.core.iface.Interfacedn;
 import xtremweb.core.serv.ServiceLoader;
 
 public class DnTest extends TestCase {
@@ -24,9 +24,9 @@ public class DnTest extends TestCase {
 
     @Test
     public void testmain() {
-	InterfaceRMIdn dn;
+	Interfacedn dn;
 	try {
-	    dn = (InterfaceRMIdn) ComWorld.getComm("localhost", "rmi", 4325,
+	    dn = (Interfacedn) ComWorld.getComm("localhost", "rmi", 4325,
 		    "dn");
 	    dn.registerService("dt", "lip.ens-lyon.fr");
 	    dn.registerService("ds", "lipgerland.ens-lyon.fr");

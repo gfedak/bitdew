@@ -42,17 +42,17 @@ public class BitDew {
     /**
      * Service data catalog
      */
-    private InterfaceRMIdc idc;
+    private Interfacedc idc;
     
     /**
      * Service data repository
      */
-    private InterfaceRMIdr idr;
+    private Interfacedr idr;
     
     /**
      * Service Data scheduler
      */
-    private InterfaceRMIds ids;
+    private Interfaceds ids;
     
     /**
      * Dao to interact with DB
@@ -74,12 +74,12 @@ public class BitDew {
     	dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
     			
 	for (Object o : comms) {
-	    if (o instanceof InterfaceRMIdc)
-		idc = (InterfaceRMIdc) o;
-	    if (o instanceof InterfaceRMIdr)
-		idr = (InterfaceRMIdr) o;	
-	    if (o instanceof InterfaceRMIds)
-		ids = (InterfaceRMIds) o;
+	    if (o instanceof Interfacedc)
+		idc = (Interfacedc) o;
+	    if (o instanceof Interfacedr)
+		idr = (Interfacedr) o;	
+	    if (o instanceof Interfaceds)
+		ids = (Interfaceds) o;
 	}
 	init(false);
     }
@@ -88,15 +88,15 @@ public class BitDew {
      * Creates a new <code>BitDew</code> instance.
      * 
      * @param cdc
-     *            an <code>InterfaceRMIdc</code> value
+     *            an <code>Interfacedc</code> value
      * @param cdr
-     *            an <code>InterfaceRMIdr</code> value
+     *            an <code>Interfacedr</code> value
      * @param cdt
-     *            an <code>InterfaceRMIdt</code> value
+     *            an <code>Interfacedt</code> value
      * @param cds
-     *            an <code>InterfaceRMIds</code> value
+     *            an <code>Interfaceds</code> value
      */
-    public BitDew(InterfaceRMIdc cdc, InterfaceRMIdr cdr, InterfaceRMIdt cdt ,InterfaceRMIds cds) {
+    public BitDew(Interfacedc cdc, Interfacedr cdr, Interfacedt cdt ,Interfaceds cds) {
     	dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
 	idc = cdc;
 	idr = cdr;
@@ -112,7 +112,7 @@ public class BitDew {
      * @param cds
      * @param enableddc, true to connect to a ddc, otherwise false
      */
-    public BitDew(InterfaceRMIdc cdc, InterfaceRMIdr cdr, InterfaceRMIdt cdt ,InterfaceRMIds cds,boolean enableddc) {
+    public BitDew(Interfacedc cdc, Interfacedr cdr, Interfacedt cdt ,Interfaceds cds,boolean enableddc) {
     	dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
 	idc = cdc;
 	idr = cdr;

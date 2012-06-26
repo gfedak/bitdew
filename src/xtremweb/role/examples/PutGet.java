@@ -1,7 +1,7 @@
 package xtremweb.role.examples;
 
-import xtremweb.core.iface.InterfaceRMIdr;
-import xtremweb.core.iface.InterfaceRMIdt;
+import xtremweb.core.iface.Interfacedr;
+import xtremweb.core.iface.Interfacedt;
 import xtremweb.core.log.*;
 import xtremweb.api.bitdew.BitDew;
 import xtremweb.serv.dc.DataUtil;

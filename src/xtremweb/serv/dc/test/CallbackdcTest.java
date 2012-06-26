@@ -10,7 +10,7 @@ import org.junit.Test;
 import xtremweb.core.com.com.CommRMIdc;
 import xtremweb.core.com.idl.ComWorld;
 import xtremweb.core.com.idl.ModuleLoaderException;
-import xtremweb.core.iface.InterfaceRMIdc;
+import xtremweb.core.iface.Interfacedc;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.DataChunk;
 import xtremweb.core.obj.dc.DataCollection;
@@ -19,7 +19,7 @@ import xtremweb.core.serv.ServiceLoader;
 
 public class CallbackdcTest  extends TestCase{
     
-    //private InterfaceRMIdc catalog;
+    //private Interfacedc catalog;
     private final int TOTCHUNKS = 2;
     public void setUp()
     {	String[] str = { "dc"};
@@ -33,7 +33,7 @@ public class CallbackdcTest  extends TestCase{
     public void testCreateData()
     {	try {
 	long a=100,b=200,c=300,d=400,e=500;
-	InterfaceRMIdc catalog = (CommRMIdc) ComWorld.getComm("localhost","rmi",4325,"dc");
+	Interfacedc catalog = (CommRMIdc) ComWorld.getComm("localhost","rmi",4325,"dc");
 	
 	Data inserted1 = new Data();
 	inserted1.setname("mydata1");

@@ -497,7 +497,7 @@ public class CommandLineTool {
 						     "dr", "dc", "dt");
 	    TransferManager transman = TransferManagerFactory
 		.getTransferManager(
-				    (InterfaceRMIdt) comms.get(2));
+				    (Interfacedt) comms.get(2));
 	    Protocol protoc = oobTransfer.getRemoteProtocol();
 	    //TOTALLY UNSECURE
 	    String passwd = protoc.getpassword();

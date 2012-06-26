@@ -48,15 +48,15 @@ public class ActiveDataTest {
  
     public void setUp() {       
 	try {	    
-	    InterfaceRMIdc cdc;
-	    InterfaceRMIdr cdr;
-	    InterfaceRMIdt cdt;
-	    InterfaceRMIds cds;
+	    Interfacedc cdc;
+	    Interfacedr cdr;
+	    Interfacedt cdt;
+	    Interfaceds cds;
 	    	    
-	    cdc = (InterfaceRMIdc) ComWorld.getComm( "localhost", "rmi", 4322, "dc" );
-	    cdr = (InterfaceRMIdr) ComWorld.getComm( "localhost", "rmi", 4322, "dr" );
-	    cdt = (InterfaceRMIdt) ComWorld.getComm( "localhost", "rmi", 4322, "dt" );
-	    cds = (InterfaceRMIds) ComWorld.getComm( "localhost", "rmi", 4322, "ds" );
+	    cdc = (Interfacedc) ComWorld.getComm( "localhost", "rmi", 4322, "dc" );
+	    cdr = (Interfacedr) ComWorld.getComm( "localhost", "rmi", 4322, "dr" );
+	    cdt = (Interfacedt) ComWorld.getComm( "localhost", "rmi", 4322, "dt" );
+	    cds = (Interfaceds) ComWorld.getComm( "localhost", "rmi", 4322, "ds" );
 
 	    bitdew = new BitDew( cdc, cdr, cdt, cds );
 

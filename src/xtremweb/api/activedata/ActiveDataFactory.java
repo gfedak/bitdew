@@ -15,18 +15,18 @@ public class ActiveDataFactory {
 	//FIXME une possibilite serait de faire une hashtable avec un TM par couple dr/dt
 	// d'ailleurs on peut faire ca pour toutes les API
 
-    private static InterfaceRMIdc dc;
-    private static InterfaceRMIds ds;
+    private static Interfacedc dc;
+    private static Interfaceds ds;
 
     private static ActiveData ad = null;
 
     /**
      * <code>init</code> init the method with the specified runtime services.
      *
-     * @param cdc an <code>InterfaceRMIdc</code> value
-     * @param cds an <code>InterfaceRMIds</code> value
+     * @param cdc an <code>Interfacedc</code> value
+     * @param cds an <code>Interfaceds</code> value
      */
-    public static void init(InterfaceRMIdc cdc, InterfaceRMIds cds) {
+    public static void init(Interfacedc cdc, Interfaceds cds) {
 	dc = cdc;
 	ds = cds;
     }

@@ -22,7 +22,6 @@ import xtremweb.core.iface.InterfaceRMIds;
 import xtremweb.core.log.*;
 import xtremweb.core.serv.*;
 import xtremweb.core.conf.*;
-import xtremweb.serv.bench.*;
 import xtremweb.core.com.idl.*;
 
 import xtremweb.api.bitdew.*;

@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import xtremweb.core.com.idl.ComWorld;
 import xtremweb.core.com.idl.ModuleLoaderException;
-import xtremweb.core.iface.InterfaceRMIdr;
+import xtremweb.core.iface.Interfacedr;
 import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.serv.ServiceLoader;
 import xtremweb.serv.dr.Callbackdr;
@@ -61,9 +61,9 @@ public class CallbackdrTest extends TestCase {
 	System.setProperty("PROPERTIES_FILE", "testdr.json");
 	ServiceLoader s = new ServiceLoader("RMI", 4325, str);
 
-	InterfaceRMIdr dr;
+	Interfacedr dr;
 	try {
-	    dr = (InterfaceRMIdr) ComWorld.getComm("localhost", "rmi", 4325,
+	    dr = (Interfacedr) ComWorld.getComm("localhost", "rmi", 4325,
 		    "dr");
 
 	    Protocol http = new Protocol();

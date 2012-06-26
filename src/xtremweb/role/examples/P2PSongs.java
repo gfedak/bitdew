@@ -12,10 +12,10 @@ import xtremweb.core.com.idl.ComWorld;
 import xtremweb.core.com.idl.ModuleLoaderException;
 import xtremweb.core.conf.ConfigurationException;
 import xtremweb.core.conf.ConfigurationProperties;
-import xtremweb.core.iface.InterfaceRMIdc;
-import xtremweb.core.iface.InterfaceRMIdr;
-import xtremweb.core.iface.InterfaceRMIds;
-import xtremweb.core.iface.InterfaceRMIdt;
+import xtremweb.core.iface.Interfacedc;
+import xtremweb.core.iface.Interfacedr;
+import xtremweb.core.iface.Interfaceds;
+import xtremweb.core.iface.Interfacedt;
 import xtremweb.core.log.Log4JLogger;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
@@ -214,17 +214,17 @@ public class P2PSongs {
     //
     // Local Data catalog
     //
-    private InterfaceRMIdc dc;
+    private Interfacedc dc;
 
     //
     // Data transfer service
     //
-    private InterfaceRMIdt dt;
+    private Interfacedt dt;
 
     //
     // Data repository service
     //
-    private InterfaceRMIdr dr;
+    private Interfacedr dr;
     
     //
     // Properties 
@@ -233,12 +233,12 @@ public class P2PSongs {
     //
     // Data scheduler service
     //
-    private InterfaceRMIds ds;
+    private Interfaceds ds;
 
     //
     // Distributed data catalog service
     //
-    private InterfaceRMIdc ddc;
+    private Interfacedc ddc;
 
     //
     // BitDew api to interface with dc
@@ -284,11 +284,11 @@ public class P2PSongs {
 	    // ddc will reference the
 	    // distributed hash table on the bootstrap node
 	    //
-	    dc = (InterfaceRMIdc) ComWorld.getComm(LOCAL_ADDRESS, "rmi", port, "dc");
-	    dt = (InterfaceRMIdt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", port, "dt");
-	    dr = (InterfaceRMIdr) ComWorld.getComm(LOCAL_ADDRESS, "rmi", port, "dr");
-	    ds = (InterfaceRMIds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", port, "ds");
-	    ddc = (InterfaceRMIdc) ComWorld.getComm(bootstrap, "rmi", port, "dc");
+	    dc = (Interfacedc) ComWorld.getComm(LOCAL_ADDRESS, "rmi", port, "dc");
+	    dt = (Interfacedt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", port, "dt");
+	    dr = (Interfacedr) ComWorld.getComm(LOCAL_ADDRESS, "rmi", port, "dr");
+	    ds = (Interfaceds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", port, "ds");
+	    ddc = (Interfacedc) ComWorld.getComm(bootstrap, "rmi", port, "dc");
 	    //
 	    // Once we succesfully get RMI references, we build two different
 	    // APIs, first one referencing the bootstrap and

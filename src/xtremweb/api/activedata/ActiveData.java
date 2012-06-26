@@ -35,12 +35,12 @@ public class ActiveData {
 	/**
 	 * Data Catalog Interface
 	 */
-    private InterfaceRMIdc cdc;
+    private Interfacedc cdc;
     
     /**
      * Data scheduling interface
      */
-    private InterfaceRMIds cds;
+    private Interfaceds cds;
     
     /**
      * Data Access Object to Data structures
@@ -93,7 +93,7 @@ public class ActiveData {
     /**
      * Creates a new <code>ActiveData</code> instance.
      */
-    public ActiveData(InterfaceRMIdc dc, InterfaceRMIds ds) {
+    public ActiveData(Interfacedc dc, Interfaceds ds) {
 	daocheck = (DaoData) DaoFactory
 		.getInstance("xtremweb.dao.data.DaoData");
 	dao = (DaoData) DaoFactory.getInstance("xtremweb.dao.data.DaoData");
@@ -110,10 +110,10 @@ public class ActiveData {
 		.getInstance("xtremweb.dao.data.DaoData");
 	dao = (DaoData) DaoFactory.getInstance("xtremweb.dao.data.DaoData");
 	for (Object o : comms) {
-	    if (o instanceof InterfaceRMIdc)
-		cdc = (InterfaceRMIdc) o;
-	    if (o instanceof InterfaceRMIds)
-		cds = (InterfaceRMIds) o;
+	    if (o instanceof Interfacedc)
+		cdc = (Interfacedc) o;
+	    if (o instanceof Interfaceds)
+		cds = (Interfaceds) o;
 	}
 	init();
     }

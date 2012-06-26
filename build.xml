@@ -351,6 +351,7 @@ public class Version {
   <delete dir="src/xtremweb/core/obj"/>
   <delete dir="src/xtremweb/core/com/handler"/>
   <delete dir="src/xtremweb/core/com/com"/>
+  <delete> <fileset dir="src/xtremweb/core/http" includes="Callback*"/> </delete>
   <delete dir="${reports}"/>
   <delete file="dist/bitdew-lib-${version}.jar"/>
   <delete file="dist/bitdew-stand-alone-${version}.jar"/>
@@ -410,7 +411,60 @@ public class Version {
     <arg value="bitdew-ug.texi"/>
   </exec>
 </target>
-
+<target name="bitdewserver">
+	<jar destfile="dist/bitdew-server-${version}.jar" manifest="bitdew.mf">
+	    
+		<fileset dir="${build}"/>
+		<fileset dir="temp-jar"/>
+	    <fileset dir="html"/>
+		<fileset dir="${conf}">
+		  <include name="properties.json"/>
+		  <include name="log4j.properties"/>
+		  <include name="log4jcmdlinetool.properties"/>
+		  <include name="dbcp.properties"/>
+		</fileset>
+	    
+	      </jar>
+</target>
+<target name="bitdewclient" depends="dist">
+	<jar destfile="dist/bitdew-client-${version}.jar" manifest="bitdew.mf">
+	    
+		<fileset dir="${build}"/>
+			<!--<exclude name="**/jsaga/*"/>
+						<exclude name="**/bittorrent/*"/>
+						<exclude name="**/dropbox/*"/>
+						<exclude name="**/amazonS3/*"/>
+						<exclude name="**/dlpt/*"/>
+						<exclude name="**/blast/*"/>
+						<exclude name="**/ibp/*"/>
+						<exclude name="**/ssh/*"/>
+						<exclude name="**/scp/*"/>
+						<exclude name="**/ddc/*"/>
+						<exclude name="**/mw/*"/>
+						<exclude name="**/integration/*"/>
+						<exclude name="**/*Test*"/>
+		</fileset>-->
+		<fileset dir="temp-jar"/>
+			<!--<exclude name="**/junit/*"/>
+			<exclude name="**/junit4.0/*"/>
+			<exclude name="**/junit4.1/*"/>
+			<exclude name="**/images/*"/>
+			<exclude name="**/cobertura/*"/>
+			<exclude name="**/amazonaws/*"/>
+			<exclude name="**/dropbox/*"/>
+			<exclude name="**/jfree/*"/>
+			<exclude name="**/jcraft/*"/>
+			<exclude name="**/demo/*"/>
+		</fileset>-->
+		<fileset dir="${conf}">
+		  <include name="properties.json"/>
+		  <include name="log4j.properties"/>
+		  <include name="log4jcmdlinetool.properties"/>
+		  <include name="dbcp.properties"/>
+		</fileset>
+	    
+	      </jar>
+</target>
     <!--
     ===================================================================
     TARGET : run the junit tests

@@ -42,7 +42,7 @@ public class TransferManager {
     /**
      * dt associated to this Transfer Manager
      */
-    private InterfaceRMIdt dt = null;
+    private Interfacedt dt = null;
 
     /** time between two periodic activities (in milli seconds) */
     private int timeout = 1000;
@@ -93,11 +93,11 @@ public class TransferManager {
      * Creates a new <code>TransferManager</code> instance.
      * 
      * @param ldt
-     *            an <code>InterfaceRMIdt</code> value
+     *            an <code>Interfacedt</code> value
      * @param ldr
-     *            an <code>InterfaceRMIdr</code> value
+     *            an <code>Interfacedr</code> value
      */
-    public TransferManager(InterfaceRMIdt ldt) {
+    public TransferManager(Interfacedt ldt) {
 	daocheck = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	dao = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	dt = ldt;
@@ -124,8 +124,8 @@ public class TransferManager {
 	daocheck = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	dao = (DaoTransfer) DaoFactory.getInstance("xtremweb.dao.transfer.DaoTransfer");
 	for (Object o : comms) {
-	    if (o instanceof InterfaceRMIdt)
-		dt = (InterfaceRMIdt) o;
+	    if (o instanceof Interfacedt)
+		dt = (Interfacedt) o;
 	}
 	init();
     }
