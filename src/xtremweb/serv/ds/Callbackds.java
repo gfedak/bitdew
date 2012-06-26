@@ -18,7 +18,7 @@ import java.util.*;
  * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
  */
-public class Callbackds extends CallbackTemplate implements InterfaceRMIds {
+public class Callbackds extends CallbackTemplate implements Interfaceds {
 	private DaoAttribute dao;
     /**
      * Class logger

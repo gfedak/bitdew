@@ -37,7 +37,7 @@ import java.util.Set;
  * @author josefrancisco
  * 
  */
-public class Callbackdr extends CallbackTemplate implements InterfaceRMIdr {
+public class Callbackdr extends CallbackTemplate implements Interfacedr {
 
     /**
      * Class logger

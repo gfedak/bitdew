@@ -30,12 +30,12 @@ import java.util.Properties;
 import java.util.Vector;
 
 /**
- * This class implements the InterfaceRMIdc, is the catalog used to handle
+ * This class implements the Interfacedc, is the catalog used to handle
  * MetaData in BitDew, this class store objects of type Data, Locator, 
  * DataChunk and DataCollection
  * @author Gilles Fedak
  */
-public class Callbackdc extends CallbackTemplate implements InterfaceRMIdc {
+public class Callbackdc extends CallbackTemplate implements Interfacedc {
 
     /**
      * Logging factory

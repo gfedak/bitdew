@@ -28,7 +28,7 @@ import java.util.Properties;
  * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
  */
-public class Callbackdt extends CallbackTemplate implements InterfaceRMIdt {
+public class Callbackdt extends CallbackTemplate implements Interfacedt {
 
     /**
      * Callbackdt logger
