@@ -20,7 +20,7 @@ public class ModuleLoader {
     public static final String rootComClassPath = "xtremweb.core.com.com";
 
     private static Logger log =  LoggerFactory.getLogger(ModuleLoader.class);
-	public static String rootIfaceClassPath= "xtremweb.core.iface.InterfaceRMI";
+	public static String rootIfaceClassPath= "xtremweb.core.iface.Interface";
 	public static String rootCommXmlRpcPath = "xtremweb.core.com.xmlrpc";
     private static Object createInstance( String className )  throws ModuleLoaderException {
 	try {
