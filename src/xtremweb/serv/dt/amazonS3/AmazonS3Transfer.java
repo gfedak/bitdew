@@ -103,7 +103,7 @@ public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
 	    s3.createBucket(bucketName);
 	    File file = new File(local_locator.getref());
 	    log.info("Uploading a new object to S3 from a file\n");
-	    s3.putObject(new PutObjectRequest(bucketName, objectKey, file));
+	    s3.putObject(new PutObjectRequest(bucketName, data.getuid(), file));
 	} catch (Exception e) {
 	    log.debug(" an exception has occured sendsender on amazonS3");
 	    throw new OOBException(
@@ -137,7 +137,7 @@ public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
         }
 	log.debug("ATTEMPTING TO DOWNLOAD OBJECT WITH BUCKET " + bucketName + "and key " + objectKey);
 	S3Object object = s3.getObject(new GetObjectRequest(bucketName,
-		objectKey));
+		data.getuid()));
 	log.info("Content-Type: " + object.getObjectMetadata().getContentType());
 	BufferedReader reader = new BufferedReader(new InputStreamReader(
 		object.getObjectContent()));
