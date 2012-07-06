@@ -21,7 +21,7 @@
  * CommRMI<xsl:value-of select="Module/@name" />.java
  *
  *  Creates the exotic ApacheRPC RequestProcessorFactoryFactory to control that only one object is created,
- *  the information about why this is needed can be found in http://ws.apache.org/xmlrpc/advanced.html.
+ *  the information about why this is needed can be found in http://ws.apache.org/xmlrpc/handlerCreation.html
  *
  * This code is generated with from TODO
  * the definition file used TODO
