@@ -161,7 +161,6 @@ public class CallbackdcTest  extends TestCase{
     } catch (ModuleLoaderException e) {
 	e.printStackTrace();
     } catch (RemoteException e) {
-	System.out.println("Excepcion la causa es " + e.getCause() + " y el mensaje " + e.getMessage());
 	e.printStackTrace();
     }
     	

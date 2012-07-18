@@ -474,10 +474,10 @@ public class Version {
  <target name="tests" description="JUnit4 test suite" depends="">
    <junit fork="yes" printsummary="yes" haltonfailure="yes" clonevm="true">
 	<sysproperty key="net.sourceforge.cobertura.datafile" file="cobertura.ser" />
-     <!-- FIXME classpath refid="project.classpath" / Quel merdier ce classpath, je comprends rien mais bon au moins ca marche -->
+     <jvmarg value="-XX:-UseSplitVerifier"/>
      <classpath location="${instrumented.dir}" />
      <classpath>
-       <pathelement path="lib/jdom.jar:lib/jaxen-1.1.1.jar:lib/sbam_standalone.jar:lib/gson-1.6.jar:lib/jsch-0.1.44.jar:lib/jakarta-oro-2.0.8.jar:lib/commons-net-1.3.0.jar:lib/commons-fileupload-1.1.1.jar:lib/servlet-api-2.5-6.1.1.jar:lib/jetty-util-6.1.1.jar:lib/jetty-html-6.1.1.jar:lib/jets3t-0.6.0.jar:lib/jetty-6.1.1.jar:lib/jcommon-1.0.9.jar:lib/jfreechart-1.0.5.jar:build:conf:lib/jpox-enhancer.jar:lib/commons-collections-3.1.jar:lib/commons-dbcp-1.2.1.jar:lib/commons-pool-1.2.jar:lib/jpox-dbcp-1.1.0-rc-1.jar:lib/jargs.jar:lib/mysql.jar:lib/hsqldb.jar:lib/bcel.jar:lib/jdo.jar:lib/jpox-1.1.0-rc-1.jar:lib/log4j.jar"/>  
+       <pathelement path="lib/jdom.jar:lib/jaxen-1.1.1.jar:lib/gson-1.6.jar:lib/jsch-0.1.44.jar:lib/jakarta-oro-2.0.8.jar:lib/commons-net-1.3.0.jar:lib/commons-fileupload-1.1.1.jar:lib/servlet-api-2.5-6.1.1.jar:lib/jetty-util-6.1.1.jar:lib/jetty-html-6.1.1.jar:lib/jets3t-0.6.0.jar:lib/jetty-6.1.1.jar:lib/jcommon-1.0.9.jar:lib/jfreechart-1.0.5.jar:build:conf:lib/jpox-enhancer.jar:lib/commons-collections-3.1.jar:lib/commons-dbcp-1.2.1.jar:lib/commons-pool-1.2.jar:lib/jpox-dbcp-1.1.0-rc-1.jar:lib/jargs.jar:lib/mysql.jar:lib/hsqldb.jar:lib/bcel.jar:lib/jdo.jar:lib/jpox-1.1.0-rc-1.jar:lib/log4j.jar"/>  
      </classpath>
     <classpath refid="cobertura.classpath" />
     <batchtest fork="yes" todir="${reports.tests}">
@@ -492,7 +492,11 @@ public class Version {
       	<exclude name="**/TestGetMultiple.java"/>
       	<exclude name="**/XMLTest.java"/>
       	<exclude name="**/xtremweb/role/integration/**"/>
-      	<exclude name="**/DLPTTest.java	"/>
+      	<exclude name="**/DLPTTest.java"/>
+    	<exclude name="**/TransferManagerTest.java"/>
+	<exclude name="**/LoggerFactoryTest.java"/>
+	<exclude name="**/SortedVectorTest.java"/>
+	<exclude name="**/AttributeTypeTest.java"/>
       </fileset>
     </batchtest>
     
