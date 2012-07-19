@@ -39,7 +39,12 @@ pour faire une nouvelle release:
 scp -r doc/doxygen/html/ jose@scm.gforge.inria.fr:/home/groups/bitdew/htdocs/doxygen
 
 	publier le html.zip dans la partie documentation de la forge
-	
+
+* Generate User documentation
+Do not forget to regenerate the information under doc/userguide, you have to run :
+
+./build.sh userguide
+
 * run sonar to store release metrics:
 	go to sonar and log in, then click on configure, change all version occurrences by the new version (be careful !
 	there is one hided on sonar-req ant task, please click advanced and change the ant file of this task to the current
