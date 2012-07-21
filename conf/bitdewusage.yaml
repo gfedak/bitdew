@@ -1,0 +1,56 @@
+title: ""
+ln: ""
+section: BitDew command line client
+ln: ""
+usage: java -jar bitdew-stand-alone.jar [Options] Commands [Command Options]
+ln: ""
+section: Options:
+option3: -h,  --help,display this help
+option3: -v,  --verbose,display debugging information
+option3: -d,  --dir,working directory
+option3: -m,  --media,the media rmi or xmlrcp (default rmi)
+option2: --host,service hostname
+option2: --port,service port
+option2: --protocol,file transfer protocol to use when transfering data
+option2: --file,an optional properties file to load the configuration
+ln: ""
+section: Commands:
+section: Services:
+option2: serv [dc|dr|dt|ds],start the list of services separated by a space
+ln: ""
+section: Attributes:
+option2: attr attr_definition,create attribute attr_definition has the syntax {name: '<attribute_name>', replicat: '<number_of_replicas>', ft: '<fault_tolerance>', lftabs: '<absolute_lifetime>', lftrel: '<relative_lifetime>',affinity: '<data_affinity>',oob: '<oob_protocol>',distrib: '<distrib>'}
+option2: 	replicat=int,number of data replicat in the system. The special value -1 means that the data will be replicated to each node
+option2: 	affinity=dataId,affinity to data Identifier. Schedule the data on node where   dataId is present.
+option2: 	lftabs=int,absolute life time. The value is the life duration in minutes.
+option2: 	lftabs=dataId,relative lifetime. The data will be obsolete when dataId is deleted.
+option2: 	oob=protocol,out-of-band file transfer protocol. Protocol can be one of the following [dummy|ftp|bittorrent]
+option2: 	ft=[true|false],fault tolerance. If true data will be rescheduled if one host  holding the data is considered as dead.
+option2: 	distrib=int,maximum number of data of this attribute, a host can hold. The special value -1  means that this number is infinite
+ln: ""
+section: Protocol:
+option2: proto protocol_definition,create a protocol definition protocol_definition has the syntax {className: '<java path to class>',name:  '<protocol_name>',path:'<remote_path_to_file>',server:'<my_host>',port:<port_number>,knownhosts:'<path_to_knownhost_file>',prkeypath:'<path_to_private_key>',pukeypath:'<path_to_public_key_path>',passphrase:'<yes|no>',login:'<yourlogin>', passwd: '<your password>'}
+option2: 	className=string, Well defined path to a java class ex. xtremweb.serv.dt.scp.ScpTransfer
+option2: 	name=string,Protocol name ex. scp
+option2: 	path=string,The remote path when you want to write/read a file ex. /home/user/bitdewdir
+option2: 	server=string,The server url ex. lip.ens-lyon.fr
+option2: 	port=int,The port number associated with your protocol ex. for ftp 21, for http 8080 etc.
+option2: 	knownhosts=string,For secured protocols ssh,scp,sftp path to known host file ex. /home/user/.ssh/known_hosts
+option2: 	prkeypath=string,For secured protocols ssh,scp,sftp path to private key file ex. /home/user/.ssh/id_dsa
+option2: 	pukeypath=string,For secured protocols ssh,scp,sftp, path to public key file ex. /home/user/.ssh/id_dsa option    
+option2: 	passphrase=yes|no,For secured protocols ssh,scp,sftp is this key protected by passphrase ? if yes, passphrase will be asked in console
+option2: 	login=string,Your login 
+option2: 	passwd=string,Your password 
+section: Data:
+option2: data file_name,create a new data from the file file_name.
+ln: ""
+section: Scheduling:
+option2: sched {attr_uid: '<attribute_id>', data_uids: [<datauid1>,<datauid2>,...,<datauidn>]},schedule one or a list of data with the specified attribute
+ln: ""
+section: File:
+option2: put file_name [dataId],copy a file in the data space. If dataId is not specified, a new data will be created from the file. 
+option2: get dataId [file_name],get the file from dataId. The default name of the file is the same as the data name. Otherwise, an alternate file name can be specified as an option
+ln: ""
+section: Grid
+option2: bdii ldap_url resource_type, perform a bdii request for services on the grid and initialize a bitdew repository accordingly
+ln: ""
