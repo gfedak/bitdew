@@ -20,17 +20,6 @@ import xtremweb.core.log.*;
  */
 
 public class ConfigurationProperties {
-    
-    /**
-     * Default properties file path
-     */
-    private static final String PROPERTIESFILE_DEFAULT = "conf/xtremweb.properties";
-    
-    /**
-     * Properties file in jar
-     */
-    private static final String PROPERTIESJARFILE_DEFAULT = "/xtremweb.properties";
-    
     /**
      * Properties structure
      */
