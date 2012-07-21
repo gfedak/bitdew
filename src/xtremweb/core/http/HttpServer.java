@@ -196,7 +196,7 @@ public class HttpServer {
 		String enableForExtensions = props.getProperty(object + ".enabledForExtensions");
 		if(enableForExtensions != null && !enableForExtensions.equals("") && enableForExtensions.equals("true")){
 			servlet.setInitParameter("enabledForExtensions","true");
-			log.info("Enabled for extensions on xmlrcp");
+			log.info("Enabled for extensions on xmlrpc");
 		}
 	    
 	    context.addServlet(servlet,"/*");
