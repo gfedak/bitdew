@@ -1,5 +1,5 @@
 {	xtremweb.role : {ui: "true"},
-	xtremweb: {media: "xmlrpc"},
+	xtremweb: {media: "rmi"},
 	xtremweb.core.db : {driver: "org.hsqldb.jdbcDriver", url: "jdbc:hsqldb:mem:test",user:"sa",password: "", connectionPooling: "DBCP", propertiesFile: "dbcp.properties"},
 	xtremweb.core.com.rmi: {port: 4325},
 	xtremweb.serv.dr : {protocols: "http"},
