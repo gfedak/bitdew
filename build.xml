@@ -299,6 +299,7 @@ public class Version {
 	  <include name="log4j.properties"/>
 	  <include name="log4jcmdlinetool.properties"/>
 	  <include name="dbcp.properties"/>
+	  <include name="bitdewusage.yaml"/>
 	</fileset>
     
       </jar>
