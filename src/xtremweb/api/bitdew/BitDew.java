@@ -209,7 +209,7 @@ public class BitDew {
     }
     
     /**
-     * Registers a protocol that dont use SSH
+     * Registers a protocol not based on SSH
      * @param name
      * @param classname
      * @param server
