@@ -11,7 +11,6 @@ package xtremweb.core.log;
  */
 public class Usage {
 
-    public static Logger log = LoggerFactory.getLogger("");       
     private static final int OPTION_TAB = 2;
     private static final int DESCRIPTION_TAB = 32;
     private static final int DESCRIPTION_LEN = 64;
@@ -31,7 +30,7 @@ public class Usage {
      *
      */
     public void title() {
-	log.info("BitDew version " + Version.versionToString()); 
+	System.out.println("BitDew version " + Version.versionToString()); 
     }
 
     /**
@@ -40,7 +39,7 @@ public class Usage {
      * @param mesg a <code>String</code> value
      */
     public void usage(String mesg) {
-	log.info("Usage : " + mesg);
+	System.out.println("Usage : " + mesg);
     }
 
     /**
@@ -49,7 +48,7 @@ public class Usage {
      * @param msg a <code>String</code> value
      */
     public void section(String msg) {
-	log.info(msg);
+	System.out.println(msg);
     }
 
     /**
@@ -57,7 +56,7 @@ public class Usage {
      *
      */
     public void ln(){
-	log.info("");
+	System.out.println("");
     }
 
     /**
@@ -91,11 +90,11 @@ public class Usage {
 	//append description to option
         if (tmpOpt.length()<(DESCRIPTION_TAB)) 
 	    //same line
-	    log.info(tmpOpt + addTab(DESCRIPTION_TAB-tmpOpt.length(),tmpDescr.substring(DESCRIPTION_TAB, tmpDescr.length())) );
+            System.out.println(tmpOpt + addTab(DESCRIPTION_TAB-tmpOpt.length(),tmpDescr.substring(DESCRIPTION_TAB, tmpDescr.length())) );
 	else {
 	    //2 lines
-	    log.info(tmpOpt);
-	    log.info(tmpDescr);
+	    System.out.println(tmpOpt);
+	    System.out.println(tmpDescr);
 	}
     }
     
