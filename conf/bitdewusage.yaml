@@ -51,6 +51,10 @@ section: File:
 option2: put file_name [dataId],copy a file in the data space. If dataId is not specified, a new data will be created from the file. 
 option2: get dataId [file_name],get the file from dataId. The default name of the file is the same as the data name. Otherwise, an alternate file name can be specified as an option
 ln: ""
+section: Service Generation:
+option2: gen service_name jdo_object1, jdo_object2, jdo_object3 ... , generate a new rmi service whose name is service_name and uses jdo_objecti JDO objects (see tutorials for more information).
+
+
 section: Grid
 option2: bdii ldap_url resource_type, perform a bdii request for services on the grid and initialize a bitdew repository accordingly
 ln: ""

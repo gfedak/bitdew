@@ -26,7 +26,7 @@ public class Callbackdnaming extends CallbackTemplate implements InterfaceRMIdna
      * </li>
      * <li> The following example explains how to build a simple domain naming service such that, for a given service name dX, it
      * answers the ip address of the node containing that service. The service uses a database table (SERVICE) to store this information </li>
-     * <li> Download <a href="https://gforge.inria.fr/frs/?group_id=321&release_id=6756">bitdew-sdk-0.2.8.zip</a></li>
+     * <li> Download <a href="https://gforge.inria.fr/frs/?group_id=321">Last version of sdk</a></li>
      * 
      * <li> Unzip, cd into de directory and type, 
      * 
