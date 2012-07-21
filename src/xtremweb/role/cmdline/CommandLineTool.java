@@ -165,7 +165,7 @@ proto                      JOSE
  */
 
 public class CommandLineTool {
-
+    private String USAGE_PATH = "/bitdewusage.yaml";
     private BitDew bitdew;
     private ActiveData activeData;
     private TransferManager transferManager = null;
@@ -356,8 +356,7 @@ public class CommandLineTool {
 	    String passphrase = CommandLineToolHelper.nullOrObject(repo
 								   .get("passphrase"));
 
-	    if (name.equals("http") || name.equals("ftp"))// TODO make it
-		// extensible
+	    if (name.equals("http") || name.equals("ftp"))
 		bitdew.registerNonSecuredProtocol(name,classname, host, port, path,
 						  login, passwd);
 	    else
@@ -718,85 +717,53 @@ public class CommandLineTool {
     }
     
     public void usage(HelpFormat format) {
-	Usage usage = new Usage();
-	switch (format) {
-	case LONG:
-	    usage.title();
-	    usage.ln();
-	    usage.section("BitDew command line client");
-	    usage.ln();
-	    usage.usage("java -jar bitdew-stand-alone.jar [Options] Commands [Command Options]");
-	    usage.ln();
-	    usage.section("Options:");
-	    usage.option("-h", "--help", "display this helps");
-	    usage.option("-v", "--verbose", "display debugging information");
-	    usage.option("-d", "--dir", "working directory");
-	    usage.option("-m", "--media", "the media (rmi or xmlrcp, default rmi)");
-	    usage.option("--host", "service hostname");
-	    usage.option("--port", "service port");
-	    usage.option("--protocol", "file transfer protocol to use when transfering data");
-	    usage.option("--file", "an optional properties file to load the configuration");
-	    usage.ln();
-	    usage.section("Commands:");
-	    usage.section("Services:");
-	    usage.option("serv [dc|dr|dt|ds]",
-			 "start the list of services separated by a space");
-	    usage.ln();
-			
-	    usage.section("Service generation");
-	    usage.option("-s ","<service name>");
-	    usage.option("-o", "<list of jdo objects>");
-			
-			
-	    usage.section("Attributes:");
-	    usage.option("attr attr_definition",
-			 "create attribute where attr is [proto|attr], attr_definition has the syntax {name: '<attribute_name>', replicat: '<number_of_replicas>', ft: '<fault_tolerance>'," +
-			 "lftabs: '<absolute_lifetime>', lftrel: '<relative_lifetime>',affinity: '<data_affinity>',oob: '<oob_protocol>',distrib: '<distrib>'}");
-	    usage.option("", "Field can have the following values :");
-	    usage.option("    replicat=int",
-			 "number of data replicat in the system. The special value -1    means that the data will be replicated to each node");
-	    usage.option("    affinity=dataId",
-			 "affinity to data Identifier. Schedule the data on node where   dataId is present.");
-	    usage.option("    lftabs=int",
-			 "absolute life time. The value is the life duration in minutes.");
-	    usage.option("    lftabs=dataId",
-			 "relative lifetime. The data will be obsolete when dataId is    deleted.");
-	    usage.option(
-			 "    oob=protocol",
-			 "out-of-band file transfer protocol. Protocol can be one of the following [dummy|ftp|bittorrent]");
-	    usage.option(
-			 "    ft=[true|false]",
-			 "fault tolerance. If true data will be rescheduled if one host  holding the data is considered as dead.");
-	    usage.option(
-			 "    distrib=int",
-			 "maximum number of data of this attribute, a host can hold. The special value -1  means that this number is infinite");
-	    usage.ln();
-	    usage.section("Data:");
-	    usage.option("data file_name",
-			 "create a new data from the file file_name");
-	    usage.ln();
-	    usage.section("Scheduling:");
-	    usage.option("sched {attr_uid: '<attribute_id>', data_uids: [<datauid1>,<datauid2>,...,<datauidn>]}",
-			 "schedule one or a list of data with the specified attribute");
-	    // usage.option("unsched data_uid [data_uids ..... ]","unschedule one or a list of data");
-	    usage.ln();
-	    usage.section("File:");
-	    usage.option("put file_name [dataId]",
-			 "copy a file in the data space. If dataId is not specified, a new data will be created from the file.");
-	    usage.option("get dataId [file_name]", "get the file from dataId. The default name of the file is the same as the data name. Otherwise, an alternate file name can be specified as an option");
-	    usage.ln();
-	    
-	    usage.section("Grid");
-	    usage.option("bdii ldap_url resource_type", "perform a bdii request for services on the grid and initialize a bitdew repository accordingly");
-	    usage.ln();
-	    break;
-	case SHORT:
-	    usage.usage("try java -jar bitdew-stand-alone-"
-			+ Version.versionToString()
+	try {
+	    String rest="" ;
+	    Usage usage = new Usage();
+	    switch (format) {
+	    case LONG:
+		BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(USAGE_PATH)));
+		String s;
+		s = br.readLine();
+		while (s != null) {
+		    // s has the form [option2|option3|section...]: <value1> , <valu2> , <value3>
+		    //log.info("line is "+ s);
+		    String[] tokens = s.split(":");
+		    String rests = s.substring(s.indexOf(":")+1);
+		    // commasep is <value1> , <valu2> , <value3>
+		    String[] commasep = rests.split(",");		
+		    // commasep1 is the first value of the comma separated list
+		    String commasep1 = commasep[0];
+		    if ( tokens[1].indexOf(",") != -1)
+			rest = rests.substring(tokens[1].indexOf(",")+1);
+		    if (tokens[0].equals("usage"))
+			usage.usage(tokens[1]);
+		    if (tokens[0].equals("title"))
+			usage.title();
+		    if (tokens[0].equals("section"))
+			usage.section(tokens[1]);
+		    if (tokens[0].equals("option2")) {
+			//log.info("out " + rest + ", tokens is " + tokens[1]);
+			usage.option(commasep1, rest);
+		    }
+		    if (tokens[0].equals("option3")) {
+			usage.option(commasep[0], commasep[1], commasep[2]);
+		    }
+		    if (tokens[0].equals("ln")) {
+			usage.ln();
+		    }
+		    s = br.readLine();
+		}
+		break;
+	    case SHORT:
+		usage.usage("try java -jar bitdew-stand-alone-" + Version.versionToString()
 			+ ".jar [-h, --help] for more information");
-	    break;
+		break;
+	    }
+	    System.exit(2);
+	} catch (IOException e) {
+	    e.printStackTrace();
 	}
-	System.exit(2);
     }
 
     public static void main(String[] args) {
