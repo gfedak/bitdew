@@ -23,7 +23,7 @@
   <property name="instrumented.dir" location="instr"/>
   <property name="coveragereport.dir" location="covreport"/>
   <property name="rpc-servlet-properties-path" location="temp-jar/org/apache/xmlrpc/webserver"/>
- 
+  <property name="tempjar" location="temp-jar"/> 
   
  
     <!--
@@ -246,7 +246,7 @@ public class Version {
 		    excludes="**/bench/*, **/blast/*, **/mw/*, **/examples/*, **/reservoir/*, **/serv/obj/*, **/serv/test/*, **/core/obj/**, **/core/iface/**, **/core/com/com/**, **/core/com/handler/**"
 		    prefix="bitdew-${version}/src/" />
 	<zipfileset dir="src/xtremweb/role/examples"
-		    includes="HelloWorld.java, PutGet.java, PingPong.java, FTPServer.java, ScpTransfer.java,  Callbackdn.java, P2PClient.java, P2PSongs.java"
+		    includes="HelloWorld.java, PutGet.java, PingPong.java, FTPServer.java, ScpTransfer.java, P2PServlet.java, Callbackdn.java, P2PClient.java, P2PSongs.java"
 		    prefix="bitdew-${version}/src/xtremweb/role/examples/" />
 	<zipfileset dir="conf" 
 		    includes="java.policy, jpox.properties, dbcp.properties, log4j.properties, bitdewusage.yaml, log4jcmdlinetool.properties, xtremweb.properties*, properties.json, testdr.json" 
@@ -274,7 +274,7 @@ public class Version {
     </target>
     
     <target name="deflate-jars">
-      <unzip dest="temp-jar">
+      <unzip dest="${tempjar}">
 	<patternset>
 	  <exclude name="**/*.java"/>
 	</patternset>
@@ -346,7 +346,13 @@ public class Version {
 </target>
 
 <target name="clean" description="clean up">
+  <delete file="jpox-enhancer.log"/>
+  <delete file="jpox.log"/>
+  <delete dir="src/xtremweb/core/com/xmlrpc"/>
+  <delete dir="${tempjar}"/>
   <delete dir="${build}"/>
+  <delete dir="${dist}"/>
+  <delete dir="doc/api"/>
   <delete dir="${timestampdir}"/>
   <delete dir="src/xtremweb/core/iface"/>
   <delete dir="src/xtremweb/core/obj"/>
