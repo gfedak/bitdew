@@ -249,7 +249,7 @@ public class Version {
 		    includes="HelloWorld.java, PutGet.java, PingPong.java, FTPServer.java, ScpTransfer.java,  Callbackdn.java, P2PClient.java, P2PSongs.java"
 		    prefix="bitdew-${version}/src/xtremweb/role/examples/" />
 	<zipfileset dir="conf" 
-		    includes="java.policy, jpox.properties, dbcp.properties, log4j.properties, log4jcmdlinetool.properties, xtremweb.properties*, properties.json, testdr.json" 
+		    includes="java.policy, jpox.properties, dbcp.properties, log4j.properties, bitdewusage.yaml, log4jcmdlinetool.properties, xtremweb.properties*, properties.json, testdr.json" 
 		    prefix="bitdew-${version}/conf" />
 	<zipfileset dir="lib"
 		    prefix="bitdew-${version}/lib/" />
