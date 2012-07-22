@@ -22,6 +22,15 @@
 	
 		
 ** HISTORY **
+July 22, 2012
+
+XML-RPC Protocol added
+S3 modification to be hable to handle multiple files
+P2P bug corrected
+InterfaceRMIXX name changed to InterfaceXX
+
+
+
 March 20, 2012
 
 	version 1.0
