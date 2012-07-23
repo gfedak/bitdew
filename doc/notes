@@ -17,6 +17,12 @@ pour faire une nouvelle release:
 	
 	mettre les changements dans Changelog
 	faire svn commit en resoluant tout les conflits/modifications.
+
+* Generate User documentation
+Do not forget to regenerate the information under doc/userguide, you have to run :
+
+./build.sh userguide
+
 * tester : 
 	faire build.sh sdk puis dezipper le fichier dans le /tmp et faire a nouveau un build.sh sdk (sdk cest un etape plus que release, il est necessaire pour ajouter le sdk a la release) 
 	tester les exemples et l'outil en ligne de commande
@@ -40,10 +46,6 @@ scp -r doc/doxygen/html/ jose@scm.gforge.inria.fr:/home/groups/bitdew/htdocs/dox
 
 	publier le html.zip dans la partie documentation de la forge
 
-* Generate User documentation
-Do not forget to regenerate the information under doc/userguide, you have to run :
-
-./build.sh userguide
 
 * run sonar to store release metrics:
 	go to sonar and log in, then click on configure, change all version occurrences by the new version (be careful !
