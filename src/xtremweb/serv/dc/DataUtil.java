@@ -9,15 +9,11 @@ package xtremweb.serv.dc;
  * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
  */
-import xtremweb.api.bitdew.BitDew;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 import xtremweb.core.obj.dc.Data;
-import xtremweb.core.uid.*;
-
 import java.security.*;
 import java.io.*;
-import java.nio.*;
 import java.math.BigInteger;
 
 /**
