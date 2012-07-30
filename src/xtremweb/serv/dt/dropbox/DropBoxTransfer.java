@@ -234,7 +234,7 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 	String path = props.getProperty("xtremweb.serv.dr.dropbox.path")
 		+ local_locator.getdatauid();
 	File f = new File(local_locator.getref());
-	FileInputStream fis;
+	FileInputStream fis= null;
 	try {
 	    fis = new FileInputStream(f);
 	    api.putFile(path, fis, f.length(), null, null);
@@ -248,6 +248,11 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 		    "There was an exception using the DropBox API "
 			    + e.getMessage());
 
+	}finally{
+	    try {
+		if (fis!= null)
+		    fis.close();
+	    } catch (IOException e) {}
 	}
     }
 
