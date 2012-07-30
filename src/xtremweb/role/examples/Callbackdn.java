@@ -2,7 +2,7 @@ package xtremweb.serv.dnaming;
 
 import java.rmi.RemoteException;
 import xtremweb.core.com.idl.CallbackTemplate;
-import xtremweb.core.iface.InterfaceRMIdnaming;
+import xtremweb.core.iface.Interfacednaming;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 import xtremweb.core.obj.dn.Service;
@@ -16,7 +16,7 @@ import xtremweb.dao.service.DaoService;
  * @author jsaray
  * 
  */
-public class Callbackdnaming extends CallbackTemplate implements InterfaceRMIdnaming {
+public class Callbackdnaming extends CallbackTemplate implements Interfacednaming {
     /*! \example Callbackdn.java 
      * <ol>
      * <li> Prerrequesites :
@@ -114,7 +114,7 @@ public class Callbackdnaming extends CallbackTemplate implements InterfaceRMIdna
      * import javax.jdo.Query;
      * import javax.jdo.Transaction;
      * import xtremweb.core.com.idl.CallbackTemplate;
-     * import xtremweb.core.iface.InterfaceRMIdnaming;
+     * import xtremweb.core.iface.Interfacednaming;
      * import xtremweb.core.log.Logger;
      * import xtremweb.core.log.LoggerFactory;
      * import xtremweb.core.obj.dnaming.Service;
@@ -129,7 +129,7 @@ public class Callbackdnaming extends CallbackTemplate implements InterfaceRMIdna
      *             String sname1 = "dr";
      *             String sname2 = "ds";
      *             String sname3 = "dt";
-     *             InterfaceRMIdnaming dn = (InterfaceRMIdnaming) ComWorld.getComm("localhost", "rmi", 4325,"dnaming");
+     *             Interfacednaming dn = (Interfacednaming) ComWorld.getComm("localhost", "rmi", 4325,"dnaming");
      *             dn.registerService(sname1, ip1);
      *             dn.registerService(sname2, ip2);
      *             dn.registerService(sname3, ip3);
