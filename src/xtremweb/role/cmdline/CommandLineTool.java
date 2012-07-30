@@ -173,7 +173,7 @@ public class CommandLineTool {
     private enum HelpFormat {
 	SHORT, LONG
 	    };
-
+    private Vector comms ;
     private String host;
     private String dirName;
     private int port;
@@ -238,7 +238,7 @@ public class CommandLineTool {
 
 	//for the other command, we need to create a communication to the services
 	try {
-	    Vector comms = ComWorld.getMultipleComms(host,media, port,"dc", "dr", "dt", "ds");
+	    comms = ComWorld.getMultipleComms(host,media, port,"dc", "dr", "dt", "ds");
 	    activeData = new ActiveData(comms);
 	    bitdew = new BitDew(comms);
 	    transferManager = new TransferManager(comms);
@@ -491,9 +491,6 @@ public class CommandLineTool {
 	}
 	try {
 	    OOBTransfer oobTransfer = bitdew.put(file, data, myprot);
-	    //JOSE FIX DUPLICATION DU CODE, POURQUOI
-	    Vector comms = ComWorld.getMultipleComms(host, "rmi", port,
-						     "dr", "dc", "dt");
 	    TransferManager transman = TransferManagerFactory
 		.getTransferManager(
 				    (Interfacedt) comms.get(2));
