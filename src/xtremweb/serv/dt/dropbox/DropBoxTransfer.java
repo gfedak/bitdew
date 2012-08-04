@@ -11,6 +11,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.impl.conn.SingleClientConnManager;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.exception.DropboxException;
 import com.dropbox.client2.session.AccessTokenPair;
@@ -28,6 +37,7 @@ import xtremweb.core.obj.dr.Protocol;
 import xtremweb.core.obj.dt.Transfer;
 import xtremweb.serv.dt.BlockingOOBTransferImpl;
 import xtremweb.serv.dt.OOBException;
+import xtremweb.serv.dt.dropbox.sslsocket.EasySSLSocketFactory;
 
 /**
  * This class implements a transfer using Dropbox protocol
@@ -126,6 +136,10 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 	log.debug("app key " + app_key + " app sec " + app_secret);
 	AppKeyPair pair = new AppKeyPair(app_key, app_secret);
 	was = new WebAuthSession(pair, AccessType.APP_FOLDER);
+	
+	HttpClient http_client = was.getHttpClient();
+	http_client.getConnectionManager().getSchemeRegistry().register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+	http_client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", new EasySSLSocketFactory(), 443));
 	WebAuthInfo info;
 	access_token_key = readProperty("xtremweb.serv.dr.dropbox.token-key");
 	access_token_secret = readProperty("xtremweb.serv.dr.dropbox.token-secret");

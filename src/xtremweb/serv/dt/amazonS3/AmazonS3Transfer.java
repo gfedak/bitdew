@@ -145,7 +145,6 @@ public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
 	    BufferedWriter writer = new BufferedWriter(new FileWriter(new File(local_locator.getref())));
 	    while ((line = reader.read())!=-1) {
 		writer.write(line);
-		log.debug("    " + line);
 	    }
 	    writer.close();
 	} catch (IOException e) {
