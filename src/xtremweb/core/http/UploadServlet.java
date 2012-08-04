@@ -1,6 +1,6 @@
 package xtremweb.core.http;
 
-
+import xtremweb.core.http.exception.RemoteFileNotSpecifiedException;;
 import xtremweb.core.log.*;
 import xtremweb.core.conf.*;
 
@@ -35,6 +35,8 @@ import java.io.File;
 public class UploadServlet extends HttpServlet {
     
     private String _documentRoot; 
+    
+    private String file_name;
 
     Logger log = LoggerFactory.getLogger("UploadServlet");
  
@@ -75,6 +77,7 @@ public class UploadServlet extends HttpServlet {
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	try {
+		FileItem toWrite = null;
 	    log.debug("Content Type ="+request.getContentType());
 	    DiskFileItemFactory factory = new DiskFileItemFactory();
 	    // Configure the factory here, if desired.
@@ -91,23 +94,36 @@ public class UploadServlet extends HttpServlet {
 		    log.debug("\nFIELD NAME: "+fi.getFieldName());
 		    log.debug("\nNAME: "+fi.getName());
 		    log.debug("SIZE: "+fi.getSize());
-		    File fNew= new File(_documentRoot, fi.getName());
-		    //	File fNew= new File(fi.getName());
-		    log.debug(fNew.getAbsolutePath());
-		    fi.write(fNew);
+		    toWrite = fi;
 		}
 		else {
-		    log.debug("Field ="+fi.getFieldName());
+			log.debug("enter in is not  a form field");
+		    log.debug("Field ="+fi.getFieldName() + " " + fi.getString());
+		    file_name = fi.getString();
 		}
 	    }
-	} catch (Exception e) {
-	    log.debug("Error" + e);
-	    e.printStackTrace();
+	    
+	    if (file_name.equals("") || file_name == null)
+	    {
+	    	throw new RemoteFileNotSpecifiedException("The remote file name was not specified");
+	    }
+	    
+	    File fNew= new File(_documentRoot, file_name);
+	    //	File fNew= new File(fi.getName());
+	    log.debug(fNew.getAbsolutePath());
+	    toWrite.write(fNew);
+	    response.setContentType("text/html");
+		response.setStatus(HttpServletResponse.SC_OK);
+		response.getWriter().println("<h1>File Uploaded</h1>");
+	} catch(Exception e){
+		e.printStackTrace();
+		log.fatal("There was an internal server error : " + e.getMessage());
+		response.setContentType("text/html");
+		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		response.getWriter().println("<h1>"+e.getMessage()+"</h1>");
 	}
 	
-	response.setContentType("text/html");
-	response.setStatus(HttpServletResponse.SC_OK);
-	response.getWriter().println("<h1>File Uploaded</h1>");
+	
     }
     
 }
