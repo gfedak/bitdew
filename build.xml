@@ -503,6 +503,7 @@ public class Version {
 	<exclude name="**/LoggerFactoryTest.java"/>
 	<exclude name="**/SortedVectorTest.java"/>
 	<exclude name="**/AttributeTypeTest.java"/>
+	<exclude name="**/JndiLdapImplTest.java"/>
       </fileset>
     </batchtest>
     
