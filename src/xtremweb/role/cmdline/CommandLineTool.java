@@ -512,7 +512,7 @@ public class CommandLineTool {
 	    log.fatal("Error during data transfer : " + tme);
 	} catch (BitDewException bde) {
 	    log.fatal("Error during data transfer or creation : " + bde);
-	}  catch (OOBException e) {
+	  catch (OOBException e) {
 	    log.fatal("Error during data transfer : " +e);
 	}
 	
