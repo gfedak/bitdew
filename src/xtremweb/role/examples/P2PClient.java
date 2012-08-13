@@ -76,7 +76,7 @@ public class P2PClient {
 	    dc = (Interfacedc) ComWorld.getComm(BOOTSTRAP, "rmi", 4325, "dc");
 	    dt = (Interfacedt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "dt");
 	    tm = new TransferManager(dt);
-	    bitdew = new BitDew(dc, dr, dt, ds,true);
+	    bitdew = new BitDew(dc, dr,  ds,true);
 	} catch (ModuleLoaderException e) {
 	    e.printStackTrace();
 	} catch (UnknownHostException e) {
@@ -126,7 +126,7 @@ public class P2PClient {
 	    } else
 		throw new BitDewException("There is not ip for that md5 ! ");
 	    // Then we create a new bitdew API pointing to the host's having our song dc and dr.
-	    bitdew = new BitDew(dc, dr, dt, ds);
+	    bitdew = new BitDew(dc, dr, ds);
 	    tm.start();
 	    File file = new File(songname);
 	    // the getDataFromMd5 method help us to retrieve a bitdew data
@@ -167,7 +167,7 @@ public class P2PClient {
 	    dt = (Interfacedt) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "dt");
 	    ds = (Interfaceds) ComWorld.getComm(LOCAL_ADDRESS, "rmi", 4325, "ds");
 	    // build a new bitdew instance from these services.
-	    bitdew = new BitDew(dc, dr, dt, ds,true);
+	    bitdew = new BitDew(dc, dr,ds,true);
 	    String[] toks = song.split("[\\s\\._-]");
 	    // We split the file name to extract each word composing it, and we
 	    // index the song name

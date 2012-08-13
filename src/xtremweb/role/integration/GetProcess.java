@@ -68,7 +68,7 @@ public class GetProcess {
 		    "rmi", 4325, "dt");
 	    duid = uid;
 	  
-	    bd = new BitDew(idc, idr, idt, ids);
+	    bd = new BitDew(idc, idr,ids);
 	    tm = new TransferManager(idt);
 	    tm.start();
 	} catch (ModuleLoaderException e) {

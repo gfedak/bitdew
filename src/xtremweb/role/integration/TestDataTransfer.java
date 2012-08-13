@@ -89,7 +89,7 @@ public class TestDataTransfer {
 		log.info("Setting http repository in " + s);
 		CommRMIdr dr = (CommRMIdr) ComWorld.getComm(s, "RMI", 4325,
 			"dr");
-		BitDew bd = new BitDew(dc, dr, dt, ds);
+		BitDew bd = new BitDew(dc, dr, ds);
 		batchindex = 0;
 		for (; batchindex < BATCH; batchindex++) {
 		    d = bd.createData("bitdew" + beginin + batchindex + ".mf");
@@ -106,7 +106,7 @@ public class TestDataTransfer {
 		log.info("Setting ftp repository in " + s);
 		CommRMIdr dr = (CommRMIdr) ComWorld.getComm(s, "RMI", 4325,
 			"dr");
-		BitDew bd = new BitDew(dc, dr, dt, ds);
+		BitDew bd = new BitDew(dc, dr, ds);
 		batchindex = 0;
 		for (; batchindex < BATCH; batchindex++) {
 		    d = bd.createData("bitdew" + beginin + batchindex + ".mf");
@@ -123,7 +123,7 @@ public class TestDataTransfer {
 		log.info("Setting scp repository in " + s + "beginin is " + beginin + " http  "  + NUM_HTTP + " ftp " + NUM_FTP + " SCP " + NUM_SCP );
 		CommRMIdr dr = (CommRMIdr) ComWorld.getComm(s, "RMI", 4325,
 			"dr");
-		BitDew bd = new BitDew(dc, dr, dt, ds);
+		BitDew bd = new BitDew(dc, dr, ds);
 		batchindex = 0;
 		for (; batchindex < BATCH; batchindex++) {
 		    d = bd.createData("bitdew" + beginin + batchindex + ".mf");
@@ -148,7 +148,7 @@ public class TestDataTransfer {
 		log.info("Setting http repository in " + s);
 		CommRMIdr dr = (CommRMIdr) ComWorld.getComm(s, "RMI", 4325,
 			"dr");
-		BitDew bd = new BitDew(dc, dr, dt, ds);
+		BitDew bd = new BitDew(dc, dr,ds);
 		batchindex = 0;
 		for (; batchindex < BATCH; batchindex++) {
 		    d = bd.searchDataByUid((String) v.get(iter));

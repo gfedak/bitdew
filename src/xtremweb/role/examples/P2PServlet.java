@@ -98,7 +98,7 @@ public class P2PServlet extends HttpServlet {
 	    dr = (Interfacedr) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325, "dr");
 	    dt = (Interfacedt) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325, "dt");
 	    ds = (Interfaceds) ComWorld.getComm(LOCAL_ADDRESS, "RMI", 4325, "ds");
-	    bd = new BitDew(ddc, dr, dt, ds, true);
+	    bd = new BitDew(ddc, dr, ds, true);
 	    log.debug("enter in p2pservlet get " + bd);
 	    l = bd.ddcSearch(param);
 
