@@ -175,7 +175,6 @@ public class CommandLineTool {
 	    };
     private Vector comms ;
     private String host;
-    private String dirName;
     private int port;
     private String protocol;
     private String media;
@@ -512,6 +511,7 @@ public class CommandLineTool {
 	    log.fatal("Error during data transfer : " + tme);
 	} catch (BitDewException bde) {
 	    log.fatal("Error during data transfer or creation : " + bde);
+	}
 	  catch (OOBException e) {
 	    log.fatal("Error during data transfer : " +e);
 	}
@@ -651,7 +651,6 @@ public class CommandLineTool {
 
 	host = (String) parser.getOptionValue(hostOption, "localhost");
 	fileName = (String) parser.getOptionValue(fileOption);
-	dirName = (String) parser.getOptionValue(dirOption, ".");
 	protocol = (String) parser.getOptionValue(protocolOption,"http");
 	media = (String) parser.getOptionValue(mediaOption,"rmi");
 	boolean help = ((Boolean) parser.getOptionValue(helpOption,

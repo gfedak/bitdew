@@ -25,7 +25,6 @@ import java.math.BigInteger;
 public class DataUtil {
 
     private static String digits = "0123456789ABCDEF";
-    private static Logger log = LoggerFactory.getLogger(DataUtil.class);
     /**
      * Creates a new <code>DataUtil</code> instance.
      *
