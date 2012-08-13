@@ -59,9 +59,17 @@
           value = "org.xmLP.ant.taskdefs.optional.Saxon6Liaison"/>
   <property name = "saxon6.classpath"
           value = "${project.classpath}"/>
+ 	
+  <property name="sonar.host.url" value="http://localhost:9000" />	
+ 
   <taskdef name = "mtxslt"
          classname = "org.xmLP.ant.taskdefs.xslt.XSLTProcess"
 	   classpath="${project.classpath}"/>
+ 	
+ 	<taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml" classpath="${project.classpath}"/> 
+ 	
+ 	
+ 	
   <taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
   <tstamp prefix="time"/>
 
@@ -243,7 +251,7 @@ public class Version {
 		    includes="bitdew-ug.texi, bitdew-ug.pdf, bitdew-ug.html" 
 		    prefix="bitdew-${version}/doc/userguide/" />
 	<zipfileset dir="src"
-		    excludes="**/bench/*, **/blast/*, **/mw/*, **/examples/*, **/reservoir/*, **/serv/obj/*, **/serv/test/*, **/core/obj/**, **/core/iface/**, **/core/com/com/**, **/core/com/handler/**"
+		    excludes="**/bench/*, **/blast/*, **/mw/*, **/examples/*, **/reservoir/*, **/serv/obj/*, **/serv/test/*,**/core/http/Callback**,**/core/com/xmlrpc/**, **/core/obj/**, **/core/iface/**, **/core/com/com/**, **/core/com/handler/**"
 		    prefix="bitdew-${version}/src/" />
 	<zipfileset dir="src/xtremweb/role/examples"
 		    includes="HelloWorld.java, ServletHelper.java, PutGet.java, PingPong.java, FTPServer.java, GetFilesServlet.java, ScpTransfer.java, DownloadSongServlet.java, P2PServlet.java, Callbackdn.java, P2PClient.java, P2PSongs.java" prefix="bitdew-${version}/src/xtremweb/role/examples/" />
@@ -266,7 +274,17 @@ public class Version {
     bitdew-stand-alone-${version}.jar is the "executable"
     ===================================================================
 -->
-
+ 	<target name="sonar">
+ 		<!-- list of mandatories Sonar properties -->
+ 		<property name="sonar.sources" value="src" />
+		<!-- list of optional Sonar properties -->
+ 		<property name="sonar.projectName" value="BitDew" />
+ 		<property name="sonar.binaries" value="bin" />
+ 		<sonar:sonar key="org.example:example" version="0.1-SNAPSHOT" xmlns:sonar="antlib:org.sonar.ant"/>
+ 	</target>
+ 		
+ 		
+ 		
     <target name="jar" depends="dist">
       <jar destfile="dist/bitdew-lib-${version}.jar" basedir="${build}"/>
     	
