@@ -72,7 +72,7 @@ public class TransferManagerTest {
 	    cdt = (Interfacedt) ComWorld.getComm( "localhost", "rmi", 4322, "dt" );
 	    cds = (Interfaceds) ComWorld.getComm( "localhost", "rmi", 4322, "ds" );
 
-	    bitdew = new BitDew( cdc, cdr, cdt, cds );
+	    bitdew = new BitDew( cdc, cdr,cds );
 
 	    tm = new TransferManager(cdt);
 

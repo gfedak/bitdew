@@ -55,10 +55,9 @@ public class ActiveDataTest {
 	    	    
 	    cdc = (Interfacedc) ComWorld.getComm( "localhost", "rmi", 4322, "dc" );
 	    cdr = (Interfacedr) ComWorld.getComm( "localhost", "rmi", 4322, "dr" );
-	    cdt = (Interfacedt) ComWorld.getComm( "localhost", "rmi", 4322, "dt" );
 	    cds = (Interfaceds) ComWorld.getComm( "localhost", "rmi", 4322, "ds" );
 
-	    bitdew = new BitDew( cdc, cdr, cdt, cds );
+	    bitdew = new BitDew( cdc, cdr,cds );
 
 	    ActiveDataFactory.init(cdc,cds);
 	    ad = ActiveDataFactory.getActiveData();

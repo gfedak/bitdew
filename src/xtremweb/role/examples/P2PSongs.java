@@ -294,8 +294,8 @@ public class P2PSongs {
 	    // APIs, first one referencing the bootstrap and
 	    // second one referencing the local data catalog, the true flag indicates to start
 	    // and connnect ddc to the bootstrap node.
-	    bitdewddc = new BitDew(ddc, dr, dt, ds, true);
-	    bitdew = new BitDew(dc, dr, dt, ds);
+	    bitdewddc = new BitDew(ddc, dr,ds, true);
+	    bitdew = new BitDew(dc, dr, ds);
     }
 
     //
