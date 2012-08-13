@@ -162,8 +162,6 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
 			+ redirecturl
 			+ " and grant bitdew permission in your dropbox account, this procedure will be done just once");
 		Thread.sleep(Long.parseLong(exp)*CONVERSION_RATIO);
-
-		String userLogin = was.retrieveWebAccessToken(tpair);
 		AccessTokenPair at = was.getAccessTokenPair();
 		log.info("Key " + at.key +" Secret " + at.secret);
 		writePropertiesFile(at.key,at.secret);
