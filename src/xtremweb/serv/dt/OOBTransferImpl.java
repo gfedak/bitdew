@@ -211,34 +211,67 @@ public abstract class OOBTransferImpl implements OOBTransfer {
 	return remote_protocol;
     }
     
+    /**
+     * Set the transfer data
+     * @param d
+     */
     public void setData(Data d){
 	data = d;
     }
+    
+    /**
+     * Set the transfer local locator
+     * @param local
+     */
     public void setLocalLocator(Locator local){
 	local_locator = local;
     }
+    
+    /**
+     * Set the transfer remote locator
+     * @param remote
+     */
     public void setRemoteLocator(Locator remote){
 	remote_locator = remote;
     }
     
+    /**
+     * Set the transfer local protocol
+     * @param local_protocol
+     */
     public void setLocalProtocol(Protocol local_protocol)
     {
 	this.local_protocol = local_protocol;
     }
+    
+    /**
+     * Set the transfer remote protocol
+     * @param remote_protocol
+     */
     public void setRemoteProtocol(Protocol remote_protocol)
     {
 	this.remote_protocol = remote_protocol;
     }
     
+    /**
+     * Set the transfer
+     * @param t
+     */
     public void setTransfer(Transfer t)
     {
 	transfer = t;
     }
     
+    /**
+     * Set the transfer error
+     */
     public void setError(){
 	error = true;
     }
-
+    
+    /**
+     * Get transfer error
+     */
     public boolean error() {
 	return error;
     }
