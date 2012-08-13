@@ -36,7 +36,7 @@ public class DLPTDistributedDataCatalog extends DistributedDataCatalogImpl imple
     public void start() throws DDCException {
 
 	scalexp.BootstrapExp.observation = false;
-	scalexp.BootstrapExp.bootstrapExp(new String[] {"DEBUG"});
+	scalexp.BootstrapExp.bootstrapExp(new String[] {});
 	pconfig = PfConfigService.getInstance();
 
     }
