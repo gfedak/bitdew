@@ -12,7 +12,7 @@ import java.util.Iterator;
 
 
 /**
- * <code>DataScheduler</code> implements the scheduling of data
+ * The data scheduler core algorithms
  *
  * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
@@ -20,13 +20,13 @@ import java.util.Iterator;
 
 public class DataScheduler {
 	
-	/**
-	 * Cache on Scheduler service side
-	 */
+    /**
+     * Cache on Scheduler service side
+     */
     private DataQueue schedulerDataCache;
     
     /**
-     * 
+     * Maximum number of data to schedule per machine
      */
     private int numberOfDataToSchedule = 5;
     
@@ -44,11 +44,18 @@ public class DataScheduler {
     public DataScheduler() {
 	schedulerDataCache = new DataQueue();
     }
-
+    
+    /**
+     * Set the maximum number of data to be scheduled in one machine
+     */
     public void setNumberOfDataToSchedule(int num){
 	this.numberOfDataToSchedule = num;
     }
     
+    /**
+     * Get the maximum number of data to be scheduled in one machine
+     * @return
+     */
     public int getNumberOfDataToSchedule(){
 	return this.numberOfDataToSchedule;
     }
@@ -62,15 +69,25 @@ public class DataScheduler {
     public void addDataAttribute(Data data, Attribute attr) {
 	schedulerDataCache.addElement( new CacheEntry(data, attr) );
     }
-
+    
+    /**
+     * Get the scheduler data cache
+     * @return
+     */
     public SortedVector getDataCache(){
 	return schedulerDataCache;
     }
-
+    
+    /**
+     * Clear the cache
+     */
     public void reset() {
 	schedulerDataCache.clear();
     }
-
+    
+    /**
+     * Clear the owners cache from all the CacheEntries
+     */
     public void resetOwners() {
 	Iterator iter=schedulerDataCache.iterator();	
 	while (iter.hasNext()) {
@@ -78,7 +95,11 @@ public class DataScheduler {
 	    ce.resetOwners();
 	}
     }
-
+    
+    /**
+     * Change the attribute from a CacheEntry
+     * @param attr the new attribute
+     */
     public void updateAttribute(Attribute attr) {
 	Iterator iter=schedulerDataCache.iterator();	
 	while (iter.hasNext()) {
@@ -87,7 +108,13 @@ public class DataScheduler {
 		ce.setAttribute(attr);
 	}
     }
-
+    
+    /**
+     * insert a new CacheEntry having <data,attribute,host>
+     * @param data
+     * @param attr
+     * @param host
+     */
     public void associateDataAttributeHost(Data data, Attribute attr, Host host) {
 	CacheEntry ce;
 	int idx=schedulerDataCache.search(data.getuid());
@@ -100,7 +127,12 @@ public class DataScheduler {
 	ce= (CacheEntry) schedulerDataCache.elementAt(idx); 
 	ce.updateOwner(host);
     }
-
+    
+    /**
+     * 
+     * @param data
+     * @param host
+     */
     public void associateDataHost(Data data, Host host) {
 	CacheEntry ce;
 	int idx=schedulerDataCache.search(data.getuid());
@@ -109,7 +141,12 @@ public class DataScheduler {
 	ce= (CacheEntry) schedulerDataCache.elementAt(idx); 
 	ce.updateOwner(host);
     }
-
+    
+    /**
+     * Create a new cache entry from a data an and attribute
+     * @param data
+     * @param attr
+     */
     public void associateDataAttribute(Data data, Attribute attr) {
 	CacheEntry ce;
 	int idx=schedulerDataCache.search(data.getuid());
@@ -189,7 +226,14 @@ public class DataScheduler {
 	}
 	return result;
     }
-
+    
+    /**
+     * This method retrieves new data from the scheduler cache that has to be
+     * scheduled in a given host
+     * @param host the host calling the scheduler and to which the data will be sent
+     * @param uidslist the host uid list
+     * @return a vector with new data that has to be scheduled in the host
+     */
     public synchronized Vector getNewDataFromCache(Host host, Vector uidslist) {
 	Vector result = new Vector();
 	
@@ -272,7 +316,12 @@ public class DataScheduler {
 	return result;
     }
 
-    //changer le nom qui est mauvais
+    /**
+     * Get a new vector of data to be scheduled in client side
+     * @param host the host calling the scheduler
+     * @param uidslist the initial host cache
+     * @return the new data to be scheduled
+     */
     public synchronized Vector getData(Host host, Vector uidslist) {
 	Vector result = new Vector();
 	//	String ownerUid
@@ -283,7 +332,10 @@ public class DataScheduler {
 	return result;
     }
 
-
+    /**
+     * Removes a data from the cache by putting TODELETE status
+     * @param data
+     */
     public synchronized void removeData(Data data) {
 	int pdx = schedulerDataCache.search(data.getuid());
 	if (pdx!=-1) {
@@ -291,21 +343,11 @@ public class DataScheduler {
 	    ce.getData().setstatus(DataStatus.TODELETE);
 	}
     }
-
-
-    /*
-     * <code>start</code> launches periodic Scheduling
-     
-    public void start() { 
-	log.debug("Starting Data Scheduler");
-	if (timer==null) timer=new Timer(); 
-	timer.schedule(new TimerTask() { 
-		public void run() { 
-		    checkData();
-		} 
-	    } , 0, timeout ); 
-    }
-    */
+    
+    /**
+     * Sets the owner alive timeout
+     * @param t
+     */
     public  void setAliveTimeout(long t) {
 	Owner.setAliveTimeout(t);
     }

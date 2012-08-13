@@ -15,11 +15,31 @@ import xtremweb.core.obj.ds.Host;
 import xtremweb.core.util.SortedVector;
 import java.util.*;
 
+/**
+ * This class represents an entry on the scheduler cache
+ * @author jose
+ *
+ */
 public class CacheEntry {
-
+    
+    /**
+     * The data
+     */
     private Data _data;
+    
+    /**
+     * The attribute that the data has been scheduled with
+     */
     private Attribute _attr;
+    
+    /**
+     * Compare to owners lexicographically
+     */
     private OwnerComparator comparator = new OwnerComparator();
+    
+    /**
+     * The owners of this entry
+     */
     private SortedVector owners;
        
     /**
@@ -31,40 +51,73 @@ public class CacheEntry {
 	_attr = attr;
 	owners = new SortedVector(comparator);
     }
-
+    
+    /**
+     * Gets tha data uid
+     * @return
+     */
     public String getDataUid() {
 	return _data.getuid();
     }
-
+    
+    /**
+     * Get the data attribute
+     * @return
+     */
     public Attribute getAttribute() {
 	return _attr;
     }
-
+    
+    /**
+     * Get the data attribute uid
+     * @return
+     */
     public String getAttributeUid() {
 	return _attr.getuid();
     }
-
+    
+    /**
+     * 
+     * @param attr
+     */
     public void setAttribute( Attribute attr) {
 	_attr = attr;
     }
-
+    
+    /**
+     * Get the data
+     * @return
+     */
     public Data getData() {
 	return _data;
     }
-
+    
+    /**
+     * Get number of owners having a Data in the system
+     * @return
+     */
     public int getOwnersNumber() {
 	return owners.size();
     }
-
+    
+    /**
+     * Erase the owners
+     */
     public void resetOwners() {
 	owners.clear();
     }
-
+    
+    /**
+     * Set new owner
+     * @param host
+     */
     public void setOwner(Host host) {
 	owners.addElement(new Owner(host));
     }
 
-    //FIXME needs to make Sorted Vector generics
+    /**
+     * Check which owners are not alive and supress from the owners cache
+     */
     public void updateOwners() {
 	Vector<Host> lateOwners = new Vector<Host>();
 	for (Object o :  owners) {
@@ -77,7 +130,10 @@ public class CacheEntry {
 	    owners.removeElement(h);
     }
 
-    //FIXME needs to make Sorted Vector generics
+    /**
+     * Update the owner because he is still alive
+     * @param host
+     */
     public void updateOwner(Host host) {
 	int idx = owners.search(host);
 	if (idx != -1) {
@@ -86,7 +142,10 @@ public class CacheEntry {
 	}
     }
 
-
+    /**
+     * Remove an owner from the owners cache
+     * @param host
+     */
     public void removeOwner(Host host) {
 	owners.removeElement(host);
     }

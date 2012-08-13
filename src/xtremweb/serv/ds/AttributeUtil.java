@@ -12,17 +12,25 @@ import xtremweb.core.obj.ds.Attribute;
  */
 
 import xtremweb.core.log.*;
-import xtremweb.role.cmdline.CommandLineToolHelper;
 import xtremweb.api.activedata.ActiveDataException;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
+/**
+ * Utility class to handle attributes
+ * @author jose
+ *
+ */
 public class AttributeUtil {
 
     public static Logger log = LoggerFactory.getLogger(AttributeUtil.class);
-
+    
+    /**
+     * Transform an attribute to string representation
+     * @param attr the attribute to transform
+     * @return
+     */
     public static String toString(Attribute attr) {
 	String retour =  "attr " + attr.getname() + " [" + attr.getuid()+ "] = {";
 	if ((attr.getmask() & AttributeType.REPLICAT) == AttributeType.REPLICAT) 
@@ -42,7 +50,11 @@ public class AttributeUtil {
 	return retour + " }";
     }
 
-
+    /**
+     * Transforms an attribute into a multiline string representation
+     * @param attr
+     * @return
+     */
     public static String toMultilineString(Attribute attr) {
 	String retour =  "attr " + attr.getname() + " =  { \n";
 	boolean first = false;
@@ -71,7 +83,14 @@ public class AttributeUtil {
 	return retour.substring(0,retour.length()-1) + " \t}";
     }
 
-
+    /**
+     * From a string json representation, create a Attribute object and
+     * initialize it 
+     * @param args the json representation
+     * @return the represented attribute
+     * @throws ActiveDataException
+     * @throws JsonSyntaxException
+     */
     public static Attribute parseAttribute(String  args) throws ActiveDataException,JsonSyntaxException {
 
 	JsonObject jsono = new JsonParser().parse(args).getAsJsonObject();
