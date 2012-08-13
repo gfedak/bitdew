@@ -96,7 +96,7 @@ public class BitDew {
      * @param cds
      *            an <code>Interfaceds</code> value
      */
-    public BitDew(Interfacedc cdc, Interfacedr cdr, Interfacedt cdt ,Interfaceds cds) {
+    public BitDew(Interfacedc cdc, Interfacedr cdr,Interfaceds cds) {
     	dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
 	idc = cdc;
 	idr = cdr;
@@ -112,7 +112,7 @@ public class BitDew {
      * @param cds
      * @param enableddc, true to connect to a ddc, otherwise false
      */
-    public BitDew(Interfacedc cdc, Interfacedr cdr, Interfacedt cdt ,Interfaceds cds,boolean enableddc) {
+    public BitDew(Interfacedc cdc, Interfacedr cdr,Interfaceds cds,boolean enableddc) {
     	dao = (DaoData)DaoFactory.getInstance("xtremweb.dao.data.DaoData");
 	idc = cdc;
 	idr = cdr;
