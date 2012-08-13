@@ -14,14 +14,17 @@ import java.util.Properties;
 
 import org.apache.http.HttpException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.*;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.entity.*;
 import org.apache.http.HttpResponse;
 
@@ -44,7 +47,7 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements BlockingOOB
     /**
      * Apache API http client
      */
-    protected HttpClient httpClient;
+    protected DefaultHttpClient httpClient;
 
     /**
      * Apache API getMethod
@@ -106,6 +109,22 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements BlockingOOB
      */
     public void connect() throws OOBException {
 	httpClient = new DefaultHttpClient();
+	HttpRequestRetryHandler myretry = new HttpRequestRetryHandler(){
+	    public boolean retryRequest(IOException exception, int executionCount, HttpContext arg2) {
+		log.debug("Retrying request " + executionCount);
+		try{
+		    Thread.sleep(10000);//THIS MUST BE ERASED AS SOON AS THE TIMEOUT PROPERTY THAT CORRESPONDS IS FOUND
+		}catch(Exception e){
+		    e.printStackTrace();
+		}
+		if (executionCount >= 5) 
+	            return false;	       
+	        return true;
+	    }
+	};
+	log.debug("set a retry handler ");
+
+	httpClient.setHttpRequestRetryHandler(myretry);
 	log.debug("connecting " + this.toString());
 	b = true;
     }
@@ -140,6 +159,7 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements BlockingOOB
 	    entity.addPart("remote_locator",stringbody);
 	    // prepare the file upload as a multipart POST request
 	    postMethod.setEntity(entity);
+
 	    // execute the transfer and get the result as a status
 	    response = httpClient.execute(postMethod);
 	    int status = response.getStatusLine().getStatusCode();
@@ -197,9 +217,6 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements BlockingOOB
 	    //url = URLEncoder.encode(url, "ISO-8859-1");
 	    log.debug("The encoded url is " + url);
 	    getMethod = new HttpGet(url);
-
-	    // Provide custom retry handler is necessary
-	    //getMethod.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(3, false));
 
 	    // Execute the method.
 	    response = httpClient.execute(getMethod);
