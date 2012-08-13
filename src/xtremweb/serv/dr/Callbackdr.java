@@ -178,24 +178,6 @@ public class Callbackdr extends CallbackTemplate implements Interfacedr {
 
     } // Callbackobj constructor
 
-    private String parseProtocols() {
-	String res ="";
-	Set<Map.Entry<Object,Object>> keys = mainprop.entrySet();
-	Iterator it = keys.iterator();
-	while(it.hasNext())
-	{
-	    Map.Entry<String,String> key = (Map.Entry<String,String>)it.next();
-	    String keystr = key.getKey();
-	    if(keystr.contains("xtremweb.serv.dr")){
-		System.out.println("entro " + keystr);
-		String[] lengo = keystr.split("\\.");
-	    	res = lengo[lengo.length -1]+ " ";
-	    }
-	}
-	
-	return res;
-    }
-
     /**
      * This method is doing nothing and is a good idea to erase it
      */
