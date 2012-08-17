@@ -9,6 +9,7 @@ import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.Locator;
 
 import java.io.*;
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
@@ -81,7 +82,7 @@ public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
      */
     public void connect() throws OOBException {
 	log.info("connect " + amazons3toString());
-
+	System.setProperty("com.amazonaws.sdk.disableCertChecking","true");
 	try {
 	    s3utils = new AmazonS3Utils();
 	    s3 = new AmazonS3Client(s3utils.loadAWSCredentials());
@@ -135,23 +136,29 @@ public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
         for (Bucket bucket : s3.listBuckets()) {
             log.debug(" - " + bucket.getName());
         }
-	log.debug("ATTEMPTING TO DOWNLOAD OBJECT WITH BUCKET " + bucketName + "and key " + objectKey);
+	log.debug("attempting to download object with bucket " + bucketName + "and key " + data.getuid());
 	S3Object object = s3.getObject(new GetObjectRequest(bucketName,
 		data.getuid()));
 	log.info("Content-Type: " + object.getObjectMetadata().getContentType());
-	BufferedReader reader = new BufferedReader(new InputStreamReader(
-		object.getObjectContent()));
+	InputStream reader = new BufferedInputStream(object.getObjectContent());
+	File file = new File(local_locator.getref());      
+	
+
+	int read = -1;
+
 	try {
-	    BufferedWriter writer = new BufferedWriter(new FileWriter(new File(local_locator.getref())));
-	    while ((line = reader.read())!=-1) {
-		writer.write(line);
+	    OutputStream writer = new BufferedOutputStream(new FileOutputStream(file));
+	    while ( ( read = reader.read() ) != -1 ) {
+	        writer.write(read);
 	    }
+	    writer.flush();
 	    writer.close();
+	    reader.close();
 	} catch (IOException e) {
-	    throw new OOBException(
-		    "A problem has occured in blockingReceiveReceiverSide of AmazonS3 transfer "
-			    + e.getMessage());
+	    throw new OOBException("Problem in blockingReceiveReceiverSide of AmazonS3 transfer : " + e.getMessage());
 	}
+
+	
     }
     
     /**
