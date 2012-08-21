@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<personalinfo>
+    <uid>f8ac31d0-dbdf-31e1-802d-7b9af0cfbdf6</uid>
+    <publicname>Jose Francisco</publicname>
+    <posts>
+        <post>
+            <timestamp>2012-07-26 15:37:00</timestamp>
+            <description>Today is a beautiful day</description>
+        </post>
+        <post>
+            <timestamp>2012-07-26 15:37:00</timestamp>
+            <description>Yesterday was a beautiful day</description>
+        </post>
+        <post>
+            <timestamp>2012-07-26 15:37:00</timestamp>
+            <description>The day before yesterday was also a beautiful day</description>
+        </post>
+    </posts>
+</personalinfo>
