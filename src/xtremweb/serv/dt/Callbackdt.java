@@ -34,13 +34,21 @@ public class Callbackdt extends CallbackTemplate implements Interfacedt {
      * Callbackdt logger
      */
     protected Logger log = LoggerFactory.getLogger("DT Service");
+    
+    /**
+     * Data access Object to interface with DB
+     */
     private DaoTransfer dao;
+    
     /**
      * Local transfer manager, this will change in the future as it is violating
      * the previously fixed design rules
      */
     protected TransferManager tm;
-
+    
+    /**
+     * System properties
+     */
     private Properties mainprop;
 
     /**
@@ -190,14 +198,6 @@ public class Callbackdt extends CallbackTemplate implements Interfacedt {
     }
 
     /**
-     * This method is not being used
-     */
-    public int startTransfer(String transferID) throws RemoteException {
-	log.debug("start Transfer : Unused function ??!?? Not sure about what to do ???");
-	return 0;
-    }
-
-    /**
      * This method pools a transfer to check if it is complete
      * 
      * @param transferID
@@ -234,22 +234,6 @@ public class Callbackdt extends CallbackTemplate implements Interfacedt {
 	    daot.close();
 	}
 	return isComplete;
-    }
-
-    /**
-     * This method is doing nothing and maybe it should be erased
-     */
-    public int endTransfer(String transferID) throws RemoteException {
-	log.debug("end Transfer :: Unused Method");
-	return 0;
-    }
-
-    /**
-     * This method is doing nothing and it should be erased
-     */
-    public int abortTransfer(String transferID) throws RemoteException {
-	log.debug("abort Transfert");
-	return 0;
     }
 
     /**

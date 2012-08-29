@@ -23,7 +23,10 @@ import xtremweb.api.transman.TransferType;
 
 
 public class OOBTransferFactory {
-
+	
+	/**
+	 * Class logger
+	 */
     public static Logger log = LoggerFactory.getLogger(OOBTransferFactory.class);
 
     /**

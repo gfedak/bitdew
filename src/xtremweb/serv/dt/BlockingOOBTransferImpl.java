@@ -96,11 +96,18 @@ public abstract class BlockingOOBTransferImpl extends OOBTransferImpl implements
     public void receiveReceiverSide() throws OOBException {
 	runner.start();
     }
-
+    
+    /**
+     * This method ask the embedded thread if is still transfer
+     */
     public boolean isTransfering() {
 	return runner.isTransfering();
     }
-
+    
+    /**
+     * Wait for the runner thread, although this method is not yet used; 
+     * Is leaved for future need
+     */
     public void waitFor() {
 	runner.waitFor();
     }

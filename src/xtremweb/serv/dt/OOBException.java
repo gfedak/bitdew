@@ -14,6 +14,11 @@ import java.lang.Exception;
  * @version 1.0
  */
 public class OOBException extends Exception {
+	
+	/**
+	 * This constructor calls the Exception constructor with your specified message.
+	 * @param message
+	 */
     public OOBException(String message) {
 	super(message);
     } // OOBException constructor

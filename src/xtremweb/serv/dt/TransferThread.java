@@ -15,6 +15,11 @@ package xtremweb.serv.dt;
 import xtremweb.core.log.*; //FIXME
 import xtremweb.api.transman.TransferType;
 
+/**
+ * This class represents a thread performing a transfer
+ * @author jsaray
+ *
+ */
 public class TransferThread extends Thread {
 
     /**
@@ -75,11 +80,18 @@ public class TransferThread extends Thread {
 	}
 	log.debug("end of transfer run");
     }
-
+    
+    /**
+     * Is the transfer still active ?
+     * @return
+     */
     public boolean isTransfering() {
 	return isTransfering;
-    }
-
+    }	
+    
+    /**
+     * Wait for this transfer
+     */
     public synchronized void waitFor() {
 	log.debug("starting waitFor");
 	while (isTransfering) {

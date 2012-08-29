@@ -6,15 +6,7 @@ import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.Locator;
 import xtremweb.serv.dc.DataUtil;
-import xtremweb.dao.DaoFactory;
-import xtremweb.dao.DaoJDOImpl;
 import xtremweb.dao.transfer.DaoTransfer;
-
-import javax.jdo.PersistenceManager;
-import javax.jdo.Extent;
-import javax.jdo.Query;
-import javax.jdo.Transaction;
-import java.util.Properties;
 import java.io.File;
 
 
@@ -30,8 +22,15 @@ import java.io.File;
  * @version 1.0
  */
 public abstract class OOBTransferImpl implements OOBTransfer {
-
+	
+	/**
+	 * Class logger
+	 */
     protected static Logger log = LoggerFactory.getLogger(OOBTransferImpl.class);
+    
+    /**
+     * Data Access Object to interface with Data Base.
+     */
     private DaoTransfer dao;
     /**
      * Data <code>data</code> is the reference to the data transfered
@@ -70,9 +69,14 @@ public abstract class OOBTransferImpl implements OOBTransfer {
      */
     protected Locator  local_locator;
 
-
+    /**
+     * Is the transfer marked with an error ?
+     */
     protected boolean error = false;
     
+    /**
+     * Class constructor
+     */
     public OOBTransferImpl(){
 	
     }

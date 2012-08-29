@@ -18,9 +18,15 @@ import xtremweb.core.obj.dt.Transfer;
 public abstract class NonBlockingOOBTransferImpl 
     extends OOBTransferImpl 
     implements OOBTransfer, NonBlockingOOBTransfer {
-
+	
+	/**
+	 * Flag to signal if its transfering
+	 */
     protected boolean _isTransfering = false;
     
+    /**
+     * Class constructor
+     */
     public NonBlockingOOBTransferImpl(){
 	
     }
@@ -79,13 +85,18 @@ public abstract class NonBlockingOOBTransferImpl
 	_isTransfering = true;
 	nonBlockingReceiveReceiverSide();
     }
-
+    
+    /**
+     * Is the transfer done ?
+     */
     public boolean isTransfering() {
 	_isTransfering = !poolTransfer();
 	return _isTransfering;
     }
 
-
+    /**
+     * Wait for this transfer to be done
+     */
     public void waitFor() {
 	_isTransfering = !poolTransfer();
 	while (_isTransfering) {
@@ -94,11 +105,9 @@ public abstract class NonBlockingOOBTransferImpl
 		_isTransfering = !poolTransfer();
 		Thread.sleep(1000);
 	    } catch (InterruptedException ie) {
-		
+	    	log.fatal("There was an interrupted exception");
+	    	ie.printStackTrace();
 	    }
-
 	}
     }
-
-
 }
