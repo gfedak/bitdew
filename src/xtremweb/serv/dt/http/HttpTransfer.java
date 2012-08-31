@@ -258,7 +258,11 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements BlockingOOB
     public void disconnect() throws OOBException {
 
     }
-
+    
+    /**
+     * Main method, executes a test
+     * @param args
+     */
     public static void main(String[] args) {
 
 	Data data = new Data();

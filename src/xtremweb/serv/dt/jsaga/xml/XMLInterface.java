@@ -7,6 +7,11 @@ package xtremweb.serv.dt.jsaga.xml;
  */
 public interface XMLInterface {
     
+	/**
+	 * get the element value according to ist name
+	 * @param name
+	 * @return
+	 */
     public String getElement(String name);
 
 }

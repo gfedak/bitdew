@@ -6,11 +6,21 @@ import xtremweb.serv.dt.jsaga.xml.XMLException;
 import xtremweb.serv.dt.jsaga.xml.XmlDomImpl;
 import junit.framework.TestCase;
 
+/**
+ * Test XML, test that the xml management interface correctly parse JSAGA fields
+ * @author jsaray
+ *
+ */
 public class XMLTest extends TestCase{
     
-
+	/**
+	 * Dom client
+	 */
     private XmlDomImpl dom;
     
+    /**
+     * Set up
+     */
     public void setUp(){
 	try {
 	    dom = new XmlDomImpl("VOMS","/Applications/JSAGA/etc/jsaga-default-contexts.xml");
@@ -20,6 +30,9 @@ public class XMLTest extends TestCase{
 	}
     }
     
+    /**
+     * Test XML
+     */
     @Test
     public void testXML(){
 	
@@ -30,6 +43,9 @@ public class XMLTest extends TestCase{
 	
     }
     
+    /**
+     * Tear down
+     */
     public void tearDown(){
 	dom=null;
     }

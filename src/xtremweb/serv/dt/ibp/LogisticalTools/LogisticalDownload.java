@@ -2,28 +2,46 @@
 
 package xtremweb.serv.dt.ibp.LogisticalTools;
 
-import java.io.*;
-import java.util.*;
-import java.net.*;
-
 import edu.utk.cs.loci.exnode.*;
-import edu.utk.cs.loci.lbone.*;
-import edu.utk.cs.loci.ibp.*;
 
-
+/**
+ * Logistical download
+ * @author jsaray
+ *
+ */
 public class LogisticalDownload {
-
+	
+	/**
+	 * Version
+	 */
     final static String VERSION = "0.01a"; 
-
+    
+    /**
+     * Connections
+     */
     final static int DFLT_CONNECTIONS  = 1;
-
-    int transferSize = -1; // useless
-
+    
+    /**
+     * Transfer size
+     */
+    int transferSize =	 -1; // useless
+    
+    /**
+     * Exnode
+     */
     public Exnode exnode = null;
-
+    
+    /**
+     * Logistical download
+     */
     public LogisticalDownload() {}
 
-
+    /**
+     * Download
+     * @param xndfile
+     * @param outputfilename
+     * @param connections
+     */
     public void download(String xndfile, String outputfilename, int connections) 
     {
         final String output = outputfilename;
@@ -60,9 +78,9 @@ public class LogisticalDownload {
             }
     }
 
-
-
-
+    /**
+     * Usage
+     */
     public static void usage() 
     {
 	
@@ -78,7 +96,10 @@ public class LogisticalDownload {
 
     }
     
-
+    /**
+     * Main
+     * @param args
+     */
     public static void main(String[] args) {
 
 	boolean sameoutput = false;

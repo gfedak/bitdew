@@ -107,15 +107,6 @@ public class ScpTransfer extends BlockingOOBTransferImpl {
     public ScpTransfer(Data d, Transfer t, Locator l1, Locator l2, Protocol p1,
 	    Protocol p2) {
 	super(d, t, l1, l2, p1, p2);
-
-	
-	/*
-	 * scpm = new
-	 * ScpManager(remote_protocol.getlogin(),remote_protocol.getserver
-	 * (),local_locator.getref(),remote_locator.getref(),
-	 * remote_protocol.getprivatekeypath
-	 * (),remote_protocol.getknownhosts(),remote_protocol.getpassphrase());
-	 */
     }
 
     /**

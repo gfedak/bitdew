@@ -8,9 +8,6 @@ import java.util.Properties;
 
 /**
  *<code>BtpdCore</code>
- *
- *
- *
  * @author <a href="mailto:fedak@lri.fr">Gilles Fedak</a>
  * @version 1.0
  */

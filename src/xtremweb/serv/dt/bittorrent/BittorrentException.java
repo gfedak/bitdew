@@ -14,7 +14,7 @@ import java.lang.Exception;
 public class BittorrentException extends Exception {
 
     /**
-     * 
+     * Serial version
      */
     private static final long serialVersionUID = 1L;
 

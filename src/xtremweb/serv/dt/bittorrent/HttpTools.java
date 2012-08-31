@@ -60,7 +60,13 @@ public class HttpTools {
 	}
 
     }
-
+    
+    /**
+     * Post a file through http using Multipart format (currently version httpclient 4).
+     * @param fileName
+     * @param url
+     * @throws HttpToolsException
+     */
     public static void postFileHttp(String fileName, String url)
 	    throws HttpToolsException {
 	try {
@@ -94,6 +100,12 @@ public class HttpTools {
 	}
     }
     
+    /**
+     * Execute a HTTP post request
+     * @param url
+     * @return
+     * @throws HttpToolsException
+     */
     public static String httpPost(String url) throws HttpToolsException
     {	HttpClient client = new DefaultHttpClient();
 	HttpPost httppost = new HttpPost(url);

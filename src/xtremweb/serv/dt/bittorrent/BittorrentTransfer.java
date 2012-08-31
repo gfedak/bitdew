@@ -105,11 +105,10 @@ public class BittorrentTransfer extends NonBlockingOOBTransferImpl implements
     }
 
     /**
-     * 
+     * Initialization of the bittorrent tools
      * @throws OOBException
      */
     public static void init() throws OOBException {
-	// intialization of the bittorrent tools
 	BittorrentTools.init();
     }
 

@@ -4,15 +4,26 @@ package xtremweb.serv.dt.ibp.LogisticalTools;
 
 import java.io.*;
 import java.util.*;
-import java.net.*;
 
 import edu.utk.cs.loci.exnode.*;
 import edu.utk.cs.loci.lbone.*;
 import edu.utk.cs.loci.ibp.*;
 
+/**
+ * Logistical Upload
+ * @author jsaray
+ *
+ */
 public class LogisticalUpload {
-
+	
+	/**
+	 * Version
+	 */
     final static String VERSION = "0.01a"; 
+    
+    /**
+     * LBONE server
+     */
     final static String LBONE_SERVER_LIST = 
         "vertex.cs.utk.edu:6767 "     +
         "acre.sinrg.cs.utk.edu:6767 " +
@@ -20,29 +31,81 @@ public class LogisticalUpload {
 /*        "didas.ics.muni.cz:6767 "     +
 	"didas.ics.muni.cz:6767 " +
 	"didas.ics.muni.cz:6767"   ; */
-
+    /**
+     * DLFT copies
+     */
     final static int DFLT_COPIES       = 1;
+    
+    /**
+     * Max depots
+     */
     final static int DFLT_MAX_DEPOTS   = 10;
+    
+    /**
+     * Duration
+     */
     final static int DFLT_DURATION     = 60*60*24; // 1 day
+    
+    /**
+     * Transfer size
+     */
     final static int DFLT_TRANSFERSIZE = 512 * 1024;
+    
+    /**
+     * Connections	
+     */
     final static int DFLT_CONNECTIONS  = 1;
+    
+    /**
+     * Location
+     */
     final static String DFLT_LOCATION  = "state= TN";
-
+    
+    /**
+     * Server NBMax
+     */
     final static int LBONE_SERVER_NBMAX = 10;
-
+    
+    /**
+     * Verbose
+     */
     private static int VERBOSE = 1;
-
+    
+    /**
+     * Servers
+     */
     private LboneServer servers[];
-
+    
+    /**
+     * Exnode
+     */
     public Exnode exnode = null;
+    
+    /**
+     * homeDirectory
+     */
     String homeDirectory;
+    
+    /**
+     * user
+     */
     private String user;
+    
+    /**
+     * pass
+     */
     private String pass;
 
-
+    /**
+     * logistical upload
+     */
     public LogisticalUpload() {} 
 
-	
+	/**
+	 * Clean name
+	 * @param name
+	 * @return
+	 */
     // replace characters not supported (TODO)
     private String cleanName(String name) {
 	final char[] chars = name.toCharArray();
@@ -57,7 +120,12 @@ public class LogisticalUpload {
 	}
 	return String.valueOf(chars);
     }
-
+    
+    /**
+     * bone server list
+     * @param Lbone
+     * @param Port
+     */
     public void fill_LBoneServerList(String Lbone, int Port)
     {
 	int i = 0;
@@ -78,7 +146,18 @@ public class LogisticalUpload {
             i++;
         }
     }
-
+    
+    /**
+     * Upload
+     * @param inputfile
+     * @param outputfilename
+     * @param copies
+     * @param maxDepots
+     * @param duration
+     * @param transferSize
+     * @param connections
+     * @param location
+     */
     public void upload(File inputfile,
 		       String outputfilename, 
 		       int copies, 
@@ -202,8 +281,9 @@ public class LogisticalUpload {
         }
     }
 
-
-
+    /**
+     * Usage
+     */
     public static void usage() 
     {
 	System.out.println("LogisticalUpload v." + VERSION + " (LoCI 2004)");
@@ -224,7 +304,10 @@ public class LogisticalUpload {
 	System.out.println(textoptions);
     }
     
-
+    /**
+     * Main
+     * @param args
+     */
     public static void main(String[] args) {
 
 	boolean sameoutput = false;

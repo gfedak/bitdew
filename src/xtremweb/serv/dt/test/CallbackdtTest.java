@@ -9,16 +9,24 @@ import xtremweb.core.obj.dt.Transfer;
 import xtremweb.serv.dt.Callbackdt;
 import junit.framework.TestCase;
 
+/**
+ * A test of Callback dt class
+ * @author jsaray
+ *
+ */
 public class CallbackdtTest extends TestCase {
     
-    
-    
-    
+    /**
+     * Set Up
+     */
     public void setUp()
     {
 	
     }
     
+    /**
+     * Test class
+     */
    @Test 
     public void testClass()
     {
@@ -64,11 +72,4 @@ public class CallbackdtTest extends TestCase {
 	    e.printStackTrace();
 	}
     }
-    
-    @Test
-    public void testRMI()
-    {
-	
-    }
-
 }

@@ -19,45 +19,103 @@ import xtremweb.core.obj.dc.Locator;
 import xtremweb.api.transman.*;
 import java.io.*;
 
+/**
+ * Represents a IBP transfer.
+ * @author jsaray
+ *
+ */
 public class ibpTransfer  
     extends BlockingOOBTransferImpl 
     implements BlockingOOBTransfer, OOBTransfer {
-
+	
+	/**
+	 * Ibp uploader
+	 */
     protected LogisticalUpload ibpUpLoader;
+    
+    /**
+     * Ibp downloader
+     */
     protected LogisticalDownload ibpDownLoader;
     
+    /**
+     * Version
+     */
     final static String VERSION = "0.01a"; 
+    
+    /**
+     * Server list
+     */
     final static String LBONE_SERVER_LIST = 
         "vertex.cs.utk.edu:6767 "     +
         "acre.sinrg.cs.utk.edu:6767 " +
         "galapagos.cs.utk.edu:6767"   ;
-/*        "didas.ics.muni.cz:6767 "     +
-	"didas.ics.muni.cz:6767 " +
-	"didas.ics.muni.cz:6767"   ; */
-
-    final static int DFLT_COPIES       = 1;
-    final static int DFLT_MAX_DEPOTS   = 10;
-    final static int DFLT_DURATION     = 60*60*24; // 1 day
-    final static int DFLT_TRANSFERSIZE = 512 * 1024;
-    final static int DFLT_CONNECTIONS  = 1;
-    final static String DFLT_LOCATION  = "state= TN";
-
-    final static int LBONE_SERVER_NBMAX = 10;
-
-//    private static int VERBOSE = 1;
     
-  
-
+    /**
+     * Copies
+     */
+    final static int DFLT_COPIES       = 1;
+    
+    /**
+     * Depots
+     */
+    final static int DFLT_MAX_DEPOTS   = 10;
+    
+    /**
+     * Duration DFLT
+     */
+    final static int DFLT_DURATION     = 60*60*24; // 1 day
+    
+    /**
+     * Transfer size
+     */
+    final static int DFLT_TRANSFERSIZE = 512 * 1024;
+    
+    /**
+     * Connections
+     */
+    final static int DFLT_CONNECTIONS  = 1;
+    
+    /**
+     * Location
+     */
+    final static String DFLT_LOCATION  = "state= TN";
+    
+    /**
+     * NBMax server
+     */
+    final static int LBONE_SERVER_NBMAX = 10;
+    
+    /**
+     * Class logger
+     */
     protected static  Logger log = LoggerFactory.getLogger(ibpTransfer.class);
-
+    
+    /**
+     * Class constructor	 
+     * @param d
+     * @param t
+     * @param rl
+     * @param ll
+     * @param rp
+     * @param lp
+     */
     public ibpTransfer(Data d, Transfer t, Locator rl, Locator ll, Protocol rp,  Protocol lp ) {
 	super(d,t,rl,ll,rp,lp);
 	transfer.setoob(this.getClass().toString());
     } // Ftpsender constructor
-
+    
+    /**
+     * string representation of ibp
+     * @return
+     */
     public String ibptoString() {
 	return "ibp://[" + remote_protocol.getlogin() + ":" +  remote_protocol.getpassword() +  "]@" + remote_protocol.getserver() + ":" +  remote_protocol.getport();
     }
+    
+    /**
+     * Connect to ibp server
+     */
     public void connect ()  throws OOBException {
 	log.debug("connect " + ibptoString());
 	ibpUpLoader = new LogisticalUpload();
@@ -93,7 +151,9 @@ public class ibpTransfer
 */    
 		}	
 	
-
+    /**
+     * ibp send sender side
+     */
     public void blockingSendSenderSide   () throws OOBException {
 	try {
 //		FileInputStream is = new FileInputStream( new File(local_locator.getref()));
@@ -125,9 +185,16 @@ public class ibpTransfer
 	    throw new OOBException("IBP errors when sending  " + ibptoString() + "/" + remote_locator.getref() );
 	} // end of try-catch
     }
-
+    
+    /**
+     * ibp send receiver side
+     */
     public void blockingSendReceiverSide   () throws OOBException {
     }
+    
+    /**
+     * ibp receive receiver side
+     */
     public void blockingReceiveReceiverSide() throws OOBException  {
 	log.debug("start receive receiver size");
 	try {
@@ -157,10 +224,16 @@ public class ibpTransfer
 	
 	log.debug("FIN du transfer");
     }
-
+    
+    /**
+     * Receive sender side
+     */
     public void blockingReceiveSenderSide() throws OOBException  {
     }
-
+    
+    /**
+     * Disconnect
+     */
     public void disconnect() throws OOBException {
 
 /*	if(ftp.isConnected()) {
@@ -172,7 +245,11 @@ public class ibpTransfer
 	    }
 	}*/
     }
-
+    
+    /**
+     * Main
+     * @param args
+     */
     public static void main(String [] args) {
 	//IT4S BROKEN
 	Data data = new Data();

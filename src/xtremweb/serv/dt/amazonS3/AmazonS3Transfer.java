@@ -24,7 +24,10 @@ import com.amazonaws.services.s3.model.S3Object;
  */
 public class AmazonS3Transfer extends BlockingOOBTransferImpl implements
 	BlockingOOBTransfer, OOBTransfer {
-
+	
+	/**
+	 * Class logger
+	 */
     protected static Logger log = LoggerFactory.getLogger(AmazonS3Transfer.class);
     
     /**

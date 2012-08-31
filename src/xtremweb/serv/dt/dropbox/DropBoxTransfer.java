@@ -288,8 +288,7 @@ public class DropBoxTransfer extends BlockingOOBTransferImpl {
     public void blockingReceiveReceiverSide() throws OOBException {
 	String path = props.getProperty("xtremweb.serv.dr.dropbox.path")
 		+ data.getuid();
-	System.out.println("the path is " + path);
-	log.debug("loca loc is " + local_locator.getref());
+	log.debug("local locator is " + local_locator.getref());
 	log.debug(" remote loc is " + remote_locator.getref());
 	try {
 	    OutputStream fos = new FileOutputStream(new File(

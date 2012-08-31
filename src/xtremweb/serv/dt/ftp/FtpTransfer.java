@@ -20,11 +20,22 @@ import xtremweb.core.obj.dc.Locator;
 import xtremweb.api.transman.*;
 import java.io.*;
 
+/**
+ * This class implements the ftp transfer using the apache ftp client
+ * @author jsaray
+ *
+ */
 public class FtpTransfer extends BlockingOOBTransferImpl implements
 	BlockingOOBTransfer, OOBTransfer {
-
+	
+	/**
+	 * Apache ftp client
+	 */
     protected FTPClient ftp;
-
+    
+    /**
+     * Class logger
+     */
     protected static Logger log = LoggerFactory.getLogger(FtpTransfer.class);
     
     /**
@@ -34,19 +45,34 @@ public class FtpTransfer extends BlockingOOBTransferImpl implements
     {
     }
     
-    
+    /**
+     * Parameter constructor
+     * @param d
+     * @param t
+     * @param rl
+     * @param ll
+     * @param rp
+     * @param lp
+     */
     public FtpTransfer(Data d, Transfer t, Locator rl, Locator ll, Protocol rp,
 	    Protocol lp) {
 	super(d, t, rl, ll, rp, lp);
 	transfer.setoob(this.getClass().toString());
     } // Ftpsender constructor
-
+    
+    /**
+     * Convert the ftp transfer to a string representation
+     * @return
+     */
     public String ftptoString() {
 	return "ftp://[" + remote_protocol.getlogin() + "@"
 		+ remote_protocol.getserver() + ":" + remote_protocol.getport();
 
     }
-
+    
+    /**
+     * Connect to the server
+     */
     public void connect() throws OOBException {
 	log.debug("connect " + ftptoString());
 	ftp = new FTPClient();
@@ -86,7 +112,10 @@ public class FtpTransfer extends BlockingOOBTransferImpl implements
 		    + ftptoString());
 	}
     }
-
+    
+    /**
+     * Send a file
+     */
     public void blockingSendSenderSide() throws OOBException {
 	try {
 	    if (remote_protocol.getpath() != null)
@@ -106,10 +135,17 @@ public class FtpTransfer extends BlockingOOBTransferImpl implements
 		    + "/" + remote_locator.getref());
 	} // end of try-catch
     }
-
+    
+    
+    /**
+     * Empty method, the server does not have to do anything
+     */
     public void blockingSendReceiverSide() throws OOBException {
     }
-
+    
+    /**
+     * Get a file from the server
+     */
     public void blockingReceiveReceiverSide() throws OOBException {
 	log.debug("start receive receiver size");
 	try {
@@ -136,7 +172,10 @@ public class FtpTransfer extends BlockingOOBTransferImpl implements
 
 	log.debug("FIN du transfer");
     }
-
+    
+    /**
+     * Empty method , all is done in receive receiver 
+     */
     public void blockingReceiveSenderSide() throws OOBException {
     }
 
@@ -152,7 +191,11 @@ public class FtpTransfer extends BlockingOOBTransferImpl implements
 	    }
 	}
     }
-
+    
+    /**
+     * Main method, executes a test
+     * @param args
+     */
     public static void main(String[] args) {
 	// IT4S BROKEN
 	Data data = new Data();
