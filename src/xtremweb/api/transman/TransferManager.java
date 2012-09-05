@@ -423,8 +423,10 @@ public class TransferManager {
 		    try {
 			oob = getOOBTransfer(trans);
 			log.debug("transfer type " + TransferType.toString(trans.gettype()));
-			if (trans.gettype() == TransferType.UNICAST_SEND_SENDER_SIDE)
-			    complete = dt.poolTransfer(trans.getuid());
+			if (trans.gettype() == TransferType.UNICAST_SEND_SENDER_SIDE && oob instanceof BlockingOOBTransferImpl)
+			    complete = oob.poolTransfer();// pool transfer is overwritten on each blocking transfer 
+			if (trans.gettype() == TransferType.UNICAST_SEND_SENDER_SIDE && oob instanceof NonBlockingOOBTransferImpl)
+			    complete = dt.poolTransfer(trans.getuid());// bittorrent case, only the remote dt can acknowledge the file reception
 			if (trans.gettype() == TransferType.UNICAST_SEND_RECEIVER_SIDE)
 			    complete = oob.poolTransfer();
 			if (trans.gettype() == TransferType.UNICAST_RECEIVE_RECEIVER_SIDE)
@@ -441,17 +443,15 @@ public class TransferManager {
 			    throw new OOBException("There was an exception on the Transfer Manager, your transfer of data " + trans.getdatauid()
 				    + " is marked as INVALID");
 			}
-		    } catch (RemoteException re) {
-			log.info("An error has occurred " + re.getMessage());
-			trans.setstatus(TransferStatus.INVALID);
-			re.printStackTrace();
-			break;
-		    } catch (OOBException oobe) {
+		    }catch (OOBException oobe) {
 			// go in the state INVALID (should be ABORT ?)
 			log.info("Error on TRANSFERRING step : " + oobe.getMessage());
 			trans.setstatus(TransferStatus.INVALID);
 			oobe.printStackTrace();
 			break;
+		    } catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		    }
 
 		    break;
