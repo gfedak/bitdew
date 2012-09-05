@@ -75,7 +75,7 @@ public class HttpTools {
 	    HttpPost httppost = new HttpPost(url);
 
 	    FileBody bin = new FileBody(new File(fileName));
-	    StringBody comment = new StringBody("Filename: " + fileName);
+	    StringBody comment = new StringBody(fileName);
 
 	    MultipartEntity reqEntity = new MultipartEntity();
 	    reqEntity.addPart("bin", bin);
