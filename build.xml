@@ -275,13 +275,14 @@ public class Version {
     ===================================================================
 -->
  	<target name="sonar">
- 		<!-- list of mandatories Sonar properties -->
- 		<property name="sonar.sources" value="src" />
-		<!-- list of optional Sonar properties -->
- 		<property name="sonar.projectName" value="BitDew" />
- 		<property name="sonar.binaries" value="bin" />
- 		<sonar:sonar key="org.example:example" version="0.1-SNAPSHOT" xmlns:sonar="antlib:org.sonar.ant"/>
- 	</target>
+ 	 <property name="sonar.sources" value="src" />
+ 	 <property name="sonar.projectName" value="BitDew" />
+ 	 <property name="sonar.binaries" value="build" />
+ 	 <property name="sonar.surefire.reportsPath" value="reports/tests" />
+ 		<property name="sonar.jacoco.antTargets" value="tests" />
+ 		<property name="sonar.core.codeCoveragePlugin" value="jacoco" />
+ 	 <sonar:sonar key="org.example:example" version="${version}" xmlns:sonar="antlib:org.sonar.ant"/>
+ 	 </target>
  		
  		
  		
@@ -446,6 +447,7 @@ public class Version {
 		  <include name="log4j.properties"/>
 		  <include name="log4jcmdlinetool.properties"/>
 		  <include name="dbcp.properties"/>
+			<include name="bitdewusage.yaml"/>
 		</fileset>
 	    
 	      </jar>
@@ -453,14 +455,15 @@ public class Version {
 <target name="bitdewclient" depends="dist">
 	<jar destfile="dist/bitdew-client-${version}.jar" manifest="bitdew.mf">
 	    
-		<fileset dir="${build}"/>		
-		<fileset dir="temp-jar"/>	
+		<fileset dir="${build}"/>
+		<fileset dir="temp-jar"/>
 		<fileset dir="html"/>
 		<fileset dir="${conf}">
 		  <include name="properties.json"/>
 		  <include name="log4j.properties"/>
 		  <include name="log4jcmdlinetool.properties"/>
 		  <include name="dbcp.properties"/>
+			<include name="bitdewusage.yaml"/>
 		</fileset>
 	    
 	      </jar>
