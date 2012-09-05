@@ -59,35 +59,90 @@ import xtremweb.core.conf.ConfigurationProperties;
 import xtremweb.core.conf.ConfigurationException;
 
 public class Akratos {
+	
+	/**
+	 * Class logger
+	 */
     Logger log = Logger.getLogger("akr.inria.fr.pojo");
-
+    
+    /**
+     * Bootstrap node
+     */
     private String bootstrap;
-
+    
+    /**
+     * How many replicas of your public info do you want in the system ? 
+     */
     private int REPLICA_PUBLICINFO = 2;
-
+    
+    /**
+     * How many replcias of your ciphered-priviledged info do you want in the system ?
+     */
     private int REPLICA_PRIVILEGED_INFO = 2;
-
+    
+    /**
+     * Private info prefix
+     */
     public static final String PRIVATE_INFO_PREFIX = "privateinfo_";
-
+    
+    /**
+     * Postfix to recognize the aes key from the ciphered plain text
+     */
     public static final String AES_CIPHERED_POSTFIX = "aeskey_ciphered";
-
+    
+    /**
+     * Your public info file path
+     */
     public static final String PUBLICINFO_XML = "data/publicinfo.xml";
-
+    
+    /**
+     * Your personal info file path
+     */
     public static final String PERSONAL_INFO_XML = "personalinfo.xml";
-
+    
+    /**
+     * In this file are stored your friends public keys
+     */
     public static final String PUBLICKEYS_XML = "data/publickeys.xml";
-
+    
+    /**
+     * Your public key name
+     */
     public static final String PUBLIC_KEY = "data/akratos.pub";
-
+    
+    /**
+     * Your private key name
+     */
     public static final String PRIVATE_KEY = "akratos.rsa";
-
+    
+    /**
+     * Ciphered file prefix, each friend feed will have a different number
+     */
     public static final String CIPHERED_PREFIX = "ciphered_file_";
-
+    
+    /**
+     * Your contact XML file; here is stored your contacts
+     */
     public static final String CONTACTS_XML = "contacts.xml";
+    
+    /**
+     * BitDew API component
+     */
     private BitDew bitdew;
+    
+    /**
+     * ActiveData API component
+     */
     private ActiveData activeData;
+    
+    /**
+     * TransferManager API component
+     */
     private TransferManager transferManager;
-
+    
+    /**
+     * Akratos constructor, initialize dr and dt in localhost, dc and ds in bootstrap node (we are using a DHT).
+     */
     public Akratos() {
 	
 	try {
@@ -108,7 +163,11 @@ public class Akratos {
 	    e.printStackTrace();
 	}
     }
-
+    
+    /**
+     * This constructor adds two handlers to each client of BitDew.
+     * @param mock
+     */
     public Akratos(String mock) {
 	Vector comms;
 	try {
@@ -165,14 +224,12 @@ public class Akratos {
     }
 
     /**
-     * This method set user public key of and user uid in akratos
-     * 
-     * @throws JAXBException
-     * @throws BitDewException
-     * @throws IOException
-     * @throws NoSuchAlgorithmException
+     * This method generates a user public key and an user uid in Akratos
+     * @throws JAXBException if an exception occurs while parsing the XML document.
+     * @throws IOException if a IO exception appears
+     * @throws NoSuchAlgorithmException if an exception related to Checksum algorithm appears
      */
-    public static void fillFile(String file_name) throws JAXBException, BitDewException, IOException, NoSuchAlgorithmException {
+    public static void fillFile(String file_name) throws JAXBException,IOException, NoSuchAlgorithmException {
 	User us = (User) AkratosUtil.unmarshall(User.class, file_name);
 	SecureRandom sr = new SecureRandom();
 	FileOutputStream fos = new FileOutputStream(new File(PRIVATE_KEY));
@@ -191,7 +248,9 @@ public class Akratos {
     }
 
     /**
-     * This method subscribes you to the network
+     * This method subscribes you to the network, this means that a user POJO is 
+     * generated from your publicinfo.xml and is published in the DHT.
+     * @param fileName the file name where you store your personal public information
      */
     public void subscribe(String fileName) {
 	File f;
@@ -246,7 +305,15 @@ public class Akratos {
 	}
 
     }
-
+    
+    /**
+     * This method find you a contact according either its tag name (like in twitter), or
+     * by its complete name.
+     * @param tag
+     * @param public_name
+     * @return a list of people registered in the Network whose tag or complete name is equal to the 
+     * one that you inserted.
+     */
     public List findFriend(String tag, String public_name) {
 	List ret = null;
 	try {
@@ -267,7 +334,18 @@ public class Akratos {
 	}
 	return ret;
     }
-
+    
+    /**
+     * Add a contact to your contacts.xml file
+     * @param uid contact uid
+     * @param privateuid contact private uid, 
+     * @param publicname contact public complete name
+     * @param tag contact tag name (like in twitter)
+     * @param pu_key contact public key in base64
+     * @param city contact city
+     * @param country contact residence country
+     * @param profession contact profession
+     */
     public void addFriend(String uid, String privateuid, String publicname, String tag, String pu_key, String city,
 	    String country, String profession) {
 	try {
@@ -283,7 +361,13 @@ public class Akratos {
 	}
 
     }
-
+    
+    /**
+     * This method send the user newsletter as an AES-ciphered XML file in the network. To achieve this,
+     * a public key list is maintained in contacts.xml file, the current user ciphers its XML file using a generated AES key that is cipehred
+     * with each of the public keys in the file system.
+     * @param public_file_name The file where you have your public personal information.
+     */
     public void dropNews(String public_file_name) {
 	try {
 	    Contacts contacts;
@@ -374,7 +458,14 @@ public class Akratos {
 	    e.printStackTrace();
 	}
     }
-
+    
+    /**
+     * This method is called whenever you want to get news from your friends. To achieve this,
+     * you must insert your private uid in the system, to get the files that has been directed
+     * to you by your friends. Then by inserting your privateuid_<AES_CIPHERED_POSTFIX> you can get
+     * the AES key associated to this ciphered file. You decrypt the AES key with your private key.
+     * @param file_name
+     */
     public void getNews(String file_name) {
 	User u;
 	PersonalInfo personal;
@@ -483,16 +574,23 @@ public class Akratos {
 	    e.printStackTrace();
 	}
     }
-
+    
+    /**
+     * Callback to be called when public information is scheduled on a given machine.
+     * @author jsaray
+     *
+     */
     public class PublicInfoCallback implements ActiveDataCallback {
-
-	public void onDataScheduled(Data data, Attribute attribute) {
-	    if (data.getname().equals("public_info")) {
-		System.out.println("on scheduled called  on public! " + data.getuid() + " data name : "
-			+ data.getname());
-		String uid = data.getuid();
-		List<User> users;
-		try {
+    
+    	/**
+    	 * This method retrieves the data that has been inserted on the DHT and replicates it in the DHT.
+    	 */
+    	public void onDataScheduled(Data data, Attribute attribute) {
+    	    if (data.getname().equals("public_info")) {
+    		System.out.println("on scheduled called  on public! " + data.getuid() + " data name : "+ data.getname());
+    		String uid = data.getuid();
+    		List<User> users;
+    		try {
 		    users = bitdew.ddcSearch(uid);
 		    User user = users.get(0);
 		    AkratosUtil.marshall(User.class, user, uid);
@@ -504,54 +602,82 @@ public class Akratos {
 		} catch (JAXBException e) {
 		    e.printStackTrace();
 		} catch (ClassCastException e) {
-		    System.out
-			    .println("A controlled exception has occured, PublicInfoCallback was executed where another callback was needed (Private)");
+		    System.out.println("A controlled exception has occured, PublicInfoCallback was executed where another callback was needed (Private)");
 		    e.printStackTrace();
 		}
-	    }
-	}
+	     }
+    	}
 
-	@Override
+	/**
+	 * For now, this method is empty
+	 */
 	public void onDataDeleted(Data data, Attribute attr) {
 	}
 
     }
-
+    
+    /**
+     *	This callback is used to store a copy of ciphered XML file representing the personal information
+     *	of a peer.
+     *
+     *
+     * @author jsaray
+     */
     public class PriviledgedInfoCallback implements ActiveDataCallback {
-
-	private String bootstrap;
-	private String localhost = "127.0.0.1";
-	private BitDew ddcbitdew;
+    	
+    	/**
+    	 * Bootstrap node
+    	 */
+    	private String bootstrap;
+    	
+    	/**
+    	 * Localhost address
+    	 */
+    	private String localhost;
+    	
+    	/**
+    	 * BitDew distributed data catalog.
+    	 */
+    	private BitDew ddcbitdew;
+    	
+    	/**
+    	 * Bitdew local catalog
+    	 */
 	private BitDew bitdewlocal;
+		
+	/**
+	* Initialize fields in constructor
+	* @param bootstrap the bootstrap node running dc and ds.
+	*/
 	public PriviledgedInfoCallback(String bootstrap) {
 	    this.bootstrap = bootstrap;
 	    try{
-	    String localhost = InetAddress.getLocalHost().getHostAddress();
-	    Interfacedt dt = (Interfacedt )ComWorld.getComm(localhost, "rmi", 4325, "dt");
-	    transferManager = new TransferManager(dt);
+		String localhost = InetAddress.getLocalHost().getHostAddress();
+		Interfacedt dt = (Interfacedt )ComWorld.getComm(localhost, "rmi", 4325, "dt");
+		transferManager = new TransferManager(dt);
 	    
-	    Interfacedr dr = (Interfacedr) ComWorld.getComm(localhost, "rmi", 4325, "dr");
-	    Interfaceds ds = (Interfaceds) ComWorld.getComm(localhost, "rmi", 4325, "ds");
-	    Interfacedc ddc = (Interfacedc) ComWorld.getComm(bootstrap, "rmi", 4325, "dc");
+		Interfacedr dr = (Interfacedr) ComWorld.getComm(localhost, "rmi", 4325, "dr");
+		Interfaceds ds = (Interfaceds) ComWorld.getComm(localhost, "rmi", 4325, "ds");
+		Interfacedc ddc = (Interfacedc) ComWorld.getComm(bootstrap, "rmi", 4325, "dc");
 	    
-	    ddcbitdew = new BitDew(ddc,dr,ds,true);
+		ddcbitdew = new BitDew(ddc,dr,ds,true);
 	    
 	    
-	    Interfacedc dc = (Interfacedc) ComWorld.getComm(localhost, "rmi", 4325, "dc");
-	    bitdewlocal = new BitDew(dc, dr,  ds);
+		Interfacedc dc = (Interfacedc) ComWorld.getComm(localhost, "rmi", 4325, "dc");
+		bitdewlocal = new BitDew(dc, dr,  ds);
 	    
 	    
 	    }catch(Exception e ){
 		e.printStackTrace();
 	    }
-	    
-	    
 	}
-
+	
+	/**
+	 * Called when a private data is scheduled to this machine, the handler replicates the data.
+	 */
 	public void onDataScheduled(Data data, Attribute attribute) {
 	    if (!data.getname().equals("public_info")) {
-		System.out.println("on scheduled called on private! " + data.getuid() + " data name : "
-			+ data.getname() + " data checksum :" + data.getchecksum());
+		System.out.println("on scheduled called on private! " + data.getuid() + " data name : "+ data.getname() + " data checksum :" + data.getchecksum());
 		try {
 		    List<String> ips;
 		    ips = ddcbitdew.ddcSearch(data.getchecksum());
@@ -559,8 +685,7 @@ public class Akratos {
 		    ddcbitdew.ddcPublish(data.getname(), data);
 		    ddcbitdew.ddcPublish(data.getchecksum(), InetAddress.getLocalHost().getHostAddress());
 
-		    System.out.println(" Machine to contact " + ips.get(0) + " checksum to search "
-			    + data.getchecksum());
+		    System.out.println(" Machine to contact " + ips.get(0) + " checksum to search "+ data.getchecksum());
 		    Interfacedr dr = (Interfacedr) ComWorld.getComm(ips.get(0), "rmi", 4325, "dr");
 		    Interfaceds ds = (Interfaceds) ComWorld.getComm(ips.get(0), "rmi", 4325, "ds");
 		    Interfacedc dc= (Interfacedc) ComWorld.getComm(ips.get(0), "rmi", 4325, "dc");
@@ -581,27 +706,24 @@ public class Akratos {
 		    transferManager.registerTransfer(oob);
 		    transferManager.waitFor(data);
 		    transferManager.stop();
-
 		} catch (UnknownHostException e) {
 		    e.printStackTrace();
 		} catch (BitDewException e) {
 		    e.printStackTrace();
 		} catch (TransferManagerException e) {
-		    // TODO Auto-generated catch block
 		    e.printStackTrace();
 		} catch (ModuleLoaderException e) {
-		    // TODO Auto-generated catch block
 		    e.printStackTrace();
 		} catch (ClassCastException e) {
-
-		    System.out
-			    .println(" A controlled exception has occured, private callback was call but it was not its turn");
+		    System.out.println(" A controlled exception has occured, private callback was call but it was not its turn");
 		    e.printStackTrace();
 		}
 	    }
 	}
 
-	@Override
+	/**
+	 * For now this method is not implemented
+	 */
 	public void onDataDeleted(Data data, Attribute attr) {
 	}
     }

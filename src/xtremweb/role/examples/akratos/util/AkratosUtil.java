@@ -53,8 +53,21 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import xtremweb.role.examples.akratos.Akratos;
 
+/**
+ * A set of utilities to support Akratos.java
+ * @author jsaray
+ *
+ */
 public class AkratosUtil {
-
+	
+	/**
+	 * Unmarshall a XMl file by using JAXB api
+	 * @param clazz the class to map the XML file
+	 * @param FILE_NAME the XML file name
+	 * @return a new instance of the unmarshalled object
+	 * @throws JAXBException if anything wrong happens manipulating the file with JAXB
+	 * @throws FileNotFoundException if FILE_NAME do not exist
+	 */
     public static Object unmarshall(Class clazz, String FILE_NAME) throws JAXBException, FileNotFoundException {
 	JAXBContext context = JAXBContext.newInstance(clazz);
 	;
@@ -64,7 +77,12 @@ public class AkratosUtil {
 	else
 	    return um.unmarshal(new FileReader(FILE_NAME));
     }
-
+    
+    /**
+     * This method reduces the input data list to only unique values according to the checksum
+     * @param datas the data list with maybe multiple datas with the same checksum
+     * @return a Data list with unique md5 files
+     */
     public static List<Data> getUniques(List<Data> datas) {
 	Hashtable<String,Data> ht = new Hashtable<String,Data>();
 	List l = new ArrayList<Data>();
@@ -78,7 +96,12 @@ public class AkratosUtil {
 	}
 	return l;
     }
-
+    
+    /**
+     * Transform a data list into a hashtable with key the data uid
+     * @param datas the data list
+     * @return a hashtable representation of the data list
+     */
     public static Hashtable getDataHashTable(List<Data> datas) {
 	Hashtable ht = new Hashtable();
 	for (int i = 0; i < datas.size(); i++) {
@@ -87,7 +110,14 @@ public class AkratosUtil {
 	}
 	return ht;
     }
-
+    
+    /**
+     * Transform a object into its XML representation using JAXB
+     * @param clazz the object class
+     * @param obj the object to serialize
+     * @param filename the XML filename
+     * @throws JAXBException if anything goes wrong parsing with JAXB.
+     */
     public static void marshall(Class clazz, Object obj, String filename) throws JAXBException {
 	JAXBContext context = JAXBContext.newInstance(clazz);
 	Marshaller m = context.createMarshaller();
@@ -110,21 +140,13 @@ public class AkratosUtil {
 	}
     }
 
-    public static String getKeyAsMd5String(String filename) throws IOException {
-	BufferedReader br = new BufferedReader(new FileReader(new File(filename)));
-	String k = br.readLine();
-	// k=k.replace("ssh-rsa ", "");
-	return k.substring(0, k.length() - 1);
-
-    }
-
     /**
-     * OJO CON EL JAR HELL DE LOS APACHE CODECS
+     * 
      * 
      * This method encrypts a given file using AES, then it encrypts the AES key
      * with RSA
      * 
-     * 
+     * Warning: a conflict (JAR HELL) should happen because of the apache codecs
      * @param contact_uid
      *            this will be the encrypted file name to distinguish the
      *            message recipient
