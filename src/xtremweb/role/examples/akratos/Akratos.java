@@ -214,8 +214,6 @@ public class Akratos {
 	    }
 	} catch (JAXBException e) {
 	    e.printStackTrace();
-	} catch (BitDewException e) {
-	    e.printStackTrace();
 	} catch (IOException e) {
 	    e.printStackTrace();
 	} catch (NoSuchAlgorithmException e) {
