@@ -4,7 +4,7 @@ import xtremweb.core.obj.ds.Host;
 import java.util.*;
 
 /**
- * Describe class OwnerComparator here.
+ * A comparator between two data owners
  *
  *
  * Created: Sun Oct 21 18:08:01 2007
@@ -13,7 +13,10 @@ import java.util.*;
  * @version 1.0
  */
 public class OwnerComparator implements Comparator {
-
+	
+	/**
+	 * Compare two OwnerComparators
+	 */
     public int compare(Object p1, Object p2) {
 	String s1;
 	String s2;

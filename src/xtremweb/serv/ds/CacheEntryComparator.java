@@ -11,8 +11,16 @@ package xtremweb.serv.ds;
 
 import java.util.*;
 
+/**
+ * A comparator between two cache entries
+ * @author jsaray
+ *
+ */
 public class CacheEntryComparator implements Comparator {
-
+	
+	/**
+	 * Compare to cache entries
+	 */
     public int compare(Object p1, Object p2) {
 	String s1;
 	String s2;
