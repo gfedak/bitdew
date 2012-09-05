@@ -453,33 +453,9 @@ public class Version {
 <target name="bitdewclient" depends="dist">
 	<jar destfile="dist/bitdew-client-${version}.jar" manifest="bitdew.mf">
 	    
-		<fileset dir="${build}"/>
-			<!--<exclude name="**/jsaga/*"/>
-						<exclude name="**/bittorrent/*"/>
-						<exclude name="**/dropbox/*"/>
-						<exclude name="**/amazonS3/*"/>
-						<exclude name="**/dlpt/*"/>
-						<exclude name="**/blast/*"/>
-						<exclude name="**/ibp/*"/>
-						<exclude name="**/ssh/*"/>
-						<exclude name="**/scp/*"/>
-						<exclude name="**/ddc/*"/>
-						<exclude name="**/mw/*"/>
-						<exclude name="**/integration/*"/>
-						<exclude name="**/*Test*"/>
-		</fileset>-->
-		<fileset dir="temp-jar"/>
-			<!--<exclude name="**/junit/*"/>
-			<exclude name="**/junit4.0/*"/>
-			<exclude name="**/junit4.1/*"/>
-			<exclude name="**/images/*"/>
-			<exclude name="**/cobertura/*"/>
-			<exclude name="**/amazonaws/*"/>
-			<exclude name="**/dropbox/*"/>
-			<exclude name="**/jfree/*"/>
-			<exclude name="**/jcraft/*"/>
-			<exclude name="**/demo/*"/>
-		</fileset>-->
+		<fileset dir="${build}"/>		
+		<fileset dir="temp-jar"/>	
+		<fileset dir="html"/>
 		<fileset dir="${conf}">
 		  <include name="properties.json"/>
 		  <include name="log4j.properties"/>
