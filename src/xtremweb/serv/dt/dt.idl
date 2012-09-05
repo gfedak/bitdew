@@ -19,12 +19,6 @@
 <Return type="int" desc="New status of the transfer"/>
 </Method>
 
-<Method name="startTransfer">
-<Param name="transfer" type="String" desc="The transfer uid we want to start on the remote site"/>
-<Return type="int"  desc="New status of the transfer"/>
-</Method>
-
-
 <Method name="setTransferStatus">
 <Param name="transfer" type="String" desc="The transfer uid we want to set the new status on the remote site"/>
 <Param name="status" type="int"  desc="New status of the transfer"/>
@@ -35,17 +29,6 @@
 <Param name="transfer" type="String" desc="The transfer uid we want to monitor on the remote site"/>
 <Return type="boolean"  desc="true if the trasfer is complete, false otherwise"/>
 </Method>
-
-<Method name="endTransfer">
-<Param name="transfer" type="String" desc="The transfer uid we want to start on the remote site"/>
-<Return type="int"  desc="New status of the transfer"/>
-</Method>
-
-<Method name="abortTransfer">
-<Param name="transfer" type="String" desc="The transfer uid we want to abort on the remote site"/>
-<Return type="int"  desc="New status of the transfer"/>
-</Method>
-
 
 <Method name="putTransfer">
 <Param name="transfer" type="Transfer" desc="The transfer we want to prepare on the remote site"/>
