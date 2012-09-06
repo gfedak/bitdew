@@ -90,10 +90,12 @@ public class HttpTools {
 				+ " http reason "
 				+ response.getStatusLine().getReasonPhrase());
 	} catch (ClientProtocolException e) {
+	    e.printStackTrace();
 	    throw new HttpToolsException(
 		    "There was an error executing the file POST request "
 			    + e.getMessage());
 	} catch (IOException e) {
+	    e.printStackTrace();
 	    throw new HttpToolsException(
 		    "There was an error executing the file POST request "
 			    + e.getMessage());
