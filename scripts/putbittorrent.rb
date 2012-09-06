@@ -14,7 +14,7 @@ require 'net/ssh'
 #
 
 
-version="0.2.8"
+version="1.1.1"
 filename = ARGV[0]
 protocol = ARGV[1]
 
@@ -86,7 +86,7 @@ puts "Node that will put the file :  #{putmachine}"
 	  end
 	  uid = IO.readlines("putout")[0]
 	  puts "The id line is #{uid}"
-	  uid = uid.match(/[[a-fA-F0-9-]*]/)[0]
+	  uid = uid.match(/\[[a-fA-F0-9-]*\]/)[0]
 	  uid = uid[1,uid.length-2]
 	  puts "The uid is  #{uid}"
   end
