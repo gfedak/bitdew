@@ -20,7 +20,7 @@ version = "1.1.1"
 # with the same size than ARGV[1].
 # Please not that the total number of files that will appear is (number_of_nodes - 2)*number_of_threads_per_core
 
-TIMEOUT=210
+TIMEOUT=300
 BASE_FOLDER = "/home/jsaray/"
 REMOTE_FOLDER = "/home/jsaray/"
 PROPERTIES_FILE = "stresstest.json"
@@ -102,13 +102,13 @@ machines.each{|machine|
    puts "Executing on machine " + machine
    
    threadget = Thread.new {
-      i=0
-      Net::SSH.start(machine,"jsaray") do |ssh|
-         while i < number_of_threadsi.to_i do
-            ssh.exec "nohup java -cp bitdew-stand-alone-"+version+".jar xtremweb.role.integration.TestGetMultiple " + stable_node + " "+ uid + " " + i.to_s + " > out"+i.to_s + " 2> err"+i.to_s+" &"
-	 i = i + 1
-         end
-      end      
+      index_thread = 0
+      while index_thread < number_of_threads.to_i do
+          Net::SSH.start(machine,"jsaray") do |ssh|
+            ssh.exec "nohup java -cp bitdew-stand-alone-"+version+".jar xtremweb.role.integration.TestGetMultiple " + stable_node + " "+ uid + " " + index_thread.to_s + " > out"+index_thread.to_s + " 2> err"+index_thread.to_s+" &"
+          end
+          index_thread = index_thread + 1    
+      end  
    }
    threadgets << threadget
    
@@ -116,6 +116,8 @@ machines.each{|machine|
 out = ""
 puts "File is downloading on each node"
 sleep(TIMEOUT.to_i)
+#threadgets.each{|x| x.join}
+puts "after join"
 total = 0
 numberof =""
 machines.each{|machine|
