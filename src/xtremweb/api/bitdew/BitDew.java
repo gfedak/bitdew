@@ -641,7 +641,8 @@ public class BitDew {
 		    + ((CommTemplate) idr).getHostName() + ":" + remote_proto.getport() + "/" + remote_proto.getpath());
 	} catch (RemoteException re) {
 	    log.debug("Cannot find a oob protocol " + data.getoob() + " " + re);
-	    throw new BitDewException();
+	    re.printStackTrace();
+	    throw new BitDewException(re.getMessage());
 	}
 	log.debug(" the class is " + remote_proto.getclassName());
 	Locator remote_locator = new Locator();

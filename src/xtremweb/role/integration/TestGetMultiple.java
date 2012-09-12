@@ -12,6 +12,9 @@ import xtremweb.core.log.LoggerFactory;
  */
 public class TestGetMultiple {
     
+    /**
+     * File name that a retrieved file will have on localhost, is the 'getfile' constant
+     */
     private static String GETFNAME="getfile";
     /**
      * Logger class
@@ -19,10 +22,11 @@ public class TestGetMultiple {
     private static Logger log = LoggerFactory.getLogger("TestGetMultiple");
     
     /**
-     * 
-     * @param sn
-     * @param uid
-     * @param tam
+     * Starts a bitdew get routine
+     * @param sn stable node
+     * @param uid the bitdew uid to get
+     * @param tam the process number
+     * @param getfname the file name
      */
     public void go(String sn,String uid,int tam,String getfname)
     {	String STABLE_NODE = sn;	
