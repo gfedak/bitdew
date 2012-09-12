@@ -9,8 +9,7 @@
     xtremweb.core.http.CallbackdcXmlRpcServlet: { url: "/xmlrpc_dc", enabledForExtensions: "true"},
     xtremweb.core.http.CallbackdtXmlRpcServlet: { url: "/xmlrpc_dt", enabledForExtensions: "true"},
     xtremweb.core.http.CallbackdsXmlRpcServlet: { url: "/xmlrpc_ds", enabledForExtensions: "true"},
-    xtremweb.core.http.CallbackdrXmlRpcServlet: { url: "/xmlrpc_dr", enabledForExtensions: "true"},
-	xtremweb.serv.dr.http:{className:"xtremweb.serv.dt.http.HttpTransfer",  name: "http",port: "8080",path:"data"},
-	xtremweb.serv.dt: {protocols: "dummy http", embeddedtm: "true"},
-	xtremweb.serv.dr.bittorrent: {makeTorrentExec: "/usr/bin/makemetafile.bittorrent"}
+    xtremweb.core.http.CallbackdrXmlRpcServlet: { url: "/xmlrpc_dr", enabledForExtensions: "true"},	
+	xtremweb.serv.dr.http:{className:"xtremweb.serv.dt.http.HttpTransfer", retry: "10", name: "http",port: "8080",path:"data"},
+	xtremweb.serv.dt: {protocols: "dummy http", embeddedtm: "true"}
 }
