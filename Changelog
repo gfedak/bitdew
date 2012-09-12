@@ -22,6 +22,15 @@
 	
 		
 ** HISTORY **
+
+September 12, 2012
+
+HttpClient migration from 3 to 4
+Dropbox SSL bug on Ubuntu corrected
+Akratos use case prototype works in a 1-1 message
+code documented
+sonar ant task integrated
+
 July 22, 2012
 
 XML-RPC Protocol added
