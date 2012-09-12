@@ -1,0 +1,41 @@
+package xtremweb.serv.dnaming;
+import java.rmi.RemoteException;
+import java.util.Collection;
+import java.util.Iterator;
+import javax.jdo.PersistenceManager;
+import javax.jdo.PersistenceManagerFactory;
+import javax.jdo.Query;
+import javax.jdo.Transaction;
+import xtremweb.core.com.idl.CallbackTemplate;
+import xtremweb.core.iface.InterfaceRMIdnaming;
+import xtremweb.core.log.Logger;
+import xtremweb.core.log.LoggerFactory;
+import xtremweb.core.obj.dnaming.Service;
+import xtremweb.core.com.idl.ModuleLoaderException;
+import xtremweb.core.com.idl.ComWorld;
+public class CallbackTest {   
+     public static void main(String[] pon){
+         String ip1 ="11.11.11.11";
+         String ip2 ="22.22.22.22";
+         String ip3 = "33.33.33.33";
+         try{
+             String sname1 = "dr";
+             String sname2 = "ds";
+             String sname3 = "dt";
+             InterfaceRMIdnaming dn = (InterfaceRMIdnaming) ComWorld.getComm("localhost", "rmi", 4325,"dnaming");
+             dn.registerService(sname1, ip1);
+             dn.registerService(sname2, ip2);
+             dn.registerService(sname3, ip3);
+             String host = dn.getServiceAddress("dt");
+             System.out.println("The host for dt is " + host);
+             host = dn.getServiceAddress("ds");
+             System.out.println("The host for ds is " + host);
+             host = dn.getServiceAddress("dr");
+             System.out.println("The host for dr is " + host);	
+             }catch(RemoteException e){
+                 e.printStackTrace();
+             }catch(ModuleLoaderException e){
+                e.printStackTrace();
+             }
+         }
+}
