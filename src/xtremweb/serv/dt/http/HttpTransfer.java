@@ -58,7 +58,11 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements BlockingOOB
      * Apache API postMethod
      */
     protected HttpPost postMethod;
-
+    
+    /**
+     * Retry 
+     */
+    protected int retrytimes = 5;
     /**
      * Logger
      */
@@ -108,7 +112,14 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements BlockingOOB
      * Initialize apache http client
      */
     public void connect() throws OOBException {
+	try{
 	httpClient = new DefaultHttpClient();
+	Properties mainprop = ConfigurationProperties.getProperties();
+	String retrytimesstr = mainprop.getProperty("xtremweb.serv.dr.http.retry");
+	if (retrytimesstr != null && !retrytimesstr.equals(""))
+	{
+	    retrytimes = Integer.parseInt(retrytimesstr);
+	}
 	HttpRequestRetryHandler myretry = new HttpRequestRetryHandler(){
 	    public boolean retryRequest(IOException exception, int executionCount, HttpContext arg2) {
 		log.debug("Retrying request " + executionCount);
@@ -117,7 +128,7 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements BlockingOOB
 		}catch(Exception e){
 		    e.printStackTrace();
 		}
-		if (executionCount >= 5) 
+		if (executionCount >= retrytimes) 
 	            return false;	       
 	        return true;
 	    }
@@ -127,6 +138,10 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements BlockingOOB
 	httpClient.setHttpRequestRetryHandler(myretry);
 	log.debug("connecting " + this.toString());
 	b = true;
+	}catch(Exception e){
+	    e.printStackTrace();
+	    throw new OOBException(e.getMessage());
+	}
     }
 
     /**

@@ -19,13 +19,10 @@ import xtremweb.serv.dc.*;
 import xtremweb.core.conf.*;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
-import xtremweb.dao.DaoFactory;
 import xtremweb.dao.protocol.DaoProtocol;
 import java.io.File;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 
 
@@ -43,7 +40,10 @@ public class Callbackdr extends CallbackTemplate implements Interfacedr {
      * Class logger
      */
     protected static Logger log = LoggerFactory.getLogger(Callbackdr.class);
-    private DaoProtocol dao;
+    
+    /**
+     * Properties file interface
+     */
     private Properties mainprop;
     /**
      * Class constructor, it tries to load a set of protocols and repositories
@@ -51,7 +51,7 @@ public class Callbackdr extends CallbackTemplate implements Interfacedr {
      * takes a default json file.
      */
     public Callbackdr() {
-    	dao = (DaoProtocol)DaoFactory.getInstance("xtremweb.dao.protocol.DaoProtocol");
+    	
 	try {
 	    mainprop = ConfigurationProperties.getProperties();
 	} catch (ConfigurationException ce) {
@@ -193,7 +193,7 @@ public class Callbackdr extends CallbackTemplate implements Interfacedr {
      * @return the protocol uid in DBMS
      */
     public String registerProtocol(Protocol proto) {
-
+	DaoProtocol dao = new DaoProtocol();
 	dao.makePersistent(proto, true);
 	return proto.getuid();
     }
@@ -206,18 +206,18 @@ public class Callbackdr extends CallbackTemplate implements Interfacedr {
      * @return the protocol whose name is the parameter
      */
     public Protocol getProtocolByName(String name) throws RemoteException {
-	Protocol ret = null;
+	DaoProtocol daoproto = new DaoProtocol();
 	Protocol protoStored = null;
 	try {
-	    dao.beginTransaction();
-	    protoStored = (Protocol) dao.getByName(Protocol.class,
+	    daoproto.beginTransaction();
+	    protoStored = (Protocol) daoproto.getByName(Protocol.class,
 		    name.toLowerCase());
 	    if (protoStored == null)
 		return null;
-	    dao.commitTransaction();
+	    daoproto.commitTransaction();
 	} finally {
-	    if (dao.transactionIsActive())
-		dao.transactionRollback();
+	    if (daoproto.transactionIsActive())
+		daoproto.transactionRollback();
 	}
 	return protoStored;
     }
@@ -306,7 +306,7 @@ public class Callbackdr extends CallbackTemplate implements Interfacedr {
      */
     public String browse() {
 	String ret = "";
-	
+	DaoProtocol dao = new DaoProtocol();
 	try {
 	    dao.beginTransaction();
 
