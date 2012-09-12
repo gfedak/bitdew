@@ -24,9 +24,6 @@ ftptest:
 mailtest:
 	java -DPROPERTIES_FILE="conf/client.properties" -cp  ${CLASSPATH} xtremweb.serv.dt.mail.MailTransfer
 
-bttest:
-	java -DPROPERTIES_FILE="conf/xtremweb.properties.btpd" -cp  ${CLASSPATH} xtremweb.serv.dt.bittorrent.BittorrentTransfer 129.175.7.234
-
 tmtest:
 	java -DPROPERTIES_FILE="conf/client.properties" -cp  ${CLASSPATH} xtremweb.api.transman.TestTM Makefile
 
