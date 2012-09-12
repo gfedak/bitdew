@@ -16,10 +16,21 @@ import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 import java.util.Properties;
 
+/**
+ * This class applys the singleton patter over a HttpServer
+ * @author jose
+ *
+ */
 public class UIFactory {
-
+    
+    /**
+     * The http server
+     */
     private static HttpServer httpServer=null;
-
+    
+    /**
+     * Logger
+     */
     protected static Logger log = LoggerFactory.getLogger(HttpServer.class);
 
     /**
