@@ -135,6 +135,7 @@ EXCLUDE_PATTERNS       =
 EXCLUDE_SYMBOLS        = 
 EXAMPLE_PATH           = src/xtremweb/role/examples/ \
                          src/xtremweb/dao/service
+                         src/xtremweb/role/examples/subsections
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO
 IMAGE_PATH             = html/images
