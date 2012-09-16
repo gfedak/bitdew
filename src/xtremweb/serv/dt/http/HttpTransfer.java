@@ -7,7 +7,7 @@ import xtremweb.core.obj.dt.Transfer;
 import xtremweb.core.obj.dc.Data;
 import xtremweb.core.obj.dc.Locator;
 import xtremweb.core.conf.*;
-
+import xtremweb.serv.dt.bittorrent.HttpTools;
 
 import java.io.*;
 import java.util.Properties;
@@ -226,9 +226,9 @@ public class HttpTransfer extends BlockingOOBTransferImpl implements BlockingOOB
 	}
 	HttpResponse response = null;
 	try {
-	    String url = "http://" + remote_protocol.getserver() + ":" + remote_protocol.getport() + "/" + URLEncoder.encode(remote_protocol.getpath()) + "/"
-		    + remote_locator.getref();
-	    log.debug("getting " + url);
+	    String url = "http://" + remote_protocol.getserver() + ":" + remote_protocol.getport() + "/" + HttpTools.httpEncode(URLEncoder.encode(remote_protocol.getpath(),"UTF-8")) + "/" + HttpTools.httpEncode(URLEncoder.encode(remote_locator.getref(),"UTF-8"));
+	  
+        log.debug("getting " + url);
 	    //url = URLEncoder.encode(url, "ISO-8859-1");
 	    log.debug("The encoded url is " + url);
 	    getMethod = new HttpGet(url);
