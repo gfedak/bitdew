@@ -148,7 +148,7 @@ public class Callbackdt extends CallbackTemplate implements Interfacedt {
 		    && (oobt.getTransfer().getuid() != null))
 		log.debug("Transfer already persisted : "
 			+ oobt.getTransfer().getuid());
-	    log.debug(" data snapshot just before persisting uid"
+	    log.debug(" data snapshot just before persisting uid in callback side "
 		    + oobt.getData().getuid() + "md5 "
 		    + oobt.getData().getchecksum() + " size "
 		    + oobt.getData().getsize());
