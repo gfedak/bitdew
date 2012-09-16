@@ -495,12 +495,6 @@ public class Version {
       	<exclude name="**/TestGetMultiple.java"/>
       	<exclude name="**/XMLTest.java"/>
       	<exclude name="**/xtremweb/role/integration/**"/>
-      	<exclude name="**/DLPTTest.java"/>
-    	<exclude name="**/TransferManagerTest.java"/>
-	<exclude name="**/LoggerFactoryTest.java"/>
-	<exclude name="**/SortedVectorTest.java"/>
-	<exclude name="**/AttributeTypeTest.java"/>
-	<exclude name="**/JndiLdapImplTest.java"/>
       </fileset>
     </batchtest>
     
