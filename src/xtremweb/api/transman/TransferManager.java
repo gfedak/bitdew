@@ -149,8 +149,8 @@ public class TransferManager {
     public void registerTransfer(OOBTransfer oobt) {
 	String tuid = oobt.getTransfer().getuid();
 	if ((oobt.getTransfer() != null) && (oobt.getTransfer().getuid() != null))
-	    log.debug("Transfer already persisted : " + oobt.getTransfer().getuid());
-	log.debug(" data snapshot just before persisting uid" + oobt.getData().getuid() + "md5 " + oobt.getData().getchecksum() + " size "
+	    log.debug("Transfer already persisted in : " +this+ " " +oobt.getTransfer().getuid());
+	log.debug(" data snapshot just before persisting uid in " + this + " " + oobt.getData().getuid() + "md5 " + oobt.getData().getchecksum() + " size "
 		+ oobt.getData().getsize());
 	DaoData newdao = new DaoData();
 
