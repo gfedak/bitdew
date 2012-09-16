@@ -62,6 +62,13 @@ public class HttpTools {
     }
     
     /**
+    * Encode a given url into a ISO 8859 representation
+    */
+    public static String httpEncode(String url){
+    	return url.replaceAll("\\+", "%20").replaceAll("\\%21", "!").replaceAll("\\%27", "'").replaceAll("\\%28", "(").replaceAll("\\%29", ")").replaceAll("\\%7E", "~");
+    }
+    
+    /**
      * Post a file through http using Multipart format (currently version httpclient 4).
      * @param fileName
      * @param url
