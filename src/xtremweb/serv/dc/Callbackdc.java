@@ -113,7 +113,7 @@ public class Callbackdc extends CallbackTemplate implements Interfacedc {
      * @return a data whose hash is md5
      * @throws RemoteException if a problem occurs in the method invocation
      */
-    public Data getDataFromMd5(String md5)throws RemoteException
+    public Data getDataFromMd5(String md5)
     {	try{
     		dao.beginTransaction();
     		Data d = dao.getDataFromMd5(md5);

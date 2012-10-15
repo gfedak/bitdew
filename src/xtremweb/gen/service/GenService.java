@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 
@@ -71,12 +72,11 @@ public class GenService {
 	bw = new BufferedWriter(new FileWriter(nucleus));
 	bw.write("package xtremweb.serv." + service + ";\n");
 	bw.write("import xtremweb.core.com.idl.CallbackTemplate;\n");
-	bw.write("import xtremweb.core.iface.InterfaceRMI" + service + ";\n");
-	bw.write("import java.rmi.RemoteException;\n");
+	bw.write("import xtremweb.core.iface.Interface" + service + ";\n");
 	bw.write("\n");
 	bw.write("\n");
 	bw.write("public class Callback" + service
-		+ " extends CallbackTemplate implements InterfaceRMI" + service
+		+ " extends CallbackTemplate implements Interface" + service
 		+ " {\n");
 	bw.write("}\n");
 	bw.flush();
@@ -159,7 +159,7 @@ public class GenService {
 	    BufferedWriter bw = new BufferedWriter(new FileWriter(dao));
 	    bw.write("package xtremweb.dao." + objects[i].toLowerCase() + ";\n");
 	    bw.write("import xtremweb.core.com.idl.CallbackTemplate;\n");
-	    bw.write("import xtremweb.core.iface.InterfaceRMI" + objects[i]
+	    bw.write("import xtremweb.core.iface.Interface" + objects[i]
 		    + ";\n");
 	    bw.write("\n");
 	    bw.write("\n");

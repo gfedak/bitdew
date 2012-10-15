@@ -1,6 +1,6 @@
 package xtremweb.core.http;
 
-import xtremweb.core.http.exception.RemoteFileNotSpecifiedException;;
+import xtremweb.core.http.exception.RemoteFileNotSpecifiedException;
 import xtremweb.core.log.*;
 import xtremweb.core.conf.*;
 
