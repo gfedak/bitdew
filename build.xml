@@ -512,7 +512,6 @@ public class Version {
 
 <target name="test-unit" description="debugging test">
   <junit haltonfailure="yes" clonevm="true">
-    <!-- FIXME classpath refid="project.classpath" / Quel merdier ce classpath, je comprends rien mais bon au moins ca marche -->
     <classpath>
       <pathelement path="build:conf:lib/jpox-enhancer.jar:lib/commons-collections-3.1.jar:lib/commons-dbcp-1.2.1.jar:lib/commons-pool-1.2.jar:lib/jpox-dbcp-1.1.0-rc-1.jar:lib/jargs.jar:lib/mysql.jar:lib/hsqldb.jar:lib/bcel.jar:lib/jdo.jar:lib/jpox-1.1.0-rc-1.jar:lib/log4j.jar"/>
     </classpath>
