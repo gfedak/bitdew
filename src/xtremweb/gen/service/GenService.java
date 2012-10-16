@@ -36,7 +36,7 @@ public class GenService {
 	    objectstr += args[i] + " ";
 	}
 	String[] objects = {};
-	if (objectstr != null)
+	if (!objectstr.equals(""))
 	    objects = objectstr.split(" ");
 	File dir = new File(System.getProperty("user.dir")
 		+ "/src/xtremweb/serv/" + service + "/");
@@ -47,11 +47,13 @@ public class GenService {
 	    return;
 	}
 	writeCallback(dir, service);
+	if(objects.length != 0)
 	writeJdo(dir, service, objects);
 	writeIdl(dir, service);
 
 	File daodir = new File(System.getProperty("user.dir")
 		+ "/src/xtremweb/dao/");
+	if(objects.length!=0)
 	writeDao(daodir, service, objects);
     }
 

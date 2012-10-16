@@ -33,7 +33,9 @@ package xtremweb.core.com.com;
 
 import xtremweb.core.com.idl.*;
 import xtremweb.core.iface.Interface<xsl:value-of select="$moduleName"/>;
+<xsl:if test="count(Module/Object) != 0">
 import xtremweb.core.obj.<xsl:value-of select="Module/@name" />.*;
+</xsl:if>
 import java.rmi.*;
 <xsl:value-of select="Module/@import" />
 
