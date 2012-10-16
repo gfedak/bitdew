@@ -91,7 +91,7 @@ public class TransferManagerTest {
 	    try {
 		remote_proto = cdr.getProtocolByName("Dummy");
 		log.debug("Remote_proto fetched : " + remote_proto.getuid() + " : " +remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommRMITemplate) cdr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() );
-	    } catch (RemoteException re) {
+	    } catch (Exception re) {
 		log.debug("Cannot find a protocol dummy " + re);
 		throw new BitDewException();
 	    }
@@ -104,7 +104,7 @@ public class TransferManagerTest {
 	    try {
 		remote_locator.setref( cdr.getRef("" +data.getuid()) );
 		log.debug("Remote_reference fetched : " + remote_locator.getref());
-	    } catch (RemoteException re) {
+	    } catch (Exception re) {
 		log.debug("Cannot find a protocol dummy " + re);
 		throw new BitDewException();
 	    }
@@ -140,7 +140,7 @@ public class TransferManagerTest {
 	    try {
 		cdc.putLocator(remote_locator);
 		log.debug("registred new locator");
-	    } catch (RemoteException re) {
+	    } catch (Exception re) {
 		log.debug("Cannot register locator " + re);
 		throw new BitDewException();
 	    }

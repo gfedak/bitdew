@@ -53,6 +53,7 @@ public class HandlerRMI<xsl:value-of select="$moduleName"/> extends HandlerRMITe
         select="./Param" />
       <xsl:with-param name="return"
         select="./Return" />
+      <xsl:with-param name="exceptions" select="./Throws"/>
     </xsl:call-template>
   </xsl:for-each>
 }
@@ -66,10 +67,14 @@ public class HandlerRMI<xsl:value-of select="$moduleName"/> extends HandlerRMITe
 <xsl:param name="methodName" />
 <xsl:param name="params" />
 <xsl:param name="return" />
-
+<xsl:param name="exceptions"/>
 <!-- Builds the attributes --> 
-     public <xsl:value-of select="concat($return/@type , ' ', $methodName/@name)"/>( <xsl:call-template name="params-to-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> ) throws RemoteException  {
-             <xsl:if test="$return/@type!='void'">return (</xsl:if><xsl:value-of select="concat('((Interface', $moduleName, ') callback ).',$methodName/@name)"/>( <xsl:call-template name="params-to-untyped-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> )<xsl:if test="$return/@type!='void'">)</xsl:if>;
+     public <xsl:value-of select="concat($return/@type , ' ', $methodName/@name)"/>( <xsl:call-template name="params-to-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> ) throws RemoteException<xsl:call-template name="exception-list"><xsl:with-param name="exceptions" select="$exceptions"/></xsl:call-template>  {
+             try{
+                 <xsl:if test="$return/@type!='void'">return (</xsl:if><xsl:value-of select="concat('((Interface', $moduleName, ') callback ).',$methodName/@name)"/>( <xsl:call-template name="params-to-untyped-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> )<xsl:if test="$return/@type!='void'">)</xsl:if>;
+    		}catch (Exception e){
+    		     throw new RemoteException(" "+e);
+    		}
     }
 </xsl:template>
 

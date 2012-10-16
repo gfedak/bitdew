@@ -160,7 +160,7 @@ public class CallbackdcTest  extends TestCase{
 	
     } catch (ModuleLoaderException e) {
 	e.printStackTrace();
-    } catch (RemoteException e) {
+    } catch (Exception e) {
 	e.printStackTrace();
     }
     	

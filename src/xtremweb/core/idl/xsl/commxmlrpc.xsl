@@ -36,7 +36,7 @@ import xtremweb.core.log.LoggerFactory;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.net.MalformedURLException;
-
+import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.apache.xmlrpc.client.XmlRpcCommonsTransportFactory;
 import org.apache.xmlrpc.client.XmlRpcClient;
@@ -85,6 +85,7 @@ public class CommXmlRpc<xsl:value-of select="$moduleName"/> extends CommXmlRpcTe
         select="./Param" />
       <xsl:with-param name="return"
         select="./Return" />
+      <xsl:with-param name="exceptions" select="./Throws"/>
     </xsl:call-template>
   </xsl:for-each>
 }
@@ -98,14 +99,14 @@ public class CommXmlRpc<xsl:value-of select="$moduleName"/> extends CommXmlRpcTe
 <xsl:param name="methodName" />
 <xsl:param name="params" />
 <xsl:param name="return" />
-
+<xsl:param name="exceptions"/>
 <!-- Builds the attributes --> 
-     public <xsl:value-of select="concat($return/@type , ' ', $methodName/@name)"/>( <xsl:call-template name="params-to-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> ) throws RemoteException  {
+     public <xsl:value-of select="concat($return/@type , ' ', $methodName/@name)"/>( <xsl:call-template name="params-to-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> ) throws XmlRpcException <xsl:call-template name="exception-list-comma-after"><xsl:with-param name="exceptions" select="$exceptions"/></xsl:call-template>  {
          <xsl:if test="$return/@type!='void'"><xsl:value-of select="concat($return/@type , ' x;')"/></xsl:if>
          try {
               <xsl:if test="$return/@type!='void'">x = </xsl:if><xsl:value-of select="concat($moduleName,'.',$methodName/@name)"/>( <xsl:call-template name="params-to-untyped-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> );
-         } catch (RemoteException e) {
-		 throw new RemoteException(" " +e);
+         } catch (Exception e) {
+		 throw new XmlRpcException(" " +e);
 	}
          return<xsl:if test="$return/@type!='void'"> x</xsl:if>;
      }

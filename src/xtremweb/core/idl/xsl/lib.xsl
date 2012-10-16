@@ -25,7 +25,19 @@
 <xsl:value-of select="substring($list,1,string-length($list)-2)"/>
 </xsl:template>
 
+<xsl:template name="exception-list">
+<xsl:param name="exceptions"/>
+<xsl:for-each select="$exceptions">
+	<xsl:value-of select="concat(', ',@name)"/>
+</xsl:for-each>
+</xsl:template >
 
+<xsl:template name="exception-list-comma-after">
+<xsl:param name="exceptions"/>
 
+<xsl:for-each select="$exceptions"> 
+	<xsl:value-of select="concat(', ',@name)"/>
+</xsl:for-each>
+</xsl:template >
 
 </xsl:stylesheet>

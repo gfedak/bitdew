@@ -406,7 +406,7 @@ public class TransferManager {
 		    try {
 			if (TransferType.isLocal(trans.gettype()))
 			    dt.setTransferStatus(trans.getuid(), TransferStatus.INVALID);
-		    } catch (RemoteException re) {
+		    } catch (Exception re) {
 			log.info("An error has occurred " + re.getMessage());
 			re.printStackTrace();
 			trans.setstatus(TransferStatus.INVALID);
@@ -449,7 +449,7 @@ public class TransferManager {
 			trans.setstatus(TransferStatus.INVALID);
 			oobe.printStackTrace();
 			break;
-		    } catch (RemoteException e) {
+		    } catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		    }

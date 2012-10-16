@@ -1,6 +1,7 @@
 package xtremweb.serv.dt;
 
 import java.rmi.*;
+
 import xtremweb.core.com.idl.*;
 import xtremweb.core.iface.*;
 import xtremweb.core.log.*;
@@ -112,14 +113,15 @@ public class Callbackdt extends CallbackTemplate implements Interfacedt {
      *            remote protocol
      * @param rl
      *            local protocol
+     * @throws RemoteException 
+     * @throws OOBException 
      */
-    public int registerTransfer(Transfer t, Data data, Protocol rp, Locator rl)
-	    throws RemoteException {
+    public int registerTransfer(Transfer t, Data data, Protocol rp, Locator rl) throws OOBException{
 	log.debug("register transfer was called in !!!" + tm);
 	Protocol local_proto = new Protocol();
 	Locator local_locator = new Locator();
 
-	try {
+	
 	    t.setdatauid(data.getuid());
 	    // No local protocol bizarre
 	    local_proto.setname("local");
@@ -134,11 +136,7 @@ public class Callbackdt extends CallbackTemplate implements Interfacedt {
 		t.settype(TransferType.UNICAST_RECEIVE_SENDER_SIDE);
 	    t.setlocatorlocal(local_locator.getuid());
 	    t.setstatus(TransferStatus.PENDING);
-	} catch (Exception e) {
-	    log.debug("Exception when registring oob transfer " + e);
-	    e.printStackTrace();
-	    throw new RemoteException();
-	}
+	
 	try {
 	    OOBTransfer oobt = OOBTransferFactory.createOOBTransfer(data, t,
 		    rl, local_locator, rp, local_proto);
@@ -192,7 +190,7 @@ public class Callbackdt extends CallbackTemplate implements Interfacedt {
 		tm.registerTransfer(oobt);
 	} catch (OOBException e) {
 	    log.debug("Exception when registring oob transfer " + e);
-	    throw new RemoteException();
+	    throw new OOBException("Exception when registring oob transfer "+ e.getMessage());
 	}
 	return TransferStatus.PENDING;
     }
@@ -204,7 +202,7 @@ public class Callbackdt extends CallbackTemplate implements Interfacedt {
      *            the transfer to pool
      * @return boolean true if this this transfer is complete false if not
      */
-    public boolean poolTransfer(String transferID) throws RemoteException {
+    public boolean poolTransfer(String transferID){
 	log.debug("pooling transfer : " + transferID);
 	DaoTransfer daot = (DaoTransfer) DaoFactory
 		.getInstance("xtremweb.dao.transfer.DaoTransfer");
@@ -245,7 +243,7 @@ public class Callbackdt extends CallbackTemplate implements Interfacedt {
      * @throws RemoteException
      *             if anything fails
      */
-    public String putTransfer(Transfer trans) throws RemoteException {
+    public String putTransfer(Transfer trans){
 	dao.makePersistent(trans, true);
 	return trans.getuid();
     }

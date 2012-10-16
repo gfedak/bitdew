@@ -46,7 +46,7 @@ public class DnTest extends TestCase {
 	} catch (ModuleLoaderException e) {
 	    fail();
 	    e.printStackTrace();
-	} catch (RemoteException e) {
+	} catch (Exception e) {
 	    fail();
 	    e.printStackTrace();
 	}

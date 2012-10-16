@@ -22,7 +22,7 @@ public class CallbackdrTest extends TestCase {
 	System.setProperty("PROPERTIES_FILE", "conf/testdr.json");
 	Callbackdr dr = new Callbackdr();
 	Protocol http;
-	try {
+	
 	    http = dr.getProtocolByName("http");
 
 	    assertNotNull(http);
@@ -49,10 +49,7 @@ public class CallbackdrTest extends TestCase {
 	    Protocol ftpbyuid = dr.getProtocolByUID(ftp.getuid());
 	    assertEquals(ftpbyuid.getname(), ftp.getname());
 
-	} catch (RemoteException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
+
     }
 
     @Test
@@ -118,7 +115,7 @@ public class CallbackdrTest extends TestCase {
 	} catch (ModuleLoaderException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
-	} catch (RemoteException e) {
+	} catch (Exception e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}

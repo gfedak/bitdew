@@ -331,7 +331,7 @@ public class ActiveData {
 		data.setoob(attr.getoob());
 		cdc.putData(data);
 	    }
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	    throw new ActiveDataException();
 	}
@@ -351,8 +351,8 @@ public class ActiveData {
 	    cds.associateDataAttribute(data, attr);
 	    data.setstatus(DataStatus.ON_SCHEDULER);
 	    dao.makePersistent(data, true);
-	} catch (RemoteException re) {
-	    log.debug("Cannot find service " + re);
+	} catch (Exception e) {
+		log.debug("Cannot find service " + e);
 	    throw new ActiveDataException();
 	}
     }
@@ -374,7 +374,7 @@ public class ActiveData {
 	    data.setstatus(DataStatus.ON_SCHEDULER);
 
 	    dao.makePersistent(data, true);
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	    throw new ActiveDataException();
 	}
@@ -388,7 +388,7 @@ public class ActiveData {
     public void unschedule(Data data) throws ActiveDataException {
 	try {
 	    cds.removeData(data);
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	    throw new ActiveDataException();
 	}
@@ -403,7 +403,7 @@ public class ActiveData {
     public void pin(Data data, Host host) throws ActiveDataException {
 	try {
 	    cds.associateDataHost(data, host);
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	    throw new ActiveDataException();
 	}
@@ -416,7 +416,7 @@ public class ActiveData {
 	Attribute attr = null;
 	try {
 	    attr = cds.getAttributeByUid(uid);
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    throw new ActiveDataException("cannot get attribute " + uid
 		    + " from the DS service");
 	}
@@ -443,7 +443,7 @@ public class ActiveData {
 	try {
 	    Attribute _attr = cds.registerAttribute(attr);
 	    return _attr;
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	}
 	throw new ActiveDataException();

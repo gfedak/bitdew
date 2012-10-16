@@ -45,6 +45,8 @@ public interface Interface<xsl:value-of select="$moduleName"/> extends Interface
         select="./Param" />
       <xsl:with-param name="return"
         select="./Return" />
+        <xsl:with-param name="exceptions"
+        select="./Throws" />
     </xsl:call-template>
   </xsl:for-each>
 }
@@ -57,9 +59,9 @@ public interface Interface<xsl:value-of select="$moduleName"/> extends Interface
 <xsl:param name="methodName" />
 <xsl:param name="params" />
 <xsl:param name="return" />
-
+<xsl:param name="exceptions"/>
 <!-- Builds the attributes --> 
-public abstract <xsl:value-of select="concat($return/@type , ' ', $methodName/@name)"/>( <xsl:call-template name="params-to-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> ) throws RemoteException ;
+public abstract <xsl:value-of select="concat($return/@type , ' ', $methodName/@name)"/>( <xsl:call-template name="params-to-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> ) throws Exception<xsl:call-template name="exception-list"><xsl:with-param name="exceptions" select="$exceptions"/></xsl:call-template>;
 </xsl:template>
 
 

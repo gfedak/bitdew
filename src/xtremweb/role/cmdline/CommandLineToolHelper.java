@@ -92,15 +92,8 @@ public class CommandLineToolHelper {
     
 
     public static void main(String[] args) {
-	String bahamamama = "{database:{driver:\"org.hsqldb.jdbcDriver\",url:\"jdbc:hsqldb:mem:test\",user:\"sa\",password:\"\",connectionPooling: \"DBCP\"},port: 4325,protocols:[{ protocol : \"ftp\",server:\"ftp.lip6.fr\", port: 21, login: \"anonymous\",passwd: \"anonymous\", path: \"/pub/linux/distributions/slackware/slackware-current\"},{ protocol : \"ftp\",server: \"192.168.55.53\",port: 21, login: \"ftp\", passwd: \"fedak@lri.fr\", path: \"/pub/incoming\"},{ protocol : \"http\", port: 8080, server: \"localhost\",path:\"data\"},{ protocol : \"bittorrent\", path: \"torrents\", port: 6969},{ protocol : \"dummy\"}],transfers : [{ transfer : \"bittorrent\", makeTorrentExec: \"/Users/fedak/shared/projects/bitdew/python/btmakemetafile.py\", azureusjar: \"/Users/fedak/shared/projects/bitdew/lib/azureus.jar\",trackerExec: \"/Users/fedak/shared/projects/bitdew/python/bttrack.py\",trackerOption: \"--dfile dstate\"}]}";
-	String res = CommandLineToolHelper.jsonize(bahamamama);
+	String teststring = "{database:{driver:\"org.hsqldb.jdbcDriver\",url:\"jdbc:hsqldb:mem:test\",user:\"sa\",password:\"\",connectionPooling: \"DBCP\"},port: 4325,protocols:[{ protocol : \"ftp\",server:\"ftp.lip6.fr\", port: 21, login: \"anonymous\",passwd: \"anonymous\", path: \"/pub/linux/distributions/slackware/slackware-current\"},{ protocol : \"ftp\",server: \"192.168.55.53\",port: 21, login: \"ftp\", passwd: \"fedak@lri.fr\", path: \"/pub/incoming\"},{ protocol : \"http\", port: 8080, server: \"localhost\",path:\"data\"},{ protocol : \"bittorrent\", path: \"torrents\", port: 6969},{ protocol : \"dummy\"}],transfers : [{ transfer : \"bittorrent\", makeTorrentExec: \"/Users/fedak/shared/projects/bitdew/python/btmakemetafile.py\", azureusjar: \"/Users/fedak/shared/projects/bitdew/lib/azureus.jar\",trackerExec: \"/Users/fedak/shared/projects/bitdew/python/bttrack.py\",trackerOption: \"--dfile dstate\"}]}";
+	String res = CommandLineToolHelper.jsonize(teststring);
 	System.out.println("resolve " + res);
-	//try {
-	   // JSONObject object = (JSONObject) new JSONParser().parse(res);
-	   // System.out.println("no errors ");
-	//} catch (ParseException e) {
-	    // TODO Auto-generated catch block
-	  //  e.printStackTrace();
-//	}
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<Module name="dt" import="import xtremweb.core.obj.dc.*;import xtremweb.core.obj.dr.*;">
+<Module name="dt" import="import xtremweb.core.obj.dc.*;import xtremweb.core.obj.dr.*;import xtremweb.serv.dt.OOBException;">
 
 <Object name="Transfer">
 <Attribute  name="uid" type="String" desc="Uniq Identifier"/>
@@ -12,6 +12,7 @@
 </Object>
 
 <Method name="registerTransfer">
+<Throws name="OOBException"/>
 <Param name="transfer" type="Transfer" desc="The transfer we want to prepare on the remote site"/>
 <Param name="data" type="Data" desc="The The data we want to Transfer"/>
 <Param name="protocol" type="Protocol" desc="The protocol used"/>

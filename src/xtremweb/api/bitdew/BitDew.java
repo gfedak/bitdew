@@ -20,7 +20,6 @@ import xtremweb.serv.dt.*;
 import xtremweb.serv.dc.ddc.*;
 import xtremweb.api.transman.*;
 import java.io.*;
-import java.rmi.RemoteException;
 import java.util.Vector;
 import xtremweb.core.util.uri.*;
 import xtremweb.dao.DaoFactory;
@@ -169,7 +168,7 @@ public class BitDew {
 	    idc.putData(data);  
 	    return data;
 
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	}
 	throw new BitDewException();
@@ -203,7 +202,7 @@ public class BitDew {
 	    proto.setpath(path);
 	    proto.setclassName(classname);
 	    idr.registerProtocol(proto);
-	} catch (RemoteException e) {
+	} catch (Exception e) {
 	    e.printStackTrace();
 	}
     }
@@ -232,7 +231,7 @@ public class BitDew {
 	    proto.setclassName(classname);
 	    String result = idr.registerProtocol(proto);
 	    return result;
-	} catch (RemoteException e) {
+	} catch (Exception e) {
 	    e.printStackTrace();
 	}
 	return null;
@@ -254,7 +253,7 @@ public class BitDew {
 	    dao.makePersistent(data,true);
 	    idc.putData(data);
 	    return data;
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	} 
 	throw new BitDewException();
@@ -280,7 +279,7 @@ public class BitDew {
 	    dao.makePersistent(data,true);
 	    idc.putData(data);  
 	    return data;
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	} 
 	throw new BitDewException();
@@ -310,7 +309,7 @@ public class BitDew {
 	    dao.makePersistent(data,true);
 	    idc.putData(data);
 	    return data;
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	} 
 	throw new BitDewException();
@@ -334,8 +333,6 @@ public class BitDew {
 	    idc.putData(data);
 	    log.debug("uid = " + DataUtil.toString(data));
 	    return data;
-	} catch (RemoteException re) {
-	    log.debug("Cannot find service " + re);
 	} catch (Exception e) {
 	    log.debug("Error creating data " + e);
 	    e.printStackTrace();
@@ -363,7 +360,7 @@ public class BitDew {
 		  dao.makePersistent(d,true);
 	    idc.putData(d);
 	    return put(d,lo);
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	    throw new BitDewException();
 	} 
@@ -398,7 +395,7 @@ public class BitDew {
 	   
 		 dao.makePersistent(data,true);
 	    idc.putData(data);  
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	    throw new BitDewException();
 	} 
@@ -448,7 +445,7 @@ public class BitDew {
     public Data getDataFromMd5(String md5)throws BitDewException{
     	try{
     		return idc.getDataFromMd5(md5);
-    	}catch(RemoteException re){
+    	}catch(Exception re){
     		log.info("Cannot find service " + re);
     		throw new BitDewException();
     	}
@@ -473,7 +470,7 @@ public class BitDew {
 	    remote_locator.setdrname(((CommTemplate) idr).getHostName());
 	    remote_locator.setref(data.getname());
 	    remote_locator.setpublish(true);
-	} catch (RemoteException e) {
+	} catch (Exception e) {
 	    e.printStackTrace();
 	}
 	return remote_locator;
@@ -492,9 +489,7 @@ public class BitDew {
 	    idc.putLocator(loc);
 	    log.debug(" created locator " + loc.getuid());
 	    return;
-	} catch (RemoteException re) {
-	    log.debug("Cannot find service " + re);
-	} catch (Exception e) {
+	}  catch (Exception e) {
 	    log.debug("Error creating data " + e);
 	}
 	throw new BitDewException();
@@ -509,7 +504,7 @@ public class BitDew {
     public Protocol getProtocolByName(String protocol)throws BitDewException
     {	try {
 	    return idr.getProtocolByName(protocol);
-	} catch (RemoteException e) {
+	} catch (Exception e) {
 	    throw new BitDewException("Problem getting the protocol " + protocol);
 	}
     }
@@ -556,7 +551,7 @@ public class BitDew {
 	    }
 	    remote_proto = idr.getProtocolByName(data.getoob());
 	    log.debug("Remote_proto fetched : " + remote_proto.getuid() + " : " +remote_proto.getname() +"://" + remote_proto.getlogin() + ":" +  remote_proto.getpassword() +  "@" + ((CommTemplate) idr).getHostName() + ":" +  remote_proto.getport() +"/" + remote_proto.getpath() );
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find a oob protocol " + data.getoob() + " " + re);
 	    throw new BitDewException(re.getMessage());
 	} 
@@ -566,7 +561,7 @@ public class BitDew {
 	try {
 	    idc.putLocator(remote_locator);
 	    log.debug("registred new locator");
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot register locator " + re);
 	    throw new BitDewException();
 	}
@@ -639,7 +634,7 @@ public class BitDew {
 	    log.debug("Remote_proto fetched : " + remote_proto.getuid() + " : "+ remote_proto.getname() + "://" + remote_proto.getlogin()
 		    + ":" + remote_proto.getpassword() + "@"
 		    + ((CommTemplate) idr).getHostName() + ":" + remote_proto.getport() + "/" + remote_proto.getpath());
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find a oob protocol " + data.getoob() + " " + re);
 	    re.printStackTrace();
 	    throw new BitDewException(re.getMessage());
@@ -653,7 +648,7 @@ public class BitDew {
 	try {
 	    remote_locator.setref(idr.getRef(data.getuid()));
 	    log.debug("Remote_reference fetched : " + remote_locator.getref());
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find a protocol ftp " + re);
 	    throw new BitDewException();
 	}
@@ -679,7 +674,7 @@ public class BitDew {
 	    remote_locator.setpublish(true);
 	    idc.putLocator(remote_locator);
 	    log.debug("registred new locator");
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot register locator " + re);
 	    throw new BitDewException();
 	}
@@ -739,7 +734,7 @@ public class BitDew {
 	    log.debug("Remote_reference fetched : " + remote_locator.getref()
 		    + " and protocol " + remote_locator.getprotocoluid() + "@"
 		    + remote_locator.getdrname());
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find a locator associated with data "
 		    + data.getuid() + " " + re);
 	    throw new BitDewException();
@@ -753,7 +748,7 @@ public class BitDew {
 	    log.debug("Remote_proto fetched : " + remote_proto.getuid() + " : "+ remote_proto.getname() + "://" + remote_proto.getlogin()+ ":" + remote_proto.getpassword() + "@"
 		    + ((CommTemplate) idr).getHostName() + ":"
 		    + remote_proto.getport() + "/" + remote_proto.getpath());
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find a protocol oob " + re);
 	    throw new BitDewException();
 	}
@@ -787,7 +782,7 @@ public class BitDew {
     public Data searchDataByUid(String dataUid) throws BitDewException {
 	try {
 	    return idc.getData(dataUid);
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("cannot find data : " + dataUid + " in DC\n" + re);
 	}
 	throw new BitDewException();
@@ -804,7 +799,7 @@ public class BitDew {
     public String getDataUidByName(String name) throws BitDewException {
 	try {
 	    return idc.getDataUidByName(name);
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("cannot find data: " + name + " in DC\n" + re);
 	}
 	throw new BitDewException();
@@ -838,7 +833,7 @@ public class BitDew {
     public Attribute getAttributeByName(String name) throws BitDewException {
 	try {
 	    return ids.getAttributeByName(name);
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("cannot find attr: " + name + " in DC\n" + re);
 	}
 	throw new BitDewException();
@@ -857,7 +852,7 @@ public class BitDew {
     public Attribute getAttributeByUid(String uid) throws BitDewException {
 	try {
 	    return ids.getAttributeByUid(uid);
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("cannot find attr: " + uid + " in DC\n" + re);
 	}
 	throw new BitDewException();
@@ -993,11 +988,9 @@ public class BitDew {
 	    }
 	    long t3 = System.currentTimeMillis();
 	    return datacollection;
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
-	} catch (Exception e) {
-	    log.debug("Error creating datacollection " + e);
-	}
+	} 
 	throw new BitDewException();
 
     }
@@ -1073,8 +1066,6 @@ public class BitDew {
 		log.debug("datachunk uid = " + datachunk.getuid());
 	    }
 	    return datacollection;
-	} catch (RemoteException re) {
-	    log.debug("Cannot find service " + re);
 	} catch (Exception e) {
 	    log.debug("Error creating datacollection " + e);
 	}
@@ -1109,7 +1100,7 @@ public class BitDew {
 
 	try {
 	    v = idc.getAllDataInCollection(datacollection.getuid());
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	}
 
@@ -1169,7 +1160,7 @@ public class BitDew {
 
 	try {
 	    v = idc.getAllDataInCollection(datacollection.getuid());
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	}
 
@@ -1214,7 +1205,7 @@ public class BitDew {
 	    throws BitDewException {
 	try {
 	    return idc.getDataCollection(datacollectionUid);
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("cannot find datacollection : " + datacollectionUid
 		    + " in DC\n" + re);
 	}
@@ -1235,7 +1226,7 @@ public class BitDew {
 	    throws BitDewException {
 	try {
 	    return idc.getDataCollectionByName(datacollectionname);
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("cannot find datacollection : " + datacollectionname
 		    + " in DC\n" + re);
 	}
@@ -1272,7 +1263,7 @@ public class BitDew {
 
 	try {
 	    v = idc.getAllDataInCollection(datacollection.getuid());
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	}
 
@@ -1331,7 +1322,7 @@ public class BitDew {
 
 	try {
 	    v = idc.getAllDataInCollection(datacollection.getuid());
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	}
 
@@ -1387,7 +1378,7 @@ public class BitDew {
 
 	try {
 	    v = idc.getAllDataInCollection(datacollection.getuid());
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	}
 
@@ -1484,7 +1475,7 @@ public class BitDew {
 	try {
 	    v = idc.getDataInCollection(datacollection.getuid(), indexbegin,
 		    indexend);
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	}
 
@@ -1555,7 +1546,7 @@ public class BitDew {
 	    v = idc
 		    .getDataInCollection(datacollectionuid, indexbegin,
 			    indexend);
-	} catch (RemoteException re) {
+	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
 	}
 

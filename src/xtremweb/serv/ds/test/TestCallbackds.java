@@ -29,7 +29,7 @@ public class TestCallbackds extends TestCase {
 	att2.setuid("uid2");
 	DaoAttribute dao = (DaoAttribute)DaoFactory.getInstance("xtremweb.dao.attribute.DaoAttribute");
 	
-	try {
+
 	    
 	    Attribute uid1 = ds.registerAttribute(att1);
 	    Attribute uid2 = ds.registerAttribute(att2);
@@ -44,16 +44,6 @@ public class TestCallbackds extends TestCase {
 	    Attribute retr3 = ds.getAttributeByUid(uid1.getuid());
 	    assertNotNull(retr3);
 	    assertEquals(retr3.getlftrel(),uid1.getlftrel());
-	
-	    
-	} catch (RemoteException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
-	
-	
-	
-	
 	
     }
     

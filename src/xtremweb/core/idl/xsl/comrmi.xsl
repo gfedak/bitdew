@@ -47,6 +47,8 @@ public class CommRMI<xsl:value-of select="$moduleName"/> extends CommRMITemplate
         select="./Param" />
       <xsl:with-param name="return"
         select="./Return" />
+      <xsl:with-param name="exceptions"
+        select="./Throws" />
     </xsl:call-template>
   </xsl:for-each>
 }
@@ -60,13 +62,13 @@ public class CommRMI<xsl:value-of select="$moduleName"/> extends CommRMITemplate
 <xsl:param name="methodName" />
 <xsl:param name="params" />
 <xsl:param name="return" />
-
+<xsl:param name="exceptions"/>
 <!-- Builds the attributes --> 
-     public <xsl:value-of select="concat($return/@type , ' ', $methodName/@name)"/>( <xsl:call-template name="params-to-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> ) throws RemoteException  {
+     public <xsl:value-of select="concat($return/@type , ' ', $methodName/@name)"/>( <xsl:call-template name="params-to-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> ) throws RemoteException<xsl:call-template name="exception-list"><xsl:with-param name="exceptions" select="$exceptions"/></xsl:call-template>  {
          <xsl:if test="$return/@type!='void'"><xsl:value-of select="concat($return/@type , ' x;')"/></xsl:if>
          try {
               <xsl:if test="$return/@type!='void'">x = </xsl:if><xsl:value-of select="concat('((Interface', $moduleName, ') rmi ).',$methodName/@name)"/>( <xsl:call-template name="params-to-untyped-list"><xsl:with-param name="params" select="$params"/></xsl:call-template> );
-         } catch (RemoteException e) {
+         } catch (Exception e) {
 		 throw new RemoteException(" " +e);
 	}
          return<xsl:if test="$return/@type!='void'"> x</xsl:if>;

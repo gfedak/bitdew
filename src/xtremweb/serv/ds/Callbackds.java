@@ -48,7 +48,7 @@ public class Callbackds extends CallbackTemplate implements Interfaceds {
      * @exception RemoteException
      *                if anything goes wrong
      */
-    public Attribute registerAttribute(Attribute attr) throws RemoteException {
+    public Attribute registerAttribute(Attribute attr) {
 	
 	dao.makePersistent(attr, true);
 	return attr;
@@ -129,7 +129,7 @@ public class Callbackds extends CallbackTemplate implements Interfaceds {
      * @exception RemoteException
      *                if anything goes wrong (rmi exception)
      */
-    public void associateDataHost(Data data, Host host) throws RemoteException {
+    public void associateDataHost(Data data, Host host){
 	ds.associateDataHost(data, host);
     }
 
@@ -143,8 +143,7 @@ public class Callbackds extends CallbackTemplate implements Interfaceds {
      * @param host
      *            the host to associate
      */
-    public void associateDataAttributeHost(Data data, Attribute attr, Host host)
-	    throws RemoteException {
+    public void associateDataAttributeHost(Data data, Attribute attr, Host host){
 	if (attr.getuid() == null)
 	    attr = registerAttribute(attr);
 	ds.associateDataAttributeHost(data, attr, host);
@@ -158,7 +157,7 @@ public class Callbackds extends CallbackTemplate implements Interfaceds {
      * @exception RemoteException
      *                if anything goes wrong
      */
-    public void removeData(Data data) throws RemoteException {
+    public void removeData(Data data){
 	ds.removeData(data);
     }
 

@@ -167,8 +167,6 @@ public class Callbackdr extends CallbackTemplate implements Interfacedr {
 			registerProtocol(protocol);
 		    }
 		}
-	    } catch (RemoteException re) {
-		log.warn("unable to record standard protocol");
 	    } catch (java.net.UnknownHostException uhe) {
 		log.fatal("There was a problem initializing dr ");
 	    }
@@ -181,7 +179,7 @@ public class Callbackdr extends CallbackTemplate implements Interfacedr {
     /**
      * This method is doing nothing and is a good idea to erase it
      */
-    public String getRef(String datauid) throws RemoteException {
+    public String getRef(String datauid){
 	return datauid;
     }
 
@@ -205,7 +203,7 @@ public class Callbackdr extends CallbackTemplate implements Interfacedr {
      *            protocol name
      * @return the protocol whose name is the parameter
      */
-    public Protocol getProtocolByName(String name) throws RemoteException {
+    public Protocol getProtocolByName(String name){
 	DaoProtocol daoproto = new DaoProtocol();
 	Protocol protoStored = null;
 	try {
@@ -229,7 +227,7 @@ public class Callbackdr extends CallbackTemplate implements Interfacedr {
      *            the protocol uid
      * @return the protocol whose uid is the input parameter
      */
-    public Protocol getProtocolByUID(String uid) throws RemoteException {
+    public Protocol getProtocolByUID(String uid){
 	Protocol t = null;
 	DaoProtocol daop = new DaoProtocol();
 	try {
@@ -256,7 +254,7 @@ public class Callbackdr extends CallbackTemplate implements Interfacedr {
      * @param proto
      * @throws RemoteException
      */
-    public void deleteProtocol(Protocol proto) throws RemoteException {
+    public void deleteProtocol(Protocol proto){
 	/*PersistenceManager pm = DBInterfaceFactory
 		.getPersistenceManagerFactory().getPersistenceManager();
 
@@ -282,7 +280,7 @@ public class Callbackdr extends CallbackTemplate implements Interfacedr {
      * @param uid
      * @throws RemoteException
      */
-    public void deleteProtocol(long uid) throws RemoteException {
+    public void deleteProtocol(long uid){
 	// deleteProtocol(proto.getuid());
     }
 
