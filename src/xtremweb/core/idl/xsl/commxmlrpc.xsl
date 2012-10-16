@@ -29,7 +29,9 @@ package xtremweb.core.com.xmlrpc;
 
 import xtremweb.core.com.idl.*;
 import xtremweb.core.iface.Interface<xsl:value-of select="$moduleName"/>;
+<xsl:if test="count(Module/Object) != 0">
 import xtremweb.core.obj.<xsl:value-of select="Module/@name" />.*;
+</xsl:if>
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 
