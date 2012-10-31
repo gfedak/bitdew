@@ -20,7 +20,6 @@ import xtremweb.core.util.*;
 import xtremweb.core.log.Logger;
 import xtremweb.core.log.LoggerFactory;
 import java.util.*;
-import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.locks.Lock;
@@ -140,9 +139,6 @@ public class TransferManager {
      * <code>registerTransfer</code> adds a tranfer to the TransferManager The
      * transfer is persisted in the database. It will be later read by the main
      * loop
-     * 
-     * @param tuid
-     *            a <code>String</code> value
      * @param oobt
      *            an <code>OOBTransfer</code> value
      */
@@ -181,7 +177,7 @@ public class TransferManager {
     /**
      * Get the numeric status (PENDING,COMPLETE,TRANSFERRING)of a transfer given its uid
      * @param tid
-     * @return
+     * @return a constant representing the status (see TransferStatus interface ).
      */
     public int getTransferStatus(String tid) {
 	try {
@@ -198,6 +194,7 @@ public class TransferManager {
 
     /**
      * <code>start</code> launches periodic TM engine
+     * @param isDaemon, true if the TM is a daemon, false otherwise
      */
     public void start(boolean isDaemon) {
 	log.debug("Starting TM Engine");
@@ -287,8 +284,8 @@ public class TransferManager {
     /**
      * Get a OOBTransfer from a transfer object
      * @param trans the transfer object
-     * @return OOBTransfer
-     * @throws OOBException
+     * @return OOBTransfer the transfer
+     * @throws OOBException if anything goes wrong
      */
     public OOBTransfer getOOBTransfer(Transfer trans) throws OOBException {
 	OOBTransfer oob = null;
@@ -305,9 +302,9 @@ public class TransferManager {
 
     /**
      * <code>checkTransfer</code> scans the database and take decision according
-     * to the status of the trabsfer
+     * to the status of the transfer
      * <ol>
-     * <li>prepare transfert (check for data availability)
+     * <li>prepare transfer(check for data availability)
      * <li>check for finished transfer
      * <li>cleanup transfer
      * </ol>
@@ -552,7 +549,7 @@ public class TransferManager {
     
     /**
      * Self-explanatory
-     * @param cd
+     * @param cd the maximum concurrent downloads
      */
     public void setMaximumConcurrentDownloads(long cd) {
 	maxDownloads = cd;

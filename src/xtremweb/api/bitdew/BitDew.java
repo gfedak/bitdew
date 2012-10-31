@@ -120,8 +120,8 @@ public class BitDew {
     }
     
     /**
-     * Init ddc (if applies)
-     * @param onddc
+     * Contact and initialize a remote distributed data catalog.
+     * @param onddc true if you want to contact a distributed data catalog, false otherwise.
      */
     private void init(boolean onddc) {
 	try {
@@ -144,7 +144,7 @@ public class BitDew {
     
     /**
      * stops ddc
-     * @throws BitDewException
+     * @throws BitDewException if an error occurs while stopping ddc.
      */
     public void ddcStop() throws BitDewException{
 	try {
@@ -155,7 +155,7 @@ public class BitDew {
     }
 
     /**
-     * <code>createData</code> creates Data.
+     * <code>createData</code> creates a Data instance on a remote data catalog.
      * 
      * @return a <code>Data</code> value
      * @exception BitDewException
@@ -176,16 +176,16 @@ public class BitDew {
     
     /**
      * Register a protocol that uses SSH (i.e SCP, SFTP)
-     * @param login
-     * @param name
-     * @param classname
-     * @param server
-     * @param port
-     * @param path
-     * @param knownhosts
-     * @param privatekeypath
-     * @param publickeypath
-     * @param passphrase
+     * @param login your login
+     * @param name protocol name
+     * @param classname the classname of the implemented class ex. xtremweb.serv.dt.http.HttpTransfer.
+     * @param server the server's hostname where you want to contact this protocol.
+     * @param port the port where server is listening.
+     * @param path the path to a folder where you want to put or get data.
+     * @param knownhosts the path to your known_hosts file (normally beneath .ssh).
+     * @param privatekeypath the path to your private key (normally beneath .ssh).
+     * @param publickeypath the path to your public key (normally beneath .ssh).
+     * @param passphrase the passphrase (if applies) to your private key.
      */
     public void registerSecuredProtocol (String login,String name, String classname,String server, int port,String path, String knownhosts,String privatekeypath,String publickeypath,String passphrase)
     {	try {
@@ -209,13 +209,12 @@ public class BitDew {
     
     /**
      * Registers a protocol not based on SSH
-     * @param name
-     * @param classname
-     * @param server
-     * @param port
-     * @param path
-     * @param login
-     * @param passwd
+     * @param classname the classname of the implemented class ex. xtremweb.serv.dt.http.HttpTransfer.
+     * @param server the server's hostname where you want to contact this protocol.
+     * @param port the port where server is listening.
+     * @param path the path to a folder where you want to put or get data.
+     * @param login your user login
+     * @param passwd your password to this server
      * @return
      */
     public String registerNonSecuredProtocol(String name,String classname, String server, int port,
@@ -238,7 +237,7 @@ public class BitDew {
     }
 
     /**
-     * <code>createData</code> creates Data with its name set as specified .
+     * <code>createData</code> creates Data from a specified name
      *
      * @param name a <code>String</code> value
      * @return a <code>Data</code> value
@@ -260,13 +259,13 @@ public class BitDew {
     }
     
     /**
-     * Create a data from its attributes
-     * @param name
-     * @param protocol
-     * @param size
-     * @param checksum
-     * @return the created data
-     * @throws BitDewException
+     * Create a data from its attributes in both the local cache and the data catalog.
+     * @param name data name.
+     * @param protocol used to transport this data.
+     * @param size data size.
+     * @param checksum of associated file.
+     * @return the created data.
+     * @throws BitDewException if anything goes wrong
      */
     public Data createData(String name,String protocol,long size, String checksum)throws BitDewException
     {	try {
@@ -298,7 +297,6 @@ public class BitDew {
      * @exception BitDewException
      *                if an error occurs
      */
-    //TODO size is originally declared as long and here is int
     public Data createData(String name, String protocol, int size)  throws BitDewException {
 	try {
 	    Data data = new Data();
@@ -336,8 +334,9 @@ public class BitDew {
 	} catch (Exception e) {
 	    log.debug("Error creating data " + e);
 	    e.printStackTrace();
+	    throw new BitDewException(e.getMessage());
 	}
-	throw new BitDewException();
+	
     }
 
 
@@ -348,9 +347,7 @@ public class BitDew {
      * @param lo the locator
      * @return OOBTransfer the transfer to get this data
      * @throws BitDewException if a problem occurs
-     * @throws ClassNotFoundException 
-     * @throws IllegalAccessException 
-     * @throws InstantiationException 
+     * @return the associated OOBTransfer
      */
     public OOBTransfer associateDataLocator(Data d,Locator lo) throws BitDewException
     {
@@ -362,7 +359,7 @@ public class BitDew {
 	    return put(d,lo);
 	} catch (Exception re) {
 	    log.debug("Cannot find service " + re);
-	    throw new BitDewException();
+	    throw new BitDewException(re.getMessage());
 	} 
     }
     /**
@@ -438,7 +435,7 @@ public class BitDew {
     
     /**
      * Given a md5 file signature, this method retrieves the data having that signature
-     * @param md5
+     * @param md5 the file md5
      * @return the data having the md5 signature
      * @throws BitDewException
      */
@@ -519,6 +516,7 @@ public class BitDew {
      *            a <code>Locator</code> value
      * @exception BitDewException
      *                if an error occurs
+     * @return an OOBTransfer handle to pass to TransferManager to begin the transfer
      */
     public OOBTransfer put(Data data, Locator remote_locator)
 	    throws BitDewException {
@@ -590,6 +588,7 @@ public class BitDew {
      *            data
      * @exception BitDewException
      *                if an error occurs
+     * @return an OOBTransfer handle to pass to TransferManager
      */
 
     public OOBTransfer put(File file, Data data, String oob) throws BitDewException {
@@ -606,6 +605,7 @@ public class BitDew {
      *            a <code>Data</code> value
      * @exception BitDewException
      *                if an error occurs
+     * @return an OOBTransfer handle to pass to TransferManager
      */
     public OOBTransfer put(File file, Data data) throws BitDewException {
 	// No local protocol
@@ -698,6 +698,8 @@ public class BitDew {
      *            a <code>File</code> value
      * @exception BitDewException
      *                if an error occurs
+     * @return an OOBTransfer handle, this handle needs to be passed to Transfer Manager's registerTransfer method
+     * to begin the transfer.
      */
     public OOBTransfer get(Data data, File file) throws BitDewException {
 	OOBTransfer oobTransfer=null;
@@ -792,7 +794,7 @@ public class BitDew {
      *  <code>ddcSearch</code> searches data in the distributed data catalog.
      *
      * @param data a <code>Data</code> value
-     * @return a <code>String</code> value
+     * @return a <code>String</code> value, the data uid
      * @exception BitDewException
      *                if an error occurs
      */
@@ -807,13 +809,13 @@ public class BitDew {
     }
 
     /**
-     * <code>getDataByName</code> returns the Data according to the name
+     * <code>getDataByName</code> returns the Data according to the name.
      * 
      * @param name
-     *            a <code>String</code> value
-     * @return a <code>Data</code> value
+     *            a <code>String</code> value.
+     * @return a <code>Data</code> whose name is the name parameter.
      * @exception BitDewException
-     *                if an error occurs
+     *                if an error occurs.
      */
     public Data getDataByName(String name) throws BitDewException {
 	String uid = getDataUidByName(name);
@@ -822,13 +824,13 @@ public class BitDew {
 
     /**
      * <code>getAttributeByName</code> returns the Attribute according to the
-     * name
+     * name.
      * 
      * @param name
-     *            a <code>String</code> value
-     * @return an <code>Attribute</code> value
+     *            a <code>String</code> value.
+     * @return an <code>Attribute</code> value, whose name is the same as in parameter
      * @exception BitDewException
-     *                if an error occurs
+     *                if an error occurs.
      */
     public Attribute getAttributeByName(String name) throws BitDewException {
 	try {
@@ -845,7 +847,7 @@ public class BitDew {
      * 
      * @param uid
      *            a <code>String</code> value
-     * @return an <code>Attribute</code> value
+     * @return an <code>Attribute</code> value whose id is the same as in parameter
      * @exception BitDewException
      *                if an error occurs
      */
@@ -862,42 +864,18 @@ public class BitDew {
     /**
      * <code>ddcSearch</code> searches data in the distributed data catalog.
      * 
-     * @param data
-     *            a <code>Data</code> value
-     * @return a <code>String</code> value
+     * @param key, the key to search
+     * @return a <code>List</code> of values matching the key
      * @exception BitDewException
      *                if an error occurs
      */
-    public List ddcSearch(String data) throws BitDewException {
+    public List ddcSearch(String key) throws BitDewException {
 	try {
-	   return ddc.search(data);
+	   return ddc.search(key);
 	}catch (DDCException ddce) {
 	    log.info("Error in ddcSearch " + ddce.getMessage());
 	    ddce.printStackTrace();
-	    log.info("cannot ddc find data : " + data + "\n" + ddce);
-	}
-	throw new BitDewException();
-    }
-
-    /**
-     * <code>ddcPublish</code> publishes data and host in the distributed data
-     * catalog.
-     * 
-     * @param data
-     *            a <code>Data</code> value
-     * @param hostid
-     *            a <code>String</code> value
-     * @exception BitDewException
-     *                if an error occurs
-     */
-    public void ddcPublish(Data data, String hostid) throws BitDewException {
-	try {
-	    if (ddc != null)
-		ddc.publish(data.getuid(), hostid);
-	    return;
-	} catch (DDCException ddce) {
-	    log.debug("cannot ddc publish [data|hostid] : [" + data.getuid()
-		    + "|" + hostid + "]" + "\n" + ddce);
+	    log.info("cannot ddc find data : " + key + "\n" + ddce);
 	}
 	throw new BitDewException();
     }

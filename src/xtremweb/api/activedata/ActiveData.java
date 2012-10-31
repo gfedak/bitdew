@@ -88,7 +88,7 @@ public class ActiveData {
     /**
      * Workaround performed by Bing Tang
      */
-    public boolean closedel = false; // default, with data deletion
+    private boolean closedel = false; // default, with data deletion
 
     /**
      * Creates a new <code>ActiveData</code> instance.
@@ -117,21 +117,9 @@ public class ActiveData {
 	}
 	init();
     }
-
-    // FIXME BING
-    /**
-     * add a flag b, to create an ActiveData with data deletion function or
-     * without
-     */
-    public ActiveData(Vector comms, boolean b) {
-
-	this(comms);
-	dao = (DaoData) DaoFactory.getInstance("xtremweb.dao.data.DaoData");
-	closedel = b;
-    }
     
     /**
-     * Initialize 
+     * Initialize  callbacks and attributes fields.
      */
     public void init() {
 	callbacks = new Vector<ActiveDataCallback>();
@@ -140,7 +128,7 @@ public class ActiveData {
     
     /**
      * Is heartbeating active ?
-     * @return
+     * @return true if is active, otherwise false
      */
     public boolean isActive() {
 	return isActive;
@@ -183,15 +171,15 @@ public class ActiveData {
     /**
      * Main scheduling task :
      * 
-     * DELETION
+     * DELETION <br>
      * 
-     * 1. Extract all Data from the local cache.
-     * 2. Call ds sync function , this function returns data that must be persisted on worker.
-     * 3. The complement of Data returned in 2 is computed and must be deleted from worker Cache.
-     * 4. Mark computed elements on 3 as TO_DELETE and execute the handler onDataDeleted
+     * 1. Extract all Data from the local cache.<br>
+     * 2. Call ds sync function , this function returns data that must be persisted on worker.<br>
+     * 3. The complement of Data returned in 2 is computed and must be deleted from worker Cache.<br>
+     * 4. Mark computed elements on 3 as TO_DELETE and execute the handler onDataDeleted<br>
      * 
-     * 5.for each data that the scheduler returns; check if it is new or is already present. If is new Data call onDataScheduledHandler, else
-     * do nothing
+     * 5.for each data that the scheduler returns; check if it is new or is already present. If is new Data call onDataScheduledHandler, else<br>
+     * do nothing<br>
      * 
      * 
      */
@@ -311,17 +299,17 @@ public class ActiveData {
     
     /**
      * Register a callback
-     * @param callback
+     * @param callback the callback to register
      */
     public void registerActiveDataCallback(ActiveDataCallback callback) {
 	callbacks.add(callback);
     }
     
     /**
-     * Set the data oob to the one on attribute
-     * @param data
-     * @param attr
-     * @throws ActiveDataException
+     * Set data's oob to attribute's oob
+     * @param data the data to set oob
+     * @param attr the attribute
+     * @throws ActiveDataException if a remote exception or another problem occurs
      */
     private void fixoob(Data data, Attribute attr) throws ActiveDataException {
 	try {
@@ -339,8 +327,8 @@ public class ActiveData {
     
     /**
      * Schedule a data with some attributes
-     * @param data
-     * @param attr
+     * @param data the data to schedule
+     * @param attr the attribute to schedule with data
      * @throws ActiveDataException
      */
     public void schedule(Data data, Attribute attr) throws ActiveDataException {
@@ -358,11 +346,11 @@ public class ActiveData {
     }
     
     /**
-     * This method signals to the Data Scheduler that the Data exists but only the method caller will want to have it.
-     * @param data
-     * @param attr
-     * @param host
-     * @throws ActiveDataException
+     * This method signals to the Data Scheduler that the Data exists but only the host calling this method want to have it.
+     * @param data the data to pin.
+     * @param attr the attribute with tag list you want the data to be scheduled.
+     * @param host the host.
+     * @throws ActiveDataException if a remote exception or any other problem occurs.
      */
     public void scheduleAndPin(Data data, Attribute attr, Host host)
 	    throws ActiveDataException {
@@ -382,8 +370,8 @@ public class ActiveData {
     
     /**
      * Remove data from scheduling
-     * @param data
-     * @throws ActiveDataException
+     * @param data the data to be removed
+     * @throws ActiveDataException if any problem occurs
      */
     public void unschedule(Data data) throws ActiveDataException {
 	try {
@@ -396,9 +384,9 @@ public class ActiveData {
     
     /**
      * Only associates a Data with a Host
-     * @param data
-     * @param host
-     * @throws ActiveDataException
+     * @param data the data
+     * @param host the host
+     * @throws ActiveDataException if an internal problem occurs
      */
     public void pin(Data data, Host host) throws ActiveDataException {
 	try {
@@ -427,7 +415,9 @@ public class ActiveData {
     }
     
     /**
-     * Self-explained
+     * Create attribute in the local client cache
+     * @attr def the attribute definition, example {ft: true, replicat: 3}
+     * @return the attribute created on local client cache
      */
     public Attribute createAttribute(String def) throws ActiveDataException {
 	Attribute attr = AttributeUtil.parseAttribute(def);
@@ -436,7 +426,8 @@ public class ActiveData {
     }
     
     /**
-     * Self-explained
+     * Register attribute in the remote data scheduler service
+     * @return the attribute registered
      */
     public Attribute registerAttribute(Attribute attr)
 	    throws ActiveDataException {
@@ -458,10 +449,10 @@ public class ActiveData {
     
     /**
      * Schedules a whole collection of data with an Attributes list
-     * @param datacollection
-     * @param attr
-     * @param oob
-     * @throws ActiveDataException
+     * @param datacollection the collection to schedule
+     * @param attr the attribute defining the properties to schedule the whole list
+     * @param oob the protocol
+     * @throws ActiveDataException if an internal problem appears
      */
     public void schedule(DataCollection datacollection, Attribute attr,
 	    String oob) throws ActiveDataException {
@@ -490,7 +481,11 @@ public class ActiveData {
 		dao.transactionRollback();
 	}
     }
-
+    
+    /**
+     * Get the host
+     * @return this host
+     */
     public Host getHost() {
 	return host;
     }
