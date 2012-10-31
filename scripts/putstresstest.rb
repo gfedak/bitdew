@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require "rubygems"
 require 'net/ssh'
-version = "1.1.1"
+version = "1.1.2"
 
 # 
 # 
@@ -20,13 +20,13 @@ version = "1.1.1"
 # with the same size than ARGV[1].
 # Please not that the total number of files that will appear is (number_of_nodes - 2)*number_of_threads_per_core
 
-TIMEOUT=120
+TIMEOUT=210
 BASE_FOLDER = "/home/jsaray/"
-REMOTE_FOLDER = "/home/jsaray/"
+REMOTE_FOLDER = "/tmp/"
 PROPERTIES_FILE = "stresstest.json"
 
 if ARGV[0].eql? "--help" then
-   puts "Usage : ruby stresstest.rb <number_of_threads_per_core> <file_name_to_get>"
+   puts "Usage : ruby putstress.rb <number_of_threads_per_core> <file_name_to_get>"
    exit(0)
 end
 
@@ -37,13 +37,13 @@ end
 
 puts "Erasing all"
 
-IO.popen("taktuk -d-1 -f nodelist broadcast exec { 'rm -rf *' }")do |f|
+IO.popen("taktuk -d-1 -f nodelist broadcast exec { 'rm -rf " + REMOTE_FOLDER + "*' }")do |f|
    f.readlines
 end
 
 puts "Sending bitdew jar file"
 
-IO.popen("taktuk -d-1 -f nodelist broadcast put { "+BASE_FOLDER+"bitdew-stand-alone-"+version+".jar } { "+BASE_FOLDER+"bitdew-stand-alone-"+version+".jar }")do |f|
+IO.popen("taktuk -d-1 -f nodelist broadcast put { "+BASE_FOLDER+"bitdew-stand-alone-"+version+".jar } { "+REMOTE_FOLDER+"bitdew-stand-alone-"+version+".jar }")do |f|
  f.readlines
 end
 
@@ -61,7 +61,7 @@ puts "Send the file to put"
 
 number_of_threads = ARGV[0]
 fileputgetname = ARGV[1]
-IO.popen("taktuk -d-1 -f nodelist broadcast put { /home/jsaray/" + fileputgetname + " } { /home/jsaray/" + fileputgetname + " }") do |f|
+IO.popen("taktuk -d-1 -f nodelist broadcast put { "+BASE_FOLDER+ fileputgetname + " } { " + REMOTE_FOLDER + fileputgetname + " }") do |f|
         f.readlines
 end
 i = 0
@@ -76,7 +76,7 @@ stable_node = services
 uid = ""
 
 Net::SSH.start(services,"jsaray") do |ssh|
-    ssh.exec "nohup java -jar bitdew-stand-alone-" + version + ".jar --verbose --file "+PROPERTIES_FILE+" serv dc dt dr ds > servout 2> serverr & "
+    ssh.exec "cd /tmp;nohup java -jar " + REMOTE_FOLDER + "bitdew-stand-alone-" + version + ".jar --verbose --file "+REMOTE_FOLDER+PROPERTIES_FILE+" serv dc dt dr ds > servout 2> serverr & "
 end
 sleep(120)
 
@@ -91,7 +91,7 @@ machines.each{|machine|
       index_thread = 0
       while index_thread < number_of_threads.to_i do
           Net::SSH.start(machine,"jsaray") do |ssh|
-            ssh.exec "nohup java -cp bitdew-stand-alone-"+version+".jar xtremweb.role.integration.TestPutMultiple " + stable_node + " "+ fileputgetname + " > out"+index_thread.to_s + " 2> err"+index_thread.to_s+" &"
+            ssh.exec "nohup java -cp "+REMOTE_FOLDER+"bitdew-stand-alone-"+version+".jar xtremweb.role.integration.TestPutMultiple " + stable_node + " "+ REMOTE_FOLDER + fileputgetname + " > out"+index_thread.to_s + " 2> err"+index_thread.to_s+" &"
           end
           index_thread = index_thread + 1    
       end  
@@ -105,11 +105,17 @@ sleep(TIMEOUT.to_i)
 puts "after join"
 total = 0
 numberof =""
-
+md5sun = ""
 Net::SSH.start(services,"jsaray") do |ssh|
       
-      numberof = ssh.exec!("ls -al | wc -l")
-      puts "number of is " + numberof.to_s
+      numberof = ssh.exec!("ls -al "+REMOTE_FOLDER+"/????????-????-????-????-???????????? | wc -l")
+
       
 end
-   
+
+Net::SSH.start(services ,"jsaray") do |ssh|
+   md5sun = ssh.exec!("md5sum "+ REMOTE_FOLDER + "/????????-????-????-????-????????????")
+   puts "The md5sum of all files is " + md5sun 
+end   
+
+puts "number of is " + numberof.to_s
