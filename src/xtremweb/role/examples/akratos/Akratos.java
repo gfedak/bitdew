@@ -489,6 +489,11 @@ public class Akratos {
 	    // for each data name in the hash
 	    transferManager.start();
 	    for (int i = 0; i < uniqaes.size(); i++) {
+	    	Interfacedr dr = (Interfacedr) ComWorld.getComm(InetAddress.getLocalHost().getHostAddress(), "rmi", 4325, "dr");
+		    Interfaceds ds = (Interfaceds) ComWorld.getComm(bootstrap, "rmi", 4325, "ds");
+		    Interfacedt dt = (Interfacedt)  ComWorld.getComm(InetAddress.getLocalHost().getHostAddress(), "rmi", 4325, "dt");
+		    Interfacedc dc = (Interfacedc) ComWorld.getComm(bootstrap, "rmi", 4325, "dc");
+		    bitdew = new BitDew(dc, dr,  ds, true);
 		System.out.println("entro al ciclo");
 		Data pre_aes_key = (Data) uniqaes.get(i);
 		System.out.println("data before is " + pre_aes_key + " data attrid " + pre_aes_key.getattruid());
@@ -507,9 +512,9 @@ public class Akratos {
 		    try{
 		    ip = ips.get(0);
 		    System.out.println("ip to connect with " + ip);
-		    Interfacedc dc = (Interfacedc) ComWorld.getComm(ip, "rmi", 4325, "dc");
-		    Interfacedr dr = (Interfacedr) ComWorld.getComm(ip, "rmi", 4325, "dr");
-		    Interfaceds ds = (Interfaceds) ComWorld.getComm(ip, "rmi", 4325, "ds");
+		    dc = (Interfacedc) ComWorld.getComm(ip, "rmi", 4325, "dc");
+		    dr = (Interfacedr) ComWorld.getComm(ip, "rmi", 4325, "dr");
+		    ds = (Interfaceds) ComWorld.getComm(ip, "rmi", 4325, "ds");
 
 		    bitdew = new BitDew(dc, dr, ds);
 
@@ -569,6 +574,8 @@ public class Akratos {
 	} catch (BadPaddingException e) {
 	    e.printStackTrace();
 	} catch (IOException e) {
+	    e.printStackTrace();
+	}catch (ModuleLoaderException e) {
 	    e.printStackTrace();
 	}
     }
